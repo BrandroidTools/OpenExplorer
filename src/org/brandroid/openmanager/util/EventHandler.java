@@ -78,16 +78,13 @@ public class EventHandler {
 	public static final EventType TOUCH_TYPE = EventType.TOUCH;
 	public static final EventType ERROR_TYPE = EventType.ERROR;
 	public static final int BACKGROUND_NOTIFICATION_ID = 123;
-	
+
 	public enum EventType {
-		SEARCH,
-		COPY, CUT,
-		DELETE, RENAME, MKDIR, TOUCH,
-		UNZIP, UNZIPTO, ZIP,
-		ERROR
+		SEARCH, COPY, CUT, DELETE, RENAME, MKDIR, TOUCH, UNZIP, UNZIPTO, ZIP, ERROR
 	}
-	
-	public static boolean SHOW_NOTIFICATION_STATUS = !OpenExplorer.isBlackBerry() && Build.VERSION.SDK_INT > 9;
+
+	public static boolean SHOW_NOTIFICATION_STATUS = !OpenExplorer
+			.isBlackBerry() && Build.VERSION.SDK_INT > 9;
 
 	private static NotificationManager mNotifier = null;
 	private static int EventCount = 0;
@@ -124,20 +121,27 @@ public class EventHandler {
 		if (mNotifier != null)
 			mNotifier.cancel(BACKGROUND_NOTIFICATION_ID);
 	}
-	
-	public void setTaskChangeListener(TaskChangeListener l) { mTaskListener = l; }
+
+	public void setTaskChangeListener(TaskChangeListener l) {
+		mTaskListener = l;
+	}
 
 	public interface TaskChangeListener {
 		public void OnTasksChanged(int taskCount);
 	}
+
 	public interface OnWorkerUpdateListener {
 		public void onWorkerThreadComplete(EventType type, String... results);
+
 		public void onWorkerProgressUpdate(int pos, int total);
-		
+
 		/**
 		 * Occurs when an error occurs during Event
-		 * @param type Type of requested event.
-		 * @param files List of OpenPath items.
+		 * 
+		 * @param type
+		 *            Type of requested event.
+		 * @param files
+		 *            List of OpenPath items.
 		 */
 		public void onWorkerThreadFailure(EventType type, OpenPath... files);
 	}
@@ -154,16 +158,17 @@ public class EventHandler {
 			return;
 		mThreadListener.onWorkerThreadComplete(type, results);
 		mThreadListener = null;
-		if(mTaskListener != null)
+		if (mTaskListener != null)
 			mTaskListener.OnTasksChanged(getTaskList().size());
 	}
-	
-	private synchronized void OnWorkerThreadFailure(EventType type, OpenPath... files)
-	{
-		if(mThreadListener == null) return;
+
+	private synchronized void OnWorkerThreadFailure(EventType type,
+			OpenPath... files) {
+		if (mThreadListener == null)
+			return;
 		mThreadListener.onWorkerThreadFailure(type, files);
 		mThreadListener = null;
-		if(mTaskListener != null)
+		if (mTaskListener != null)
 			mTaskListener.OnTasksChanged(getTaskList().size());
 	}
 
@@ -263,8 +268,9 @@ public class EventHandler {
 		dRename.setPositiveButton(android.R.string.ok,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
-						String newName = dRename.getInputText().toString(); 
-						BackgroundWork work = new BackgroundWork(RENAME_TYPE, mContext, path, newName);
+						String newName = dRename.getInputText().toString();
+						BackgroundWork work = new BackgroundWork(RENAME_TYPE,
+								mContext, path, newName);
 						if (newName.length() > 0) {
 							work.execute();
 						} else
@@ -285,7 +291,8 @@ public class EventHandler {
 	 * @param directory
 	 *            directory path to create the new folder in.
 	 */
-	public static void createNewFolder(final OpenPath folder, final Context context) {
+	public static void createNewFolder(final OpenPath folder,
+			final Context context) {
 		final InputDialog dlg = new InputDialog(context)
 				.setTitle(R.string.s_title_newfolder)
 				.setIcon(R.drawable.ic_menu_folder_add_dark)
@@ -301,7 +308,21 @@ public class EventHandler {
 			public void onClick(DialogInterface dialog, int which) {
 				String name = dlg.getInputText();
 				if (name.length() > 0) {
-					createNewFolder(folder.getChild(name), context);
+					if (!folder.getChild(name).exists()) {
+						if (!createNewFolder(folder, name, context)) {
+							// new folder wasn't created, and since we've
+							// already ruled out an existing folder, the folder
+							// can't be created for another reason
+							
+						}
+					} else {
+						// folder exists, so let the user know
+						Toast.makeText(
+								context,
+								getResourceString(context,
+										R.string.s_msg_folder_exists),
+								Toast.LENGTH_SHORT).show();
+					}
 				} else {
 					dialog.dismiss();
 				}
@@ -310,19 +331,24 @@ public class EventHandler {
 		dlg.create().show();
 	}
 
-	public static void createNewFile(final OpenPath folder, final Context context) {
+	protected static boolean createNewFolder(OpenPath folder,
+			String folderName, Context context) {
+		return folder.getChild(folderName).mkdir();
+	}
+
+	public static void createNewFile(final OpenPath folder,
+			final Context context) {
 		final InputDialog dlg = new InputDialog(context)
-		.setTitle(R.string.s_title_newfile)
-		.setIcon(R.drawable.ic_menu_new_file)
-		.setMessage(R.string.s_alert_newfile)
-		.setMessageTop(R.string.s_alert_newfile_folder)
-		.setDefaultTop(folder.getPath())
-		.setCancelable(true)
-		.setNegativeButton(R.string.s_cancel, new OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-		});
+				.setTitle(R.string.s_title_newfile)
+				.setIcon(R.drawable.ic_menu_new_file)
+				.setMessage(R.string.s_alert_newfile)
+				.setMessageTop(R.string.s_alert_newfile_folder)
+				.setDefaultTop(folder.getPath()).setCancelable(true)
+				.setNegativeButton(R.string.s_cancel, new OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
 		dlg.setPositiveButton(R.string.s_create, new OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				String name = dlg.getInputText();
@@ -335,13 +361,17 @@ public class EventHandler {
 		});
 		dlg.create().show();
 	}
-	public static void createNewFile(final OpenPath folder, final String filename, Context context)
-	{
-		new Thread(new Runnable(){public void run(){
-			folder.getChild(filename).touch();
-		}}).start();
-		//BackgroundWork bw = new BackgroundWork(TOUCH_TYPE, context, folder, filename);
-		//bw.execute();
+
+	public static void createNewFile(final OpenPath folder,
+			final String filename, Context context) {
+		new Thread(new Runnable() {
+			public void run() {
+				folder.getChild(filename).touch();
+			}
+		}).start();
+		// BackgroundWork bw = new BackgroundWork(TOUCH_TYPE, context, folder,
+		// filename);
+		// bw.execute();
 	}
 
 	public void sendFile(final List<OpenPath> path, final Context mContext) {
@@ -472,10 +502,10 @@ public class EventHandler {
 	}
 
 	/*
-	public void unZipFileTo(OpenPath zipFile, OpenPath toDir, Context mContext) {
-		new BackgroundWork(UNZIPTO_TYPE, mContext, toDir).execute(zipFile);
-	}
-	*/
+	 * public void unZipFileTo(OpenPath zipFile, OpenPath toDir, Context
+	 * mContext) { new BackgroundWork(UNZIPTO_TYPE, mContext,
+	 * toDir).execute(zipFile); }
+	 */
 
 	/**
 	 * Do work on second thread class
@@ -519,8 +549,8 @@ public class EventHandler {
 			EventHandler.this.OnWorkerProgressUpdate(pos, total);
 		}
 
-		public BackgroundWork(EventType type, Context context, OpenPath intoPath,
-				String... params) {
+		public BackgroundWork(EventType type, Context context,
+				OpenPath intoPath, String... params) {
 			mType = type;
 			mContext = context;
 			mInitParams = params;
@@ -532,7 +562,7 @@ public class EventHandler {
 			mTasks.add(this);
 			mStart = new Date();
 			mNotifyId = BACKGROUND_NOTIFICATION_ID + EventCount++;
-			if(mTaskListener != null)
+			if (mTaskListener != null)
 				mTaskListener.OnTasksChanged(getRunningTasks().length);
 		}
 
@@ -566,10 +596,12 @@ public class EventHandler {
 						.toString();
 				break;
 			case MKDIR:
-				title = getResourceString(mContext, R.string.s_menu_rename).toString();
+				title = getResourceString(mContext, R.string.s_menu_rename)
+						.toString();
 				break;
 			case TOUCH:
-				title = getResourceString(mContext, R.string.s_create).toString();
+				title = getResourceString(mContext, R.string.s_create)
+						.toString();
 				break;
 			}
 			title += " " + '\u2192' + " " + mIntoPath;
@@ -585,11 +617,11 @@ public class EventHandler {
 		}
 
 		public String getLastRate() {
-			if(getStatus() == Status.FINISHED)
+			if (getStatus() == Status.FINISHED)
 				return getResourceString(mContext, R.string.s_complete);
 			else if (getStatus() == Status.PENDING)
 				return getResourceString(mContext, R.string.s_pending);
-			if(isCancelled())
+			if (isCancelled())
 				return getResourceString(mContext, R.string.s_cancelled);
 			if (mRemain > 0) {
 				Integer min = (int) (mRemain / 60);
@@ -686,8 +718,7 @@ public class EventHandler {
 						System.currentTimeMillis());
 				if (showProgress) {
 					PendingIntent pendingCancel = PendingIntent.getActivity(
-							mContext, OpenExplorer.REQUEST_VIEW, intent,
-							0);
+							mContext, OpenExplorer.REQUEST_VIEW, intent, 0);
 					RemoteViews noteView = new RemoteViews(
 							mContext.getPackageName(), R.layout.notification);
 					if (isCancellable)
@@ -700,11 +731,13 @@ public class EventHandler {
 							R.drawable.icon);
 					noteView.setTextViewText(android.R.id.title, getTitle());
 					noteView.setTextViewText(android.R.id.text2, getSubtitle());
-					noteView.setViewVisibility(android.R.id.closeButton, View.GONE);
-					if(SHOW_NOTIFICATION_STATUS)
-					{
-						noteView.setTextViewText(android.R.id.text1, getLastRate());
-						noteView.setProgressBar(android.R.id.progress, 100, 0, true);
+					noteView.setViewVisibility(android.R.id.closeButton,
+							View.GONE);
+					if (SHOW_NOTIFICATION_STATUS) {
+						noteView.setTextViewText(android.R.id.text1,
+								getLastRate());
+						noteView.setProgressBar(android.R.id.progress, 100, 0,
+								true);
 					}
 					// noteView.setViewVisibility(R.id.title_search, View.GONE);
 					// noteView.setViewVisibility(R.id.title_path, View.GONE);
@@ -759,15 +792,15 @@ public class EventHandler {
 				searchDirectory(mIntoPath, mInitParams[0], mSearchResults);
 				break;
 			case RENAME:
-				ret += FileManager.renameTarget(mIntoPath.getPath(), mInitParams[0]) ?
-						1 : 0;
+				ret += FileManager.renameTarget(mIntoPath.getPath(),
+						mInitParams[0]) ? 1 : 0;
 				break;
 			case MKDIR:
-				for(OpenPath p : params)
+				for (OpenPath p : params)
 					ret += p.mkdir() ? 1 : 0;
 				break;
 			case TOUCH:
-				for(OpenPath p : params)
+				for (OpenPath p : params)
 					ret += p.touch() ? 1 : 0;
 				break;
 			case COPY:
@@ -826,7 +859,8 @@ public class EventHandler {
 			Logger.LogVerbose("Using Channel copy");
 			if (into.isDirectory() || !into.exists())
 				into = into.getChild(source.getName());
-			if(source.getPath().equals(into.getPath())) return false;
+			if (source.getPath().equals(into.getPath()))
+				return false;
 			final OpenFile dest = (OpenFile) into;
 			final boolean[] running = new boolean[] { true };
 			final long size = source.length();
@@ -834,7 +868,7 @@ public class EventHandler {
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						while ((int)dest.length() < total || running[0]) {
+						while ((int) dest.length() < total || running[0]) {
 							long pos = dest.length();
 							publish((int) pos, (int) size, total);
 							try {
@@ -876,11 +910,11 @@ public class EventHandler {
 				}
 			}
 			OpenPath newDir = intoDir;
-			if(intoDir instanceof OpenSmartFolder)
-			{
-				newDir = ((OpenSmartFolder)intoDir).getFirstDir();
-				if(old instanceof OpenFile && newDir instanceof OpenFile)
-					return copyFileToDirectory((OpenFile)old, (OpenFile)newDir, total);
+			if (intoDir instanceof OpenSmartFolder) {
+				newDir = ((OpenSmartFolder) intoDir).getFirstDir();
+				if (old instanceof OpenFile && newDir instanceof OpenFile)
+					return copyFileToDirectory((OpenFile) old,
+							(OpenFile) newDir, total);
 			}
 			Logger.LogDebug("Trying to copy [" + old.getPath() + "] to ["
 					+ intoDir.getPath() + "]...");
@@ -900,11 +934,12 @@ public class EventHandler {
 				OpenPath[] files = old.list();
 
 				for (OpenPath file : files)
-					if(file != null)
+					if (file != null)
 						total += (int) file.length();
 
 				for (int i = 0; i < files.length; i++)
-					if(files[i] != null && !copyToDirectory(files[i], newDir, total)) {
+					if (files[i] != null
+							&& !copyToDirectory(files[i], newDir, total)) {
 						Logger.LogWarning("Couldn't copy " + files[i].getName()
 								+ ".");
 						return false;
@@ -1014,7 +1049,7 @@ public class EventHandler {
 
 		public void publish(int current, int size, int total) {
 			publishProgress(current, size, total);
-			//OnWorkerProgressUpdate(current, total);
+			// OnWorkerProgressUpdate(current, total);
 		}
 
 		private long lastPublish = 0l;
@@ -1067,8 +1102,8 @@ public class EventHandler {
 					mRemain = Utils.getAverage(mRemain, (long) (size - current)
 							/ mLastRate);
 			}
-			
-			//publish(current, size, total);
+
+			// publish(current, size, total);
 			OnWorkerProgressUpdate(current, total);
 
 			// Logger.LogInfo("onProgressUpdate(" + current + ", " + size + ", "
@@ -1091,27 +1126,28 @@ public class EventHandler {
 				}
 			} catch (Exception e) {
 			}
-			
-			if(SHOW_NOTIFICATION_STATUS) {
 
-			try {
-				RemoteViews noteView = mNote.contentView;
-				noteView.setTextViewText(android.R.id.text1, getLastRate());
-				if (values.length == 0 && isDownload)
-					noteView.setImageViewResource(android.R.id.icon,
-							android.R.drawable.stat_sys_download);
-				else
-					noteView.setImageViewResource(android.R.id.icon,
-							android.R.drawable.stat_notify_sync);
-				noteView.setProgressBar(android.R.id.progress, 1000, progA,
-						values.length == 0);
-				mNotifier.notify(mNotifyId, mNote);
-				// noteView.notify();
-				// noteView.
-			} catch (Exception e) {
-				Logger.LogWarning("Couldn't update notification progress.", e);
-			}
-			
+			if (SHOW_NOTIFICATION_STATUS) {
+
+				try {
+					RemoteViews noteView = mNote.contentView;
+					noteView.setTextViewText(android.R.id.text1, getLastRate());
+					if (values.length == 0 && isDownload)
+						noteView.setImageViewResource(android.R.id.icon,
+								android.R.drawable.stat_sys_download);
+					else
+						noteView.setImageViewResource(android.R.id.icon,
+								android.R.drawable.stat_notify_sync);
+					noteView.setProgressBar(android.R.id.progress, 1000, progA,
+							values.length == 0);
+					mNotifier.notify(mNotifyId, mNote);
+					// noteView.notify();
+					// noteView.
+				} catch (Exception e) {
+					Logger.LogWarning("Couldn't update notification progress.",
+							e);
+				}
+
 			}
 		}
 
@@ -1120,15 +1156,18 @@ public class EventHandler {
 				return;
 			Runnable runnable = new Runnable() {
 				public void run() {
-					ViewUtils.setImageResource(view, getNotifIconResId(), android.R.id.icon);
+					ViewUtils.setImageResource(view, getNotifIconResId(),
+							android.R.id.icon);
 					ViewUtils.setText(view, getTitle(), android.R.id.title);
 					ViewUtils.setText(view, getLastRate(), android.R.id.text1);
 					ViewUtils.setText(view, getSubtitle(), android.R.id.text2);
 					if (view.findViewById(android.R.id.progress) != null) {
 						int progA = (int) (((float) mLastProgress[0] / (float) mLastProgress[1]) * 1000f);
 						int progB = (int) (((float) mLastProgress[0] / (float) mLastProgress[2]) * 1000f);
-						if(getStatus() == Status.FINISHED)
-							ViewUtils.setViewsVisible(view, false, android.R.id.closeButton, android.R.id.progress);
+						if (getStatus() == Status.FINISHED)
+							ViewUtils.setViewsVisible(view, false,
+									android.R.id.closeButton,
+									android.R.id.progress);
 						else {
 							ProgressBar pb = (ProgressBar) view
 									.findViewById(android.R.id.progress);
@@ -1155,7 +1194,9 @@ public class EventHandler {
 			// NotificationManager mNotifier =
 			// (NotificationManager)mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 			BackgroundWork[] tasks = getRunningTasks();
-			if (tasks.length == 0 || (tasks.length == 1 && tasks[0].equals(BackgroundWork.this)))
+			if (tasks.length == 0
+					|| (tasks.length == 1 && tasks[0]
+							.equals(BackgroundWork.this)))
 				mNotifier.cancel(mNotifyId);
 
 			if (mPDialog != null && mPDialog.isShowing())
@@ -1186,7 +1227,9 @@ public class EventHandler {
 				break;
 
 			case SEARCH:
-				OnWorkerThreadComplete(mType, mSearchResults.toArray(new String[mSearchResults.size()]));
+				OnWorkerThreadComplete(
+						mType,
+						mSearchResults.toArray(new String[mSearchResults.size()]));
 				return;
 
 			case COPY:

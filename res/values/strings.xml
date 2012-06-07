@@ -95,6 +95,7 @@
     <string name="s_button_unzip_here">Unzip here</string>
     <string name="s_button_unzip_else">Unzip elsewhere…</string>
     <string name="s_msg_none">File(s) could not be </string>
+    <string name="s_msg_folder_exists">Folder already exists</string>
     <string name="s_msg_some">Some file(s) could not be </string>
     <string name="s_msg_all">File(s) successfully </string>
     <string name="s_msg_deleted">deleted</string>
