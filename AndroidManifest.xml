@@ -18,8 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.brandroid.openmanager" android:versionName="0.166"
-	android:versionCode="166" android:installLocation="auto">
+	package="org.brandroid.openmanager"
+	android:versionName="0.167"
+	android:versionCode="167"
+	android:installLocation="auto">
 
 	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="12" />
 

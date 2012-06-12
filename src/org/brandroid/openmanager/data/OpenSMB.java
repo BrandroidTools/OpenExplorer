@@ -258,7 +258,7 @@ public class OpenSMB extends OpenNetworkPath
 			for(int i = 0; i < kids.length; i++)
 			{
 				kids[i].setAuth(mFile.getAuth());
-				Logger.LogDebug(kids[i].getPath() + " = " + kids[i].length());
+				//Logger.LogDebug(kids[i].getPath() + " = " + kids[i].length());
 				OpenSMB smb = new OpenSMB(this, kids[i]);
 				mChildren[i] = smb;
 				FileManager.setOpenCache(smb.getPath(), smb);
@@ -425,6 +425,17 @@ public class OpenSMB extends OpenNetworkPath
 		}
 		return false;
 	}
+	
+	@Override
+	public InputStream getInputStream() throws IOException {
+		return mFile.getInputStream();
+	}
+	
+	@Override
+	public OutputStream getOutputStream() throws IOException {
+		return mFile.getOutputStream();
+	}
+	
 	@Override
 	public boolean syncDownload(OpenFile f, NetworkListener l) {
 		try {
@@ -439,7 +450,18 @@ public class OpenSMB extends OpenNetworkPath
 	
 	public void copyTo(OpenFile dest, BackgroundWork task) throws SmbException {
 		try {
+			/*if(dest.isDirectory())
+			{
+				dest = dest.getChild(getName());
+				if(!dest.exists())
+					if(!dest.create())
+						throw new IOException("Unable to create destination file.");
+			}
+			*/
+			Logger.LogDebug("OpenSMB.copyTo - starting " + dest);  
 			mFile.copyTo(dest, task);
+			if(dest.length() <= 0 || dest.length() < length()) throw new IOException("Copied file size is too small.");
+			Logger.LogInfo("OpenSMB.copyTo - Copied " + dest.length() + " bytes - " + dest);
 		} catch(Exception e) {
 			Logger.LogWarning("OpenSMB couldn't copy using Channels. Falling back to Streams.");
 			OutputStream os = null;

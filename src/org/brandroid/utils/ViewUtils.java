@@ -209,19 +209,21 @@ public class ViewUtils {
 		}
 	}
 
-	public static void setViewsVisible(View parent, boolean visible, int... ids)
+	public static void setViewsVisible(final View parent, final boolean visible, final int... ids)
 	{
 		if(parent == null) return;
-		int vis = visible ? View.VISIBLE : View.GONE;
-		if(ids.length == 0)
-			parent.setVisibility(vis);
-		else
-		for(int id : ids)
-		{
-			View v = parent.findViewById(id);
-			if(v != null && v.getVisibility() != vis)
-				v.setVisibility(vis);
-		}
+		final int vis = visible ? View.VISIBLE : View.GONE;
+		parent.post(new Runnable(){public void run(){
+			if(ids.length == 0)
+				parent.setVisibility(vis);
+			else
+				for(int id : ids)
+				{
+					View v = parent.findViewById(id);
+					if(v != null && v.getVisibility() != vis)
+						v.setVisibility(vis);
+				}
+		}});
 	}
 
 	public static void toggleChecked(View view) {

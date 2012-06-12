@@ -37,6 +37,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.Gravity;
 import android.widget.ImageView;
 
@@ -65,6 +66,7 @@ import org.brandroid.openmanager.views.RemoteImageView;
 import org.brandroid.utils.ImageUtils;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.LruCache;
+import org.brandroid.utils.Utils;
 
 public class ThumbnailCreator extends Thread {
 	//private static HashMap<String, Bitmap> mCacheMap = new HashMap<String, Bitmap>();
@@ -400,7 +402,8 @@ public class ThumbnailCreator extends Thread {
 	
 	private static String getCacheFilename(String path, int w, int h)
 	{
-		return w + "x" + h + "_" + path.replaceAll("[^A-Za-z0-9]", "-") + ".jpg";
+		return w + "_" + Utils.md5(path).replaceAll("[^A-Za-z0-9]", "-");
+				//path.replaceAll("[^A-Za-z0-9]", "-") + ".jpg";
 	}
 	
 	public static SoftReference<Bitmap> generateThumb(final OpenPath file, int mWidth, int mHeight, Context context) { return generateThumb(file, mWidth, mHeight, true, true, context); }

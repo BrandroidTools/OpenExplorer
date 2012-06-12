@@ -4,7 +4,7 @@
         android:id="@+id/menu_context_download"
         android:title="@string/s_menu_download"
         android:showAsAction="never|withText"
-        android:icon="@drawable/ic_arrow_down"
+        android:icon="@drawable/ic_menu_down"
         android:visible="false"
         />
 	<item

@@ -23,8 +23,6 @@ import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.adapters.ContentAdapter;
 import org.brandroid.openmanager.adapters.IconContextMenu;
 import org.brandroid.openmanager.adapters.OpenClipboard;
-import org.brandroid.openmanager.adapters.ContentAdapter.CheckClipboardListener;
-import org.brandroid.openmanager.data.OpenContent;
 import org.brandroid.openmanager.data.OpenCursor;
 import org.brandroid.openmanager.data.OpenFileRoot;
 import org.brandroid.openmanager.data.OpenNetworkPath;
@@ -33,8 +31,6 @@ import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenZip;
 import org.brandroid.openmanager.data.OpenPath.OpenContentUpdater;
 import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateListener;
-import org.brandroid.openmanager.data.OpenSFTP;
-import org.brandroid.openmanager.fragments.OpenFragment.OpenContextMenuInfo;
 import org.brandroid.openmanager.util.EventHandler;
 import org.brandroid.openmanager.util.NetworkIOTask;
 import org.brandroid.openmanager.util.NetworkIOTask.OnTaskUpdateListener;
@@ -42,10 +38,8 @@ import org.brandroid.openmanager.util.ActionModeHelper;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.InputDialog;
 import org.brandroid.openmanager.util.IntentManager;
-import org.brandroid.openmanager.util.RootManager;
 import org.brandroid.openmanager.util.EventHandler.EventType;
 import org.brandroid.openmanager.util.EventHandler.OnWorkerUpdateListener;
-import org.brandroid.openmanager.util.RootManager.UpdateCallback;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
@@ -59,21 +53,14 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Hashtable;
+import java.util.List;
 
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -94,7 +81,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
 import android.view.View.OnKeyListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AbsListView;
@@ -102,7 +88,6 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.PopupMenu;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.GridView;
@@ -963,6 +948,19 @@ public class ContentFragment extends OpenFragment
 				getPath().deleteFolderFromDb();
 				runUpdateTask(true);
 				refreshData(new Bundle(), false);
+				return true;
+				
+			case R.id.menu_context_download:
+				OpenPath dl = OpenExplorer.getDownloadParent().getFirstDir();
+				if(dl == null)
+					dl = OpenFile.getExternalMemoryDrive(true);
+				if(dl != null)
+				{
+					List<OpenPath> files = new ArrayList<OpenPath>();
+					files.add(file);
+					getEventHandler().copyFile(files, dl, getActivity());
+				} else
+					getExplorer().showToast(R.string.s_error_ftp);
 				return true;
 			
 			case R.id.menu_context_selectall:

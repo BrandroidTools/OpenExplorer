@@ -12,6 +12,7 @@ import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.fragments.TextEditorFragment;
 import org.brandroid.openmanager.fragments.TextEditorFragment.FileLoadTask;
 import org.brandroid.utils.Logger;
+import org.brandroid.utils.Utils;
 
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -79,7 +80,7 @@ public abstract class OpenNetworkPath extends OpenPath
 	
 	public String getTempFileName()
 	{
-		return getPath().replaceAll("[^A-Za-z0-9\\.]", "-");
+		return getUri().getScheme() + "-" + getName() + "-" + Utils.md5(getPath()).replaceAll("[^A-Za-z0-9\\.]", "-");
 	}
 	public OpenFile getTempFile()
 	{
@@ -95,7 +96,7 @@ public abstract class OpenNetworkPath extends OpenPath
 		if(tmp == null) throw new IOException("Unable to download Temp file");
 		if(!tmp.exists())
 			tmp.create();
-		else if(lastModified() != null && tmp.lastModified() != null && lastModified() <= tmp.lastModified())
+		else if(tmp.length() > 0 && lastModified() != null && tmp.lastModified() != null && lastModified() < tmp.lastModified())
 		{
 			Logger.LogWarning("Remote file is older than local temp file.");
 			return tmp;
@@ -228,12 +229,12 @@ public abstract class OpenNetworkPath extends OpenPath
 	}
 	
 	@Override
-	public final InputStream getInputStream() throws IOException {
+	public InputStream getInputStream() throws IOException {
 		return tempDownload(null).getInputStream();
 	}
 	
 	@Override
-	public final OutputStream getOutputStream() throws IOException {
+	public OutputStream getOutputStream() throws IOException {
 		return tempDownload(null).getOutputStream();
 	}
 }

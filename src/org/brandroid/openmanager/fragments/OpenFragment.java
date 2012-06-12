@@ -64,7 +64,7 @@ public abstract class OpenFragment
 	//public boolean isFragmentValid = true;
 	protected boolean mActionModeSelected = false;
 	private boolean mHasOptions = false;
-	protected boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
+	protected boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
 	private OnFragmentDPADListener mDPAD = null;
 	public final void setOnFragmentDPADListener(OnFragmentDPADListener listener) { mDPAD = listener; }
 		

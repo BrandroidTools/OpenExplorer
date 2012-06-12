@@ -886,6 +886,7 @@ public class EventHandler {
 
 		private Boolean copyToDirectory(OpenPath old, OpenPath intoDir,
 				int total) throws IOException {
+			if (old.equals(intoDir)) return false;
 			if (old instanceof OpenFile && !old.isDirectory()
 					&& intoDir instanceof OpenFile)
 				if (copyFileToDirectory((OpenFile) old, (OpenFile) intoDir,
@@ -947,10 +948,8 @@ public class EventHandler {
 
 				return true;
 
-				/*
-				 * } else if(old instanceof OpenSMB && newDir instanceof
-				 * OpenFile) { ((OpenSMB)old).copyTo((OpenFile)newDir, this);
-				 */
+			//} else if(old instanceof OpenSMB && newDir instanceof OpenFile) {
+			//	((OpenSMB)old).copyTo((OpenFile)newDir, this);
 			} else if (old.isFile() && newDir.isDirectory()
 					&& newDir.canWrite()) {
 				OpenPath newFile = newDir.getChild(old.getName());

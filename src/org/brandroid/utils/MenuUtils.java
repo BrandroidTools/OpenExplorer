@@ -23,6 +23,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 
 public class MenuUtils {
+	public static final boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
+	
 	public static void transferMenu(Menu from, Menu to) { transferMenu(from, to, true); }
 	public static void transferMenu(Menu from, Menu to, Boolean clearFrom) {
 		if(from == null || to == null) return;
@@ -177,7 +179,8 @@ public class MenuUtils {
 			if(item.getAlphabeticShortcut() == '*')
 				sc = KeyEvent.KEYCODE_DEL;
 			// KeyEvent.KEYCODE_A = 27, Ascii for 'a' is 97, so add 80 to map to ascii
-			Logger.LogDebug("Menu Shortcut (" + item.getAlphabeticShortcut() + ":" + sc + ") = " + item);
+			if(DEBUG)
+				Logger.LogDebug("Menu Shortcut (" + item.getAlphabeticShortcut() + ":" + sc + ") = " + item);
 			OpenExplorer.mMenuShortcuts.put(sc, item);
 		}
 	}

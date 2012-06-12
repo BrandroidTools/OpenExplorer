@@ -44,7 +44,7 @@ public class LogViewerFragment extends OpenFragment
 {
 	private final static ArrayList<CharSequence> mData = new ArrayList<CharSequence>();
 	private LinedArrayAdapter mAdapter = null;
-	private boolean mAdded;
+	private boolean mAdded = false;
 	private BetterPopupWindow mPopup = null;
 	private ListView mListView = null;
 	private LayoutInflater mInflater = null;
@@ -72,6 +72,7 @@ public class LogViewerFragment extends OpenFragment
 	public void print(final String txt, final int color)
 	{
 		if(mAdapter == null) {
+			Logger.LogWarning("LogViewerFragment.Adapter is null");
 			mData.add(0, colorify(txt, color));
 			return;
 		}
@@ -81,7 +82,7 @@ public class LogViewerFragment extends OpenFragment
 				mData.add(0, colorify(txt, color));
 				mAdapter.notifyDataSetChanged();
 			}};
-		mListView.post(doPrint);			
+		mListView.post(doPrint);
 	}
 	
 	private CharSequence colorify(String txt, int color)

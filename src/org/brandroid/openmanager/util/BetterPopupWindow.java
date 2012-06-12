@@ -53,7 +53,7 @@ public class BetterPopupWindow {
 	private static final boolean ALLOW_HORIZONTAL_MODE = false;
 	private int layout = R.layout.contextmenu_layout;
 	private Point exact = null;
-	private boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
+	private boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
 	private OnKeyListener mKeyListener = null;
 	private CharSequence mTitle = null;
 	private float m1dp = 0;
@@ -81,6 +81,8 @@ public class BetterPopupWindow {
 		// make the window go away
 		this.popup.setTouchInterceptor(new OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
+				if(DEBUG)
+					Logger.LogDebug("BetterPopupWindow.onTouch(" + event + ")");
 				if(event.getAction() == MotionEvent.ACTION_OUTSIDE) {
 						BetterPopupWindow.this.popup.dismiss();
 						return true;

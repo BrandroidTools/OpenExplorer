@@ -124,6 +124,7 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -154,6 +155,7 @@ import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenPathArray;
 import org.brandroid.openmanager.data.OpenSFTP;
+import org.brandroid.openmanager.data.OpenSMB;
 import org.brandroid.openmanager.data.OpenSmartFolder;
 import org.brandroid.openmanager.data.OpenSmartFolder.SmartSearch;
 import org.brandroid.openmanager.fragments.CarouselFragment;
@@ -245,7 +247,7 @@ public class OpenExplorer
 	public static boolean IS_FULL_SCREEN = false;
 	public static boolean IS_KEYBOARD_AVAILABLE = false;
 	
-	private static boolean DEBUG = IS_DEBUG_BUILD && true;
+	private final static boolean DEBUG = IS_DEBUG_BUILD && false;
 	
 	public static int SCREEN_WIDTH = -1;
 	public static int SCREEN_HEIGHT = -1;
@@ -1429,7 +1431,7 @@ public class OpenExplorer
 		if(findViewById(R.id.base_bar) != null && findViewById(R.id.base_bar).isShown())
 			return true;
 		int pos = ViewUtils.getAbsoluteTop(this, R.id.menu_more, R.id.menu_sort, R.id.menu_text_view, R.id.base_row);
-		Logger.LogInfo("SPLIT AB TOP = " + pos);
+		//Logger.LogInfo("SPLIT AB TOP = " + pos);
 		return pos > 10;
 	}
 	private void checkTitleSeparator()
@@ -1460,15 +1462,13 @@ public class OpenExplorer
 		try {
 		
 		if(txt == null) return;
-		//Logger.LogDebug("Log: " + txt);
+		Logger.LogDebug("Log: " + txt);
 		if(mLogFragment == null)
 			mLogFragment = new LogViewerFragment();
 		mLogFragment.print(txt, color);
 		if(mLogFragment.getAdded()) return;
 		ViewUtils.setViewsVisible(this, true, R.id.title_log);
 		checkTitleSeparator();
-		if(mLogFragment == null)
-			mLogFragment = new LogViewerFragment();
 		if(!mLogFragment.getAdded() && !mLogFragment.isVisible())
 		{
 			final View logview = findViewById(R.id.frag_log);
@@ -2371,7 +2371,8 @@ public class OpenExplorer
 						if(mToolbarButtons.findViewById(menu.getItem(i).getItemId()) == null)
 							mToolbarButtons.addView(btn);
 						//menu.removeItem(item.getItemId());
-						Logger.LogDebug("Added " + item.getTitle() + " to base bar.");
+						if(DEBUG)
+							Logger.LogDebug("Added " + item.getTitle() + " to base bar.");
 					} 
 					//else Logger.LogWarning(item.getTitle() + " should not show. " + item.getShowAsAction() + " :: " + item.getFlags());
 				}
@@ -2670,7 +2671,7 @@ public class OpenExplorer
 		if(USE_PRETTY_MENUS)
 		{
 			if(menu != null && !menu.equals(mMainMenu) && !menu.equals(mOptsMenu))
-				menu.clear();
+				menu.close();
 			return false;
 		}
 		return super.onMenuOpened(featureId, menu);
@@ -3001,6 +3002,7 @@ public class OpenExplorer
 	private void showLogFrag(OpenFragment frag, boolean toggle)
 	{
 		View frag_log = findViewById(R.id.frag_log);
+		ViewUtils.setViewsVisible(this, true, R.id.title_log);
 		if(frag_log == null)
 			((Poppable)frag).getPopup().showLikePopDownMenu();
 		else {
@@ -3009,14 +3011,25 @@ public class OpenExplorer
 			Fragment fl = fragmentManager.findFragmentById(R.id.frag_log);
 			if(fl != null && fl.equals(frag))
 				isFragged = true;
-			if(isVis && isFragged && toggle)
-				frag_log.setVisibility(View.GONE);
-			else if(isVis)
+			if(isFragged)
+			{
+				if(toggle)
+				{
+					Logger.LogDebug("OpenExplorer.showLogFrag : Toggling " + frag.getTitle());
+					ViewUtils.setViewsVisible(frag_log, !isVis);
+				}
+			} else if(isVis)
+			{
+				Logger.LogDebug("OpenExplorer.showLogFrag : Adding " + frag.getTitle());
 				fragmentManager.beginTransaction()
 					.replace(R.id.frag_log, frag)
 					.disallowAddToBackStack()
 					.commitAllowingStateLoss();
-			else frag_log.setVisibility(View.VISIBLE);
+				ViewUtils.setViewsVisible(frag_log, true);
+			} else {
+				Logger.LogDebug("OpenExplorer.showLogFrag : Showing " + frag.getTitle());
+				ViewUtils.setViewsVisible(frag_log, true);
+			}
 		}
 	}
 	
