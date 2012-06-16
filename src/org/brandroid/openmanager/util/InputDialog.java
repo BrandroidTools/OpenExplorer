@@ -128,8 +128,20 @@ public class InputDialog extends Builder
 	}
 
 	public View getView() {
-		// TODO Auto-generated method stub
 		return view;
+	}
+	
+	@Override
+	public AlertDialog create() {
+		return super.create();
+	}
+	
+	@Override
+	public AlertDialog show() {
+		AlertDialog ret = super.show();
+		if(mEdit2.getVisibility() == View.VISIBLE)
+			mEdit2.requestFocus();
+		return ret;
 	}
 
 }

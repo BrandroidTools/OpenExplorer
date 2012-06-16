@@ -309,12 +309,25 @@ public class SettingsActivity extends PreferenceActivity
 					Logger.LogWarning("Couldn't parseInt " + path);
 				}
 				setTitle(getTitle() + " - " + path);
-				Preference p;
+				
+				Preference p = getPreferenceManager().findPreference("server_type");
+				String val = server.getString("type");
+				if(val == null)
+					val = "ftp";
+				String[] types = getApplicationContext().getResources().getStringArray(R.array.server_types_values);
+				int pos = 0;
+				for(int i = 0; i < types.length; i++)
+					if(types[i].toLowerCase().equals(val.toLowerCase()))
+						pos = i;
+				getIntent().putExtra("type", val);
+				((ListPreference)p).setValueIndex(pos);
+				p.setSummary(val);
+				
 				if(server != null)
 					for(String s : new String[]{"name","host","user","password","dir","port"})
 						if((p = getPreferenceManager().findPreference("server_" + s)) != null)
 						{
-							String val = server.getString(s);
+							val = server.getString(s);
 							if(val != null)
 							{
 								getIntent().putExtra(s, val);
@@ -494,7 +507,8 @@ public class SettingsActivity extends PreferenceActivity
     	} else if(preference.getKey().equals("server_update")) {
     		Intent iNew = getIntent();
     		//OpenServer server = new OpenServer();
-    		Preference p;
+    		Preference p = preferenceScreen.findPreference("server_type");
+    		iNew.putExtra("type", ((ListPreference)p).getValue());
     		for(String s : new String[]{"name","host","url","user","password","dir"})
     			if((p = preferenceScreen.findPreference("server_" + s)) != null)
     			{
@@ -554,7 +568,7 @@ public class SettingsActivity extends PreferenceActivity
 	
 
 	public static void SaveToDefaultServers(OpenServers servers, Context context)
-	{		
+	{
 		File f = new File(context.getFilesDir().getPath(), "servers.json");
 		Writer w = null;
 		try {
@@ -565,6 +579,7 @@ public class SettingsActivity extends PreferenceActivity
 			//data = SimpleCrypto.encrypt(GetSignatureKey(context), data);
 			w.write(data);
 			w.close();
+			Logger.LogDebug("Wrote " + data.length() + " bytes to OpenServers (" + f.getPath() + ").");
 		} catch(IOException e) {
 			Logger.LogError("Couldn't save OpenServers.", e);
 		} catch (Exception e) {
@@ -608,6 +623,7 @@ public class SettingsActivity extends PreferenceActivity
 					return new OpenServers();
 				String data = sb.toString();
 				OpenServers.DefaultServers = new OpenServers(new JSONArray(data), GetSignatureKey(context));
+				Logger.LogDebug("Loaded " + OpenServers.DefaultServers.size() + " servers @ " + data.length() + " bytes from " + f.getPath());
 				return OpenServers.DefaultServers;
 			}
 		} catch (IOException e) {

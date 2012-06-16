@@ -1,5 +1,6 @@
 package org.brandroid.openmanager.data;
 
+import jcifs.UniAddress;
 import jcifs.smb.AllocInfo;
 import jcifs.smb.Handler;
 import jcifs.smb.NtlmPasswordAuthentication;
@@ -42,6 +43,7 @@ public class OpenSMB extends OpenNetworkPath
 	private Long mDiskSpace = 0l;
 	private Long mDiskFreeSpace = 0l;
 	private Integer mAttributes = null;
+	private static final int MAX_BUFFER = 128 * 1024; 
 	
 	public OpenSMB(String urlString) throws MalformedURLException
 	{
@@ -403,7 +405,7 @@ public class OpenSMB extends OpenNetworkPath
 			os = new BufferedOutputStream(getFile().getOutputStream());
 			while(is.available() > 0)
 			{
-				byte[] buffer = new byte[Math.max(4096, is.available())];
+				byte[] buffer = new byte[Math.min(MAX_BUFFER, is.available())];
 				if(is.read(buffer) > 0)
 					os.write(buffer);
 			}
@@ -463,7 +465,7 @@ public class OpenSMB extends OpenNetworkPath
 			if(dest.length() <= 0 || dest.length() < length()) throw new IOException("Copied file size is too small.");
 			Logger.LogInfo("OpenSMB.copyTo - Copied " + dest.length() + " bytes - " + dest);
 		} catch(Exception e) {
-			Logger.LogWarning("OpenSMB couldn't copy using Channels. Falling back to Streams.");
+			Logger.LogError("OpenSMB couldn't copy using Channels. Falling back to Streams.", e);
 			OutputStream os = null;
 			InputStream is = null;
 			try {
@@ -473,7 +475,7 @@ public class OpenSMB extends OpenNetworkPath
 				int len = (int)length();
 				while(is.available() > 0)
 				{
-					byte[] buffer = new byte[Math.max(4096, len - pos)];
+					byte[] buffer = new byte[Math.min(MAX_BUFFER, len - pos)];
 					int read = is.read(buffer);
 					if(read <= 0) break;
 					os.write(buffer);

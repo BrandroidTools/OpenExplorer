@@ -53,11 +53,12 @@ public class BetterPopupWindow {
 	private static final boolean ALLOW_HORIZONTAL_MODE = false;
 	private int layout = R.layout.contextmenu_layout;
 	private Point exact = null;
-	private boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
+	private boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
 	private OnKeyListener mKeyListener = null;
 	private CharSequence mTitle = null;
 	private float m1dp = 0;
 	private int availHeight = 0;
+	private boolean bShown = false;
 
 	/**
 	 * Create a BetterPopupWindow
@@ -397,6 +398,8 @@ public class BetterPopupWindow {
 	public boolean showLikePopDownMenu(int xOffset, int yOffset) {
 		this.preShow((anchor != null ? ViewUtils.getAbsoluteLeft(anchor) : 0) + xOffset,
 				(anchor != null ? ViewUtils.getAbsoluteTop(anchor) : 0) + yOffset);
+		
+		bShown = true;
 
 		if(anchor == null)
 		{
@@ -795,6 +798,7 @@ public class BetterPopupWindow {
 		//Logger.LogDebug("Showing Popup @ " + xPos + "," + yPos + " root:" + rootWidth + "x" + rootHeight + " screen:" + screenWidth + "x" + screenHeight + " anchor:" + anchorRect.toString());
 
 		//popup.showAsDropDown(this.anchor, xPos, yPos);
+		bShown = true;
 		this.popup.showAtLocation(this.anchor, grav, xPos, yPos);
 	}
 
@@ -816,5 +820,9 @@ public class BetterPopupWindow {
 
 	public synchronized void setAnchor(View view) {
 		anchor = view;
+	}
+
+	public boolean hasShown() {
+		return bShown;
 	}
 }

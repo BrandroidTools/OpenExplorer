@@ -76,7 +76,11 @@ public class OpenServers
 	
 	public boolean add(OpenServer value)
 	{
-		if(!value.isValid()) return false;
+		if(!value.isValid()) {
+			Logger.LogWarning("Invalid Server: " + value);
+			return false;
+		}
+		Logger.LogDebug("Adding Server: " + value);
 		return mData.add(value);
 	}
 	
@@ -87,6 +91,7 @@ public class OpenServers
 	
 	public boolean set(int index, OpenServer value)
 	{
+		Logger.LogDebug("Setting Server #" + index + ": " + value);
 		if(!value.isValid()) return false;
 		if(index >= size())
 			return add(value);

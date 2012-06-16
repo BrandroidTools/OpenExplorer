@@ -48,7 +48,6 @@ import org.brandroid.utils.Preferences;
 import org.brandroid.utils.ViewUtils;
 
 import android.animation.Animator;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -74,7 +73,6 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
@@ -456,7 +454,7 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 		switch(command)
 		{
 			case OpenCommand.COMMAND_ADD_SERVER:
-				showServerDialog(new OpenFTP((OpenFTP)null, null, null), null, true);
+				DialogHandler.showServerDialog(mContextHelper, new OpenFTP((OpenFTP)null, null, null), null, true);
 				break;
 		}
 	}
@@ -511,72 +509,6 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 		mBookmarkAdapter.notifyDataSetChanged();
 	}
 
-	public boolean showServerDialog(final OpenFTP mPath, final BookmarkHolder mHolder, final boolean allowShowPass)
-	{
-		return showServerDialog(mPath.getServersIndex(), mHolder, allowShowPass);
-	}
-	public boolean showServerDialog(final OpenNetworkPath mPath, final BookmarkHolder mHolder, final boolean allowShowPass)
-	{
-		return showServerDialog(mPath.getServersIndex(), mHolder, allowShowPass);
-	}
-	public boolean showServerDialog(final int iServersIndex, final BookmarkHolder mHolder, final boolean allowShowPass)
-	{
-		final OpenServers servers = SettingsActivity.LoadDefaultServers(getContext());
-		final OpenServer server = iServersIndex > -1 ? servers.get(iServersIndex) : new OpenServer().setName("New Server");
-		LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		final View v = inflater.inflate(R.layout.server, null);
-		OpenServer.setupServerDialog(server, iServersIndex, v);
-		int addStrId = iServersIndex >= 0 ? R.string.s_update : R.string.s_add;
-		final AlertDialog dialog = new AlertDialog.Builder(getContext())
-			.setView(v)
-			.setIcon(mHolder != null && mHolder.getIcon(getContext()) != null ? mHolder.getIcon(getContext()) : getContext().getResources().getDrawable(R.drawable.sm_ftp))
-			.setNegativeButton(mContextHelper.getString(R.string.s_cancel), new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.dismiss();
-				}
-			})
-			.setNeutralButton(mContextHelper.getString(R.string.s_remove), new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					if(iServersIndex > -1)
-						servers.remove(iServersIndex);
-					dialog.dismiss();
-					mContextHelper.refreshBookmarks();
-				}
-			})
-			.setPositiveButton(mContextHelper.getString(addStrId), new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					if(iServersIndex > -1)
-						servers.set(iServersIndex, server);
-					else
-						servers.add(server);
-					SettingsActivity.SaveToDefaultServers(servers, getContext());
-					mContextHelper.refreshBookmarks();
-					dialog.dismiss();
-				}
-			})
-			.setTitle(server.getName())
-			.create();
-		try {
-			dialog.show();
-			showServerWarning();
-		} catch(BadTokenException e) {
-			Logger.LogError("Couldn't show dialog.", e);
-			return false;
-		}
-		return true;
-	}
-	
-	public void showServerWarning()
-	{
-		if(Preferences.Warn_Networking) return;
-		Preferences.Warn_Networking = true;
-		DialogHandler.showWarning(getContext(), R.string.warn_networking, 20, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				mContextHelper.setSetting("warn", "networking", true);
-			}
-		});
-	}
-	
 	public boolean showStandardDialog(final OpenPath mPath, final BookmarkHolder mHolder)
 	{
 		int removeId = R.string.s_remove;
@@ -924,7 +856,7 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 		if(path instanceof OpenCommand)
 			handleCommand(((OpenCommand)path).getCommand());
 		else if(path instanceof OpenNetworkPath)
-			showServerDialog((OpenNetworkPath)path, h, false);
+			DialogHandler.showServerDialog(mContextHelper, (OpenNetworkPath)path, h, false);
 		else
 			showStandardDialog(path, h);
 		return true;

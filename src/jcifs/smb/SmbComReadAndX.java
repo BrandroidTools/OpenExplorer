@@ -20,7 +20,7 @@ package jcifs.smb;
 
 import jcifs.Config;
 
-class SmbComReadAndX extends AndXServerMessageBlock {
+public class SmbComReadAndX extends AndXServerMessageBlock {
 
     private static final int BATCH_LIMIT = Config.getInt( "jcifs.smb.client.ReadAndX.Close", 1 );
 
@@ -91,5 +91,9 @@ int maxCount, minCount, remaining;
             ",remaining=" + remaining +
             ",offset=" + offset +
              "]" );
+    }
+    @Override
+    public String toShortString() {
+    	return "SmbComReadAndX(" + offset + "," + maxCount + ")";
     }
 }

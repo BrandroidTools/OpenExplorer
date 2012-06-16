@@ -32,7 +32,7 @@ public class OpenCursor extends OpenPath
 	private Long mModified = Long.MIN_VALUE;
 	public static int LoadedCursors = 0;
 	private UpdateBookmarkTextListener mListener = null;
-	private static boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
+	private static boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
 	private final DataSetObserver mObserver;
 	private final ContentObserver mContentObserver;
 	

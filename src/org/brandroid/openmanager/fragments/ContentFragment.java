@@ -959,6 +959,7 @@ public class ContentFragment extends OpenFragment
 					List<OpenPath> files = new ArrayList<OpenPath>();
 					files.add(file);
 					getEventHandler().copyFile(files, dl, getActivity());
+					refreshOperations();
 				} else
 					getExplorer().showToast(R.string.s_error_ftp);
 				return true;
@@ -1483,7 +1484,8 @@ public class ContentFragment extends OpenFragment
 				try {
 					if(mPath.requiresThread())
 						mPath = FileManager.getOpenCache(mPath.getPath());
-					updateData(mPath.list());
+					if(mPath != null)
+						updateData(mPath.list());
 				} catch (IOException e) {
 					Logger.LogWarning("Couldn't update data after thread completion", e);
 				}

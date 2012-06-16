@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	android:title="@string/s_pref_servers">
+	<ListPreference
+	    android:key="server_type"
+	    android:title="@string/s_pref_server_type"
+	    android:entries="@array/server_types"
+	    android:entryValues="@array/server_types_values"
+	    />
 	<EditTextPreference
 		android:key="server_host"
 		android:title="@string/s_pref_server_host"

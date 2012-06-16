@@ -794,7 +794,12 @@ public class SmbFile extends URLConnection implements SmbConstants {
                     ServerMessageBlock response ) throws SmbException {
 
         if(listener != null)
-        	listener.onSendCommand(this, request, response);
+        {
+        	if(response != null && response.isResponse() && response.command != 0x00)
+        		listener.onSendCommand(this, request, response);
+        	else
+        		listener.onSendCommand(this, request);
+        }
         
         for( ;; ) {
             resolveDfs(request);
@@ -2389,8 +2394,10 @@ if (this instanceof SmbNamedPipe) {
                         }
                         while( !w.ready ) {
                             try {
+                            	Logger.LogDebug("OpenSMB.copyTo0 : Waiting to copy...");
                                 w.wait();
                             } catch( InterruptedException ie ) {
+                            	Logger.LogError("OpenSMB.copyTo0 : Copy interrupted");
                                 throw new SmbException( "Couldn't write to " + dest.getPath(), ie );
                             }
                         }

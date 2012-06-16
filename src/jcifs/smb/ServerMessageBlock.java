@@ -529,4 +529,93 @@ Hexdump.hexdump( System.err, src, srcIndex, maxLen < 128 ? maxLen + 8 : 128 );
             ",wordCount="   + wordCount +
             ",byteCount="   + byteCount );
     }
+    
+    public String toShortString()
+    {
+    	 String c;
+         switch( command ) {
+             case SMB_COM_NEGOTIATE:
+                 c = "SMB_COM_NEGOTIATE";
+                 break;
+             case SMB_COM_SESSION_SETUP_ANDX:
+                 c = "SMB_COM_SESSION_SETUP_ANDX";
+                 break;
+             case SMB_COM_TREE_CONNECT_ANDX:
+                 c = "SMB_COM_TREE_CONNECT_ANDX";
+                 break;
+             case SMB_COM_QUERY_INFORMATION:
+                 c = "SMB_COM_QUERY_INFORMATION";
+                 break;
+             case SMB_COM_CHECK_DIRECTORY:
+                 c = "SMB_COM_CHECK_DIRECTORY";
+                 break;
+             case SMB_COM_TRANSACTION:
+                 c = "SMB_COM_TRANSACTION";
+                 break;
+             case SMB_COM_TRANSACTION2:
+                 c = "SMB_COM_TRANSACTION2";
+                 break;
+             case SMB_COM_TRANSACTION_SECONDARY:
+                 c = "SMB_COM_TRANSACTION_SECONDARY";
+                 break;
+             case SMB_COM_FIND_CLOSE2:
+                 c = "SMB_COM_FIND_CLOSE2";
+                 break;
+             case SMB_COM_TREE_DISCONNECT:
+                 c = "SMB_COM_TREE_DISCONNECT";
+                 break;
+             case SMB_COM_LOGOFF_ANDX:
+                 c = "SMB_COM_LOGOFF_ANDX";
+                 break;
+             case SMB_COM_ECHO:
+                 c = "SMB_COM_ECHO";
+                 break;
+             case SMB_COM_MOVE:
+                 c = "SMB_COM_MOVE";
+                 break;
+             case SMB_COM_RENAME:
+                 c = "SMB_COM_RENAME";
+                 break;
+             case SMB_COM_DELETE:
+                 c = "SMB_COM_DELETE";
+                 break;
+             case SMB_COM_DELETE_DIRECTORY:
+                 c = "SMB_COM_DELETE_DIRECTORY";
+                 break;
+             case SMB_COM_NT_CREATE_ANDX:
+                 c = "SMB_COM_NT_CREATE_ANDX";
+                 break;
+             case SMB_COM_OPEN_ANDX:
+                 c = "SMB_COM_OPEN_ANDX";
+                 break;
+             case SMB_COM_READ_ANDX:
+                 c = "SMB_COM_READ_ANDX";
+                 break;
+             case SMB_COM_CLOSE:
+                 c = "SMB_COM_CLOSE";
+                 break;
+             case SMB_COM_WRITE_ANDX:
+                 c = "SMB_COM_WRITE_ANDX";
+                 break;
+             case SMB_COM_CREATE_DIRECTORY:
+                 c = "SMB_COM_CREATE_DIRECTORY";
+                 break;
+             case SMB_COM_NT_TRANSACT:
+                 c = "SMB_COM_NT_TRANSACT";
+                 break;
+             case SMB_COM_NT_TRANSACT_SECONDARY:
+                 c = "SMB_COM_NT_TRANSACT_SECONDARY";
+                 break;
+             default:
+                 c = "UNKNOWN";
+        }
+    	String ret = "command=" + c;
+		if(received)
+			ret += ",received";
+		if(errorCode != 0)
+			ret += ",errorCode="   + SmbException.getMessageByCode(errorCode);
+		if(byteCount > 0)
+			ret += ",byteCount="   + byteCount;
+		return ret;
+    }
 }

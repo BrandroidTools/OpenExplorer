@@ -38,7 +38,7 @@ public class OpenServer
 	public OpenServer(JSONObject obj, String decryptPW)
 	{
 		mData = obj;
-		if(decryptPW != null && decryptPW != "")
+		if(decryptPW != null && !decryptPW.equals(""))
 			try {
 				String mPassword = mData.optString("password");
 				mPassword = SimpleCrypto.decrypt(decryptPW, mPassword);
@@ -216,13 +216,18 @@ public class OpenServer
 			mHost.setText(server.getHost());
 			mUser.setText(server.getUser());
 			mPassword.setText(server.getPassword());
+			if(mTextPath != null)
 			mTextPath.setText(server.getPath());
+			if(mTextName != null)
 			mTextName.setText(server.getName());
 			if(server.getPort() > 0)
 			{
+				if(mCheckPort != null)
 				mCheckPort.setChecked(false);
+				if(mTextPort != null)
 				mTextPort.setText(""+server.getPort());
-			} else mCheckPort.setChecked(true);
+			} else if(mCheckPort != null)
+				mCheckPort.setChecked(true);
 			String[] types = mTypeSpinner.getResources().getStringArray(R.array.server_types_values);
 			int pos = 0;
 			for(int i=0; i<types.length; i++)
@@ -278,6 +283,7 @@ public class OpenServer
 				server.setUser(s.toString());
 			}
 		});
+		if(mPassword != null)
 		mPassword.addTextChangedListener(new TextWatcher() {
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -285,6 +291,7 @@ public class OpenServer
 				server.setPassword(s.toString());
 			}
 		});
+		if(mTextPath != null)
 		mTextPath.addTextChangedListener(new TextWatcher() {
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -292,6 +299,7 @@ public class OpenServer
 				server.setPath(s.toString());
 			}
 		});
+		if(mTextName != null)
 		mTextName.addTextChangedListener(new TextWatcher() {
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -299,31 +307,37 @@ public class OpenServer
 				server.setName(s.toString());
 			}
 		});
-		mTextPort.setEnabled(!mCheckPort.isChecked());
-		if(!mCheckPort.isChecked())
-			mCheckPort.setText("");
-		mTextPort.addTextChangedListener(new TextWatcher() {
-			public void onTextChanged(CharSequence s, int start, int before, int count) { }
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-			public void afterTextChanged(Editable s) {
-				if(!s.toString().equals("") && !s.toString().matches("[^0-9]"))
-					server.setPort(Integer.parseInt(s.toString()));
-			}
-		});
-		mCheckPort.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				mTextPort.setEnabled(!isChecked);
-				if(!isChecked)
-					server.setPort(-1);
-				else
-				{
-					try { 
-						server.setPort(Integer.parseInt(mTextPort.getText().toString()));
-					} catch(Exception e) { Logger.LogWarning("Invalid Port: " + mTextPort.getText().toString()); }
+		if(mTextPort != null)
+		{
+			mTextPort.setEnabled(!mCheckPort.isChecked());
+			mTextPort.addTextChangedListener(new TextWatcher() {
+				public void onTextChanged(CharSequence s, int start, int before, int count) { }
+				public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+				public void afterTextChanged(Editable s) {
+					if(!s.toString().equals("") && !s.toString().matches("[^0-9]"))
+						server.setPort(Integer.parseInt(s.toString()));
 				}
-			}
-		});
+			});
+		}
+		if(mCheckPort != null)
+		{
+			if(!mCheckPort.isChecked())
+				mCheckPort.setText("");
+			mCheckPort.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+					mTextPort.setEnabled(!isChecked);
+					if(!isChecked)
+						server.setPort(-1);
+					else
+					{
+						try { 
+							server.setPort(Integer.parseInt(mTextPort.getText().toString()));
+						} catch(Exception e) { Logger.LogWarning("Invalid Port: " + mTextPort.getText().toString()); }
+					}
+				}
+			});
+		}
 	}
 	public int getPort() {
 		try {
@@ -331,5 +345,23 @@ public class OpenServer
 		} catch(NumberFormatException e) {
 			return -1;
 		}
+	}
+	
+	@Override
+	public String toString() {
+		String ret = getType();
+		ret += "://";
+		if(!getUser().equals(""))
+		{
+			ret += getUser();
+			if(!getPassword().equals(""))
+				ret += ":" + getPassword();
+			ret += "@";
+		}
+		ret += getHost();
+		if(getPort() > 0)
+			ret += ":" + getPort();
+		ret += getPath();
+		return ret;
 	}
 }

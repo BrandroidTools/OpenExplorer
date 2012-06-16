@@ -82,6 +82,11 @@
 		    </intent-filter>
 		</activity>
 		
+		<activity android:name=".activities.ServerSetupActivity"
+		    android:theme="@style/Dialog"
+		    android:configChanges="screenSize|keyboard|keyboardHidden"
+		    ></activity>
+		
 		<activity android:name=".activities.FolderPickerActivity"
 		    android:label="@string/s_title_picker"
 		    android:theme="@style/Dialog"

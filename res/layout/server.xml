@@ -31,21 +31,21 @@
 
             <Spinner
                 android:id="@+id/server_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
                 android:layout_alignParentLeft="true"
+                android:layout_height="wrap_content"
                 android:layout_below="@+id/TextView1"
                 android:layout_toLeftOf="@+id/text_port"
                 android:entries="@array/server_types"
                 android:prompt="@string/s_pref_server_type"
                 android:spinnerMode="dropdown" />
-
+
             <TextView
-                android:id="@+id/TextView2"
+                android:id="@+id/label_port"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
                 android:layout_alignLeft="@+id/text_port"
+                android:layout_alignParentTop="true"
                 android:text="@string/s_pref_server_port" />
 
             <EditText
@@ -55,6 +55,7 @@
                 android:ems="3"
                 android:layout_alignTop="@+id/server_type"
                 android:layout_toLeftOf="@+id/check_port"
+                android:layout_alignWithParentIfMissing="true"
                 android:inputType="number"
                 />
 
@@ -66,7 +67,6 @@
                 android:layout_below="@+id/TextView1"
                 android:layout_gravity="top"
                 android:layout_marginTop="1dp"
-                android:layout_weight="1"
                 android:checked="true"
                 android:text="@string/s_default"
                 android:layout_alignBaseline="@+id/text_port"
@@ -78,22 +78,15 @@
             android:layout_height="wrap_content"
             android:text="@string/s_pref_server_host" />
 
-        <EditText
-            android:id="@+id/text_server"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/s_pref_server_host"
-            android:inputType="textUri|textNoSuggestions"
-            android:singleLine="true" >
-
-            <requestFocus />
-
-        </EditText>
-
+       <include
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           layout="@layout/server_host" />
+		
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/text_path_label"
             android:text="@string/s_pref_server_path" />
 
         <EditText

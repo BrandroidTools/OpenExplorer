@@ -893,11 +893,16 @@ public class EventHandler {
 						total))
 					return true;
 			if (old instanceof OpenSMB && intoDir instanceof OpenSMB) {
-				Logger.LogVerbose("Using OpenSMB Channel copy");
+				Logger.LogVerbose("EventHandler.copyToDirectory : Using OpenSMB Channel copy");
 				if (((OpenSMB) old).copyTo((OpenSMB) intoDir))
 					return true;
-			}
-			Logger.LogVerbose("Using Stream copy");
+			} /*else if(old instanceof OpenSMB && intoDir instanceof OpenFile) {
+				Logger.LogVerbose("EventHandler.copyToDirectory : Using OpenSMB Copy");
+				((OpenSMB)old).copyTo((OpenFile)intoDir, this);
+				if(intoDir.length() > 0)
+					return true;
+			}*/
+			Logger.LogVerbose("EventHandler.copyToDirectory : Using Stream copy");
 			if (intoDir instanceof OpenCursor) {
 				try {
 					if (old.isImageFile() && intoDir.getName().equals("Photos")) {
@@ -917,7 +922,7 @@ public class EventHandler {
 					return copyFileToDirectory((OpenFile) old,
 							(OpenFile) newDir, total);
 			}
-			Logger.LogDebug("Trying to copy [" + old.getPath() + "] to ["
+			Logger.LogDebug("EventHandler.copyToDirectory : Trying to copy [" + old.getPath() + "] to ["
 					+ intoDir.getPath() + "]...");
 			if (old.getPath().equals(intoDir.getPath())) {
 				return false;

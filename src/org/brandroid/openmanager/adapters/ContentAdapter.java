@@ -231,12 +231,16 @@ public class ContentAdapter extends BaseAdapter {
 		if(multi || copied)
 			pad = 0;
 		view.setPadding(view.getPaddingLeft(), view.getPaddingTop(), pad, view.getPaddingBottom());
-		ViewUtils.setViewsVisible(view, multi || copied, R.id.content_check);
+		ImageView mCheck = (ImageView)view.findViewById(R.id.content_check);
+		if(mCheck != null)
+		{
+			if(mCheck.getVisibility() != (multi || copied ? View.VISIBLE : View.GONE))
+				mCheck.setVisibility(multi || copied ? View.VISIBLE : View.GONE);
+			if(copied)
+				mCheck.setImageResource(android.R.drawable.checkbox_on_background);
+		}
 		if(copied)
 		{
-			ViewUtils.setImageResource(view,
-						android.R.drawable.checkbox_on_background,
-						R.id.content_check);
 			mNameView.setTextAppearance(getContext(), R.style.Highlight);
 			ViewUtils.setOnClicks(view, new View.OnClickListener() {
 					public void onClick(View v) {

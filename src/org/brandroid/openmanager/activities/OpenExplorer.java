@@ -126,6 +126,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -134,9 +135,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.RejectedExecutionException;
 
+import jcifs.UniAddress;
+import jcifs.netbios.NbtAddress;
+import jcifs.smb.NtlmAuthenticator;
+import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.ServerMessageBlock;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFile.OnSMBCommunicationListener;
+import jcifs.smb.SmbNamedPipe;
+import jcifs.smb.SmbSession;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.ArrayPagerAdapter;
@@ -1453,10 +1460,11 @@ public class OpenExplorer
 				if(mStaticButtons.findViewById(id) != null &&
 						mStaticButtons.findViewById(id).getVisibility() == View.VISIBLE)
 					visible = true;
-		} else Logger.LogDebug("Title Separator hidden since Split Action bar is used.");
+		} //else Logger.LogDebug("Title Separator hidden since Split Action bar is used.");
 		
 		ViewUtils.setViewsVisible(mStaticButtons, visible, R.id.title_divider);
 	}
+	
 	public void sendToLogView(final String txt, final int color)
 	{
 		try {
@@ -1490,133 +1498,7 @@ public class OpenExplorer
 			Logger.LogError("Couldn't send to Log Viewer", e);
 		}
 	}
-	private void setupLoggingDb()
-	{
-		FTP.setCommunicationListener(new OnFTPCommunicationListener() {
-			
-			@Override
-			public void onDisconnect(FTP file) {
-				sendToLogView("FTP Disconnect " + getFTPString(file), Color.GRAY);
-			}
-			
-			@Override
-			public void onConnectFailure(FTP file) {
-				sendToLogView("FTP Failure " + getFTPString(file), Color.RED);
-			}
-			
-			@Override
-			public void onConnect(FTP file) {
-				sendToLogView("FTP Connect " + getFTPString(file), Color.GREEN);
-			}
-			
-			@Override
-			public void onBeforeConnect(FTP file) {
-				//sendToLogView("FTP Before Connect " + getFTPString(file));
-			}
 
-			@Override
-			public void onSendCommand(FTP file, String message) {
-				if(message.startsWith("PASS "))
-					message = "PASS " + message.substring(6).replaceAll(".", "*");
-				sendToLogView("Command: " + message.replace("\n", ""), Color.BLACK); // + getFTPString(file), Color.BLACK);
-			}
-			
-			private String getFTPString(FTP file)
-			{
-				if(file != null && file.getSocket() != null && file.getRemoteAddress() != null)
-					return " @ " + file.getRemoteAddress().getHostName();
-				return "";
-			}
-
-			@Override
-			public void onReply(String line) {
-				sendToLogView("Reply: " + line, Color.BLUE);
-			}
-		});
-		JSch.setLogger(new com.jcraft.jsch.Logger() {
-			@Override
-			public void log(int level, String message) {
-				switch(level)
-				{
-					case com.jcraft.jsch.Logger.DEBUG:
-						sendToLogView("SFTP - " + message, Color.GREEN);
-						break;
-					case com.jcraft.jsch.Logger.INFO:
-						sendToLogView("SFTP - " + message, Color.BLUE);
-						break;
-					case com.jcraft.jsch.Logger.WARN:
-						sendToLogView("SFTP - " + message, Color.YELLOW);
-						break;
-					case com.jcraft.jsch.Logger.ERROR:
-						sendToLogView("SFTP - " + message, Color.RED);
-						break;
-					case com.jcraft.jsch.Logger.FATAL:
-						sendToLogView("SFTP - " + message, Color.MAGENTA);
-						break;
-					default:
-						sendToLogView("SFTP (" + level + ") - " + message, Color.BLACK);
-						break;
-				}		
-			}
-			
-			@Override
-			public boolean isEnabled(int level) {
-				return true;
-			}
-		});
-		if(Logger.isLoggingEnabled())
-		{
-			if(getPreferences().getBoolean("global", "pref_stats", true))
-			{
-				if(!Logger.hasDb())
-					Logger.setDb(new LoggerDbAdapter(getApplicationContext()));
-			} else if(!IS_DEBUG_BUILD)
-				Logger.setLoggingEnabled(false);
-		}
-		SmbFile.setSMBCommunicationListener(new OnSMBCommunicationListener() {
-
-			@Override
-			public void onBeforeConnect(SmbFile file) {
-				sendToLogView("SMB Connecting: " + file.getPath(), Color.GREEN);
-			}
-
-			@Override
-			public void onConnect(SmbFile file) {
-
-				//sendToLogView("SMB Connected: " + file.getPath(), Color.GREEN);
-			}
-
-			@Override
-			public void onConnectFailure(SmbFile file) {
-				sendToLogView("SMB Connect Failure: " + file.getPath(), Color.RED);
-			}
-
-			@Override
-			public void onDisconnect(SmbFile file) {
-				sendToLogView("SMB Disconnect: " + file.getPath(), Color.DKGRAY);
-			}
-
-			@Override
-			public void onSendCommand(SmbFile file, Object... commands) {
-				URL url = file.getURL();
-				String s = "Command: smb://" + url.getHost() + url.getPath(); 
-				for(Object o : commands)
-				{
-					if(o instanceof ServerMessageBlock)
-					{
-						ServerMessageBlock blk = (ServerMessageBlock)o;
-						String tmp = blk.toString();
-						if(tmp.indexOf("[") > -1)
-							s += " -> " + tmp.substring(0, tmp.indexOf("["));
-						else
-							s += " -> " + tmp; 
-					} else s += " -> " + o.toString();
-				}
-				sendToLogView(s, Color.BLACK);
-			}
-			
-		});
-	}
 	
 	private void setupFilesDb()
 	{
@@ -3004,8 +2886,11 @@ public class OpenExplorer
 		View frag_log = findViewById(R.id.frag_log);
 		ViewUtils.setViewsVisible(this, true, R.id.title_log);
 		if(frag_log == null)
-			((Poppable)frag).getPopup().showLikePopDownMenu();
-		else {
+		{
+			BetterPopupWindow pw = ((Poppable)frag).getPopup();
+			if(!pw.hasShown() || toggle)
+				pw.showLikePopDownMenu();
+		} else {
 			boolean isVis = frag_log.getVisibility() == View.VISIBLE;
 			boolean isFragged = false;
 			Fragment fl = fragmentManager.findFragmentById(R.id.frag_log);
@@ -3035,7 +2920,6 @@ public class OpenExplorer
 	
 	private void debugTest() {
 		//startActivity(new Intent(this, Authenticator.class));
-		
 	}
 	
 	public boolean isSinglePane() { return mSinglePane; }

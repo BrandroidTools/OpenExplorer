@@ -26,45 +26,41 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.util.TimeUtils;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
+import android.view.WindowManager.BadTokenException;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TabHost;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -78,34 +74,38 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.ZipFile;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 
+import jcifs.netbios.NbtAddress;
+import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 
 import org.brandroid.openmanager.R;
-import org.brandroid.openmanager.R.drawable;
-import org.brandroid.openmanager.R.id;
-import org.brandroid.openmanager.R.layout;
 import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.activities.SettingsActivity;
 import org.brandroid.openmanager.data.BookmarkHolder;
+import org.brandroid.openmanager.data.OpenFTP;
 import org.brandroid.openmanager.data.OpenMediaStore;
+import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenSMB;
-import org.brandroid.openmanager.util.IntentManager;
+import org.brandroid.openmanager.data.OpenServer;
+import org.brandroid.openmanager.data.OpenServers;
+import org.brandroid.openmanager.interfaces.OpenContextProvider;
+import org.brandroid.openmanager.util.FileManager;
+import org.brandroid.openmanager.util.InputDialog;
 import org.brandroid.openmanager.util.OpenChromeClient;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.MenuUtils;
 import org.brandroid.utils.Preferences;
 import org.brandroid.utils.ViewUtils;
-import org.brandroid.utils.Preferences.OnPreferenceInteraction;
 
 public class DialogHandler
 {
@@ -794,6 +794,223 @@ public class DialogHandler
 				(ms > 6000 ? (h == 0 || m >= 10 ? "" : "0") + m + ":" : "") +
 				(ms > 6000 ? (s >= 10 ? "" : "0") + s : 
 					(ms < 1000 ? ms + "ms" : s + "s"));
+	}
+	public static void showServerWarning(final Context context)
+	{
+		if(Preferences.Warn_Networking) return;
+		Preferences.Warn_Networking = true;
+		showWarning(context, R.string.warn_networking, 20, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				new Preferences(context).setSetting("warn", "networking", true);
+			}
+		});
+	}
+	public static boolean showServerDialog(final OpenContextProvider context, final OpenFTP mPath, final BookmarkHolder mHolder, final boolean allowShowPass)
+	{
+		return DialogHandler.showServerDialog(context, mPath.getServersIndex(), -1, mHolder, allowShowPass);
+	}
+	public static boolean showServerDialog(final OpenContextProvider context, final OpenNetworkPath mPath, final BookmarkHolder mHolder, final boolean allowShowPass)
+	{
+		return DialogHandler.showServerDialog(context, mPath.getServersIndex(), -1, mHolder, allowShowPass);
+	}
+	public static boolean showServerDialog(final OpenContextProvider mContextHelper, final int iServersIndex, int serverType, final BookmarkHolder mHolder, final boolean allowShowPass)
+	{
+		final Context context = mContextHelper.getContext();
+		final OpenServers servers = SettingsActivity.LoadDefaultServers(context);
+		final OpenServer server = iServersIndex > -1 ? servers.get(iServersIndex) : new OpenServer().setName("New Server");
+		if(serverType > -1)
+		{
+			if(serverType==0)
+				server.setType("ftp");
+			else if(serverType==1)
+				server.setType("sftp");
+			else if(serverType==2)
+				server.setType("smb");
+		} else if(server.getType().equals("ftp"))
+			serverType = 0;
+		else if(server.getType().equals("sftp"))
+			serverType = 1;
+		else if(server.getType().equals("smb"))
+			serverType = 2;
+		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		final View v = inflater.inflate(R.layout.server, null);
+		OpenServer.setupServerDialog(server, iServersIndex, v);
+		int addStrId = iServersIndex >= 0 ? R.string.s_update : R.string.s_add;
+		final AlertDialog dialog = new AlertDialog.Builder(context)
+			.setView(v)
+			.setIcon(mHolder != null && mHolder.getIcon(context) != null ? mHolder.getIcon(context) : context.getResources().getDrawable(R.drawable.sm_ftp))
+			.setNegativeButton(context.getString(R.string.s_cancel), new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			})
+			.setNeutralButton(context.getString(R.string.s_remove), new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					if(iServersIndex > -1)
+						servers.remove(iServersIndex);
+					dialog.dismiss();
+					mContextHelper.refreshBookmarks();
+				}
+			})
+			.setPositiveButton(context.getString(addStrId), new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					if(iServersIndex > -1)
+						servers.set(iServersIndex, server);
+					else
+						servers.add(server);
+					SettingsActivity.SaveToDefaultServers(servers, context);
+					mContextHelper.refreshBookmarks();
+					dialog.dismiss();
+				}
+			})
+			.setTitle(server.getName())
+			.create();
+		if(iServersIndex == -1)
+			dialog.setButton(AlertDialog.BUTTON_NEUTRAL, null, (Message)null);
+		/*context.getString(R.string.test), new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					OpenPath path = FileManager.getOpenCache(server.toString());
+					try {
+						((OpenNetworkPath)path).connect();
+						Toast.makeText(context, R.string.test_success, Toast.LENGTH_LONG);
+					} catch(Exception e) {
+						Toast.makeText(context, R.string.httpError, Toast.LENGTH_LONG);
+					}
+				}
+			});*/
+		
+		final AutoCompleteTextView mServerHost = (AutoCompleteTextView)v.findViewById(R.id.text_server);
+		final ArrayList<String> mHosts = new ArrayList<String>();
+		mHosts.add("192.168.1.1");
+		final ArrayAdapter<String> mHostAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, mHosts);
+		final ProgressBar mScanProgress = (ProgressBar)v.findViewById(R.id.server_scan_progress);
+		if(mServerHost != null)
+			mServerHost.setAdapter(mHostAdapter);
+		ViewUtils.setOnClicks(v, new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mServerHost.showDropDown();
+			}
+		}, R.id.server_drop);
+
+		final int iServerType = serverType;
+		final int[] OnlyOnSMB = new int[]{}; //R.id.server_drop, R.id.server_scan};
+		final int[] NotOnSMB = new int[]{R.id.text_path, R.id.text_path_label, R.id.text_port, R.id.label_port, R.id.check_port};
+		ViewUtils.setViewsVisible(v, serverType == 2, OnlyOnSMB);
+		ViewUtils.setViewsVisible(v, serverType != 2, NotOnSMB);
+		
+		SmbFile.setDefaultAllowUserInteraction(true);
+		
+		ViewUtils.setOnClicks(v, new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+//				new Thread(new Runnable(){public void run(){
+				/*
+					try {
+						NbtAddress addr = NbtAddress.getLocalHost();
+						mHosts.add(addr.getHostAddress());
+						Logger.LogDebug("My Address: " + addr.getHostAddress() + " : " + addr.getHostName());
+						try {
+							NbtAddress[] network = NbtAddress.getAllByAddress(addr);
+							for(NbtAddress friend : network)
+							{
+								mHosts.add(friend.getHostAddress());
+							}
+						} catch(Exception e3) {
+							Logger.LogError("DialogHandler.showServerDialog unable to get Network neighborhood.", e3);
+						}
+					} catch(Exception e) {
+						Logger.LogError("DialogHandler.showServerDialog Error getting Local Address", e);
+					}
+					//if(mHosts.size() > 1) return; 
+*/					
+					final NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication("WORKGROUP", "", "");
+					final InputDialog indlg = new InputDialog(context)
+						.setMessageTop(R.string.s_pref_server_user)
+						.setMessage(R.string.s_pref_server_password)
+						.setNegativeButton(android.R.string.cancel, null);
+					final AlertDialog dlg = indlg.create();
+					dlg.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(android.R.string.ok),
+							new DialogInterface.OnClickListener(){
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							auth.setUsername(indlg.getInputTopText());
+							auth.setPassword(indlg.getInputText());
+							mServerHost.setThreshold(0);
+							mScanProgress.setVisibility(View.VISIBLE);
+							new Thread(new Runnable() {
+								@Override
+								public void run() {
+									try {
+										final SmbFile smb = new SmbFile("smb://");
+										smb.setAuth(auth);
+										SmbFile[] workgroups = smb.listFiles();
+										for(int i = 0; i < workgroups.length; i++)
+										{
+											SmbFile group = workgroups[i];
+											final String gname = group.getName();
+											group.setAuth(auth);
+											Logger.LogDebug("Found Workgroup: " + group.getName());
+											try {
+											final SmbFile[] comps = workgroups[i].listFiles();
+											mServerHost.post(new Runnable() {public void run() {
+												for(int j = 0; j < comps.length; j++)
+												{
+													SmbFile comp = comps[j];
+													comp.setAuth(auth);
+													try {
+														String server = comp.getServer();
+														
+														Logger.LogDebug("Found Server: " + server);
+														mHosts.add(gname + (gname.endsWith("/") ? "" : "/") + server);
+													} catch(Exception e3) { }
+												}
+											}});
+											} catch(Exception e2) { }
+										}
+										smb.disconnect();
+									} catch (Exception e) {
+										Logger.LogError("OpenBookmarks.showServerDialog.scan unable to get SMB data.", e);
+									}
+									mScanProgress.post(new Runnable(){public void run(){
+										mScanProgress.setVisibility(View.GONE);
+										mServerHost.dismissDropDown();
+										mHostAdapter.notifyDataSetChanged();
+										mServerHost.showDropDown();
+									}});
+								}
+							}).start();
+						}});
+					dlg.show();
+//				}}).start();
+			}
+
+				//}}).start();
+		}, R.id.server_scan);
+		
+		final Spinner mServerType = (Spinner)v.findViewById(R.id.server_type);
+		mServerType.setOnItemSelectedListener(new OnItemSelectedListener() {
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+			{
+				ViewUtils.setViewsVisible(v, position == 2, OnlyOnSMB);
+				ViewUtils.setViewsVisible(v, position != 2, NotOnSMB);
+				server.setType("ftp");
+				if(position == 1) server.setType("sftp");
+				if(position == 2) server.setType("smb");
+			}
+			public void onNothingSelected(AdapterView<?> parent) { }
+		});
+		mServerType.setSelection(serverType);
+		
+		try {
+			dialog.show();
+			showServerWarning(context);
+		} catch(BadTokenException e) {
+			Logger.LogError("Couldn't show dialog.", e);
+			return false;
+		}
+		return true;
 	}
 
 }

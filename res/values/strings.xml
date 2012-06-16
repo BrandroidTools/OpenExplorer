@@ -319,4 +319,7 @@
     <string name="s_alert_restart">Restarting. Please wait.</string>
     <string name="language">Language</string>
     <string name="s_menu_download">Download</string>
+    <string name="scan">Scan</string>
+    <string name="test">Test</string>
+    <string name="test_success">Connection succeeded!</string>
 </resources>

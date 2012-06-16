@@ -31,7 +31,7 @@
 
             <Spinner
                 android:id="@+id/server_type"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/TextView1"
@@ -46,6 +46,7 @@
                 android:id="@+id/text_port"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignWithParentIfMissing="true"
                 android:ems="4"
                 android:hint="@string/s_pref_server_port"
                 android:layout_toLeftOf="@+id/check_port"
@@ -72,21 +73,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
-            <EditText
-                android:id="@+id/text_server"
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+            <include
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/s_pref_server_host"
-                android:inputType="textUri|textNoSuggestions"
-                android:singleLine="true">
-
-                <requestFocus />
-			</EditText>
+                layout="@layout/server_host" />
+            </FrameLayout>
 
             <EditText
                 android:id="@+id/text_path"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
