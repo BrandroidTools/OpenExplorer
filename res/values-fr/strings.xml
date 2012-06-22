@@ -123,47 +123,49 @@
     <string name="s_pref_start_summary" auto="1">Indique le dossier dans lequel OpenExplorer commence en</string>
     <string name="s_custom" auto="1">Personnalisé ...</string>
     <string name="s_text_intro_top" auto="1">Bienvenue OpenExplorer!</string>
-    <string name="s_text_intro_body">Le but de OpenExplorer est de vous rendre plus productif au sein du système de fichiers Android et dans le cloud. Que vous ayez besoin de gérer des vidéos ou des photos à partir d\'emplacements multiples ou de gérer votre serveur à distance via FTP, OpenExplorer peut convenir à vos besoins.\n\nVeuillez choisir votre chemin de départ :</string>
-    <string name="s_info_num_folders" auto="1">Nombre de dossiers:</string>
-    <string name="s_info_num_files" auto="1">Nombre de fichiers:</string>
+    <string name="s_text_intro_body">Le but de OpenExplorer est de vous rendre plus productif au sein du système de fichiers Android et dans le cloud. Que vous ayez besoin de gérer des vidéos ou des photos à partir d\'emplacements multiples ou de gérer votre serveur à distance via FTP, OpenExplorer peut convenir à vos besoins.
+\n
+\nVeuillez choisir votre chemin de départ :</string>
+    <string name="s_info_num_folders" auto="1">Nombre de dossiers:</string>
+    <string name="s_info_num_files" auto="1">Nombre de fichiers:</string>
     <string name="s_info_last_modified" auto="1">Dernière mise à jour:</string>
     <string name="s_info_permissions" auto="1">Autorisations sur les fichiers:</string>
     <string name="s_info_permission_read" auto="1">Lire:</string>
     <string name="s_info_permission_write" auto="1">Ecrire:</string>
     <string name="s_info_permission_execute" auto="1">Exécuter:</string>
     <string name="s_toggle_keyboard" auto="1">clavier</string>
-    <string name="s_show_password" auto="1">Montrer Mot de passe</string>
-    <string name="s_error_ftp" auto="1">Erreur de connexion au FTP</string>
-    <string name="s_prompt_zip" auto="1">Entrez le nom de fichier nouveau fichier Zip:</string>
-    <string name="app_edit" auto="1">Modifier avec OpenExplorer</string>
-    <string name="s_menu_more" auto="1">Plus options ...</string>
+    <string name="s_show_password" auto="1">Montrer Mot de passe</string>
+    <string name="s_error_ftp" auto="1">Erreur de connexion au FTP</string>
+    <string name="s_prompt_zip" auto="1">Entrez le nom de fichier nouveau fichier Zip:</string>
+    <string name="app_edit" auto="1">Modifier avec OpenExplorer</string>
+    <string name="s_menu_more" auto="1">Plus options ...</string>
     <string name="s_msg_low_memory" auto="1">Peu de mémoire!</string>
     <string name="s_clear" auto="1">effacer</string>
     <string name="s_menu_delete_all" auto="1">supprimer tout</string>
     <string name="s_menu_move_all" auto="1">Déplacer ici</string>
     <string name="s_menu_copy_all" auto="1">copier ici</string>
-    <string name="s_confirm_delete" auto="1">Etes-vous sûr que vous voulez supprimer  %s ?</string>
-    <string name="s_error_same_destination" auto="1">Le répertoire de destination est le même.</string>
-    <string name="s_sample_notification" auto="1">Copie -&gt; sdcard:  n 3 Fichiers</string>
+    <string name="s_confirm_delete" auto="1">Etes-vous sûr que vous voulez supprimer  %s ?</string>
+    <string name="s_error_same_destination" auto="1">Le répertoire de destination est le même.</string>
+    <string name="s_sample_notification" auto="1">Copie -&gt; sdcard:  n 3 Fichiers</string>
     <string name="s_pref_fullscreen" auto="1">plein écran</string>
-    <string name="s_pref_fullscreen_summary_on" auto="1">Masquer la barre de notification</string>
-    <string name="s_pref_fullscreen_summary_off" auto="1">Afficher la barre de notification</string>
-    <string name="s_pref_pagers" auto="1">Voir Pagers</string>
-    <string name="s_pref_pagers_summary_on" auto="1">Glisser horizontal = Annuaire de navigation</string>
-    <string name="s_pref_pagers_summary_off" auto="1">Horizontaux handicapés glisser</string>
-    <string name="s_alert_new_media" auto="1">Nouveaux Médias Insérée!</string>
-    <string name="s_warn_pager_title" auto="1">Nouvelle fonctionnalité: Pagers Voir</string>
-    <string name="s_warn_pager" auto="1">Balayez vers la gauche vers la droite pour monter un répertoire et de droite à gauchepour revenir en arrière. Cela devrait rendre plus facile à naviguer. Essayez-le (sur un support externe)!</string>
-    <string name="s_warn_confirm" auto="1">Ne comprenez-vous?</string>
+    <string name="s_pref_fullscreen_summary_on" auto="1">Masquer la barre de notification</string>
+    <string name="s_pref_fullscreen_summary_off" auto="1">Afficher la barre de notification</string>
+    <string name="s_pref_pagers" auto="1">Voir Pagers</string>
+    <string name="s_pref_pagers_summary_on" auto="1">Glisser horizontal = Annuaire de navigation</string>
+    <string name="s_pref_pagers_summary_off" auto="1">Horizontaux handicapés glisser</string>
+    <string name="s_alert_new_media" auto="1">Nouveaux Médias Insérée!</string>
+    <string name="s_warn_pager_title" auto="1">Nouvelle fonctionnalité: Pagers Voir</string>
+    <string name="s_warn_pager" auto="1">Balayez vers la gauche vers la droite pour monter un répertoire et de droite à gauchepour revenir en arrière. Cela devrait rendre plus facile à naviguer. Essayez-le (sur un support externe)!</string>
+    <string name="s_warn_confirm" auto="1">Ne comprenez-vous?</string>
     <string name="s_warn_disable" auto="1">désactiver</string>
-    <string name="s_pref_intent_internal" auto="1">intentions internes</string>
-    <string name="s_pref_intent_internal_on" auto="1">Utilisez le Gestionnaire intention OpenExplorer</string>
-    <string name="s_pref_intent_internal_off" auto="1">Utilisez le Gestionnaire système intention</string>
-    <string name="s_pref_text_internal" auto="1">Utilisez l\'éditeur de texte interne</string>
+    <string name="s_pref_intent_internal" auto="1">intentions internes</string>
+    <string name="s_pref_intent_internal_on" auto="1">Utilisez le Gestionnaire intention OpenExplorer</string>
+    <string name="s_pref_intent_internal_off" auto="1">Utilisez le Gestionnaire système intention</string>
+    <string name="s_pref_text_internal" auto="1">Utilisez l\'éditeur de texte interne</string>
     <string name="s_text_editor_title" auto="1">Éditeur de texte</string>
-    <string name="s_pref_show_root" auto="1">Système de fichiers Afficher racine (/)</string>
-    <string name="s_pref_show_internal" auto="1">Afficher les médias internes</string>
-    <string name="s_pref_show_external" auto="1">Afficher les médias externes</string>
+    <string name="s_pref_show_root" auto="1">Système de fichiers Afficher racine (/)</string>
+    <string name="s_pref_show_internal" auto="1">Afficher les médias internes</string>
+    <string name="s_pref_show_external" auto="1">Afficher les médias externes</string>
     <string name="s_error_no_media" auto="1">On dirait qu\'il n\'y a pas de média inséré. S\'il vous plaît désactiver le partage USB ou re-insérer un support.</string>
     <string name="s_prompt_password" auto="1">Entrez Mot de passe</string>
     <string name="s_add" auto="1">ajouter</string>
@@ -211,6 +213,8 @@
     <string name="s_pref_fancy_menus" auto="1">Menus de fantaisie</string>
     <string name="s_pref_fancy_context" auto="1">Menus contextuels Fantaisie</string>
     <string name="s_search_files" auto="1">Recherche système de fichiers</string>
+    <string name="search_summary" auto="1" formatted="false">Recherche de &quot;%s&quot; \n dans &quot;%s&quot; (%d) ...</string>
+    <string name="search_results" auto="1" formatted="false">Les résultats dont trouvé pour &quot;%s&quot; \n au sein de &quot;%s&quot;</string>
     <string name="s_menu_exit">Quitter</string>
     <string name="s_warn_wtf_message" auto="1">Oups! Il semble qu\'une erreur non gérée s\'est produite! Comme il s\'agit d\'un problème commun dans les applications bêta nombreux, la seule façon de résoudre ces problèmes consiste à recevoir des rapports de divers dispositifs, tels que le vôtre, afin de déterminer comment résoudre le problème. Puissions-nous envoyer un tel rapport, contenant uniquement des données anonymes, à l\'développeur?</string>
     <string name="s_warn_wtf_ps" auto="1">*** S\'il vous plaît noter, cette application est en version beta. S\'il vous plaît ne donnez pas cette application une mauvaise note simplement parce qu\'il se bloque. Juste désinstaller si ça vous gêne vraiment. Merci!</string>
@@ -238,7 +242,7 @@
     <string name="menu_view_font_medium" auto="1">Taille de la police</string>
     <string name="menu_view_font_large" auto="1">Police de grande taille</string>
     <string name="app_description" auto="1">Ouvrez l\'Explorateur - Ouvrir le gestionnaire de fichiers source pour tous les appareils! (Comprimés, téléphones, téléviseurs Google, sandwiches!) \n-complet du système de fichiers de gestion \n-USB, SD et d\'autres médias externes \n-réseau raccordables (FTP, SFTP, SMB / Samba / Windows / Lan / WIFI) \n - éditeur de texte \n-Smart Folders que d\'analyse pour différents types de médias (vidéos, photos, Musique, Téléchargements) \n-View Pager répertoire de navigation (à droite pour aller glisser un répertoire) \n-Superuser / racine de capacité à la liste / lire les dossiers système (pas de système écrire encore) \n \nFeatures à venir: \n-éditeur de texte par onglets  Mise en réseau n-Plus (Dropbox, Box.net, lecteur Sky) \n-Hors ligne cache de la structure du fichier, se souviendront de fichiers qui vous avez à différents endroits sans avoir besoin de se connecter \n-Disk carte de la chaleur l\'espace montre où vos plus gros fichiers sont \n \n * S\'IL VOUS PLAÎT NOTE: Ce soft est en version beta. Il ya encore de nombreux bugs. Si vous ne souhaitez pas faire l\'expérience de ces bugs, veuillez ne pas télécharger cette application. Si vous souhaitez m\'aider à trouver ces bogues, s\'il vous plaît écrivez-moi ou de coopérer avec moi sur GitHub (https://github.com/BrandoCommando/OpenExplorer/). S\'il vous plaît rappelez votes mauvaises aider personne.</string>
-    <string name="alert_translate_google" auto="1">Bonjour, cette traduction est fournie par Google Translate. Si vous connaissez l\'anglais ainsi que%s, et que vous souhaitez aider à fournir une meilleure traduction, s\'il vous plaît cliquer sur ce bouton:</string>
+    <string name="alert_translate_google" auto="1">Bonjour, cette traduction est fournie par Google Translate. Si vous connaissez l\'anglais ainsi que %s, et que vous souhaitez aider à fournir une meilleure traduction, s\'il vous plaît cliquer sur ce bouton:</string>
     <string name="alert_translate_none" auto="1">Bonjour, il semble que vous utilisez une langue non prise en charge. Savez-vous s anglais et %s? Si vous souhaitez-vous pour aider à fournir une traduction correcte, cliquez ici:</string>
     <string name="button_translate" auto="1">Traduire</string>
     <string name="httpError">Une erreur réseau s\'est produite.</string>
@@ -285,7 +289,7 @@
     <string name="filename" auto="1">Nom du fichier</string>
     <string name="s_msg_saved" auto="1">sauvé</string>
     <string name="s_menu_view_line_numbers" auto="1">les numéros de ligne</string>
-    <string name="warn_text_editor" auto="1">Bienvenue à l\'éditeur de texte. S\'il vous plaît appuyez longuement sur le texte pour passer en mode Edit.</string>
+    <string name="warn_text_editor">Bienvenue dans l\'&amp;Atilde;&amp;copy;diteur de texte. S\'il vous pla&amp;Atilde;&amp;reg;t appuyez longuement sur le texte pour passer en mode Edit.</string>
     <string name="warn_networking" auto="1">Bienvenue aux réseaux. S\'il vous plaît noter que cette fonctionnalité est encore en développement et peut contenir des bugs. S\'il vous plaît ne pas donner une note défavorable sur le marché si vous trouvez un de ces bugs.</string>
     <string name="s_menu_new_file" auto="1">Un nouveau fichier texte</string>
     <string name="s_msg_created" auto="1">créé</string>

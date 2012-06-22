@@ -32,6 +32,7 @@ import java.util.Random;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.R.xml;
+import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.fragments.DialogHandler;
@@ -566,16 +567,29 @@ public class SettingsActivity extends PreferenceActivity
 		return false;
 	}
 	
+	public static File GetDefaultServerFile(Context context)
+	{
+		File f = new File(context.getFilesDir().getPath(), "servers.json");
+		if(f.exists() && OpenExplorer.isBlackBerry())
+		{
+			if(OpenFile.getExternalMemoryDrive(true).getChild(".servers.json").copyFrom(new OpenFile(f)));
+				f.delete();
+		}
+		if(OpenExplorer.isBlackBerry())
+			f = new File(OpenFile.getExternalMemoryDrive(true).getFile(), ".servers.json");
+		return f;
+	}
 
 	public static void SaveToDefaultServers(OpenServers servers, Context context)
 	{
-		File f = new File(context.getFilesDir().getPath(), "servers.json");
 		Writer w = null;
+		File f = GetDefaultServerFile(context);
 		try {
 			f.delete();
 			f.createNewFile();
 			w = new BufferedWriter(new FileWriter(f));
 			String data = servers.getJSONArray(true, context).toString();
+			Logger.LogDebug("Writing to " + f.getPath() + ": " + data);
 			//data = SimpleCrypto.encrypt(GetSignatureKey(context), data);
 			w.write(data);
 			w.close();
@@ -603,10 +617,9 @@ public class SettingsActivity extends PreferenceActivity
 	{
 		if(OpenServers.DefaultServers != null)
 			return OpenServers.DefaultServers;
-		File f = new File(context.getFilesDir().getPath(), "servers.json");
+		File f = GetDefaultServerFile(context);
 		Reader r = null;
 		try {
-			//getApplicationContext().openFileInput("servers.json"); //, Context.MODE_PRIVATE);
 			if(!f.exists() && !f.createNewFile())
 			{
 				Logger.LogWarning("Couldn't create default servers file (" + f.getPath() + ")");

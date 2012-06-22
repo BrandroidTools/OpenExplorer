@@ -1064,12 +1064,12 @@ public class OpenExplorer
 	private void initOpsPopup()
 	{
 		if(mOpsFragment == null)
+		{
 			mOpsFragment = new OperationsFragment();
-		if(findViewById(R.id.frag_log) != null)
-			return;
-		View anchor = ViewUtils.getFirstView(this, R.id.title_ops, R.id.title_bar,
-						R.id.base_bar, R.id.base_row);
-		mOpsFragment.setupPopup(this, anchor);
+			View anchor = ViewUtils.getFirstView(this, R.id.title_ops, R.id.title_bar,
+							R.id.base_bar, R.id.base_row);
+			mOpsFragment.setupPopup(this, anchor);
+		}
 	}
 	
 	private void initPager()
@@ -1474,11 +1474,12 @@ public class OpenExplorer
 		if(mLogFragment == null)
 			mLogFragment = new LogViewerFragment();
 		mLogFragment.print(txt, color);
-		if(mLogFragment.getAdded()) return;
 		ViewUtils.setViewsVisible(this, true, R.id.title_log);
+		if(mLogFragment.getAdded()) return;
 		checkTitleSeparator();
 		if(!mLogFragment.getAdded() && !mLogFragment.isVisible())
 		{
+			mLogFragment.setAdded(true);
 			final View logview = findViewById(R.id.frag_log);
 			if(logview != null && !mLogFragment.getAdded())
 			{
@@ -1490,7 +1491,6 @@ public class OpenExplorer
 						.commitAllowingStateLoss();
 				logview.post(new Runnable(){public void run(){
 					logview.setVisibility(View.VISIBLE);
-					mLogFragment.setAdded(true);
 				}});
 			} //else mLogFragment.show(fragmentManager, "log");
 		}
@@ -1850,31 +1850,8 @@ public class OpenExplorer
 	}
 
 	public void refreshOperations() {
-		if(mOpsFragment == null)
-			mOpsFragment = (OperationsFragment)fragmentManager.findFragmentByTag("ops");
-		if(mOpsFragment == null)
-			mOpsFragment = new OperationsFragment();
-		int tasks = EventHandler.getRunningTasks().length;
-		if(tasks <= 0)
-		{
-			ViewUtils.setViewsVisible(this, false, R.id.frag_log, R.id.title_ops);
-			ViewUtils.setViewsVisible(this, true, R.id.title_ops);
-			checkTitleSeparator();
-			return;
-		}
-		if(findViewById(R.id.frag_log) != null)
-		{
-			if(fragmentManager.findFragmentByTag("ops") == null)
-				fragmentManager.beginTransaction().add(mOpsFragment, "ops");
-			if(fragmentManager.findFragmentById(R.id.frag_log) != mOpsFragment)
-				fragmentManager
-					.beginTransaction()
-					.replace(R.id.frag_log, mOpsFragment)
-					.disallowAddToBackStack()
-					.commitAllowingStateLoss();
-		} else {
-			initOpsPopup();
-		}
+		initOpsPopup();
+		int tasks = EventHandler.getTaskList().size();
 		ViewUtils.setViewsVisible(this, tasks > 0, R.id.title_ops);
 		checkTitleSeparator();
 	}
@@ -2458,6 +2435,7 @@ public class OpenExplorer
 				if(mSearchView == null)
 					mSearchView = SearchViewCompat.newSearchView(this);
 				MenuItem item = menu.findItem(R.id.menu_search);
+				try {
 				MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_ALWAYS | MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 				MenuItemCompat.setActionView(item, mSearchView);
 				if(mSearchView != null)
@@ -2478,6 +2456,9 @@ public class OpenExplorer
 							return false;
 						}
 					});
+				} catch(Exception e) {
+					Logger.LogWarning("Unable to setup Search ActionView", e);
+				}
 			}
 		}
 		
@@ -2740,15 +2721,15 @@ public class OpenExplorer
 			//case R.id.menu_global_ops_icon:
 			case R.id.title_ops:
 				refreshOperations();
-				showLogFrag(mOpsFragment, true);
-				checkTitleSeparator();
+				BetterPopupWindow pw = mOpsFragment.getPopup();
+				pw.showLikePopDownMenu();
 				return true;
 				
 			case R.id.title_log:
 				if(mLogFragment == null)
 					mLogFragment = new LogViewerFragment();
-				showLogFrag(mLogFragment, true);
 				sendToLogView(null, 0);
+				showLogFrag(mLogFragment, true);
 				return true;
 					
 			/*case R.id.menu_root:
@@ -2894,7 +2875,7 @@ public class OpenExplorer
 			boolean isVis = frag_log.getVisibility() == View.VISIBLE;
 			boolean isFragged = false;
 			Fragment fl = fragmentManager.findFragmentById(R.id.frag_log);
-			if(fl != null && fl.equals(frag))
+			if(isVis && (fl != null && fl.equals(frag)))
 				isFragged = true;
 			if(isFragged)
 			{
@@ -2902,7 +2883,7 @@ public class OpenExplorer
 				{
 					Logger.LogDebug("OpenExplorer.showLogFrag : Toggling " + frag.getTitle());
 					ViewUtils.setViewsVisible(frag_log, !isVis);
-				}
+				} else Logger.LogDebug("OpenExplorer.showLogFrag : Doing nothing for " + frag.getTitle());
 			} else if(isVis)
 			{
 				Logger.LogDebug("OpenExplorer.showLogFrag : Adding " + frag.getTitle());
@@ -3303,7 +3284,7 @@ public class OpenExplorer
 		
 		if(path instanceof OpenNetworkPath)
 		{
-			if(mLogViewEnabled)
+			if(mLogViewEnabled && mLogFragment != null && !mLogFragment.isAdded())
 				showLogFrag(mLogFragment, false);
 		} else
 			setViewVisibility(false, false, R.id.frag_log);

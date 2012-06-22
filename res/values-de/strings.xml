@@ -75,12 +75,12 @@
     <string name="s_create">Erstellen</string>
     <string name="s_title_holding_x_files">Enthält %s Dateien</string>
     <string name="s_title_newfolder">Neuen Ordner erstellen</string>
-    <string name="s_title_send" auto="1">Send xxx</string>
+    <string name="s_title_send">Sende xxx</string>
     <string name="s_title_unzip" auto="1">Entpacken Sie xxx</string>
-    <string name="s_title_zip" auto="1">Zip xxx</string>
+    <string name="s_title_zip">Packe in Zip Archiv xxx</string>
     <string name="s_title_executing">Ausführen</string>
     <string name="s_title_deleting">Löschen</string>
-    <string name="s_title_searching" auto="1">Suche</string>
+    <string name="s_title_searching">Suchen</string>
     <string name="s_title_moving">Verschieben</string>
     <string name="s_title_copying">Kopieren</string>
     <string name="s_title_zipping">Packen</string>
@@ -123,7 +123,8 @@
     <string name="s_pref_start_summary">Gibt an, mit welchem Ordner OpenExplorer gestartet wird</string>
     <string name="s_custom">Eigene...</string>
     <string name="s_text_intro_top" auto="1">Willkommen bei OpenExplorer!</string>
-    <string name="s_text_intro_body"> Das Ziel von OpenExplorer ist es, noch produktiver mit dem Android-Dateisystem und der Cloud zu arbeiten. Egal, ob Sie Videos oder Fotos von mehreren Orten aus verwalten möchten oder Sie einen Remotezugriff über FTP auf Ihren Webserver benötigen, kann Ihnen OpenExplorer dabei helfen.\nBitte wählen Sie Ihren Start-Pfad:</string>
+    <string name="s_text_intro_body"> Das Ziel von OpenExplorer ist es, noch produktiver mit dem Android-Dateisystem und der Cloud zu arbeiten. Egal, ob Sie Videos oder Fotos von mehreren Orten aus verwalten möchten oder Sie einen Remotezugriff über FTP auf Ihren Webserver benötigen, kann Ihnen OpenExplorer dabei helfen.
+\nBitte wählen Sie Ihren Start-Pfad:</string>
     <string name="s_info_num_folders" auto="1">Anzahl der Ordner:</string>
     <string name="s_info_num_files" auto="1">Anzahl der Dateien:</string>
     <string name="s_info_last_modified" auto="1">Zuletzt geändert am:</string>
@@ -160,7 +161,7 @@
     <string name="s_pref_intent_internal_on" auto="1">Verwenden Sie OpenExplorer Intent-Manager</string>
     <string name="s_pref_intent_internal_off">Den System-Intent-Manager verwenden</string>
     <string name="s_pref_text_internal">Den internen Texteditor verwenden</string>
-    <string name="s_text_editor_title">Texteditor</string>
+    <string name="s_text_editor_title">Textbearbeitungsprogramm </string>
     <string name="s_pref_show_root">Zeige Rootverzeichnis (/)</string>
     <string name="s_pref_show_internal" auto="1">Interne Medien anzeigen</string>
     <string name="s_pref_show_external">Externe Medien anzeigen</string>
@@ -172,7 +173,7 @@
     <string name="s_pref_server_port" auto="1">Port</string>
     <string name="s_about_buildtime" auto="1">Erstellungsdatum</string>
     <string name="s_default">Standard</string>
-    <string name="s_pref_timeout" auto="1">Timeout</string>
+    <string name="s_pref_timeout">Timeout Zeit&amp;Atilde;&amp;frac14;berschreitung </string>
     <string name="s_pref_timeout_summary" auto="1">Timeout in Sekunden</string>
     <string name="s_menu_up">nach oben</string>
     <string name="s_prompt_unzip">Den Pfad eingeben, in den entpackt werden soll:</string>
@@ -211,6 +212,8 @@
     <string name="s_pref_fancy_menus" auto="1">Schicke Menüs</string>
     <string name="s_pref_fancy_context">Schicke Kontext-Menüs</string>
     <string name="s_search_files">Suche im Dateisystem</string>
+    <string name="search_summary" auto="1" formatted="false">Die Suche nach &quot;%s&quot; \n innerhalb von &quot;%s&quot; (%d) ...</string>
+    <string name="search_results" auto="1" formatted="false">Gefunden %d Ergebnisse für &quot;%s&quot; \n in &quot;%s&quot;</string>
     <string name="s_menu_exit">Beenden</string>
     <string name="s_warn_wtf_message">Hoppla! Es ist ein unerwarteter Fehler aufgetreten! Bei OpenExplorer handelt es sich um eine Software im Beta-Stadium. Das Auftreten solcher Fehler ist hier noch üblich. Der Fehler kann behoben werden, wenn Sie einen Bericht darüber an den Entwickler von OpenExplorer senden. Stimmen Sie zu, einen solchen Bericht (welcher ausschließlich anonyme Daten enthält) an den Entwickler von OpenExplorer zu senden?</string>
     <string name="s_warn_wtf_ps">*** Bitte beachten Sie, dass sich diese Anwendung im Beta-Stadium befindet. Bitte geben Sie dieser App keine schlechte Bewertung, nur weil Sie gelegentlich abstürzt. Sollte es Sie wirklich stören, deinstallieren Sie die Anwendung einfach. Vielen Dank!</string>
@@ -237,7 +240,22 @@
     <string name="menu_view_font_small" auto="1">Schriftgröße Klein</string>
     <string name="menu_view_font_medium">Mittelgroße Schrift</string>
     <string name="menu_view_font_large">Große Schrift</string>
-    <string name="app_description">Open Explorer - Open-Source-Dateimanager für alle Geräte! (Tablets, Smartphones, Google TVs, Sandwiches!) \n- Vollständige Dateisystem-Verwaltung\n- USB, SD und weitere externe Medien\n- Verbindung mit Netzwerk möglich (FTP, SFTP, SMB/Samba/Windows/LAN/WiFi)\n- Text-Editor\n- Smart-Verzeichnisse, die nach verschiedenen Medien durchsuchen (Videos, Fotos, Musik, Downloads)\n- View Pager-Verzeichnis-Navigation (Swipe rechts hinauf ein Verzeichnis)\n- Möglichkeit als Root/Superuser Systemverzeichnise anzuzeigen (noch nicht beschreibbar)\n \nKommende Funktionen:\n- Tabs im Text-Editor\n- Mehr Netzwerkfähigkeit (Dropbox, Box.net, SkyDrive)\n- Cache für Verzeichnisstruktur, merkt sich Dateien in Verzeichnissen, ohne eine Verbindung aufbauen zu müssen\n- Speicherplatz-Heat-Map, zeigt Verzeichnisse mit den Größten Dateien dar\n \n* HINWEIS: Diese App ist im Beta-Stadium. Es gibt noch VIELE Bugs. Wenn Sie nicht möchten, dass diese Fehler auftreten, laden Sie diese App bitte nicht herunter. Falls Sie mir helfen möchten, diese Bugs aufzuspüren, schicken Sie mir eine E-Mail oder setzen Sie sich mit mir via GitHub in Verbindung (https://github.com/BrandoCommando/OpenExplorer/). Und bitte daran denken: Schlechte Bewertungen helfen niemandem!</string>
+    <string name="app_description">Open Explorer - Open-Source-Dateimanager für alle Geräte! (Tablets, Smartphones, Google TVs, Sandwiches!) 
+\n- Vollständige Dateisystem-Verwaltung
+\n- USB, SD und weitere externe Medien
+\n- Verbindung mit Netzwerk möglich (FTP, SFTP, SMB/Samba/Windows/LAN/WiFi)
+\n- Text-Editor
+\n- Smart-Verzeichnisse, die nach verschiedenen Medien durchsuchen (Videos, Fotos, Musik, Downloads)
+\n- View Pager-Verzeichnis-Navigation (Swipe rechts hinauf ein Verzeichnis)
+\n- Möglichkeit als Root/Superuser Systemverzeichnise anzuzeigen (noch nicht beschreibbar)
+\n 
+\nKommende Funktionen:
+\n- Tabs im Text-Editor
+\n- Mehr Netzwerkfähigkeit (Dropbox, Box.net, SkyDrive)
+\n- Cache für Verzeichnisstruktur, merkt sich Dateien in Verzeichnissen, ohne eine Verbindung aufbauen zu müssen
+\n- Speicherplatz-Heat-Map, zeigt Verzeichnisse mit den Größten Dateien dar
+\n 
+\n* HINWEIS: Diese App ist im Beta-Stadium. Es gibt noch VIELE Bugs. Wenn Sie nicht möchten, dass diese Fehler auftreten, laden Sie diese App bitte nicht herunter. Falls Sie mir helfen möchten, diese Bugs aufzuspüren, schicken Sie mir eine E-Mail oder setzen Sie sich mit mir via GitHub in Verbindung (https://github.com/BrandoCommando/OpenExplorer/). Und bitte daran denken: Schlechte Bewertungen helfen niemandem!</string>
     <string name="alert_translate_google">Hallo, diese Übersetzung wird durch Google Translate zur Verfügung gestellt. Wenn Sie englisch genau so gut sprechen wie %s und Sie an einer besseren Übersetzung beteiligt sein möchten, tippen Sie bitte auf folgende Schaltfläche:</string>
     <string name="alert_translate_none">Hallo, es scheint, als nutzten Sie eine nicht unterstützte Sprache. Sprechen Sie englisch und %s? Wenn Sie helfen möchten, eine korrekte Übersetzung zur Verfügung zu stellen, tippen Sie bitte hier:</string>
     <string name="button_translate" auto="1">übersetzen</string>

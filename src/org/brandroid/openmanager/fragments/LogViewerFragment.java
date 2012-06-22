@@ -49,6 +49,7 @@ public class LogViewerFragment extends OpenFragment
 	private ListView mListView = null;
 	private LayoutInflater mInflater = null;
 	private Context mContext;
+	private String mLast = null;
 	
 	public LogViewerFragment() {
 	}
@@ -66,11 +67,26 @@ public class LogViewerFragment extends OpenFragment
 			mAdapter.notifyDataSetChanged();
 	}
 	
+	private boolean checkLast(String txt)
+	{
+		if(mLast == null) return false;
+		if(mLast.length() != txt.length()) return false;
+		if(mLast.equals(txt)) return true;
+		int maxDiffs = (mLast.length() / 10) * 9;
+		for(int i = 0; i < mLast.length(); i++)
+			if(mLast.charAt(i) == txt.charAt(i))
+				if(maxDiffs--<=0)
+					return false;
+		return true;
+	}
+	
 	public boolean getAdded() { return mAdded; } 
 	public void setAdded(boolean added) { mAdded = added; }
 	
 	public void print(final String txt, final int color)
 	{
+		if(checkLast(txt)) return;
+		mLast = txt;
 		if(mAdapter == null) {
 			Logger.LogWarning("LogViewerFragment.Adapter is null");
 			mData.add(0, colorify(txt, color));

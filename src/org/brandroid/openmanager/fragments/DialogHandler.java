@@ -55,7 +55,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -64,8 +63,6 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -80,7 +77,6 @@ import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 
-import jcifs.netbios.NbtAddress;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
@@ -98,7 +94,6 @@ import org.brandroid.openmanager.data.OpenSMB;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.interfaces.OpenContextProvider;
-import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.InputDialog;
 import org.brandroid.openmanager.util.OpenChromeClient;
 import org.brandroid.openmanager.util.ThumbnailCreator;
@@ -882,119 +877,26 @@ public class DialogHandler
 		
 		final AutoCompleteTextView mServerHost = (AutoCompleteTextView)v.findViewById(R.id.text_server);
 		final ArrayList<String> mHosts = new ArrayList<String>();
-		mHosts.add("192.168.1.1");
 		final ArrayAdapter<String> mHostAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line, mHosts);
-		final ProgressBar mScanProgress = (ProgressBar)v.findViewById(R.id.server_scan_progress);
 		if(mServerHost != null)
 			mServerHost.setAdapter(mHostAdapter);
-		ViewUtils.setOnClicks(v, new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mServerHost.showDropDown();
-			}
-		}, R.id.server_drop);
 
 		final int iServerType = serverType;
 		final int[] OnlyOnSMB = new int[]{}; //R.id.server_drop, R.id.server_scan};
 		final int[] NotOnSMB = new int[]{R.id.text_path, R.id.text_path_label, R.id.text_port, R.id.label_port, R.id.check_port};
-		ViewUtils.setViewsVisible(v, serverType == 2, OnlyOnSMB);
-		ViewUtils.setViewsVisible(v, serverType != 2, NotOnSMB);
-		
-		SmbFile.setDefaultAllowUserInteraction(true);
-		
-		ViewUtils.setOnClicks(v, new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-//				new Thread(new Runnable(){public void run(){
-				/*
-					try {
-						NbtAddress addr = NbtAddress.getLocalHost();
-						mHosts.add(addr.getHostAddress());
-						Logger.LogDebug("My Address: " + addr.getHostAddress() + " : " + addr.getHostName());
-						try {
-							NbtAddress[] network = NbtAddress.getAllByAddress(addr);
-							for(NbtAddress friend : network)
-							{
-								mHosts.add(friend.getHostAddress());
-							}
-						} catch(Exception e3) {
-							Logger.LogError("DialogHandler.showServerDialog unable to get Network neighborhood.", e3);
-						}
-					} catch(Exception e) {
-						Logger.LogError("DialogHandler.showServerDialog Error getting Local Address", e);
-					}
-					//if(mHosts.size() > 1) return; 
-*/					
-					final NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication("WORKGROUP", "", "");
-					final InputDialog indlg = new InputDialog(context)
-						.setMessageTop(R.string.s_pref_server_user)
-						.setMessage(R.string.s_pref_server_password)
-						.setNegativeButton(android.R.string.cancel, null);
-					final AlertDialog dlg = indlg.create();
-					dlg.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(android.R.string.ok),
-							new DialogInterface.OnClickListener(){
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							auth.setUsername(indlg.getInputTopText());
-							auth.setPassword(indlg.getInputText());
-							mServerHost.setThreshold(0);
-							mScanProgress.setVisibility(View.VISIBLE);
-							new Thread(new Runnable() {
-								@Override
-								public void run() {
-									try {
-										final SmbFile smb = new SmbFile("smb://");
-										smb.setAuth(auth);
-										SmbFile[] workgroups = smb.listFiles();
-										for(int i = 0; i < workgroups.length; i++)
-										{
-											SmbFile group = workgroups[i];
-											final String gname = group.getName();
-											group.setAuth(auth);
-											Logger.LogDebug("Found Workgroup: " + group.getName());
-											try {
-											final SmbFile[] comps = workgroups[i].listFiles();
-											mServerHost.post(new Runnable() {public void run() {
-												for(int j = 0; j < comps.length; j++)
-												{
-													SmbFile comp = comps[j];
-													comp.setAuth(auth);
-													try {
-														String server = comp.getServer();
-														
-														Logger.LogDebug("Found Server: " + server);
-														mHosts.add(gname + (gname.endsWith("/") ? "" : "/") + server);
-													} catch(Exception e3) { }
-												}
-											}});
-											} catch(Exception e2) { }
-										}
-										smb.disconnect();
-									} catch (Exception e) {
-										Logger.LogError("OpenBookmarks.showServerDialog.scan unable to get SMB data.", e);
-									}
-									mScanProgress.post(new Runnable(){public void run(){
-										mScanProgress.setVisibility(View.GONE);
-										mServerHost.dismissDropDown();
-										mHostAdapter.notifyDataSetChanged();
-										mServerHost.showDropDown();
-									}});
-								}
-							}).start();
-						}});
-					dlg.show();
-//				}}).start();
-			}
-
-				//}}).start();
-		}, R.id.server_scan);
+		if(OnlyOnSMB.length > 0)
+			ViewUtils.setViewsVisible(v, serverType == 2, OnlyOnSMB);
+		if(NotOnSMB.length > 0)
+			ViewUtils.setViewsVisible(v, serverType != 2, NotOnSMB);
 		
 		final Spinner mServerType = (Spinner)v.findViewById(R.id.server_type);
 		mServerType.setOnItemSelectedListener(new OnItemSelectedListener() {
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
 			{
-				ViewUtils.setViewsVisible(v, position == 2, OnlyOnSMB);
-				ViewUtils.setViewsVisible(v, position != 2, NotOnSMB);
+				if(OnlyOnSMB.length > 0)
+					ViewUtils.setViewsVisible(v, position == 2, OnlyOnSMB);
+				if(NotOnSMB.length > 0)
+					ViewUtils.setViewsVisible(v, position != 2, NotOnSMB);
 				server.setType("ftp");
 				if(position == 1) server.setType("sftp");
 				if(position == 2) server.setType("smb");

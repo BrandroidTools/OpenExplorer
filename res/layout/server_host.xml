@@ -18,23 +18,4 @@
 		<requestFocus />
 	</AutoCompleteTextView>
 	
-	<ImageButton
-	    android:id="@+id/server_drop"
-	    android:layout_width="wrap_content"
-	    android:layout_height="match_parent"
-	    android:src="@android:drawable/arrow_down_float"
-	    />
-
-	<ProgressBar
-		android:id="@+id/server_scan_progress"
-		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
-		android:visibility="gone" />
-
-	<Button
-		android:id="@+id/server_scan"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="@string/scan" />
-
 </LinearLayout>

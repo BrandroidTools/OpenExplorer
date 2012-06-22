@@ -221,6 +221,7 @@
     <string name="menu_view_font_small">klein lettertype</string>
     <string name="menu_view_font_medium">gemiddeld lettertype</string>
     <string name="menu_view_font_large">groot lettertype</string>
+    <string name="button_translate">Vertaal</string>
     <string name="httpError">Er is een netwerkfout opgetreden.</string>
     <string name="httpErrorAuth">Verificatie mislukt.</string>
     <string name="httpErrorProxyAuth">Verificatie via de proxyserver is mislukt.</string>
@@ -260,4 +261,14 @@
     <string name="storage_usb">SD-kaart</string>
     <string name="extract_edit_menu_button">USB-opslag</string>
     <string name="activity_chooser_view_see_all">Bewerken...</string>
+    <string name="filename">Bestandsnaam</string>
+    <string name="s_msg_saved">opgeslagen</string>
+    <string name="s_menu_view_line_numbers">Regelnummers</string>
+    <string name="warn_text_editor">Welkom in de tekst-editor. Druk lang om de tekst-editmode te activeren.</string>
+    <string name="s_menu_new_file">Nieuw Tekst Bestand</string>
+    <string name="s_msg_created">gemaakt</string>
+    <string name="s_title_newfile">Nieuw bestand</string>
+    <string name="s_alert_clipboard">Gekopieerd nar klembord</string>
+    <string name="s_alert_restart">t\'Herstarten. Even geduld AUB...</string>
+    <string name="language">Taal</string>
 </resources>

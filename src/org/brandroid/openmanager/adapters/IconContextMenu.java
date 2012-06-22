@@ -58,7 +58,7 @@ public class IconContextMenu implements OnKeyListener
 	//private static final Hashtable<Integer, IconContextMenu> mInstances = new Hashtable<Integer, IconContextMenu>();
 	private static final Hashtable<Integer, Integer> mHeights = new Hashtable<Integer, Integer>();
 	private static final int[] DOUBLE_WIDTH_IDS = new int[]{R.id.menu_context_download};
-	private static final boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
+	private static final boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
 	
 	private OnKeyListener mKeyListener;
 	private IconContextItemSelectedListener iconContextItemSelectedListener;
