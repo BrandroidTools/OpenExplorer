@@ -16,69 +16,62 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -->
- 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:paddingLeft="10dip"
-	android:paddingRight="10dip"
-	android:paddingTop="2dip"
-	android:paddingBottom="2dip">
-	
-	<org.brandroid.openmanager.views.RemoteImageView
-		android:id="@+id/content_icon"
-		style="@style/icon.small"
-		android:layout_alignParentTop="true"
-		android:layout_alignParentLeft="true"
-		android:layout_marginRight="6dip"
-		/>
-	<TextView
-		android:id="@+id/content_text"
-		android:text="Filename"
-		android:layout_toRightOf="@+id/content_icon"
-		android:layout_toLeftOf="@+id/content_check"
-		android:layout_alignWithParentIfMissing="true"
-		android:background="@android:color/transparent"
-		style="@style/Large" />
-	<TextView
-		android:id="@+id/content_fullpath"
-		android:text="/fullpath"
-		android:layout_below="@+id/content_text"
-		android:layout_alignLeft="@+id/content_text"
-		android:layout_toLeftOf="@+id/content_info"
-		style="@style/Small"
-		android:ellipsize="start"
-		android:singleLine="true"
-		android:layout_width="wrap_content"
-		android:layout_alignWithParentIfMissing="true"
-		android:gravity="left" />
-	<TextView
-		android:id="@+id/content_info"
-		android:layout_toLeftOf="@+id/content_check"
-		android:layout_below="@+id/content_text"
-		android:gravity="right"
-		android:layout_marginLeft="4dp"
-		android:text="0 B"
-		android:singleLine="true"
-		android:ellipsize="marquee"
-		android:typeface="monospace"
-		android:layout_alignWithParentIfMissing="true"
-		style="@style/Small"
-		android:layout_width="wrap_content"
-		/>
-	<ImageView
-	    style="@style/ActionBarCompatItem"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_alignTop="@+id/content_icon"
-	    android:layout_alignBottom="@+id/content_icon"
-	    android:layout_alignParentRight="true"
-	    android:layout_alignWithParentIfMissing="true"
-	    android:layout_gravity="center"
-		android:paddingRight="5dip"
-		android:paddingLeft="5dip"
-	    android:visibility="gone"
-	    android:id="@+id/content_check"
-	    android:src="@android:drawable/checkbox_off_background"
-	    />
+ <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:baselineAligned="false"
+    android:paddingBottom="2dip"
+    android:paddingLeft="10dip"
+    android:paddingRight="10dip"
+    android:paddingTop="2dip" >
+
+    <include layout="@layout/checkmark_area" />
+
+    <org.brandroid.openmanager.views.RemoteImageView
+        android:id="@+id/content_icon"
+        style="@style/icon.small"
+	    android:layout_marginRight="6dip"
+        />
+
+    <TextView
+        android:id="@+id/content_text"
+        style="@style/Large"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_toRightOf="@+id/content_icon"
+        android:layout_toLeftOf="@+id/checkmark_area"
+        android:background="@android:color/transparent"
+        android:text="Filename" />
+
+    <TextView
+        android:id="@+id/content_fullpath"
+        style="@style/Small"
+        android:layout_width="wrap_content"
+        android:layout_alignLeft="@+id/content_text"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_below="@+id/content_text"
+        android:layout_toLeftOf="@+id/content_info"
+        android:ellipsize="start"
+        android:gravity="left"
+        android:singleLine="true"
+        android:visibility="gone"
+        android:layout_weight="1"
+        android:text="/mnt/sdcard/fullpath/fullfilename" />
+
+    <TextView
+        android:id="@+id/content_info"
+        style="@style/Small"
+        android:layout_width="match_parent"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_below="@+id/content_text"
+        android:layout_marginLeft="4dp"
+        android:layout_toRightOf="@+id/content_icon"
+        android:layout_gravity="right"
+        android:ellipsize="none"
+        android:gravity="right"
+        android:singleLine="true"
+        android:text="2 files | 6/14/2012 | 0 B"
+        android:typeface="monospace"
+        />
+
 </RelativeLayout>

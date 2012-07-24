@@ -3,7 +3,10 @@ package org.brandroid.openmanager.interfaces;
 import org.brandroid.openmanager.adapters.OpenClipboard;
 import org.brandroid.openmanager.util.ShellSession;
 import org.brandroid.utils.DiskLruCache;
+import org.brandroid.utils.LruCache;
+import org.brandroid.utils.Preferences;
 
+import com.actionbarsherlock.view.ActionMode;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
@@ -14,7 +17,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Looper;
-import android.support.v4.util.LruCache;
 
 public interface OpenApp {
     public DataManager getDataManager();
@@ -23,11 +25,15 @@ public interface OpenApp {
     public ThreadPool getThreadPool();
     public LruCache<String, Bitmap> getMemoryCache();
     public DiskLruCache getDiskCache();
+    public ActionMode getActionMode();
+    public void setActionMode(ActionMode mode);
     public OpenClipboard getClipboard();
     public ShellSession getShellSession();
 
-    public Context getAndroidContext();
+    public Context getContext();
     public Looper getMainLooper();
     public ContentResolver getContentResolver();
     public Resources getResources();
+	public Preferences getPreferences();
+	public void refreshBookmarks();
 }

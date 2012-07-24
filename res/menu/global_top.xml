@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <item
+        android:id="@+id/title_paste"
+        android:icon="@drawable/ic_menu_paste_multi"
+        android:title="@string/s_menu_multi"
+        />
+    
+    <item
+        android:id="@+id/title_ops"
+        android:icon="@drawable/ic_gear"
+        android:title="@string/s_title_operations"
+        android:showAsAction="always"
+        android:visible="false"
+        />
+    
+    <item
+        android:id="@+id/title_log"
+        android:icon="@drawable/ic_paper"
+        android:title="@string/s_pref_logview"
+        android:showAsAction="always"
+        android:visible="false"
+        />
+    
+	<item
+		android:id="@+id/menu_search"
+		android:icon="@drawable/ic_menu_search"
+		android:showAsAction="always|collapseActionView"
+		android:title="@android:string/search_go"
+		/>
+</menu>

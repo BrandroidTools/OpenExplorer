@@ -4,34 +4,49 @@
 	android:layout_height="@dimen/actionbar_compat_height"
 	android:layout_gravity="bottom|left"
 	android:gravity="bottom|left"
+	android:id="@+id/title_bar"
     >
     
-	<ImageButton
-	    android:src="@drawable/ic_launcher"
-	    android:id="@+id/title_icon"
+	<RelativeLayout
+	    android:id="@+id/title_icon_holder"
+		style="@style/ActionBarCompatHomeItem"
+	    android:layout_width="@dimen/actionbar_compat_button_home_width"
+	    android:layout_height="wrap_content"
 	    android:padding="5dp"
-	    android:scaleType="fitCenter"
-	    android:paddingLeft="6dp"
 	    android:layout_marginRight="5dp"
-	    style="@style/ActionBarCompatHomeItem"
 	    android:longClickable="true"
 	    android:clickable="true"
-	    android:layout_width="@dimen/actionbar_compat_button_home_width"
-	    android:layout_height="@dimen/actionbar_compat_height"
-		/>
+	    android:gravity="center_horizontal"
+	    >
+	    <ImageView
+	        android:id="@+id/title_icon_up"
+	        android:src="@drawable/ic_ab_back_holo_dark"
+	        android:layout_width="wrap_content"
+	        android:layout_height="match_parent"
+	        android:layout_centerInParent="true"
+	        android:layout_alignParentLeft="true"
+	        />
+	    <ImageView
+	    	android:id="@+id/title_icon"
+		    android:src="@drawable/ic_launcher"
+		    android:layout_toRightOf="@+id/title_icon_up"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+			/>
+	</RelativeLayout>
 
 	<TextView
 	    android:id="@+id/title_text"
 	    style="@style/Large"
 	    android:layout_marginTop="1dp"
 	    android:layout_alignParentTop="true"
-	    android:layout_toRightOf="@id/title_icon"
+	    android:layout_toRightOf="@+id/title_icon_holder"
 	    android:layout_toLeftOf="@+id/title_buttons"
 	    android:gravity="left|center_vertical"
 	    android:text="@string/app_name" />
 	
 	<ProgressBar
-	    android:id="@android:id/progress"
+	    android:id="@+id/title_progress"
 	    style="@android:style/Widget.ProgressBar.Small"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
@@ -46,7 +61,7 @@
 	    style="@style/Small"
 	    android:layout_marginTop="@dimen/large_text_height"
 	    android:layout_alignTop="@id/title_text"
-	    android:layout_toRightOf="@id/title_icon"
+	    android:layout_toRightOf="@+id/title_icon_holder"
 	    android:layout_toLeftOf="@+id/title_buttons"
 	    android:lines="2"
 	    android:gravity="left|center_vertical"
@@ -56,8 +71,8 @@
 	<FrameLayout
 	    android:layout_height="@dimen/actionbar_compat_height"
 		android:layout_width="match_parent"
-		android:layout_toRightOf="@id/title_icon"
-		android:layout_alignBottom="@id/title_icon"
+		android:layout_toRightOf="@+id/title_icon_holder"
+		android:layout_alignBottom="@+id/title_icon_holder"
 		android:layout_alignParentTop="true"
 		android:layout_toLeftOf="@+id/title_static_buttons"
 		android:nextFocusRight="@+id/title_buttons"
@@ -121,7 +136,7 @@
 	    android:layout_height="match_parent"
 	    android:layout_alignParentRight="true"
 	    android:layout_alignWithParentIfMissing="true"
-	    android:nextFocusRight="@android:id/home"
+	    android:nextFocusRight="@+id/title_icon_holder"
 	    android:showDividers="middle" >
 	
 	

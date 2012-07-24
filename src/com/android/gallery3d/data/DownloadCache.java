@@ -85,7 +85,7 @@ public class DownloadCache {
         mRoot = Utils.checkNotNull(root);
         mApplication = Utils.checkNotNull(application);
         mCapacity = capacity;
-        mDatabase = new DatabaseHelper(application.getAndroidContext())
+        mDatabase = new DatabaseHelper(application.getContext())
                 .getWritableDatabase();
     }
 

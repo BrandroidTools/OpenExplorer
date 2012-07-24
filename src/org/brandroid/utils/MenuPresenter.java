@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 /**
  * A MenuPresenter is responsible for building views for a Menu object.
- * It takes over some responsibility from the old style monolithic MenuBuilder class.
+ * It takes over some responsibility from the old style monolithic MenuBuilder2 class.
  */
 public interface MenuPresenter {
     /**
@@ -19,7 +19,7 @@ public interface MenuPresenter {
          * @param menu
          * @param allMenusAreClosing
          */
-        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing);
+        public void onCloseMenu(MenuBuilder2 menu, boolean allMenusAreClosing);
 
         /**
          * Called when a submenu opens. Useful for notifying the application
@@ -30,18 +30,18 @@ public interface MenuPresenter {
          * @return true if the Callback will handle presenting the submenu, false if
          *         the presenter should attempt to do so.
          */
-        public boolean onOpenSubMenu(MenuBuilder subMenu);
+        public boolean onOpenSubMenu(MenuBuilder2 subMenu);
     }
 
     /**
      * Initialize this presenter for the given context and menu.
-     * This method is called by MenuBuilder when a presenter is
-     * added. See {@link MenuBuilder#addMenuPresenter(MenuPresenter)}
+     * This method is called by MenuBuilder2 when a presenter is
+     * added. See {@link MenuBuilder2#addMenuPresenter(MenuPresenter)}
      *
      * @param context Context for this presenter; used for view creation and resource management
      * @param menu Menu to host
      */
-    public void initForMenu(Context context, MenuBuilder menu);
+    public void initForMenu(Context context, MenuBuilder2 menu);
 
     /**
      * Retrieve a MenuView to display the menu specified in
@@ -54,7 +54,7 @@ public interface MenuPresenter {
 
     /**
      * Update the menu UI in response to a change. Called by
-     * MenuBuilder during the normal course of operation.
+     * MenuBuilder2 during the normal course of operation.
      *
      * @param cleared true if the menu was entirely cleared
      */
@@ -85,7 +85,7 @@ public interface MenuPresenter {
      * @param menu Menu or submenu that is closing.
      * @param allMenusAreClosing True if all associated menus are closing.
      */
-    public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing);
+    public void onCloseMenu(MenuBuilder2 menu, boolean allMenusAreClosing);
 
     /**
      * Called by Menu implementations to flag items that will be shown as actions.
@@ -100,7 +100,7 @@ public interface MenuPresenter {
      * @param item Item to be expanded
      * @return true if this presenter expanded the action view, false otherwise.
      */
-    public boolean expandItemActionView(MenuBuilder menu, MenuItemImpl item);
+    public boolean expandItemActionView(MenuBuilder2 menu, MenuItemImpl item);
 
     /**
      * Called when a menu item with a collapsable action view should collapse its action view.
@@ -109,7 +109,7 @@ public interface MenuPresenter {
      * @param item Item to be collapsed
      * @return true if this presenter collapsed the action view, false otherwise.
      */
-    public boolean collapseItemActionView(MenuBuilder menu, MenuItemImpl item);
+    public boolean collapseItemActionView(MenuBuilder2 menu, MenuItemImpl item);
 
     /**
      * Returns an ID for determining how to save/restore instance state.

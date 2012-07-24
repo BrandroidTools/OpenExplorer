@@ -1,21 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     
-    
-	<item
-		android:id="@+id/menu_search"
-		android:icon="@drawable/ic_menu_search"
-		android:showAsAction="always|collapseActionView"
-		android:title="@android:string/search_go"
-		/>
-    <item
-        android:id="@+id/menu_more"
-        android:showAsAction="ifRoom"
-        android:icon="@drawable/ic_menu_more"
-        android:title="@string/s_menu_more"
-        >
-        <menu />
-    </item>
   	<item
   	    android:id="@+id/menu_debug"
   	    android:showAsAction="never|withText"

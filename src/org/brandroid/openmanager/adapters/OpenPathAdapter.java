@@ -11,6 +11,7 @@ import org.brandroid.openmanager.activities.OpenFragmentActivity;
 import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.fragments.DialogHandler;
+import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.openmanager.views.RemoteImageView;
 import org.brandroid.utils.Logger;
@@ -28,13 +29,13 @@ public class OpenPathAdapter extends BaseAdapter
 {
 	public final OpenPath mPath;
 	public int mViewMode = OpenExplorer.VIEW_LIST;
-	public final Context mContext;
+	public final OpenApp mApp;
 	public boolean mShowThumbnails = true;
 	public boolean mShowHidden = false;
 	
-	public OpenPathAdapter(OpenPath path, int view, Context context) {
+	public OpenPathAdapter(OpenPath path, int view, OpenApp app) {
 		mPath = path;
-		mContext = context;
+		mApp = app;
 	}
 
 	@Override
@@ -78,7 +79,7 @@ public class OpenPathAdapter extends BaseAdapter
 					//|| !BookmarkHolder.class.equals(view.getTag())
 					//|| ((BookmarkHolder)view.getTag()).getMode() != mode
 					) {
-			LayoutInflater in = (LayoutInflater)mContext
+			LayoutInflater in = (LayoutInflater)mApp.getContext()
 									.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			
 			view = in.inflate(mode, parent, false);
@@ -114,8 +115,10 @@ public class OpenPathAdapter extends BaseAdapter
 		TextView mNameView = (TextView)view.findViewById(R.id.content_text);
 		if(mNameView != null)
 			mNameView.setText(mName);
+		
+		final Context mContext = mApp.getContext();
 
-		if(((OpenApplication)((OpenFragmentActivity)mContext).getApplication()).getClipboard().contains(file))
+		if(mApp.getClipboard().contains(file))
 			mNameView.setTextAppearance(mContext, R.style.Highlight);
 		else
 			mNameView.setTextAppearance(mContext,  R.style.Large);
@@ -140,7 +143,7 @@ public class OpenPathAdapter extends BaseAdapter
 			else if(!mShowThumbnails||!file.hasThumbnail())
 				mIcon.setImageDrawable(mContext.getResources().getDrawable(ThumbnailCreator.getDefaultResourceId(file, mWidth, mHeight)));
 			else {
-				ThumbnailCreator.setThumbnail(mIcon, file, mWidth, mHeight);
+				ThumbnailCreator.setThumbnail(mApp, mIcon, file, mWidth, mHeight);
 			}
 		}
 		
@@ -153,7 +156,7 @@ public class OpenPathAdapter extends BaseAdapter
 		
 		if(file.isDirectory() && !file.requiresThread()) {
 			try {
-				deets = file.getChildCount(mShowHidden) + " " + mContext.getResources().getString(R.string.s_files) + " | ";
+				deets = file.getChildCount(mShowHidden) + " " + mApp.getResources().getString(R.string.s_files) + " | ";
 				//deets = file.list().length + " items";
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

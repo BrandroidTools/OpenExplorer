@@ -22,52 +22,27 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-    
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:id="@+id/title_holder"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_height="wrap_content">
-
-		<ViewStub android:layout="@layout/title_bar"
-		    android:id="@+id/title_stub"
-		    android:inflatedId="@+id/title_bar"
-		    android:layout_width="0dp"
-		    android:layout_height="@dimen/actionbar_compat_height"
-		    android:layout_weight="1"
-		    />
-	
-	</LinearLayout>
-	
-    <View android:background="@color/blue"
-        android:layout_height="1dp"
-        android:layout_width="match_parent"
-        android:layout_below="@+id/title_holder"
-        android:layout_alignWithParentIfMissing="true"
-        android:id="@+id/title_underline"
-        />
    
-	<LinearLayout
-	    android:layout_below="@+id/title_underline"
+	<RelativeLayout
+	    android:layout_alignParentTop="true"
 		android:id="@+id/frag_holder"
 	    android:orientation="horizontal"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
-	    android:layout_above="@id/base_bar"
 	    android:layout_alignParentLeft="true"
 	    android:layout_toLeftOf="@+id/frag_log"
 	    android:baselineAligned="false">
 	    
 	    
 	    <FrameLayout android:id="@+id/list_frag"
-	        android:layout_weight="3"
-	        android:layout_width="match_parent"
+	        android:layout_width="@dimen/bookmarks_width"
 	        android:layout_height="match_parent"
+	        android:background="@color/darkGray"
+	        android:layout_alignWithParentIfMissing="true"
 	       	/>
 	    
 	    <RelativeLayout
-	        android:layout_weight="1"
+	        android:layout_toRightOf="@+id/list_frag"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        >	
@@ -86,25 +61,17 @@
 		</RelativeLayout>
 	
 	
-	</LinearLayout>
+	</RelativeLayout>
 		
 		    <FrameLayout
 				android:id="@+id/frag_log"
-				android:layout_above="@id/base_bar"
-				android:layout_below="@+id/title_underline"
+				android:layout_alignParentTop="true"
+				android:layout_alignParentBottom="true"
 		        android:layout_width="@dimen/bookmarks_width"
 		        android:layout_height="match_parent"
 		        android:layout_alignParentRight="true"
 		        android:layout_alignWithParentIfMissing="true"
 		        >
 		    </FrameLayout>
-	
-	<ViewStub
-	    android:id="@id/base_stub"
-	    android:layout="@layout/base_bar"
-	    android:layout_alignParentBottom="true"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    />
 	
 </RelativeLayout>

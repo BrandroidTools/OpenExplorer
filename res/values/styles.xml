@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="Small" parent="@android:style/TextAppearance.Small">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -42,20 +42,6 @@
     	<item name="android:layout_width">@dimen/list_icon_size</item>
 		<item name="android:layout_height">@dimen/list_icon_size</item>
     </style>
-    <style name="AppTheme" parent="@android:style/Theme.Black.NoTitleBar">
-
-        <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
-        <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
-        <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
-        <item name="vpiTabTextStyle">@style/MyTabPageIndicator.Text</item>
-        
-        <!-- for programmatic instantiation -->
-        <item name="actionbarCompatTitleStyle">@style/ActionBarCompatTitle</item>
-        <item name="actionbarCompatItemStyle">@style/ActionBarCompatItem</item>
-        <item name="actionbarCompatItemHomeStyle">@style/ActionBarCompatHomeItem</item>
-        <item name="actionbarCompatProgressIndicatorStyle">@style/ActionBarCompatProgressIndicator</item>
-        <item name="actionbarCompatItemHomeAsUpStyle">@style/ActionBarCompatHomeAsUp</item>
-    </style>
     
    	<style name="MyTabPageIndicator" parent="Widget">
         <item name="android:gravity">center</item>
@@ -69,6 +55,21 @@
         <item name="android:textColor">@color/vpi__dark_theme</item>
         <item name="android:maxLines">1</item>
         <item name="android:gravity">center</item>
+    </style>
+        
+    <style name="AppThemeCustom" parent="Theme.Sherlock">
+        <item name="android:actionBarStyle">@style/ActionBar</item>
+        <item name="android:windowContentOverlay">@drawable/actionbar_shadow</item>
+    </style>
+
+    <style name="ActionBar" parent="Widget.Sherlock.ActionBar">
+        <item name="android:background">#eee</item>
+        <item name="android:titleTextStyle">@style/ActionBarTitle</item>
+        <item name="android:icon">@drawable/icon</item>
+    </style>
+
+    <style name="ActionBarTitle">
+        <item name="android:textColor">@color/actionbar_title_color</item>
     </style>
     
     <style name="TextAppearance.MyTabPageIndicator" parent="Mid">
@@ -179,7 +180,12 @@
         <item name="@android:windowExitAnimation">@anim/push_down_in</item>
     </style>
     
-    <style name="Dialog" parent="@android:style/Theme.Dialog" />
+    <style name="Animations.SlideFromLeft">
+        <item name="@android:windowEnterAnimation">@anim/slide_in_right</item>
+        <item name="@android:windowExitAnimation">@anim/slide_out_left</item>
+    </style>
+    
+    <style name="Dialog" parent="Theme.Sherlock.Dialog" />
     
     <style name="Widget.ProgressBar.Horizontal" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:minHeight">16dip</item>

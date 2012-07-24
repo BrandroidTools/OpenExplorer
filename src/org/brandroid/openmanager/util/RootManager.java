@@ -145,6 +145,28 @@ public class RootManager
            }
        };
 	}
+	
+	/**
+	 * Mount /system as Read-Write or Read-Only. Not thoroughly tested. Use at your own risk.
+	 * @return True if operation appears to be successful, False if an error is returned.
+	 */
+	public boolean mountSystem(boolean rw)
+	{
+		if(!rootEnabled) return false;
+		HashSet<String> procmounts = execute("cat /proc/mounts");
+		String sysDev = "/dev/block/mmcblk1p23";
+		for(String s : procmounts)
+		{
+			if(s.startsWith("/dev/") && s.indexOf(" /system ") > -1)
+			{
+				sysDev = s.substring(0, s.indexOf(" "));
+				break;
+			}
+		}
+		if(execute("mount -o " + (rw ? "rw" : "ro") + ",remount -t yaffs2 " + sysDev + " /system").size() > 0)
+			return false;
+		return true;
+	}
 
     /**
      * Look for new input from the ptty, send it to the terminal emulator.

@@ -16,6 +16,7 @@ import java.util.List;
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
 import org.brandroid.openmanager.fragments.DialogHandler;
+import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.MimeTypes;
 import org.brandroid.openmanager.util.SortType;
@@ -141,8 +142,9 @@ public abstract class OpenPath
 	{
 		return compare(this, other);
 	}
-	public SoftReference<Bitmap> getThumbnail(Context mContext, int w, int h) { return ThumbnailCreator.generateThumb(this, w, h, mContext); }
-	public SoftReference<Bitmap> getThumbnail(Context mContext, int w, int h, Boolean read, Boolean write) { return ThumbnailCreator.generateThumb(this, w, h, read, write, mContext); }
+	public SoftReference<Bitmap> getThumbnail(OpenApp app, int w, int h) { return ThumbnailCreator.generateThumb(app, this, w, h, app.getContext()); }
+	public SoftReference<Bitmap> getThumbnail(OpenApp app, int w, int h, Boolean read, Boolean write) { return ThumbnailCreator.generateThumb(app, this, w, h, read, write, app.getContext()); }
+	
 	public static int compare(OpenPath fa, OpenPath fb)
 	{
 		try {

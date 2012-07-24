@@ -60,7 +60,7 @@ public final class MenuItemImpl implements MenuItem {
     private int mIconResId = NO_ICON;
     
     /** The menu to which this item belongs */
-    private MenuBuilder mMenu;
+    private MenuBuilder2 mMenu;
     /** If this item should launch a sub menu, this is the sub menu to launch */
     private SubMenuBuilder mSubMenu;
     
@@ -109,7 +109,7 @@ public final class MenuItemImpl implements MenuItem {
      * @param categoryOrder The ordering for this item.
      * @param title The text to display for the item.
      */
-    MenuItemImpl(MenuBuilder menu, int group, int id, int categoryOrder, int ordering,
+    MenuItemImpl(MenuBuilder2 menu, int group, int id, int categoryOrder, int ordering,
             CharSequence title, int showAsAction) {
 
         if (sPrependShortcutLabel == null) {

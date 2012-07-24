@@ -6,6 +6,8 @@ import org.brandroid.openmanager.util.BetterPopupWindow;
 import org.brandroid.openmanager.util.BetterPopupWindow.OnPopupShownListener;
 import org.brandroid.utils.Logger;
 
+import com.actionbarsherlock.view.CollapsibleActionView;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -27,7 +29,7 @@ public class SeekBarActionView
 	private SeekBar mSeekBar;
 	private ImageView mActionIcon;
 	private boolean mIconified = true;
-	private boolean mIconifiedByDefault = true;
+	private boolean mIconifiedByDefault = false;
 	private boolean mClearingFocus = true;
 	private BetterPopupWindow pop = null;
 	

@@ -174,7 +174,7 @@ public class SettingsActivity extends PreferenceActivity
 						pa.setResult(OpenExplorer.RESULT_RESTART_NEEDED);
 						return true;
 					}
-				}, "pref_fullscreen", "pref_fancy_menus", "pref_basebar",
+				}, "pref_fullscreen", "pref_fancy_menus", "pref_basebar", "pref_theme",
 					"pref_stats", "pref_root", "pref_language");
 				
 				Preference pLanguage = pm.findPreference("pref_language");

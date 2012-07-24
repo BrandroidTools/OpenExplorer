@@ -380,6 +380,7 @@ public class FileManager {
 	}
 	public static OpenPath getOpenCache(String path, Context c)
 	{
+		if(path == null) return null;
 		OpenPath ret = null;
 		if(path.startsWith("/"))
 			ret = new OpenFile(path);

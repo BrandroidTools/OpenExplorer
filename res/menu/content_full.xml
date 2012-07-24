@@ -4,7 +4,7 @@
   	
 	<item
 		android:id="@+id/menu_sort"
-		android:icon="@drawable/ic_menu_sort_by_size"
+		android:icon="?attr/actionIconSort"
 		android:showAsAction="ifRoom"
 		android:alphabeticShortcut="1"
 		android:title="@string/s_menu_sort">
@@ -13,6 +13,7 @@
 			    android:id="@+id/menu_sort_folders_first"
 			    android:title="@string/s_menu_sort_folders"
 			    android:checkable="true"
+			    android:checked="true"
 				android:alphabeticShortcut="f"
 			    />
 			<group android:checkableBehavior="single">
@@ -24,6 +25,7 @@
 				<item
 					android:id="@+id/menu_sort_name_desc"
 					android:title="@string/s_menu_sort_name_desc"
+					android:alphabeticShortcut="m"
 					android:showAsAction="withText" />
 				<item
 					android:id="@+id/menu_sort_date_asc"
@@ -55,7 +57,7 @@
 	</item>
 	<item
 		android:id="@+id/menu_view"
-		android:icon="@drawable/ic_menu_view"
+		android:icon="?attr/actionIconView"
 		android:alphabeticShortcut="2"
 		android:showAsAction="ifRoom"
 		android:title="@string/s_view">
@@ -105,7 +107,7 @@
     <item android:id="@+id/menu_content_ops"
         android:title="@string/s_title_operations"
 		android:alphabeticShortcut="3"
-        android:icon="@drawable/ic_menu_folder"
+        android:icon="?attr/actionIconOperations"
         android:showAsAction="always">
     	<menu>
 			<item
@@ -145,16 +147,16 @@
 			    android:title="@android:string/paste"
 			    android:showAsAction="always"
 			    android:icon="@drawable/ic_menu_paste" />
-			<item
+<!-- 			<item
 			    android:id="@+id/menu_refresh"
 			    android:title="@string/s_menu_refresh"
 			    android:icon="@drawable/ic_menu_refresh"
-			    />
+			    /> -->
     	</menu>
     </item>
 	<item
 	    android:id="@+id/menu_refresh"
-	    android:icon="@drawable/ic_menu_refresh"
+	    android:icon="?attr/actionIconRefresh"
 		android:alphabeticShortcut="r"
 	    android:showAsAction="ifRoom"
 	    android:title="@string/s_menu_refresh"

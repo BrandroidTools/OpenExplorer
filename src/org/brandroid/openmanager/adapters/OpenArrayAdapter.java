@@ -13,6 +13,7 @@ import org.brandroid.openmanager.data.BookmarkHolder;
 import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.fragments.DialogHandler;
+import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
 
@@ -32,19 +33,19 @@ public class OpenArrayAdapter extends ArrayAdapter<OpenPath> {
 	
 	private BookmarkHolder mHolder;
 	private String mName;
-	private Context mContext;
+	private final OpenApp mApp;
 	
 	private int mViewMode = OpenExplorer.VIEW_LIST;
 	
 	public void setViewMode(int mode) { mViewMode = mode; }
 
-	public OpenArrayAdapter(Context context, int layout, List<OpenPath> data) {
-		super(context, layout, data);
-		mContext = context;
+	public OpenArrayAdapter(OpenApp app, int layout, List<OpenPath> data) {
+		super(app.getContext(), layout, data);
+		mApp = app;
 	}
-	public OpenArrayAdapter(Context context, int layout, OpenPath[] data) {
-		super(context, layout, data);
-		mContext = context;
+	public OpenArrayAdapter(OpenApp app, int layout, OpenPath[] data) {
+		super(app.getContext(), layout, data);
+		mApp = app;
 	}
 	
 	@Override
@@ -74,7 +75,7 @@ public class OpenArrayAdapter extends ArrayAdapter<OpenPath> {
 	public View getView(int position, View view, ViewGroup parent)
 	{
 		final OpenPath file = super.getItem(position);
-		return getView(file, mContext, view, parent);
+		return getView(file, mApp.getContext(), view, parent);
 	}
 	public View getView(OpenPath file, Context mContext, View view, ViewGroup parent)
 	{
@@ -119,12 +120,12 @@ public class OpenArrayAdapter extends ArrayAdapter<OpenPath> {
 		if(!mHolder.getTitle().equals(mName))
 			mHolder.setTitle(mName);
 		
-		SoftReference<Bitmap> sr = file.getThumbnail(mContext, mWidth, mHeight, true, true); // ThumbnailCreator.generateThumb(file, mWidth, mHeight, false, false, getContext());
+		SoftReference<Bitmap> sr = file.getThumbnail(mApp, mWidth, mHeight, true, true); // ThumbnailCreator.generateThumb(file, mWidth, mHeight, false, false, getContext());
 		//Bitmap b = ThumbnailCreator.getThumbnailCache(file.getPath(), mWidth, mHeight);
 		if(sr != null && sr.get() != null)
 			mHolder.getIconView().setImageBitmap(sr.get());
 		else
-			ThumbnailCreator.setThumbnail(mHolder.getIconView(), file, mWidth, mHeight);
+			ThumbnailCreator.setThumbnail(mApp, mHolder.getIconView(), file, mWidth, mHeight);
 		
 		return view;
 	}

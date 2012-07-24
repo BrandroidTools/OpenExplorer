@@ -3,6 +3,7 @@ package org.brandroid.openmanager.views;
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.OpenPathAdapter;
 import org.brandroid.openmanager.data.OpenPath;
+import org.brandroid.openmanager.interfaces.OpenApp;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -13,20 +14,23 @@ public class OpenPathList extends ListView
 {
 	private OpenPath mPathParent = null;
 	private OpenPathAdapter mAdapter = null;
+	private final OpenApp mApp;
 	
-	public OpenPathList(OpenPath path, Context context)
+	public OpenPathList(OpenPath path, OpenApp app)
 	{
-		super(context);
+		super(app.getContext());
+		mApp = app;
 		setPath(path);
 	}
-	public OpenPathList(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
+	public OpenPathList(OpenApp app, AttributeSet attrs, int defStyle) {
+		super(app.getContext(), attrs, defStyle);
+		mApp = app;
 	}
 	
 	public void setPath(OpenPath path)
 	{
 		mPathParent = path;
-		mAdapter = new OpenPathAdapter(mPathParent, R.layout.list_content_layout, getContext());
+		mAdapter = new OpenPathAdapter(mPathParent, R.layout.list_content_layout, mApp);
 		setAdapter(mAdapter);
 		invalidateViews();
 	}
@@ -36,7 +40,7 @@ public class OpenPathList extends ListView
 		if(mPathParent == null)
 			return super.getAdapter();
 		if(mAdapter == null)
-			mAdapter = new OpenPathAdapter(mPathParent, R.layout.list_content_layout, getContext());
+			mAdapter = new OpenPathAdapter(mPathParent, R.layout.list_content_layout, mApp);
 		return mAdapter;
 	}
 }

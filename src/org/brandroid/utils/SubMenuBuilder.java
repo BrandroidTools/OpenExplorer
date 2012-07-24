@@ -11,11 +11,11 @@ import android.view.View;
  * The model for a sub menu, which is an extension of the menu.  Most methods are proxied to
  * the parent menu.
  */
-public class SubMenuBuilder extends MenuBuilder implements SubMenu {
-    private MenuBuilder mParentMenu;
+public class SubMenuBuilder extends MenuBuilder2 implements SubMenu {
+    private MenuBuilder2 mParentMenu;
     private MenuItemImpl mItem;
     
-    public SubMenuBuilder(Context context, MenuBuilder parentMenu, MenuItemImpl item) {
+    public SubMenuBuilder(Context context, MenuBuilder2 parentMenu, MenuItemImpl item) {
         super(context);
 
         mParentMenu = parentMenu;
@@ -56,12 +56,12 @@ public class SubMenuBuilder extends MenuBuilder implements SubMenu {
     }
 
     @Override
-    public MenuBuilder getRootMenu() {
+    public MenuBuilder2 getRootMenu() {
         return mParentMenu;
     }
 
     @Override
-    boolean dispatchMenuItemSelected(MenuBuilder menu, MenuItem item) {
+    boolean dispatchMenuItemSelected(MenuBuilder2 menu, MenuItem item) {
         return super.dispatchMenuItemSelected(menu, item) ||
                 mParentMenu.dispatchMenuItemSelected(menu, item);
     }

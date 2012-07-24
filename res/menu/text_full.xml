@@ -4,7 +4,7 @@
         android:id="@+id/menu_view_font_size"
         android:title="@string/s_view_font_size"
         android:icon="@drawable/ic_menu_font_size"
-        android:showAsAction="always"
+        android:showAsAction="always|collapseActionView"
         />
     <item
         android:id="@+id/menu_text_ops"

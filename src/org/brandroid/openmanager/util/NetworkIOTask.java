@@ -39,7 +39,7 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
 	private final static Hashtable<String, NetworkIOTask> mFileTasks = new Hashtable<String, NetworkIOTask>();
 	
 	public final static Hashtable<String, NetworkIOTask> getTasks() { return mFileTasks; }
-	public final static boolean isTaskRunning(String path) { return mFileTasks.containsKey(path); }
+	public final static boolean isTaskRunning(String path) { return mFileTasks.containsKey(path) && mFileTasks.get(path).instanceRunning; }
 	public final static void cancelTask(String path) {
 		if(isTaskRunning(path))
 		{

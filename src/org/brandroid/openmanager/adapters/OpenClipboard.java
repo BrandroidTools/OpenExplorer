@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
@@ -17,6 +18,7 @@ import org.brandroid.openmanager.views.RemoteImageView;
 import org.brandroid.utils.ViewUtils;
 
 import android.text.ClipboardManager;
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -29,9 +31,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+@SuppressLint("NewApi")
 public class OpenClipboard
 	extends BaseAdapter
-	implements List<OpenPath>
+	implements Set<OpenPath>
 {
 	private static final long serialVersionUID = 8847538312028343319L;
 	public boolean DeleteSource = false;
@@ -39,7 +42,7 @@ public class OpenClipboard
 	private final ArrayList<OpenPath> list = new ArrayList<OpenPath>();
 	private final Context mContext;
 	private OnClipboardUpdateListener listener = null;
-	private boolean mMultiselect = false;
+	//private boolean mMultiselect = false;
 	private OpenPath mCurrentPath = null;
 	
 	public static class OpenClipItem
@@ -120,6 +123,7 @@ public class OpenClipboard
 		}
 	}
 	
+	/* ActionMode should now control Multiselect
 	public void startMultiselect() {
 		mMultiselect = true; 
 		onClipboardUpdate();
@@ -129,6 +133,7 @@ public class OpenClipboard
 		onClipboardUpdate();
 	}
 	public boolean isMultiselect() { return mMultiselect; }
+	*/
 	
 	/*
 	 * Path hint for drop down menu
@@ -270,11 +275,13 @@ public class OpenClipboard
 		if(list.contains(path)) return;
 		if(path.getTag() == null || !(path.getTag() instanceof Integer))
 			path.setTag((Integer)(DeleteSource ? R.id.menu_context_cut : R.id.menu_context_copy));
-		list.add(index, path);
+		if(!list.contains(path))
+			list.add(index, path);
 		onClipboardUpdate();
 	}
 
 	public boolean addAll(Collection<? extends OpenPath> collection) {
+		list.removeAll(collection); // remove and re-add
 		boolean ret = list.addAll(collection);
 		list.remove(null);
 		onClipboardUpdate();
@@ -282,6 +289,7 @@ public class OpenClipboard
 	}
 
 	public boolean addAll(int index, Collection<? extends OpenPath> collection) {
+		list.removeAll(collection); // remove and re-add
 		boolean ret = list.addAll(index, collection);
 		list.remove(null);
 		onClipboardUpdate();
@@ -290,7 +298,6 @@ public class OpenClipboard
 
 	public void clear() {
 		list.clear();
-		stopMultiselect();
 		onClipboardUpdate();
 	}
 

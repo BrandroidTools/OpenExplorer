@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/checkmark_area"
+    android:layout_alignParentRight="true"
+    android:layout_width="wrap_content"
+    android:layout_height="fill_parent" >
+        
+    <ImageView
+        android:id="@+id/content_clipboard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_menu_clipboard_checked"
+        android:layout_centerInParent="true"
+        android:contentDescription="@string/clipboard"
+        android:clickable="false" 
+        android:alpha="0.8"
+		android:visibility="gone"
+        />
+
+    <ImageView
+        android:id="@+id/content_check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:paddingLeft="5dip"
+        android:paddingRight="5dip"
+        android:contentDescription="@string/s_menu_multi"
+        android:src="?attr/checkboxButtonOn"
+		android:visibility="gone"
+        />
+</RelativeLayout>

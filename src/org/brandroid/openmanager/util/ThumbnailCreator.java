@@ -62,15 +62,16 @@ import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenSFTP;
 import org.brandroid.openmanager.data.OpenSMB;
+import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.views.RemoteImageView;
 import org.brandroid.utils.ImageUtils;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.LruCache;
 import org.brandroid.utils.Utils;
 
-public class ThumbnailCreator extends Thread {
+public class ThumbnailCreator {
 	//private static HashMap<String, Bitmap> mCacheMap = new HashMap<String, Bitmap>();
-	private static LruCache<String, Bitmap> mCacheMap = new LruCache<String, Bitmap>(200);
+	//private static LruCache<String, Bitmap> mCacheMap = new LruCache<String, Bitmap>(200);
 	private Handler mHandler;
 	
 	private boolean mStop = false;
@@ -113,7 +114,9 @@ public class ThumbnailCreator extends Thread {
 			}
 		});
 	}
-	public static boolean setThumbnail(final ImageView mImage,
+	public static boolean setThumbnail(
+			final OpenApp app,
+			final ImageView mImage,
 			final OpenPath file, final int mWidth, final int mHeight,
 			final OnUpdateImageListener mListener)
 	{
@@ -140,7 +143,7 @@ public class ThumbnailCreator extends Thread {
 			if(showThumbPreviews && !file.requiresThread())
 			{
 				Bitmap thumb = //!mCacheMap.containsKey(file.getPath()) ? null :
-					getThumbnailCache(mContext, file.getPath(), mWidth, mHeight);
+					getThumbnailCache(app, file.getPath(), mWidth, mHeight);
 				
 				if(thumb == null)
 				{
@@ -152,10 +155,10 @@ public class ThumbnailCreator extends Thread {
 					try {
 						if(!fails.containsKey(file.getPath()))
 						{
-							if(!mCacheMap.containsKey(file.getPath()))
+							if(!app.getMemoryCache().containsKey(file.getPath()))
 								new Thread(new Runnable(){
 									public void run() {
-										SoftReference<Bitmap> gen = generateThumb(file, mWidth, mHeight, mContext);
+										SoftReference<Bitmap> gen = generateThumb(app, file, mWidth, mHeight, mContext);
 										if(gen != null && gen.get() != null)
 											mListener.updateImage(gen.get());
 										else Logger.LogWarning("Couldn't generate thumb for " + file.getPath());
@@ -163,7 +166,7 @@ public class ThumbnailCreator extends Thread {
 								}).start();
 							else 
 								//new Thread(new Runnable() {public void run() {
-										mListener.updateImage(getThumbnailCache(mContext, file.getPath(), mWidth, mHeight));
+										mListener.updateImage(getThumbnailCache(app, file.getPath(), mWidth, mHeight));
 								//}}).start();
 						}
 						//mImage.setTag(task);
@@ -199,7 +202,7 @@ public class ThumbnailCreator extends Thread {
 		if(ret != null && ret instanceof String) return (String)ret;
 		return "";
 	}
-	public static boolean setThumbnail(final RemoteImageView mImage, OpenPath file, int mWidth, int mHeight)
+	public static boolean setThumbnail(OpenApp app, final RemoteImageView mImage, OpenPath file, int mWidth, int mHeight)
 	{
 		final String mName = file.getName();
 		final String ext = mName.substring(mName.lastIndexOf(".") + 1);
@@ -225,7 +228,7 @@ public class ThumbnailCreator extends Thread {
 			if(showThumbPreviews && !file.requiresThread())
 			{
 
-				Bitmap thumb = ThumbnailCreator.getThumbnailCache(mImage.getContext(), file.getPath(), mWidth, mHeight);
+				Bitmap thumb = ThumbnailCreator.getThumbnailCache(app, file.getPath(), mWidth, mHeight);
 				
 				if(thumb == null)
 				{
@@ -369,35 +372,35 @@ public class ThumbnailCreator extends Thread {
 			return (useLarge ? R.drawable.lg_unknown : R.drawable.sm_unknown);
 	}
 	
-	public static boolean hasThumbnailCached(OpenPath file, int w, int h)
+	public static boolean hasThumbnailCached(OpenApp app, OpenPath file, int w, int h)
 	{
-		return mCacheMap.containsKey(getCacheFilename(file.getPath(), w, h));
+		return app.getMemoryCache().containsKey(getCacheFilename(file.getPath(), w, h));
 	}
-	public static Bitmap getThumbnailCache(Context mContext, OpenPath file, int w, int h)
+	public static Bitmap getThumbnailCache(OpenApp app, OpenPath file, int w, int h)
 	{
-		return getThumbnailCache(mContext, getCacheFilename(file.getPath(), w, h), w, h);
+		return getThumbnailCache(app, getCacheFilename(file.getPath(), w, h), w, h);
 	}
-	public static Bitmap getThumbnailCache(Context mContext, String name, int w, int h) {
+	public static Bitmap getThumbnailCache(OpenApp app, String name, int w, int h) {
 		String cacheName = getCacheFilename(name, w, h);
-		if(!mCacheMap.containsKey(cacheName))
+		if(!app.getMemoryCache().containsKey(cacheName))
 		{
-			File f = mContext.getFileStreamPath(cacheName);
+			File f = app.getContext().getFileStreamPath(cacheName);
 			if(f.exists())
 			{
 				if(f.length() > 0)
-					mCacheMap.put(cacheName, BitmapFactory.decodeFile(f.getPath()));
+					app.getMemoryCache().put(cacheName, BitmapFactory.decodeFile(f.getPath()));
 				else
 					fails.put(name, 1);
 			}
 		}
-		if(mCacheMap.containsKey(cacheName))
-			return mCacheMap.get(cacheName);
+		if(app.getMemoryCache().containsKey(cacheName))
+			return app.getMemoryCache().get(cacheName);
 		return null;
 	}
-	private static void putThumbnailCache(String cacheName, Bitmap value)
+	private static void putThumbnailCache(OpenApp app, String cacheName, Bitmap value)
 	{
 		//String cacheName = getCacheFilename(name, w, h);
-		mCacheMap.put(cacheName, value);
+		app.getMemoryCache().put(cacheName, value);
 	}
 	
 	private static String getCacheFilename(String path, int w, int h)
@@ -406,8 +409,8 @@ public class ThumbnailCreator extends Thread {
 				//path.replaceAll("[^A-Za-z0-9]", "-") + ".jpg";
 	}
 	
-	public static SoftReference<Bitmap> generateThumb(final OpenPath file, int mWidth, int mHeight, Context context) { return generateThumb(file, mWidth, mHeight, true, true, context); }
-	public static SoftReference<Bitmap> generateThumb(final OpenPath file, int mWidth, int mHeight, boolean readCache, boolean writeCache, Context mContext)
+	public static SoftReference<Bitmap> generateThumb(final OpenApp app, final OpenPath file, int mWidth, int mHeight, Context context) { return generateThumb(app, file, mWidth, mHeight, true, true, context); }
+	public static SoftReference<Bitmap> generateThumb(final OpenApp app, final OpenPath file, int mWidth, int mHeight, boolean readCache, boolean writeCache, Context mContext)
 	{
 		final boolean useLarge = mWidth > 72;
 		//SoftReference<Bitmap> mThumb = null;
@@ -435,14 +438,14 @@ public class ThumbnailCreator extends Thread {
 		
 		String path = file.getPath();
 		
-		if((file.isImageFile() || file.isVideoFile() || file.isAPKFile()) && (bmp = getThumbnailCache(mContext, path, mWidth, mHeight)) != null)
+		if((file.isImageFile() || file.isVideoFile() || file.isAPKFile()) && (bmp = getThumbnailCache(app, path, mWidth, mHeight)) != null)
 			return new SoftReference<Bitmap>(bmp);
 		
 		String mCacheFilename = getCacheFilename(path, mWidth, mHeight);
 		
 		//we already loaded this thumbnail, just return it.
-		if (mCacheMap.get(mCacheFilename) != null) 
-			return new SoftReference<Bitmap>(mCacheMap.get(mCacheFilename));
+		if (app.getMemoryCache().get(mCacheFilename) != null) 
+			return new SoftReference<Bitmap>(app.getMemoryCache().get(mCacheFilename));
 		if(readCache && bmp == null)
 			bmp = loadThumbnail(mContext, mCacheFilename);
 		
@@ -581,10 +584,10 @@ public class ThumbnailCreator extends Thread {
 		
 		if(bmp != null)
 		{
-			if(writeCache && !useGeneric) saveThumbnail(mContext, mCacheFilename, bmp);
-			mCacheMap.put(mCacheFilename, bmp);
+			if(writeCache && !useGeneric) saveThumbnail(app.getContext(), mCacheFilename, bmp);
+			app.getMemoryCache().put(mCacheFilename, bmp);
 		} else {
-			saveThumbnail(mContext, mCacheFilename, null);
+			saveThumbnail(app.getContext(), mCacheFilename, null);
 			fails.put(mParent, fails.containsKey(mParent) ? fails.get(mParent) + 1 : 1);
 			rememberFailure(file.getPath());
 		}
@@ -660,11 +663,11 @@ public class ThumbnailCreator extends Thread {
 	}
 	
 	
-	private void sendThumbBack(Context mContext, SoftReference<Bitmap> mThumb, String path)
+	private void sendThumbBack(OpenApp app, SoftReference<Bitmap> mThumb, String path)
 	{
 		final Bitmap d = mThumb.get();
-		new BitmapDrawable(mContext.getResources(), d).setGravity(Gravity.CENTER);
-		mCacheMap.put(path, d);
+		new BitmapDrawable(app.getResources(), d).setGravity(Gravity.CENTER);
+		app.getMemoryCache().put(path, d);
 		
 		mHandler.post(new Runnable() {
 			
@@ -676,13 +679,13 @@ public class ThumbnailCreator extends Thread {
 		});
 	}
 
-	public static void flushCache(Context mContext, boolean deleteFiles) {
+	public static void flushCache(OpenApp app, boolean deleteFiles) {
 		//Logger.LogInfo("Flushing" + mCacheMap.size() + " from memory & " + mContext.fileList().length + " from disk.");
-		mCacheMap.clear();
+		app.getMemoryCache().clear();
 		if(!deleteFiles) return;
-		for(String s : mContext.fileList())
+		for(String s : app.getContext().fileList())
 			if(!s.toLowerCase().endsWith(".json"))
-				mContext.deleteFile(s);
+				app.getContext().deleteFile(s);
 	}
 	
 

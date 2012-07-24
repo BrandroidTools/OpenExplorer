@@ -20,6 +20,7 @@ public class Logger
 	private static String[] sLastMessage = new String[] {"", "", "", "", ""};
 	private static Integer[] iLastCount = new Integer[] {0,0,0,0,0};
 	private final static Boolean DO_LOG = true; // global static
+	private final static Boolean DEBUG = true; // && OpenExplorer.IS_DEBUG_BUILD;
 	private static Boolean bLoggingEnabled = true; // this can be set view preferences
 	public final static Integer MIN_DB_LEVEL = Log.WARN;
 	public final static String LOG_KEY = "OpenExplorer";
@@ -36,7 +37,7 @@ public class Logger
 	public static void setLoggingEnabled(Boolean enable) { bLoggingEnabled = enable; }
 	private static boolean CheckLastLog(String msg, int level)
 	{
-		if(OpenExplorer.IS_DEBUG_BUILD) return false;
+		if(DEBUG) return false;
 		if(!isLoggingEnabled()) return true;
 		level -= 2;
 		if(level < 0 || level > 4) return false;

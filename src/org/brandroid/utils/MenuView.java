@@ -9,7 +9,7 @@ public interface MenuView {
      * 
      * @param menu The menu that this MenuView should display.
      */
-    public void initialize(MenuBuilder menu);
+    public void initialize(MenuBuilder2 menu);
 
     /**
      * Returns the default animations to be used for this menu when entering/exiting.

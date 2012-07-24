@@ -5,17 +5,24 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.data.BookmarkHolder;
 import org.brandroid.openmanager.data.OpenCursor;
 import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenSearch;
 import org.brandroid.openmanager.data.OpenSmartFolder;
 import org.brandroid.openmanager.fragments.DialogHandler;
+import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.openmanager.util.ThumbnailCreator.OnUpdateImageListener;
+import org.brandroid.openmanager.views.OpenPathView;
 import org.brandroid.utils.ImageUtils;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
@@ -31,10 +38,13 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.LinearLayout;
 
 
 
@@ -51,15 +61,33 @@ public class ContentAdapter extends BaseAdapter {
 	public int mViewMode = OpenExplorer.VIEW_LIST;
 	public boolean mShowThumbnails = true;
 	private SortType mSorting = SortType.ALPHA;
-	private CheckClipboardListener mClipper;
-	private Context mContext;
+	private OpenApp mApp;
 	private boolean mPlusParent = false;
 	private boolean mShowDetails = true;
 	private boolean mShowFiles = true;
+	private boolean mShowChecks = false;
 	
-	public ContentAdapter(Context context, int mode, OpenPath parent) {
+	/**
+	 * Set of seleced message IDs.
+	 */
+	private final TreeSet<OpenPath> mSelectedSet = new TreeSet<OpenPath>();
+
+	/**
+	 * Callback from MessageListAdapter. All methods are called on the UI
+	 * thread.
+	 */
+	public interface Callback {
+		/** Called when the user selects/unselects a message */
+		void onAdapterSelectedChanged(OpenPathView itemView,
+				boolean newSelected, int mSelectedCount);
+	}
+	
+	private final Callback mCallback;
+	
+	public ContentAdapter(OpenApp app, Callback callback, int mode, OpenPath parent) {
 		//super(context, layout, data);
-		mContext = context;
+		mApp = app;
+		mCallback = callback;
 		mParent = parent;
 		
 		if(Preferences.Pref_ShowUp && mParent.getParent() != null)
@@ -70,16 +98,14 @@ public class ContentAdapter extends BaseAdapter {
 	public interface CheckClipboardListener
 	{
 		public boolean checkClipboard(OpenPath file);
-		public boolean isMultiselect();
 		public void removeFromClipboard(OpenPath file);
 	}
-	public void setCheckClipboardListener(CheckClipboardListener l) { mClipper = l; }
 	public void setShowPlusParent(boolean showUp) { mPlusParent = showUp; }
 	public void setShowDetails(boolean showDeets) { mShowDetails = showDeets; }
 	public void setShowFiles(boolean showFiles) { mShowFiles = showFiles; }
 	
-	public Context getContext() { return mContext; }
-	public Resources getResources() { if(mContext != null) return mContext.getResources(); else return null; }
+	public Context getContext() { return mApp.getContext(); }
+	public Resources getResources() { return mApp.getResources(); }
 	public int getViewMode() { return mViewMode; }
 	public void setViewMode(int mode) { mViewMode = mode; notifyDataSetChanged(); }
 	
@@ -90,7 +116,11 @@ public class ContentAdapter extends BaseAdapter {
 	public void updateData(final OpenPath[] items) { updateData(items, true); }
 	private void updateData(final OpenPath[] items,
 			final boolean doSort) {
-		if(items == null) return;
+		if(items == null) {
+			Logger.LogWarning("ContentAdapter.updateData warning: Items are null!");
+			super.notifyDataSetChanged();
+			return;
+		}
 		
 		//new Thread(new Runnable(){public void run() {
 		boolean showHidden = getSorting().showHidden();
@@ -118,7 +148,16 @@ public class ContentAdapter extends BaseAdapter {
 		if(doSort)
 			sort();
 		
-		notifyDataSetChanged();
+		super.notifyDataSetChanged();
+	}
+	
+	@Override
+	public void notifyDataSetChanged() {
+		//super.notifyDataSetChanged();
+		/* Please note, this is on purpose.
+		 * We want to hook into notifyDataSetChanged
+		 * to ensure filters & sorting are enabled. */
+		super.notifyDataSetChanged();
 	}
 	
 	public void sort() { sort(mSorting); }
@@ -140,48 +179,63 @@ public class ContentAdapter extends BaseAdapter {
 		}
 	}
 	
+	public View getView(OpenPath path, View view, ViewGroup parent)
+	{
+		if(!mData2.contains(path)) return null;
+		return getView(mData2.indexOf(path), view, parent);
+	}
+	
 	////@Override
 	public View getView(int position, View view, ViewGroup parent)
 	{
-		int mode = getViewMode() == OpenExplorer.VIEW_GRID ?
-				R.layout.grid_content_layout : R.layout.list_content_layout;
-		final boolean useLarge = mode == R.layout.grid_content_layout;
+		int mode = getViewMode();
+		final int layout = getViewMode() == OpenExplorer.VIEW_GRID ?
+				(!OpenExplorer.DEBUG_TOGGLE ? R.layout.file_grid_item : R.layout.grid_content_layout) :
+				(!OpenExplorer.DEBUG_TOGGLE ? R.layout.file_list_item : R.layout.list_content_layout);
+		final boolean useLarge = getViewMode() == OpenExplorer.VIEW_GRID;
+		final OpenPath file = getItem(position); //super.getItem(position);
 		
+		View row;
+						
 		if(view == null
-					//|| view.getTag() == null
-					//|| !BookmarkHolder.class.equals(view.getTag())
-					//|| ((BookmarkHolder)view.getTag()).getMode() != mode
-					)
-		{
+					|| view.getTag() == null
+					|| !(view.getTag() instanceof BookmarkHolder)
+					|| ((BookmarkHolder)view.getTag()).getMode() != mode
+					) {
 			LayoutInflater in = (LayoutInflater)getContext()
 									.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			
-			view = in.inflate(mode, parent, false);
-			//mHolder = new BookmarkHolder(file, mName, view, mode);
-			//view.setTag(mHolder);
+			row = in.inflate(layout, parent, false);
+			BookmarkHolder mHolder = new BookmarkHolder(file, file.getName(), row, mode);
+			row.setTag(mHolder);
 			//file.setTag(mHolder);
-		} //else mHolder = (BookmarkHolder)view.getTag();
+		} else {
+			row = view;
+		}
 		
-		final OpenPath file = getItem(position); //super.getItem(position);
 		
-		if(file == null) return view;
+		if(file == null) {
+			return row;
+		} else if(row instanceof OpenPathView) {
+			((OpenPathView)row).associateFile(file, this);
+		}
 		
 		Object o = file.getTag();
 		if(o != null && o instanceof OpenPath && ((OpenPath)o).equals(file))
-			return view;
+			return row;
 		
-		TextView mInfo = (TextView)view.findViewById(R.id.content_info);
-		TextView mPathView = (TextView)view.findViewById(R.id.content_fullpath); 
-		TextView mNameView = (TextView)view.findViewById(R.id.content_text);
-		final ImageView mIcon = (ImageView)view.findViewById(R.id.content_icon);
+		TextView mInfo = (TextView)row.findViewById(R.id.content_info);
+		TextView mPathView = (TextView)row.findViewById(R.id.content_fullpath); 
+		TextView mNameView = (TextView)row.findViewById(R.id.content_text);
+		final ImageView mIcon = (ImageView)row.findViewById(R.id.content_icon);
 		
 		if(mPlusParent && position == 0)
 		{
-			mNameView.setText(mContext.getString(R.string.s_menu_up));
+			mNameView.setText(getResources().getString(R.string.s_menu_up));
 			mIcon.setImageResource(useLarge ? R.drawable.lg_folder_up : R.drawable.sm_folder_up);
 			if(mInfo != null) mInfo.setText("");
 			if(mPathView != null) mPathView.setText("");
-			return view;
+			return row;
 		}
 		final String mName = file.getName();
 		
@@ -209,7 +263,8 @@ public class ContentAdapter extends BaseAdapter {
 				mPathView.setText(s);
 				showLongDate = false;
 			}
-			else mPathView.setVisibility(View.GONE);
+			else if(mPathView.isShown())
+				mPathView.setVisibility(View.GONE);
 				//mHolder.showPath(false);
 		}
 
@@ -224,36 +279,6 @@ public class ContentAdapter extends BaseAdapter {
 
 		if(mNameView != null)
 			mNameView.setText(mName);
-
-		boolean multi = mClipper != null && mClipper.isMultiselect();
-		boolean copied = mClipper != null && mClipper.checkClipboard(file);
-		int pad = view.getPaddingLeft();
-		if(multi || copied)
-			pad = 0;
-		view.setPadding(view.getPaddingLeft(), view.getPaddingTop(), pad, view.getPaddingBottom());
-		ImageView mCheck = (ImageView)view.findViewById(R.id.content_check);
-		if(mCheck != null)
-		{
-			if(mCheck.getVisibility() != (multi || copied ? View.VISIBLE : View.GONE))
-				mCheck.setVisibility(multi || copied ? View.VISIBLE : View.GONE);
-			if(copied)
-				mCheck.setImageResource(android.R.drawable.checkbox_on_background);
-		}
-		if(copied)
-		{
-			mNameView.setTextAppearance(getContext(), R.style.Highlight);
-			ViewUtils.setOnClicks(view, new View.OnClickListener() {
-					public void onClick(View v) {
-						mClipper.removeFromClipboard(file);
-					}
-				}, R.id.content_check);
-		} else {
-			mNameView.setTextAppearance(getContext(),  R.style.Large);
-			if(!copied && multi)
-				ViewUtils.setImageResource(view,
-						android.R.drawable.checkbox_off_background,
-						R.id.content_check);
-		}
 		
 		if(file.isHidden())
 			ViewUtils.setAlpha(0.5f, mNameView, mPathView, mInfo);
@@ -279,7 +304,7 @@ public class ContentAdapter extends BaseAdapter {
 			} else { //if(!ThumbnailCreator.getImagePath(mIcon).equals(file.getPath())) {
 				//Logger.LogDebug("Bitmapping " + file.getPath());
 				//if(OpenExplorer.BEFORE_HONEYCOMB) mIcon.setAlpha(0);
-				ThumbnailCreator.setThumbnail(mIcon, file, mWidth, mHeight,
+				ThumbnailCreator.setThumbnail(mApp, mIcon, file, mWidth, mHeight,
 					new OnUpdateImageListener() {
 						public void updateImage(final Bitmap b) {
 							//if(!ThumbnailCreator.getImagePath(mIcon).equals(file.getPath()))
@@ -305,9 +330,30 @@ public class ContentAdapter extends BaseAdapter {
 			}
 		}
 		
-		view.setTag(file);
-		
-		return view;
+		//row.setTag(file);
+		boolean mChecked = (mSelectedSet != null && mSelectedSet.contains(file));
+		boolean mShowCheck = mChecked || (mSelectedSet != null && mSelectedSet.size() > 0);
+		boolean mShowClip = mApp.getClipboard().contains(file);
+		if(mShowCheck || mShowClip)
+		{
+			ViewStub stub = (ViewStub)row.findViewById(R.id.checkmark_area_stub);
+			if(stub != null)
+				stub.inflate();
+		}
+		if(mShowClip)
+		{
+			ViewUtils.setViewsVisible(row, true, R.id.content_clipboard);
+			ViewUtils.setOnClicks(row, new View.OnClickListener() {
+				public void onClick(View v) {
+					mApp.getClipboard().remove(file);
+				}
+			}, R.id.content_clipboard);
+		} else ViewUtils.setViewsVisible(row, false, R.id.content_clipboard);
+		ViewUtils.setViewsChecked(row, mChecked, R.id.content_check);
+		ViewUtils.setViewsVisible(row, mShowCheck, R.id.content_check);
+			
+		//listItemCB.setVisibility(mSelectedSet != null && mSelectedSet.size() > 0 ? View.VISIBLE : View.GONE);
+		return row;
 	}
 
 	@Override
@@ -341,4 +387,64 @@ public class ContentAdapter extends BaseAdapter {
 		return mData2;
 	}
 	
+	public TreeSet<OpenPath> getSelectedSet() {
+		return mSelectedSet;
+	}
+	
+	public void setSelectedSet(Set<OpenPath> set) {
+		for (OpenPath rememberedPath : set) {  
+			mSelectedSet.add(rememberedPath);
+		}
+	}
+
+	/**
+	 * Clear the selection. It's preferable to calling {@link Set#clear()} on
+	 * {@link #getSelectedSet()}, because it also notifies observers.
+	 */
+	public void clearSelection() {
+		Set<OpenPath> checkedset = getSelectedSet();
+		if (checkedset.size() > 0) {
+			checkedset.clear();
+			notifyDataSetChanged();
+		}
+	}
+
+	public boolean isSelected(OpenPath path) {
+		return getSelectedSet().contains(path);
+	}
+	
+	public boolean toggleSelected(OpenPath path)
+	{
+		if(isSelected(path))
+		{
+			getSelectedSet().remove(path);
+			return false;
+		} else {
+			getSelectedSet().add(path);
+			return true;
+		}
+	}
+
+	/**
+	 * This is used as a callback from the list items, to set the selected state
+	 * 
+	 * <p>
+	 * Must be called on the UI thread.
+	 * 
+	 * @param itemView
+	 *            the item being changed
+	 * @param newSelected
+	 *            the new value of the selected flag (checkbox state)
+	 */
+	private void updateSelected(OpenPathView itemView, boolean newSelected) {
+		if (newSelected) {
+			mSelectedSet.add(itemView.getOpenPath());
+		} else {
+			mSelectedSet.remove(itemView.getOpenPath());
+		}
+		if (mCallback != null) {
+			mCallback.onAdapterSelectedChanged(itemView, newSelected,
+					mSelectedSet.size());
+		}
+	}
 }

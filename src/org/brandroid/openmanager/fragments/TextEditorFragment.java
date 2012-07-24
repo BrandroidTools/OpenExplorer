@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
@@ -28,8 +27,6 @@ import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenPath.NeedsTempFile;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
-import org.brandroid.openmanager.interfaces.OpenActionView;
-import org.brandroid.openmanager.util.ActionModeHelper;
 import org.brandroid.openmanager.util.BetterPopupWindow;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.ThumbnailCreator;
@@ -39,10 +36,15 @@ import org.brandroid.utils.MenuUtils;
 import org.brandroid.utils.Preferences;
 import org.brandroid.utils.ViewUtils;
 
-import android.R.anim;
+import com.actionbarsherlock.internal.view.menu.MenuBuilder;
+import com.actionbarsherlock.view.CollapsibleActionView;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.actionbarcompat.ActionBarHelper;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -54,31 +56,22 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v4.view.MenuItemCompat;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.StyleSpan;
-import android.view.CollapsibleActionView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.animation.AnimationUtils;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.SearchView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -108,7 +101,7 @@ public class TextEditorFragment extends OpenFragment
 	private float mTextSize = 10f;
 	private boolean mSalvage = true;
 	
-	private final static boolean USE_SEEK_ACTIONVIEW = !OpenExplorer.BEFORE_HONEYCOMB;
+	private final static boolean USE_SEEK_ACTIONVIEW = true;
 	
 	private AsyncTask<?, ?, ?> mTask = null;
 	
@@ -117,8 +110,9 @@ public class TextEditorFragment extends OpenFragment
 	public TextEditorFragment() {
 		if(getArguments() != null && getArguments().containsKey("edit_path"))
 		{
-			Logger.LogDebug("Creating TextEditorFragment @ " + getArguments().getString("edit_path") + " from scratch");
-			setPath(getArguments().getString("edit_path"));
+			OpenPath path = (OpenPath)getArguments().getParcelable("edit_path");
+			Logger.LogDebug("Creating TextEditorFragment @ " + path + " from scratch");
+			setPath(path);
 		} else Logger.LogWarning("Creating orphan TextEditorFragment");
 	}
 	
@@ -128,20 +122,26 @@ public class TextEditorFragment extends OpenFragment
 		Logger.LogDebug("Creating TextEditorFragment @ " + mPath + " from path");
 		Bundle b = new Bundle();
 		if(path != null && path.getPath() != null)
-			b.putString("edit_path", path.getPath());
+			b.putParcelable("edit_path", path);
 		//setArguments(b);
 		setHasOptionsMenu(true);
 	}
 	
 	public static TextEditorFragment getInstance(OpenPath path, Bundle args)
 	{
+		if(args == null)
+			args = new Bundle();
+		args.putParcelable("edit_path", path);
 		TextEditorFragment ret = getInstance(args);
 		ret.setPath(path);
 		return ret;
 	}
 	public static TextEditorFragment getInstance(Bundle args)
 	{
-		TextEditorFragment ret = new TextEditorFragment();
+		OpenPath path = null;
+		if(args != null && args.containsKey("edit_path"))
+			path = (OpenPath)args.getParcelable("edit_path");
+		TextEditorFragment ret = path != null ? new TextEditorFragment(path) : new TextEditorFragment();
 		ret.setArguments(args);
 		return ret;
 	}
@@ -160,6 +160,7 @@ public class TextEditorFragment extends OpenFragment
 	{
 		showFilename(true);
 	}
+	@TargetApi(11)
 	public void showFilename(final boolean animateOut)
 	{
 		if(mFilename == null) return;
@@ -253,10 +254,9 @@ public class TextEditorFragment extends OpenFragment
 			bundle = getArguments();
 		if(mPath == null && bundle != null && bundle.containsKey("edit_path"))
 		{
-			String path = bundle.getString("edit_path");
+			OpenPath mPath = (OpenPath)bundle.getParcelable("edit_path");
 			mData = null;
-			mPath = FileManager.getOpenCache(path);
-			Logger.LogDebug("load text editor (" + path + ")");
+			Logger.LogDebug("load text editor (" + mPath + ")");
 			if(mData == null && bundle.containsKey("edit_data"))
 				mData = bundle.getString("edit_data");
 			if(bundle.containsKey("edit_server"))
@@ -274,13 +274,6 @@ public class TextEditorFragment extends OpenFragment
 						mPath = new OpenFTP(mPath.getPath(), null, man);
 					}
 				}
-			} else //if (path.indexOf("ftp:/") > -1)
-			{
-				try {
-					mPath = FileManager.getOpenCache(path, false, null);
-				} catch (IOException e) {
-					Logger.LogError("Couldn't get Path to edit.", e);
-				}
 			}
 		}
 	}
@@ -288,24 +281,24 @@ public class TextEditorFragment extends OpenFragment
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-		if(isDetached()) return;
-		if(!isVisible()) return;
-		inflater.inflate(OpenExplorer.USE_PRETTY_MENUS ? R.menu.text_editor : R.menu.text_full, menu);
+		
+		inflater.inflate(R.menu.text_full, menu);
 		MenuItem mFontSize = menu.findItem(R.id.menu_view_font_size);
 		//Class clz = Class.forName("org.brandroid.openmanagerviews.SeekBarActionView");
 		boolean isTop = false;
-		if(getResources() != null && !getResources().getBoolean(R.bool.allow_split_actionbar))
+		if(getActivity() != null && getResources() != null && !getResources().getBoolean(R.bool.allow_split_actionbar))
 			isTop = true;
-		if(mFontSize != null && USE_SEEK_ACTIONVIEW && !OpenExplorer.BEFORE_HONEYCOMB && isTop) // (Build.VERSION.SDK_INT < 14 || OpenExplorer.USE_PRETTY_MENUS))
+		if(mFontSize != null && USE_SEEK_ACTIONVIEW) // (Build.VERSION.SDK_INT < 14 || OpenExplorer.USE_PRETTY_MENUS))
 		{
-			MenuItemCompat.setActionView(mFontSize, mFontSizeBar);
-			MenuItemCompat.setShowAsAction(mFontSize, MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+			mFontSize.setActionView(mFontSizeBar);
+			mFontSize.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 		}
 	}
 	
 	public void onPrepareOptionsMenu(Menu menu) {
 		if(getActivity() == null) return;
 		if(menu == null) return;
+		if(isDetached() || !isVisible()) return;
 		super.onPrepareOptionsMenu(menu);
 		if(mFontSizeBar != null)
 			mFontSizeBar.setProgress((int)(mTextSize * 2));
@@ -324,31 +317,12 @@ public class TextEditorFragment extends OpenFragment
 		if(DEBUG)
 			Logger.LogDebug("TextEditorFragment.onOptionsItemSelected(" + item + ")");
 		View action = getActionView(item);
-		if(action != null && action instanceof OpenActionView)
+		if(action != null && action instanceof CollapsibleActionView)
 		{
-			((OpenActionView)action).onActionViewExpanded();
+			((CollapsibleActionView)action).onActionViewExpanded();
 			return true;
 		}
-		switch(item.getItemId())
-		{
-			case R.id.menu_view_font_size:
-				if(mFontSizeBar.getPopup(getActivity(), action).showLikePopDownMenu())
-					return true;
-		}
 		return onClick(item.getItemId(), action);
-	}
-	
-	private void showSeekBarPopup(View from)
-	{
-		SeekBar sb = new SeekBar(from.getContext());
-		sb.setMax(60);
-		sb.setProgress((int)mTextSize * 2);
-		sb.setOnSeekBarChangeListener(this);
-		sb.setPadding(20, 4, 20, 4);
-		BetterPopupWindow sizePop = new BetterPopupWindow(from.getContext(), from);
-		sizePop.setTitle(getString(R.string.s_view_font_size));
-		sizePop.setContentView(sb);
-		sizePop.showLikePopDownMenu();
 	}
 	
 	@Override
@@ -357,7 +331,7 @@ public class TextEditorFragment extends OpenFragment
 		View view = inflater.inflate(R.layout.edit_text, null);
 		view.setOnTouchListener(this);
 		mEditText = (EditText)view.findViewById(R.id.text_edit);
-		mViewList = (ListView)view.findViewById(R.id.text_view_list);
+		mViewList = (ListView)view.findViewById(android.R.id.list);
 		mFilename = (TextView)view.findViewById(R.id.text_filename);
 		showFilename();
 		setTextSize(getViewSetting(null, "text_size", mTextSize), true);
@@ -477,7 +451,7 @@ public class TextEditorFragment extends OpenFragment
 	@Override
 	public void setInitialSavedState(SavedState state) {
 		super.setInitialSavedState(state);
-		Logger.LogInfo("setInitialSavedState @ TextEditor (" + mPath.getPath() + ")");
+		Logger.LogInfo("setInitialSavedState @ TextEditor (" + mPath + ")");
 	}
 	
 	@Override
@@ -485,7 +459,7 @@ public class TextEditorFragment extends OpenFragment
 		super.onSaveInstanceState(outState);
 		if(!mSalvage) return;
 		Logger.LogInfo("saveInstanceState @ TextEditor (" + mPath.getPath() + ")");
-		outState.putString("edit_path", mPath.getPath());
+		outState.putParcelable("edit_path", mPath);
 		if(mData != null && mData.length() < 500000)
 			outState.putString("edit_data", mData);
 		if(mPath instanceof OpenNetworkPath)
@@ -538,7 +512,7 @@ public class TextEditorFragment extends OpenFragment
 	@Override
 	public boolean onClick(int id, View from) {
 		Context c = getActivity();
-		if(from == null || !from.isShown())
+		if((from == null || !from.isShown()) && getExplorer() != null)
 			from = getExplorer().findViewById(id);
 		if(from != null && from.getTag() != null && from.getTag() instanceof Menu)
 			showMenu((Menu)from.getTag(), from, ViewUtils.getText(from));
@@ -546,7 +520,7 @@ public class TextEditorFragment extends OpenFragment
 		{
 		case R.id.menu_context_info:
 			if(c != null)
-				DialogHandler.showFileInfo(c, getPath());
+				DialogHandler.showFileInfo(this, getPath());
 			return true;
 			
 		case R.id.menu_save: doSave(); return true;
@@ -554,25 +528,8 @@ public class TextEditorFragment extends OpenFragment
 		case R.id.menu_close: doClose(); return true;
 			
 		case R.id.menu_view_font_size:
-			if(USE_SEEK_ACTIONVIEW)
-				mFontSizeBar.onActionViewExpanded();
-			else
-				mFontSizeBar.getPopup(getActivity(), from).showLikePopDownMenu();
+			mFontSizeBar.onActionViewExpanded();
 			return true;
-			
-		case R.id.menu_text_view:
-		case R.id.menu_view:
-			if(OpenExplorer.USE_PRETTY_MENUS)
-				if(showMenu(R.menu.text_view, from, getString(R.string.s_view)))
-					return true;
-			break;
-			
-		case R.id.menu_content_ops:
-		case R.id.menu_text_ops:
-			if(OpenExplorer.USE_PRETTY_MENUS)
-				if(showMenu(R.menu.text_file, from, getString(R.string.s_title_operations)))
-					return true;
-			break;
 			
 		case R.id.menu_view_keyboard_toggle:
 			setEditable(!mEditMode);
@@ -879,7 +836,9 @@ public class TextEditorFragment extends OpenFragment
 	
 	@Override
 	public boolean onTitleLongClick(View titleView) {
-		return showMenu(R.menu.text_file, titleView, null);
+		Menu menu = new MenuBuilder(getActivity());
+		getSupportMenuInflater().inflate(R.menu.text_full, menu);
+		return showMenu(menu.findItem(R.id.menu_text_ops).getSubMenu(), titleView, null);
 	}
 
 	public boolean isSalvagable() {

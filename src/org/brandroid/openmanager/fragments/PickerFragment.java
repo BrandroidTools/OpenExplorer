@@ -201,7 +201,7 @@ public class PickerFragment extends OpenFragment
 		return ret;
 	}
 	
-	static class PickerPagerAdapter extends FragmentStatePagerAdapter
+	public class PickerPagerAdapter extends FragmentStatePagerAdapter
 	{
 		private OpenPath mPath;
 		private OnItemClickListener mListener;
@@ -232,7 +232,7 @@ public class PickerFragment extends OpenFragment
 
 		@Override
 		public Fragment getItem(int position) {
-			SimpleContentFragment ret = new SimpleContentFragment(mContext, getItemPath(position));
+			SimpleContentFragment ret = new SimpleContentFragment(PickerFragment.this, getItemPath(position));
 			ret.setOnItemClickListener(mListener);
 			return ret;
 		}

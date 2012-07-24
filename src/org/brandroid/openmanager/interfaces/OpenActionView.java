@@ -18,6 +18,8 @@ package org.brandroid.openmanager.interfaces;
 
 import org.brandroid.openmanager.util.BetterPopupWindow;
 
+import com.actionbarsherlock.view.CollapsibleActionView;
+
 import android.content.Context;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,18 +28,9 @@ import android.view.View;
 /**
  * When a View implements this interface it will receive callbacks
  * when expanded or collapsed as an action view alongside the optional,
- * app-specified callbacks to OpennActionExpandListener.
+ * app-specified callbacks to OpenActionExpandListener.
  */
-public interface OpenActionView {
-    /**
-     * Called when this view is expanded as an action view.
-     */
-    public void onActionViewExpanded();
-
-    /**
-     * Called when this view is collapsed as an action view.
-     */
-    public void onActionViewCollapsed();
+public interface OpenActionView extends CollapsibleActionView {
     
     /**
      * Called when ActionBar should not be used as container for ActionView.
@@ -45,24 +38,5 @@ public interface OpenActionView {
      * @return BetterPopupWindow instance containing ActionView.
      */
     public BetterPopupWindow getPopup(Context context, View anchor);
-    
-
-    public interface OnActionExpandListener {
-        /**
-         * Called when a menu item with an associated {@link OpenActionView} 
-         * is expanded.
-         * @param item Item that was expanded
-         * @return true if the item should expand, false if expansion should be suppressed.
-         */
-        public boolean onMenuItemActionExpand(MenuItem item);
-
-        /**
-         * Called when a menu item with {@link OpenActionView}
-         * is collapsed.
-         * @param item Item that was collapsed
-         * @return true if the item should collapse, false if collapsing should be suppressed.
-         */
-        public boolean onMenuItemActionCollapse(MenuItem item);
-    }
 }
 

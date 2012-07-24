@@ -6,6 +6,7 @@
 package org.brandroid.openmanager.views;
 
 import org.brandroid.openmanager.data.OpenPath;
+import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.Cache;
 import org.brandroid.utils.ImageUtils;
 import org.brandroid.utils.Logger;
@@ -61,11 +62,10 @@ public class RemoteImageView extends ImageView
             }
         }
 
-		@Override
-		public Context getContext() {
-			// TODO Auto-generated method stub
-			return pThis.getContext();
-		}
+        @Override
+        public OpenApp getApp() {
+        	return ((OpenApp)pThis.getContext());
+        }
     }
     
     public void setImageFromFile(OpenPath path, int mWidth, int mHeight)

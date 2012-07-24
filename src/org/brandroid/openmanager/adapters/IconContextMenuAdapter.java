@@ -2,8 +2,11 @@ package org.brandroid.openmanager.adapters;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
-import org.brandroid.utils.MenuBuilder;
 import org.brandroid.utils.ViewUtils;
+
+import com.actionbarsherlock.internal.view.menu.MenuBuilder;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
@@ -11,8 +14,13 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.text.Html;
-import android.view.*;
-import android.widget.*;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.CheckedTextView;
+import android.widget.TextView;
 
 public class IconContextMenuAdapter extends BaseAdapter {
 	private Context context;
@@ -59,13 +67,13 @@ public class IconContextMenuAdapter extends BaseAdapter {
 	//@Override
 	public MenuItem getItem(int position) {
 		if(position < myMenu.size() && position >= 0)
-			return myMenu.getItem(position);
+			return (MenuItem) myMenu.getItem(position);
 		else
 			return null;
 	}
 
 	public MenuItem findItem(int id) {
-		return myMenu.findItem(id);
+		return (MenuItem) myMenu.findItem(id);
 	}
 	
 	//@Override

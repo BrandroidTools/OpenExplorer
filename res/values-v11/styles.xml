@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="AppTheme" parent="@android:style/Theme.Holo">
+    <style name="AppTheme" parent="Theme.Sherlock">
 
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>

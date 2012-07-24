@@ -17,12 +17,12 @@
 <resources>
     <dimen name="actionbar_compat_height">48dp</dimen>
     <dimen name="actionbar_compat_button_width">48dp</dimen>
-    <dimen name="actionbar_compat_button_home_width">56dip</dimen>
+    <dimen name="actionbar_compat_button_home_width">72dip</dimen>
     <dimen name="actionbar_compat_button_padding">4dp</dimen>
     <dimen name="vpi_padding_horizontal">6dp</dimen>
     <dimen name="vpi_padding_vertical">6dp</dimen>
     <dimen name="grid_width">128dp</dimen>
-    <dimen name="list_width">200dp</dimen>
+    <dimen name="list_width">300dp</dimen>
     <dimen name="multiselect_width">48dp</dimen>
     <dimen name="list_icon_size">36dp</dimen>
     <dimen name="grid_icon_size">128dp</dimen>

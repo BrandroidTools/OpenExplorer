@@ -12,6 +12,10 @@ import org.brandroid.utils.Logger;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.R.anim;
 import android.app.Activity;
 import android.content.Context;
@@ -23,9 +27,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -124,7 +125,7 @@ public class LogViewerFragment extends OpenFragment
 		if(isDetached()) return;
 		super.onCreateOptionsMenu(menu, inflater);
 		menu.clear();
-		inflater.inflate(R.menu.text_editor, menu);
+		inflater.inflate(R.menu.text_full, menu);
 	}
 	
 	@Override

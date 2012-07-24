@@ -10,19 +10,20 @@ import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.util.BetterPopupWindow;
 import org.brandroid.openmanager.util.BetterPopupWindow.OnPopupShownListener;
 import org.brandroid.utils.Logger;
-import org.brandroid.utils.MenuBuilder;
 import org.brandroid.utils.MenuUtils;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
+
+import com.actionbarsherlock.internal.view.menu.MenuBuilder;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 
 import android.content.Context;
 import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -68,7 +69,7 @@ public class IconContextMenu implements OnKeyListener
     	this(context, newMenu(context, menuId), from);
     }
     
-    public static MenuBuilder newMenu(Context context, int menuId) {
+    public static Menu newMenu(Context context, int menuId) {
     	MenuBuilder menu = new MenuBuilder(context);
     	try {
     		new MenuInflater(context).inflate(menuId, menu);
@@ -357,7 +358,8 @@ public class IconContextMenu implements OnKeyListener
 	public static IconContextMenu getInstance(Context c, int menuId, View from) {
 		//if(!mInstances.containsKey(menuId))
 		{
-			MenuBuilder menu = newMenu(c, menuId);
+			MenuBuilder menu = new MenuBuilder(c);
+			new MenuInflater(c).inflate(menuId,  menu);
 			if(menu == null) {
 				Logger.LogWarning("IconContextMenu getInstance(0x" + Integer.toHexString(menuId) + ") is null");
 				return null;

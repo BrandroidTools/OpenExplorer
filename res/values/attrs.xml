@@ -22,6 +22,26 @@
         <attr name="actionbarCompatItemHomeStyle" format="reference" />
         <attr name="actionbarCompatProgressIndicatorStyle" format="reference" />
         <attr name="actionbarCompatItemHomeAsUpStyle" format="reference" />
+        
+        <!-- Action Bar Icons -->
+        <attr name="actionIconSort" format="reference" />
+        <attr name="actionIconView" format="reference" />
+        <attr name="actionIconOperations" format="reference" />
+        <attr name="actionIconRefresh" format="reference" />
+        <attr name="actionIconSearch" format="reference" />
+        
+        <!-- Action Mode Icons -->
+        <attr name="actionIconRename" format="reference" />
+        <attr name="actionIconCopy" format="reference" />
+        <attr name="actionIconDelete" format="reference" />
+        <attr name="actionIconShare" format="reference" />
+        <attr name="actionIconInfo" format="reference" />
+        <attr name="actionIconSelectAll" format="reference" />
+        <attr name="actionIconZip" format="reference" />
+        
+        <!-- Misc. UI Elements -->
+        <attr name="checkboxButtonOn" format="reference" />
+        <attr name="checkboxButtonOff" format="reference" />
 	</declare-styleable>
 
     

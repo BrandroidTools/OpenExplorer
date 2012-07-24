@@ -207,7 +207,7 @@ public class LocalVideo extends LocalMediaItem {
         int s = durationInSec;
         if (s > 0) {
             details.addDetail(MediaDetails.INDEX_DURATION, GalleryUtils.formatDuration(
-                    mApplication.getAndroidContext(), durationInSec));
+                    mApplication.getContext(), durationInSec));
         }
         return details;
     }

@@ -41,7 +41,6 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -56,7 +55,6 @@ import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
@@ -77,7 +75,6 @@ import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 
-import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 
@@ -93,8 +90,8 @@ import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenSMB;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
+import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.interfaces.OpenContextProvider;
-import org.brandroid.openmanager.util.InputDialog;
 import org.brandroid.openmanager.util.OpenChromeClient;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
@@ -102,9 +99,11 @@ import org.brandroid.utils.MenuUtils;
 import org.brandroid.utils.Preferences;
 import org.brandroid.utils.ViewUtils;
 
+import com.actionbarsherlock.view.MenuItem;
+
 public class DialogHandler
 {
-	public static View createFileInfoDialog(LayoutInflater inflater, OpenPath mPath) {
+	public static View createFileInfoDialog(OpenApp app, LayoutInflater inflater, OpenPath mPath) {
 		View v = inflater.inflate(R.layout.info_layout, null);
 		/*
 		v.setOnTouchListener(new OnTouchListener() {
@@ -116,7 +115,7 @@ public class DialogHandler
 		*/
 		
 		try {
-			populateFileInfoViews(v, mPath);
+			populateFileInfoViews(app, v, mPath);
 		} catch (IOException e) {
 			Logger.LogError("Couldn't create info dialog", e);
 		}
@@ -146,7 +145,7 @@ public class DialogHandler
 		return ssize;
 	}
 	
-	public static void populateFileInfoViews(View v, OpenPath file) throws IOException {
+	public static void populateFileInfoViews(OpenApp app, View v, OpenPath file) throws IOException {
 			
 		String apath = file.getAbsolutePath();
 		if(file instanceof OpenMediaStore)
@@ -180,11 +179,11 @@ public class DialogHandler
 		if (file.isDirectory())
 			((ImageView)v.findViewById(R.id.info_icon)).setImageResource(R.drawable.lg_folder);
 		else
-			((ImageView)v.findViewById(R.id.info_icon)).setImageDrawable(getFileIcon(v.getContext(), file, false));
+			((ImageView)v.findViewById(R.id.info_icon)).setImageDrawable(getFileIcon(app, file, false));
 	}
 	
-	public static Drawable getFileIcon(Context mContext, OpenPath file, boolean largeSize) {
-		return new BitmapDrawable(ThumbnailCreator.generateThumb(file, 96, 96, mContext).get());
+	public static Drawable getFileIcon(OpenApp app, OpenPath file, boolean largeSize) {
+		return new BitmapDrawable(ThumbnailCreator.generateThumb(app, file, 96, 96, app.getContext()).get());
 	}
 	
 	public static class CountAllFilesTask extends AsyncTask<OpenPath, Integer, String[]>
@@ -332,13 +331,14 @@ public class DialogHandler
 		
 	}
 	
-	public static void showFileInfo(final Context mContext, final OpenPath path) {
+	public static void showFileInfo(final OpenApp app, final OpenPath path) {
+		final Context mContext = app.getContext();
 		try {
 		new AlertDialog.Builder(mContext)
-			.setView(createFileInfoDialog((LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE), path))
+			.setView(createFileInfoDialog(app, (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE), path))
 			.setTitle(path.getName())
 			.setIcon(new BitmapDrawable(mContext.getResources(),
-						path.getThumbnail(mContext, ContentFragment.mListImageSize, ContentFragment.mListImageSize)
+						path.getThumbnail(app, ContentFragment.mListImageSize, ContentFragment.mListImageSize)
 							.get()))
 			.create()
 			.show();
@@ -800,17 +800,17 @@ public class DialogHandler
 			}
 		});
 	}
-	public static boolean showServerDialog(final OpenContextProvider context, final OpenFTP mPath, final BookmarkHolder mHolder, final boolean allowShowPass)
+	public static boolean showServerDialog(final OpenApp app, final OpenFTP mPath, final BookmarkHolder mHolder, final boolean allowShowPass)
 	{
-		return DialogHandler.showServerDialog(context, mPath.getServersIndex(), -1, mHolder, allowShowPass);
+		return DialogHandler.showServerDialog(app, mPath.getServersIndex(), -1, mHolder, allowShowPass);
 	}
-	public static boolean showServerDialog(final OpenContextProvider context, final OpenNetworkPath mPath, final BookmarkHolder mHolder, final boolean allowShowPass)
+	public static boolean showServerDialog(final OpenApp app, final OpenNetworkPath mPath, final BookmarkHolder mHolder, final boolean allowShowPass)
 	{
-		return DialogHandler.showServerDialog(context, mPath.getServersIndex(), -1, mHolder, allowShowPass);
+		return DialogHandler.showServerDialog(app, mPath.getServersIndex(), -1, mHolder, allowShowPass);
 	}
-	public static boolean showServerDialog(final OpenContextProvider mContextHelper, final int iServersIndex, int serverType, final BookmarkHolder mHolder, final boolean allowShowPass)
+	public static boolean showServerDialog(final OpenApp app, final int iServersIndex, int serverType, final BookmarkHolder mHolder, final boolean allowShowPass)
 	{
-		final Context context = mContextHelper.getContext();
+		final Context context = app.getContext();
 		final OpenServers servers = SettingsActivity.LoadDefaultServers(context);
 		final OpenServer server = iServersIndex > -1 ? servers.get(iServersIndex) : new OpenServer().setName("New Server");
 		if(serverType > -1)
@@ -833,7 +833,7 @@ public class DialogHandler
 		int addStrId = iServersIndex >= 0 ? R.string.s_update : R.string.s_add;
 		final AlertDialog dialog = new AlertDialog.Builder(context)
 			.setView(v)
-			.setIcon(mHolder != null && mHolder.getIcon(context) != null ? mHolder.getIcon(context) : context.getResources().getDrawable(R.drawable.sm_ftp))
+			.setIcon(mHolder != null && mHolder.getIcon(app) != null ? mHolder.getIcon(app) : context.getResources().getDrawable(R.drawable.sm_ftp))
 			.setNegativeButton(context.getString(R.string.s_cancel), new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
 					dialog.dismiss();
@@ -844,7 +844,7 @@ public class DialogHandler
 					if(iServersIndex > -1)
 						servers.remove(iServersIndex);
 					dialog.dismiss();
-					mContextHelper.refreshBookmarks();
+					app.refreshBookmarks();
 				}
 			})
 			.setPositiveButton(context.getString(addStrId), new DialogInterface.OnClickListener() {
@@ -854,7 +854,7 @@ public class DialogHandler
 					else
 						servers.add(server);
 					SettingsActivity.SaveToDefaultServers(servers, context);
-					mContextHelper.refreshBookmarks();
+					app.refreshBookmarks();
 					dialog.dismiss();
 				}
 			})

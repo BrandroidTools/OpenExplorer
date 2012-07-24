@@ -1,42 +1,26 @@
 package org.brandroid.openmanager.adapters;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import org.brandroid.openmanager.data.OpenFile;
-import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
-import org.brandroid.openmanager.data.OpenServers;
-import org.brandroid.openmanager.fragments.CarouselFragment;
 import org.brandroid.openmanager.fragments.ContentFragment;
 import org.brandroid.openmanager.fragments.OpenFragment;
-import org.brandroid.openmanager.fragments.OpenFragment.OnFragmentDPADListener;
 import org.brandroid.openmanager.fragments.OpenPathFragmentInterface;
-import org.brandroid.openmanager.fragments.SearchResultsFragment;
 import org.brandroid.openmanager.fragments.TextEditorFragment;
-import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
 import com.viewpagerindicator.TitleProvider;
 import com.viewpagerindicator.TabPageIndicator.TabView;
 
-import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.Fragment.SavedState;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnLongClickListener;
 
 public class ArrayPagerAdapter extends FragmentStatePagerAdapter
@@ -45,11 +29,9 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter
 	//private static Hashtable<OpenPath, Fragment> mPathMap = new Hashtable<OpenPath, Fragment>();
 	private ArrayList<OpenFragment> mFrags = new ArrayList<OpenFragment>();
 	private OnPageTitleClickListener mListener = null;
-	private final Context mContext;
 
 	public ArrayPagerAdapter(FragmentActivity activity, ViewPager pager) {
 		super(activity.getSupportFragmentManager());
-		mContext = activity;
 	}
 	
 	public interface OnPageTitleClickListener
@@ -136,8 +118,9 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter
 		if (state instanceof SavedState)
 		{
 			super.restoreState(state, loader);
-			bundle = ((SavedState)state).getBundle();
-		} else if(state instanceof Bundle)
+			//bundle = ((SavedState)state).getBundle();
+		}
+		if(state instanceof Bundle)
 			bundle = (Bundle)state;
 		else bundle = new Bundle();
 		
@@ -166,22 +149,10 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter
 	
 	@Override
 	public int getItemPosition(Object object) {
-		if(object instanceof OpenPathFragmentInterface)
-		{
-			OpenPath tofind = ((OpenPathFragmentInterface)object).getPath();
-			if(tofind == null) return super.getItemPosition(object);
-			for(int i = 0; i < getCount(); i++)
-			{
-				OpenFragment f = getItem(i);
-				if(f instanceof OpenPathFragmentInterface)
-				{
-					OpenPath tocheck = ((OpenPathFragmentInterface)f).getPath();
-					if(tocheck != null && tocheck.getPath().equals(tofind.getPath()))
-						return i;
-				}
-			}
-		}
-		return super.getItemPosition(object);
+		int pos = mFrags.indexOf(object);
+		if(pos == -1)
+			return PagerAdapter.POSITION_NONE;
+		else return pos;
 	}
 
 	@Override
@@ -283,17 +254,6 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter
 		return frag;
 	}
 
-	public int removeOfType(Class c) {
-		int ret = 0;
-		for (int i = getCount() - 1; i >= 0; i--) {
-			OpenFragment f = getItem(i);
-			if (f == null || f.getClass() == null || (f.getClass().equals(c)))
-				remove(i);
-		}
-		notifyDataSetChanged();
-		return ret;
-	}
-
 	public synchronized void clear() {
 		mFrags.clear();
 	}
@@ -317,13 +277,6 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter
 		notifyDataSetChanged();
 	}
 
-	public int getLastPositionOfType(Class class1) {
-		for(int i = getCount() - 1; i > 0; i--)
-			if(getItem(i).getClass().equals(class1))
-				return i;
-		return 0;
-	}
-
 	@Override
 	public boolean modifyTab(TabView tab, final int position) {
 		if(mListener != null)
@@ -341,7 +294,7 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter
 
 	public synchronized void replace(OpenFragment old, OpenFragment newFrag) {
 		int pos = getItemPosition(old);
-		if(pos == -1)
+		if(pos < 0)
 			mFrags.add(newFrag);
 		else
 			mFrags.set(pos, newFrag);

@@ -3,6 +3,13 @@
 		android:title="@string/s_menu_prefs_global">
         
 	<PreferenceCategory android:title="@string/s_pref_display">
+	    <CheckBoxPreference
+	        android:key="pref_theme"
+	        android:title="@string/theme"
+	        android:summaryOn="@string/theme_dark"
+	        android:summaryOff="@string/theme_light"
+	        android:defaultValue="true"
+	        />
 	    <ListPreference
 	        android:key="pref_language"
 	        android:title="@string/language"
@@ -93,11 +100,6 @@
 	</PreferenceCategory>
 	
 	<PreferenceCategory android:title="@string/s_pref_fancy_category">
-	    <CheckBoxPreference
-	        android:key="pref_fancy_menus"
-	        android:title="@string/s_pref_fancy_menus"
-	        android:defaultValue="@bool/prehoneycomb"
-	        />
 	    <CheckBoxPreference
 	        android:key="pref_fancy_context"
 	        android:title="@string/s_pref_fancy_context"

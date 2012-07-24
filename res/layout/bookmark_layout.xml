@@ -84,7 +84,6 @@
 		android:layout_centerVertical="true"
 		android:contentDescription="@string/s_eject"
 		android:visibility="gone"
-		android:layout_toLeftOf="@+id/list_arrow"
 		/>
 
 	<RelativeLayout

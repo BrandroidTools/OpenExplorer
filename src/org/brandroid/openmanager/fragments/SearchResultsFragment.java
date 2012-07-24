@@ -34,7 +34,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 
 public class SearchResultsFragment
 		extends ContentFragment
-		implements OnItemClickListener, OnItemLongClickListener, SearchProgressUpdateListener
+		implements OnItemLongClickListener, SearchProgressUpdateListener
 {
 	private TextView mTextSummary;
 	private ProgressBar mProgressBar;
@@ -42,9 +42,10 @@ public class SearchResultsFragment
 	private SearchTask myTask = new SearchTask();
 	private int lastNotedCount = 0;
 	private String lastTitle = "";
+	private boolean mStopped = false;
 	
-	private SearchResultsFragment() {
-		setArguments(new Bundle());
+	private SearchResultsFragment(Bundle b) {
+		setArguments(b);
 	}
 	
 	private class SearchTask extends AsyncTask<Void, Void, Void>
@@ -86,20 +87,16 @@ public class SearchResultsFragment
 		
 	}
 	
-	public static SearchResultsFragment getInstance(Bundle args)
-	{
-		SearchResultsFragment ret = new SearchResultsFragment();
-		ret.setArguments(args);
-		return ret;
-	}
 	public static SearchResultsFragment getInstance(OpenPath basePath, String query)
 	{
 		Bundle data = new Bundle();
 		data.putString("query", query);
 		if(basePath instanceof OpenSearch)
 			basePath = ((OpenSearch)basePath).getBasePath();
-		data.putString("path", basePath.getPath());
-		return getInstance(data);
+		data.putParcelable("search_in", basePath);
+		SearchResultsFragment ret = new SearchResultsFragment(data);
+		ret.setArguments(data);
+		return ret;
 	}
 	
 	public OpenSearch getSearch()
@@ -118,7 +115,7 @@ public class SearchResultsFragment
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putString("query", getSearch().getQuery());
-		outState.putString("path", getSearch().getBasePath().getPath());
+		outState.putParcelable("search_in", getSearch().getBasePath());
 		if(myTask.getStatus() == Status.RUNNING)
 			outState.putBoolean("running", true);
 		else
@@ -138,12 +135,13 @@ public class SearchResultsFragment
 	
 	@Override
 	public boolean onBackPressed() {
-		if(myTask.getStatus() == Status.RUNNING)
+		if(!mStopped && myTask.getStatus() == Status.RUNNING)
 		{
 			myTask.cancel(true);
 			getSearch().cancel();
+			mStopped = true;
 		}
-		else if(getExplorer() != null && getExplorer().isViewPagerEnabled())
+		else if(getExplorer() != null)
 			getExplorer().closeFragment(this);
 		else if(getFragmentManager() != null && getFragmentManager().getBackStackEntryCount() > 0)
 			getFragmentManager().popBackStack();
@@ -155,19 +153,25 @@ public class SearchResultsFragment
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Bundle b = savedInstanceState;
+		Bundle b = getArguments();
 		if(b == null)
-			b = getArguments();
+			b = savedInstanceState;
 		if(b == null)
 			b = new Bundle();
 		String q = "";
 		if(b.containsKey("query"))
 			q = b.getString("query");
 		OpenPath path = new OpenFile("/");
-		if(b.containsKey("path"))
-			path = FileManager.getOpenCache(b.getString("path"));
+		if(b.containsKey("search_in"))
+			path = (OpenPath)b.getParcelable("search_in");
+		else if(b.containsKey("path"))
+			path = (OpenPath)b.getParcelable("path");
 		if(path instanceof OpenSearch)
+		{
+			if(q == null || q.equals(""))
+				q = ((OpenSearch)path).getQuery();
 			path = ((OpenSearch)path).getBasePath();
+		}
 		if(b.containsKey("results"))
 		{
 			ArrayList<Parcelable> results = b.getParcelableArrayList("results");
@@ -176,9 +180,10 @@ public class SearchResultsFragment
 			if(b.containsKey("running") && b.getBoolean("running")) myTask.execute();
 		} else {
 			mPath = new OpenSearch(q, path, this);
-			myTask.execute();
+			if(myTask != null)
+				myTask.execute();
 		}
-		mContentAdapter = new ContentAdapter(getExplorer(), OpenExplorer.VIEW_LIST, getSearch());
+		mContentAdapter = new ContentAdapter(getExplorer(), this, OpenExplorer.VIEW_LIST, getSearch());
 	}
 	
 	@Override
@@ -196,7 +201,7 @@ public class SearchResultsFragment
 		mTextSummary = (TextView)ret.findViewById(R.id.search_summary);
 		mProgressBar = (ProgressBar)ret.findViewById(android.R.id.progress);
 		mCancel = (Button)ret.findViewById(R.id.search_cancel);
-		mGrid.setOnItemClickListener(this);
+//		mGrid.setOnItemClickListener(this);
 		mGrid.setOnItemLongClickListener(this);
 		if(!OpenExplorer.USE_PRETTY_CONTEXT_MENUS) //|| !USE_ACTIONMODE)
 			registerForContextMenu(mGrid);

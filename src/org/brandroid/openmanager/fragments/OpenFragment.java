@@ -17,15 +17,23 @@ import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.ShellSession;
 import org.brandroid.utils.DiskLruCache;
 import org.brandroid.utils.Logger;
-import org.brandroid.utils.MenuBuilder;
+import org.brandroid.utils.LruCache;
 import org.brandroid.utils.MenuUtils;
+import org.brandroid.utils.Preferences;
 import org.brandroid.utils.ViewUtils;
 
+import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.ActionMode;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -36,12 +44,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.LruCache;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnCreateContextMenuListener;
@@ -53,8 +57,9 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
  * Base class for all OpenExplorer fragments. Provides convenient methods to access
  * other sections of the application.
  */
+@SuppressLint("NewApi")
 public abstract class OpenFragment
-			extends Fragment
+			extends SherlockFragment
 			implements View.OnClickListener, View.OnLongClickListener
 				, Comparator<OpenFragment>
 				, Comparable<OpenFragment>
@@ -62,9 +67,8 @@ public abstract class OpenFragment
 {
 	//public static boolean CONTENT_FRAGMENT_FREE = true;
 	//public boolean isFragmentValid = true;
-	protected boolean mActionModeSelected = false;
 	private boolean mHasOptions = false;
-	protected boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
+	protected boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
 	private OnFragmentDPADListener mDPAD = null;
 	public final void setOnFragmentDPADListener(OnFragmentDPADListener listener) { mDPAD = listener; }
 		
@@ -98,14 +102,24 @@ public abstract class OpenFragment
 		public OpenPath getPath() { return file; }
 	}
 	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		// TODO Auto-generated method stub
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+	
 	public static OpenFragment instantiate(Context context, String fname, Bundle args) {
         String sPath = null;
-    	if(args.containsKey("last"))
+        OpenPath path = null;
+        if(args.containsKey("last"))
     		sPath = args.getString("last");
+        if(args.containsKey("path"))
+        	path = (OpenPath)args.getParcelable("path");
     	if(args.containsKey("edit_path"))
-    		sPath = args.getString("edit_path");
-    	OpenPath path = FileManager.getOpenCache(sPath, context);
+    		return TextEditorFragment.getInstance(((OpenPath)args.getParcelable("edit_path")), args);
     	if(sPath != null)
+    		path = FileManager.getOpenCache(sPath, context);
+    	if(path != null)
     	{
         	if(fname.endsWith("ContentFragment"))
         		return ContentFragment.getInstance(path, args);
@@ -191,14 +205,7 @@ public abstract class OpenFragment
 		onPrepareOptionsMenu(menu);
 		if(showIContextMenu(menu, anchor, title, 0, 0))
 			return true;
-		anchor.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-			@Override
-			public void onCreateContextMenu(ContextMenu cmenu, View v,
-					ContextMenuInfo menuInfo) {
-				MenuUtils.transferMenu(menu, cmenu, false);
-			}
-		});
-		return anchor.showContextMenu();
+		return false;
 	}
 
 	public boolean showMenu(final int menuId, View from, CharSequence title)
@@ -208,14 +215,14 @@ public abstract class OpenFragment
 	public boolean showMenu(final int menuId, View from1, CharSequence title, int xOffset, int yOffset)
 	{
 		if(from1 == null)
-			from1 = ViewUtils.getFirstView(getActivity(), R.id.menu_more, android.R.id.home);
+			from1 = getSherlockActivity().findViewById(android.R.id.home);
 		if(from1 == null)
-			from1 = getActivity().getCurrentFocus().getRootView();
+			from1 = getSherlockActivity().getCurrentFocus().getRootView();
 		final View from = from1;
 		if(showIContextMenu(menuId, from, title, xOffset, yOffset)) return true;
 		if(Build.VERSION.SDK_INT > 10)
 		{
-			final PopupMenu pop = new PopupMenu(getActivity(), from);
+			final PopupMenu pop = new PopupMenu(getSherlockActivity(), from);
 			pop.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 				public boolean onMenuItemClick(MenuItem item) {
 					if(onOptionsItemSelected(item))
@@ -227,6 +234,11 @@ public abstract class OpenFragment
 						return getExplorer().onIconContextItemSelected(pop, item, item.getMenuInfo(), from);
 					return false;
 				}
+
+				@Override
+				public boolean onMenuItemClick(android.view.MenuItem item) {
+					return false;
+				}
 			});
 			pop.getMenuInflater().inflate(menuId, pop.getMenu());
 			Logger.LogDebug("PopupMenu.show()");
@@ -235,10 +247,11 @@ public abstract class OpenFragment
 		}
 		if(from == null) return false;
 		from.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-			public void onCreateContextMenu(ContextMenu menu, View v,
+			public void onCreateContextMenu(ContextMenu cmenu, View v,
 					ContextMenuInfo menuInfo) {
-				getMenuInflater().inflate(menuId, menu);
-				onPrepareOptionsMenu(menu);
+				new android.view.MenuInflater(v.getContext()).inflate(menuId, cmenu);
+				onPrepareOptionsMenu(cmenu);
+				
 			}
 		});
 		boolean ret = from.showContextMenu();
@@ -253,16 +266,16 @@ public abstract class OpenFragment
 	
 	public boolean showIContextMenu(Menu menu, final View from, CharSequence title, int xOffset, int yOffset)
 	{
-		if(getActivity() == null) return false;
+		if(getSherlockActivity() == null) return false;
 		final IconContextMenu mOpenMenu =
-				new IconContextMenu(getActivity(), menu, from);
+				new IconContextMenu(getSherlockActivity(), menu, from);
 		if(mOpenMenu == null) return false;
 		if(title != null && title.length() > 0)
 			mOpenMenu.setTitle(title);
 		if(DEBUG)
 			Logger.LogDebug("Showing menu " + menu + (from != null ? " near 0x" + Integer.toHexString(from.getId()) : " by itself"));
-		if(getActivity() != null)
-			getActivity().onPrepareOptionsMenu(menu);
+		if(getSherlockActivity() != null)
+			getSherlockActivity().onPrepareOptionsMenu(menu);
 		mOpenMenu.setMenu(menu);
 		mOpenMenu.setAnchor(from);
 		mOpenMenu.setNumColumns(1);
@@ -279,19 +292,18 @@ public abstract class OpenFragment
 	
 	public boolean showIContextMenu(int menuId, final View from, CharSequence title, int xOffset, int yOffset)
 	{
-		if(getActivity() == null) return false;
-		if(menuId != R.menu.context_file && !OpenExplorer.USE_PRETTY_MENUS) return false;
+		if(getSherlockActivity() == null) return false;
 		if(menuId == R.menu.context_file && !OpenExplorer.USE_PRETTY_CONTEXT_MENUS) return false;
 		final IconContextMenu mOpenMenu =
-				IconContextMenu.getInstance(getActivity(), menuId, from);
+				IconContextMenu.getInstance(getSherlockActivity(), menuId, from);
 		if(mOpenMenu == null) return false;
 		if(title != null && title.length() > 0)
 			mOpenMenu.setTitle(title);
 		if(DEBUG)
 			Logger.LogDebug("Showing menu 0x" + Integer.toHexString(menuId) + (from != null ? " near 0x" + Integer.toHexString(from.getId()) : " by itself"));
 		Menu menu = mOpenMenu.getMenu();
-		if(getActivity() != null)
-			getActivity().onPrepareOptionsMenu(menu);
+		if(getSherlockActivity() != null)
+			getSherlockActivity().onPrepareOptionsMenu(menu);
 		mOpenMenu.setMenu(menu);
 		mOpenMenu.setAnchor(from);
 		mOpenMenu.setNumColumns(1);
@@ -309,8 +321,10 @@ public abstract class OpenFragment
 	@Override
 	public void setHasOptionsMenu(boolean hasMenu) {
 		//if(!OpenExplorer.BEFORE_HONEYCOMB) super.setHasOptionsMenu(hasMenu);
+		//super.setHasOptionsMenu(hasMenu);
 		mHasOptions = hasMenu;
 	}
+	
 	public boolean hasOptionsMenu()
 	{
 		return mHasOptions;
@@ -327,11 +341,18 @@ public abstract class OpenFragment
 		return false;
 	}
 	
-	public MenuInflater getMenuInflater()
+	public MenuInflater getSupportMenuInflater()
+	{
+		if(getSherlockActivity() != null)
+			return getSherlockActivity().getSupportMenuInflater();
+		else return null;
+	}
+	
+	public android.view.MenuInflater getMenuInflater()
 	{
 		if(getActivity() != null)
-			return (MenuInflater)getActivity().getMenuInflater();
-		else return null;
+			return getActivity().getMenuInflater();
+		return null;
 	}
 
 	protected String getViewSetting(OpenPath path, String key, String def)
@@ -392,23 +413,23 @@ public abstract class OpenFragment
 	}
 	protected Integer getSetting(OpenPath file, String key, Integer defValue)
 	{
-		if(getActivity() == null) return defValue; 
+		if(getSherlockActivity() == null) return defValue; 
 		return getFragmentActivity().getSetting(file, key, defValue);
 	}
 	protected String getSetting(OpenPath file, String key, String defValue)
 	{
-		if(getActivity() == null) return defValue;
+		if(getSherlockActivity() == null) return defValue;
 		return getFragmentActivity().getSetting(file, key, defValue);
 	}
 	protected Boolean getSetting(String file, String key, Boolean defValue)
 	{
-		if(getActivity() == null) return defValue;
+		if(getSherlockActivity() == null) return defValue;
 		if(getFragmentActivity().getPreferences() == null) return defValue;
 		return getFragmentActivity().getPreferences().getSetting(file, key, defValue);
 	}
 	protected final void setSetting(String file, String key, Boolean value)
 	{
-		if(getActivity() == null) return;
+		if(getSherlockActivity() == null) return;
 		getFragmentActivity().getPreferences().setSetting(file, key, value);
 	}
 	
@@ -429,6 +450,13 @@ public abstract class OpenFragment
 	}
 	
 	@Override
+	public void onDestroy() {
+		if(DEBUG)
+			Logger.LogDebug("[-- onDestroy :: " + getClassName() + (this instanceof OpenPathFragmentInterface && ((OpenPathFragmentInterface)this).getPath() != null ? " @ " + ((OpenPathFragmentInterface)this).getPath().getPath() : ""));
+		super.onDestroy();
+	}
+	
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		return super.onOptionsItemSelected(item);
 	}
@@ -439,27 +467,10 @@ public abstract class OpenFragment
 			getExplorer().refreshOperations();
 	}
 	
-	public void changeMultiSelectState(boolean multiSelectOn) {
-		if(multiSelectOn)
-			getClipboard().startMultiselect();
-		else
-			getClipboard().stopMultiselect();
-		//mMultiSelectDrawer.setVisibility(multiSelectOn ? View.VISIBLE : View.GONE);
-	}
-
-
-	
-	protected final void finishMode(Object mode)
+	protected final void finishMode(ActionMode mode)
 	{
-		getClipboard().clear();
-		if(!OpenExplorer.BEFORE_HONEYCOMB && mode != null && mode.getClass().getName().equals("ActionMode"))
-		{
-			try {
-				Method mFinish = mode.getClass().getMethod("finish", new Class[0]);
-				if(mFinish != null)
-					mFinish.invoke(mode, new Object[0]);		
-			} catch(Exception e) { }
-		}
+		if(mode != null)
+			mode.finish();
 	}
 	
 	
@@ -480,28 +491,34 @@ public abstract class OpenFragment
 	
 	public Drawable getDrawable(int resId)
 	{
-		if(getActivity() == null) return null;
+		if(getSherlockActivity() == null) return null;
 		if(getResources() == null) return null;
 		return getResources().getDrawable(resId);
 	}
 	public OpenFragmentActivity getFragmentActivity() { return (OpenFragmentActivity)getActivity(); }
 	public OpenExplorer getExplorer() { return (OpenExplorer)getActivity(); }
-	public Context getApplicationContext() { if(getActivity() != null) return getActivity().getApplicationContext(); else return null; }
+	public Context getApplicationContext() { if(getSherlockActivity() != null) return getSherlockActivity().getApplicationContext(); else return null; }
 	public static EventHandler getEventHandler() { return OpenExplorer.getEventHandler(); }
 	public static FileManager getFileManager() { return OpenExplorer.getFileManager(); }
 	
+	@Override
+	public ActionMode getActionMode() {
+		if(getExplorer() != null)
+			return getExplorer().getActionMode();
+		else return null;
+	}
+
+	@Override
+	public void setActionMode(ActionMode mode) {
+		if(getExplorer() != null)
+			getExplorer().setActionMode(mode);
+	}
+
 	@Override
 	public OpenClipboard getClipboard() {
 		if(getExplorer() != null)
 			return getExplorer().getClipboard();
 		else return null;
-	}
-	
-	@Override
-	public boolean isMultiselect() {
-		if(getClipboard() != null)
-			return getClipboard().isMultiselect();
-		return false;
 	}
 	
 	@Override
@@ -533,9 +550,10 @@ public abstract class OpenFragment
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		//Logger.LogDebug("<-- onCreate - " + getClassName() + (this instanceof OpenPathFragmentInterface && ((OpenPathFragmentInterface)this).getPath() != null ? " @ " + ((OpenPathFragmentInterface)this).getPath().getPath() : ""));
+		if(DEBUG)
+			Logger.LogDebug("]-- onCreate - " + getClassName() + (this instanceof OpenPathFragmentInterface && ((OpenPathFragmentInterface)this).getPath() != null ? " @ " + ((OpenPathFragmentInterface)this).getPath().getPath() : ""));
 		//CONTENT_FRAGMENT_FREE = false;
-		setRetainInstance(true);
+		setRetainInstance(false);
 		super.onCreate(savedInstanceState);
 	}
 	
@@ -566,31 +584,19 @@ public abstract class OpenFragment
 			getExplorer().closeFragment(this);				
 		else if(getFragmentManager() != null && getFragmentManager().getBackStackEntryCount() > 0)
 			getFragmentManager().popBackStack();
-		else if(getActivity() != null)
-			getActivity().finish();
+		else if(getSherlockActivity() != null)
+			getSherlockActivity().finish();
 	}
 	
 	public View getActionView(MenuItem item)
 	{
-		try {
-			if(Build.VERSION.SDK_INT < 11)
-				return getActivity().findViewById(item.getItemId());
-			Method m = MenuItem.class.getMethod("getActionView", new Class[0]);
-			Object o = m.invoke(item, new Object[0]);
-			if(o != null && o instanceof View)
-				return (View)o;
-			else if (getActivity().getActionBar() != null && getActivity().getActionBar().getCustomView().findViewById(item.getItemId()) != null)
-				return getActivity().getActionBar().getCustomView().findViewById(item.getItemId());
-			else return getActivity().findViewById(item.getItemId());
-		} catch(Exception e) {
-			return getActivity().findViewById(item.getItemId());
-		}
+		return item.getActionView();
 	}
 	
 	@Override
-	public Context getAndroidContext() {
+	public Context getContext() {
 		if(getExplorer() != null)
-			return getExplorer().getAndroidContext();
+			return getExplorer().getContext();
 		else return getApplicationContext();
 	}
 	
@@ -627,6 +633,16 @@ public abstract class OpenFragment
 	@Override
 	public LruCache<String, Bitmap> getMemoryCache() {
 		return getExplorer().getMemoryCache();
+	}
+	
+	@Override
+	public Preferences getPreferences() {
+		return getExplorer().getPreferences();
+	}
+	
+	@Override
+	public void refreshBookmarks() {
+		getExplorer().refreshBookmarks();
 	}
 	
 	@Override

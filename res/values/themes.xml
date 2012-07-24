@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme.Dark" parent="@style/Theme.Sherlock">
+		
+        <item name="absForceOverflow">true</item>
+
+        <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
+        <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
+        <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
+        <item name="vpiTabTextStyle">@style/MyTabPageIndicator.Text</item>
+        
+        <!-- for programmatic instantiation -->
+        <item name="actionbarCompatTitleStyle">@style/ActionBarCompatTitle</item>
+        <item name="actionbarCompatItemStyle">@style/ActionBarCompatItem</item>
+        <item name="actionbarCompatItemHomeStyle">@style/ActionBarCompatHomeItem</item>
+        <item name="actionbarCompatProgressIndicatorStyle">@style/ActionBarCompatProgressIndicator</item>
+        <item name="actionbarCompatItemHomeAsUpStyle">@style/ActionBarCompatHomeAsUp</item>
+           
+        <!-- Action Bar icons -->
+        <item name="actionIconSort">@drawable/ic_action_sort_holo_dark</item>
+        <item name="actionIconView">@drawable/ic_menu_view</item>
+        <item name="actionIconOperations">@drawable/ic_action_folder_holo_dark</item>
+        <item name="actionIconRefresh">@drawable/ic_action_refresh_holo_dark</item>
+        <item name="actionIconSearch">@drawable/ic_action_search_holo_dark</item>
+
+        <!-- Action Mode icons -->
+        <item name="actionIconRename">@drawable/ic_rename</item>
+        <item name="actionIconCopy">@drawable/ic_action_copy_holo_dark</item>
+        <item name="actionIconDelete">@drawable/ic_action_delete_holo_dark</item>
+        <item name="actionIconShare">@drawable/ic_action_share_holo_dark</item>
+        <item name="actionIconInfo">@drawable/ic_action_info_holo_dark</item>
+        <item name="actionIconSelectAll">@drawable/ic_action_select_all_holo_dark</item>
+        <item name="actionIconZip">@drawable/ic_action_zip_holo_dark</item>
+        
+        <!-- Misc. UI elements -->
+        <item name="checkboxButtonOn">@drawable/btn_check_on_holo_dark</item>
+        <item name="checkboxButtonOff">@drawable/btn_check_off_holo_dark</item>
+    </style>
+</resources>

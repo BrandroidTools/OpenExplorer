@@ -22,32 +22,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-    
-    
-    
-	<ViewStub android:layout="@layout/title_bar"
-	    android:id="@+id/title_stub"
-	    android:inflatedId="@+id/title_bar"
-		android:layout_width="match_parent"
-		android:layout_alignWithParentIfMissing="true"
-		android:layout_height="@dimen/actionbar_compat_height"
-		/>
-    
-    <View android:background="@color/blue"
-        android:layout_height="1dp"
-        android:layout_width="match_parent"
-        android:layout_alignBottom="@id/title_bar"
-        android:layout_alignWithParentIfMissing="true"
-        android:id="@+id/title_underline"
-        />
    
 	<LinearLayout
-	    android:layout_below="@+id/title_underline"
+	    android:layout_alignParentTop="true"
+	    android:layout_alignParentBottom="true"
 		android:id="@+id/frag_holder"
 	    android:orientation="horizontal"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
-	    android:layout_above="@id/base_bar"
 	    android:layout_alignParentLeft="true"
 	    android:layout_toLeftOf="@+id/frag_log"
 	    android:baselineAligned="false">
@@ -90,12 +72,5 @@
 		        >
 		    </FrameLayout>
 	
-	<ViewStub
-	    android:id="@+id/base_stub"
-	    android:layout="@layout/base_bar"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentBottom="true"
-	    />
 	
 </RelativeLayout>

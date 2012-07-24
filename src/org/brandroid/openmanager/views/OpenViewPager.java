@@ -14,6 +14,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 
 public class OpenViewPager extends ViewPager
 {
@@ -21,6 +22,7 @@ public class OpenViewPager extends ViewPager
 	private List<OnPageChangeListener> mListeners = new ArrayList<OnPageChangeListener>();
 	private OnPageIndicatorChangeListener mIndicatorListener = null;
 	private OnDPADListener mDPAD = null;
+	private boolean mLocked = false;
 	
 	public interface OnPageIndicatorChangeListener
 	{
@@ -120,5 +122,22 @@ public class OpenViewPager extends ViewPager
 		getAdapter().notifyDataSetChanged();
 		if(mIndicator != null)
 			mIndicator.notifyDataSetChanged();
+	}
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent arg0) {
+		if(mLocked) return false;
+		return super.onTouchEvent(arg0);
+	}
+	
+	@Override
+	public boolean onInterceptTouchEvent(MotionEvent arg0) {
+		if(mLocked) return false;
+		return super.onInterceptTouchEvent(arg0);
+	}
+
+	public void setLocked(boolean locked)
+	{
+		mLocked = locked;
 	}
 }

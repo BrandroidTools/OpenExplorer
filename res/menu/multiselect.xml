@@ -16,8 +16,4 @@
 	    android:title="@string/s_clear"
 	    android:icon="@drawable/ic_menu_close_clear_cancel"
 	    />
-	<item android:id="@+id/menu_multi"
-	    android:title="@string/s_menu_multi"
-	    android:icon="@drawable/ic_multiselect"
-	    android:checkable="true" />
 </menu>

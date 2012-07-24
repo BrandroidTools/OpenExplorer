@@ -20,6 +20,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
+    
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" 
+        />
 
 	<GridView
 	    android:id="@+id/content_grid"
@@ -37,5 +44,14 @@
 	    android:scrollingCache="false"
 	    >
 	</GridView>
+	
+	<TextView
+	    android:id="@android:id/empty"
+	    android:text="@string/no_items"
+	    android:layout_width="wrap_content" 
+	    android:layout_height="wrap_content"
+	    android:layout_margin="5dp"
+	    android:visibility="gone"
+	    />
          
 </RelativeLayout>

@@ -22,6 +22,7 @@ import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Build;
 import android.provider.MediaStore.Images;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -40,8 +41,10 @@ import android.widget.TextView;
 import android.net.Uri;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.io.BufferedInputStream;
@@ -59,6 +62,7 @@ import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenSMB;
 import org.brandroid.openmanager.data.OpenSmartFolder;
 import org.brandroid.openmanager.fragments.DialogHandler;
+import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.FileManager.OnProgressUpdateCallback;
 import org.brandroid.openmanager.util.NetworkIOTask.OnTaskUpdateListener;
 import org.brandroid.utils.Logger;
@@ -154,10 +158,8 @@ public class EventHandler {
 
 	private synchronized void OnWorkerThreadComplete(EventType type,
 			String... results) {
-		if (mThreadListener == null)
-			return;
-		mThreadListener.onWorkerThreadComplete(type, results);
-		mThreadListener = null;
+		if (mThreadListener != null)
+			mThreadListener.onWorkerThreadComplete(type, results);
 		if (mTaskListener != null)
 			mTaskListener.OnTasksChanged(getTaskList().size());
 	}
@@ -187,23 +189,24 @@ public class EventHandler {
 		return ret;
 	}
 
-	public void deleteFile(final OpenPath file, final Context mContext,
+	public void deleteFile(final OpenPath file, final OpenApp mApp,
 			boolean showConfirmation) {
-		List<OpenPath> files = new ArrayList<OpenPath>();
+		Collection<OpenPath> files = new ArrayList<OpenPath>();
 		files.add(file);
-		deleteFile(files, mContext, showConfirmation);
+		deleteFile(files, mApp, showConfirmation);
 	}
 
-	public void deleteFile(final List<OpenPath> path, final Context mContext,
+	public void deleteFile(final Collection<OpenPath> path, final OpenApp mApp,
 			boolean showConfirmation) {
 		final OpenPath[] files = new OpenPath[path.size()];
 		path.toArray(files);
 		String name;
+		final Context mContext = mApp.getContext();
 
-		if (path.size() == 1)
-			name = path.get(0).getName();
+		if (files.length == 1)
+			name = files[0].getName();
 		else
-			name = path.size() + " "
+			name = files.length + " "
 					+ getResourceString(mContext, R.string.s_files);
 
 		if (!showConfirmation) {
@@ -374,7 +377,7 @@ public class EventHandler {
 		// bw.execute();
 	}
 
-	public void sendFile(final List<OpenPath> path, final Context mContext) {
+	public void sendFile(final Collection<OpenPath> path, final Context mContext) {
 		String name;
 		CharSequence[] list = { "Bluetooth", "Email" };
 		final OpenPath[] files = new OpenPath[path.size()];
@@ -382,7 +385,7 @@ public class EventHandler {
 		final int num = path.size();
 
 		if (num == 1)
-			name = path.get(0).getName();
+			name = files[0].getName();
 		else
 			name = path.size() + " "
 					+ getResourceString(mContext, R.string.s_files) + ".";
@@ -436,7 +439,7 @@ public class EventHandler {
 				.execute(source);
 	}
 
-	public void copyFile(List<OpenPath> files, OpenPath newPath,
+	public void copyFile(Collection<OpenPath> files, OpenPath newPath,
 			Context mContext) {
 		OpenPath[] array = new OpenPath[files.size()];
 		files.toArray(array);
@@ -448,7 +451,7 @@ public class EventHandler {
 		new BackgroundWork(COPY_TYPE, mContext, newPath, title).execute(array);
 	}
 
-	public void cutFile(List<OpenPath> files, OpenPath newPath, Context mContext) {
+	public void cutFile(Collection<OpenPath> files, OpenPath newPath, Context mContext) {
 		OpenPath[] array = new OpenPath[files.size()];
 		files.toArray(array);
 
@@ -459,7 +462,7 @@ public class EventHandler {
 		new BackgroundWork(SEARCH_TYPE, mContext, dir, query).execute();
 	}
 
-	public BackgroundWork zipFile(OpenPath into, List<OpenPath> files,
+	public BackgroundWork zipFile(OpenPath into, Collection<OpenPath> files,
 			Context mContext) {
 		return zipFile(into, files.toArray(new OpenPath[0]), mContext);
 	}
@@ -706,6 +709,7 @@ public class EventHandler {
 			mNotifier.notify(mNotifyId, mNote);
 		}
 
+		@SuppressLint("NewApi")
 		@SuppressWarnings("deprecation")
 		public void prepareNotification(int notifIcon, boolean isCancellable) {
 			boolean showProgress = true;
@@ -1227,7 +1231,6 @@ public class EventHandler {
 							getResourceString(mContext, R.string.s_msg_all,
 									R.string.s_msg_deleted), Toast.LENGTH_SHORT)
 							.show();
-				OnWorkerThreadComplete(mType);
 				break;
 
 			case SEARCH:

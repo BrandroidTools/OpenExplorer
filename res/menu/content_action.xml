@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_context_copy"
+		android:title="@string/s_menu_copy"
+        android:icon="?attr/actionIconCopy"
+    	android:showAsAction="ifRoom"
+    	android:orderInCategory="2"
+        />
+    <item
+		android:id="@+id/menu_context_delete"
+		android:title="@string/s_menu_delete"
+		android:icon="?attr/actionIconDelete"
+    	android:showAsAction="ifRoom"
+    	android:orderInCategory="4"
+		/>
+    <item
+		android:id="@+id/menu_context_share"
+		android:title="@string/s_menu_share"
+    	android:icon="?attr/actionIconShare"
+    	android:showAsAction="ifRoom"
+    	android:orderInCategory="6"
+		/>
+    <item
+        android:id="@+id/menu_context_info"
+        android:title="@string/s_menu_info"
+        android:icon="?attr/actionIconInfo"
+    	android:showAsAction="ifRoom"
+    	android:orderInCategory="8"
+        />
+    <item
+        android:id="@+id/menu_context_rename"
+        android:title="@string/s_menu_rename"
+        android:icon="?attr/actionIconRename" 
+    	android:showAsAction="ifRoom"
+    	android:orderInCategory="10"
+        />
+    <item
+		android:id="@+id/menu_context_selectall"
+		android:title="@android:string/selectAll"
+        android:icon="?attr/actionIconSelectAll"
+    	android:showAsAction="ifRoom"
+    	android:orderInCategory="12"
+        />
+    <item
+		android:id="@+id/menu_context_zip"
+		android:icon="?attr/actionIconZip"
+		android:title="@string/s_menu_zip"
+    	android:showAsAction="ifRoom"
+    	android:orderInCategory="14"
+		/>
+
+</menu>

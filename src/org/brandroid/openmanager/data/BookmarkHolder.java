@@ -20,6 +20,7 @@ package org.brandroid.openmanager.data;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.fragments.ContentFragment;
+import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.openmanager.views.RemoteImageView;
 import org.brandroid.utils.Logger;
@@ -36,7 +37,7 @@ import android.widget.TextView;
 
 public class BookmarkHolder {
 	private RemoteImageView mIcon;
-	private ImageView mEject, mIndicate;
+	private ImageView mEject;
 	private TextView mMainText, mInfo, mPath, mSizeText;
 	private View mParentView;
 	private String sTitle;
@@ -67,13 +68,11 @@ public class BookmarkHolder {
 			mIcon = (RemoteImageView)mParentView.findViewById(R.id.content_icon);
 		if(mMainText == null)
 			mMainText = (TextView)mParentView.findViewById(R.id.content_text);
-		if(mIndicate == null)
-			mIndicate = (ImageView)mParentView.findViewById(R.id.list_arrow);
 		if(mEject == null)
 			mEject = (ImageView)mParentView.findViewById(R.id.eject);
 		if(mInfo == null)
 			mInfo = (TextView)mParentView.findViewById(R.id.content_info);
-		if(mPath == null)
+		if(mPath == null && mPath instanceof TextView)
 			mPath = (TextView)mParentView.findViewById(R.id.content_fullpath);
 		if(mSizeText == null)
 			mSizeText = (TextView)mParentView.findViewById(R.id.size_text);
@@ -110,8 +109,6 @@ public class BookmarkHolder {
 	
 	public void setSelected(Boolean sel)
 	{
-		if(mIndicate != null)
-			mIndicate.setVisibility(sel ? View.VISIBLE : View.GONE);
 	}
 	
 	public String getPath() { return sPath; }
@@ -155,12 +152,12 @@ public class BookmarkHolder {
 	}*/
 	//public void cancelTask() { if(mTask!=null) mTask.cancel(true); }
 	
-	public Drawable getIcon(Context context) {
+	public Drawable getIcon(OpenApp app) {
 		if(getIconView() != null && getIconView().getDrawable() != null)
 			return getIconView().getDrawable();
 		if(mIcon != null && getOpenPath() != null)
 		{
-			Bitmap bmp = ThumbnailCreator.getThumbnailCache(context, getOpenPath(), ContentFragment.mListImageSize, ContentFragment.mListImageSize);
+			Bitmap bmp = ThumbnailCreator.getThumbnailCache(app, getOpenPath(), ContentFragment.mListImageSize, ContentFragment.mListImageSize);
 			if(bmp != null)
 				return new BitmapDrawable(bmp);
 		}

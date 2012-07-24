@@ -1,32 +1,63 @@
 package org.brandroid.utils;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.brandroid.openmanager.R;
-import org.brandroid.openmanager.R.menu;
 import org.brandroid.openmanager.activities.OpenExplorer;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
+import com.actionbarsherlock.view.SubMenu;
+import com.actionbarsherlock.internal.view.menu.MenuBuilder;
+
+import android.R.integer;
 import android.content.Context;
-import android.support.v4.view.MenuItemCompat;
+import android.text.Html;
 import android.util.SparseArray;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MenuItem.OnMenuItemClickListener;
-import android.view.TouchDelegate;
-import android.widget.Button;
-import android.widget.ImageButton;
 
 public class MenuUtils {
 	public static final boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
 	
 	public static void transferMenu(Menu from, Menu to) { transferMenu(from, to, true); }
 	public static void transferMenu(Menu from, Menu to, Boolean clearFrom) {
+		if(from == null || to == null) return;
+		to.clear();
+		for(int i=0; i<from.size(); i++)
+			transferMenu(from.getItem(i), to);
+		if(clearFrom)
+			from.clear();
+	}
+	public static void transferMenu(ContextMenu from, Menu to, Boolean clearFrom) {
+		if(from == null || to == null) return;
+		to.clear();
+		for(int i=0; i<from.size(); i++)
+			transferMenu(from.getItem(i), to);
+		if(clearFrom)
+			from.clear();
+	}
+	public static MenuItem transferMenu(android.view.MenuItem item, Menu to) {
+		if(!item.isVisible()) return null;
+
+		MenuItem newm = to.add(item.getGroupId(), item.getItemId(), item.getOrder(), item.getTitle())
+			.setEnabled(item.isEnabled())
+			.setCheckable(item.isCheckable())
+			.setChecked(item.isChecked())
+			.setVisible(item.isVisible())
+			.setNumericShortcut(item.getNumericShortcut())
+			.setAlphabeticShortcut(item.getAlphabeticShortcut())
+			.setIcon(item.getIcon());
+		
+		if(item.hasSubMenu())
+			transferMenu(item.getSubMenu(),
+				newm.getSubMenu(), false);
+		
+		return newm;
+	}
+	private static void transferMenu(android.view.Menu from, Menu to, boolean clearFrom) {
 		if(from == null || to == null) return;
 		to.clear();
 		for(int i=0; i<from.size(); i++)
@@ -68,9 +99,7 @@ public class MenuUtils {
 		if(ids.length == 0)
 			setMenuVisible(menu, visible, getMenuIDs(menu));
 		for(int id : ids)
-			if(menu.findItem(id) != null && !visible)
-				menu.removeItem(id);
-			else if(menu.findItem(id) != null && visible)
+			if(menu.findItem(id) != null)
 				menu.findItem(id).setVisible(visible);
 			else for(int i=0; i<menu.size(); i++)
 				if(menu.getItem(i).hasSubMenu())
@@ -83,7 +112,7 @@ public class MenuUtils {
 			if(menu.findItem(id) != null)
 			{
 				MenuItem item = (MenuItem)menu.findItem(id);
-				MenuItemCompat.setShowAsAction(item, show);
+				item.setShowAsAction(show);
 			}
 		/*
 		for(int id : ids)
@@ -93,8 +122,15 @@ public class MenuUtils {
 				item.setShowAsAction(show);
 			}*/
 	}
-	
+
 	public static int[] getMenuIDs(Menu menu)
+	{
+		int[] ret = new int[menu.size()];
+		for(int i = 0; i < ret.length; i++)
+			ret[i] = menu.getItem(i).getItemId();
+		return ret;
+	}
+	public static int[] getMenuIDs(ContextMenu menu)
 	{
 		int[] ret = new int[menu.size()];
 		for(int i = 0; i < ret.length; i++)
@@ -211,19 +247,12 @@ public class MenuUtils {
 	}
 	public final static int[] MENU_LOOKUP_IDS = new int[]{};//	R.id.menu_view,		R.id.menu_sort,		R.id.menu_content_ops,	R.id.content_paste,R.id.menu_text_view,	R.id.menu_text_ops};
 	public final static int[] MENU_LOOKUP_SUBS = new int[]{};//	R.menu.content_view,R.menu.content_sort,R.menu.content_ops,		R.menu.multiselect,R.menu.text_view,	R.menu.text_file};
-	public static void fillSubMenus(Menu menu, MenuInflater inflater)
-	{
-		//if(!(menu instanceof MenuBuilder))
-		if(!OpenExplorer.USE_PRETTY_MENUS)
-		{
-			fillSubMenus(MENU_LOOKUP_IDS, MENU_LOOKUP_SUBS, menu, inflater);
-		}
-	}
+
 	public static void scanMenuShortcuts(Menu menu, MenuInflater inflater)
 	{
 		if(OpenExplorer.mMenuShortcuts != null) return;
 		OpenExplorer.mMenuShortcuts = new SparseArray<MenuItem>();
-		for(int menuId : new int[]{R.menu.global,R.menu.content,R.menu.content_sort,R.menu.content_view,R.menu.content_ops,R.menu.text_editor,R.menu.text_file,R.menu.text_view,R.menu.multiselect,R.menu.context_file})
+		for(int menuId : new int[]{R.menu.global,R.menu.content_full,R.menu.text_full,R.menu.multiselect,R.menu.context_file})
 		{
 			menu.clear();
 			inflater.inflate(menuId, menu);
@@ -244,6 +273,52 @@ public class MenuUtils {
 		if(index > -1 && index < MenuUtils.MENU_LOOKUP_SUBS.length)
 			return MenuUtils.MENU_LOOKUP_SUBS[index];
 		else return Utils.getArrayIndex(MenuUtils.MENU_LOOKUP_SUBS, index);
+	}
+	public static MenuItem getMenuItem(android.view.MenuItem item, MenuBuilder to) {
+		
+		MenuItem newm = to.add(item.getGroupId(), item.getItemId(), item.getOrder(), item.getTitle())
+		.setEnabled(item.isEnabled())
+		.setCheckable(item.isCheckable())
+		.setChecked(item.isChecked())
+		.setVisible(item.isVisible())
+		.setNumericShortcut(item.getNumericShortcut())
+		.setAlphabeticShortcut(item.getAlphabeticShortcut())
+		.setIcon(item.getIcon());
+	
+		if(item.hasSubMenu())
+			transferMenu(item.getSubMenu(),
+				newm.getSubMenu(), false);
+		return newm;
+	}
+	public static void setMenuEnabled(ContextMenu menu, boolean enabled, int... ids) {
+		if(ids.length == 0)
+			setMenuEnabled(menu, enabled, getMenuIDs(menu));
+		for(int id : ids)
+		{
+			android.view.MenuItem item = menu.findItem(id);
+			if(item == null) continue;
+			item.setEnabled(enabled);
+			if(enabled)
+				item.setVisible(true);
+		}
+	}
+	public static void setMneumonics(Menu menu) {
+		for(int i = 0; i < menu.size(); i++)
+		{
+			MenuItem item = menu.getItem(i);
+			if(item.getAlphabeticShortcut() > 0)
+			{
+				String tit = item.getTitle().toString();
+				if(tit.indexOf("<u>") > -1) continue;
+				int pos = tit.toLowerCase().indexOf(item.getAlphabeticShortcut());
+				if(tit.startsWith("Sort by ") && pos < 8 && tit.toLowerCase().substring(8).indexOf(item.getAlphabeticShortcut()) > -1)
+					pos = tit.toLowerCase().indexOf(item.getAlphabeticShortcut(), 8);
+				if(pos > -1)
+					tit = tit.substring(0, pos) + "<u>" + tit.charAt(pos) + "</u>" + tit.substring(pos + 1);
+				else tit += " (<u>" + item.getAlphabeticShortcut() + "</u>)";
+				item.setTitle(Html.fromHtml(tit));
+			}
+		}
 	}
 	
 }
