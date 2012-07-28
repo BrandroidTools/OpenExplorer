@@ -37,7 +37,7 @@
 	    <FrameLayout android:id="@+id/list_frag"
 	        android:layout_width="@dimen/bookmarks_width"
 	        android:layout_height="match_parent"
-	        android:background="@color/darkGray"
+	        android:background="?attr/colorDarkGray"
 	        android:layout_alignWithParentIfMissing="true"
 	       	/>
 	    

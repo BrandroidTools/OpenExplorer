@@ -3,14 +3,14 @@
     <style name="Small" parent="@android:style/TextAppearance.Small">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/offWhite</item>
+        <item name="android:textColor">?attr/colorOffWhite</item>
 		<item name="android:textSize">10dp</item>
     </style>
     <style name="Mid" parent="@android:style/TextAppearance.Medium">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center|top</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">?attr/colorWhite</item>
         <item name="android:text">Mid</item>
         <item name="android:ellipsize">marquee</item>
         <item name="android:textSize">14dp</item>
@@ -18,7 +18,7 @@
     <style name="Large" parent="@android:style/TextAppearance.Large">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/large_text_height</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">?attr/colorWhite</item>
         <item name="android:text">Big</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">marquee</item>
@@ -52,14 +52,9 @@
     </style>
     <style name="MyTabPageIndicator.Text" parent="Widget">
         <item name="android:textAppearance">@style/TextAppearance.MyTabPageIndicator</item>
-        <item name="android:textColor">@color/vpi__dark_theme</item>
+        <item name="android:textColor">?attr/vpiTabTextColor</item>
         <item name="android:maxLines">1</item>
         <item name="android:gravity">center</item>
-    </style>
-        
-    <style name="AppThemeCustom" parent="Theme.Sherlock">
-        <item name="android:actionBarStyle">@style/ActionBar</item>
-        <item name="android:windowContentOverlay">@drawable/actionbar_shadow</item>
     </style>
 
     <style name="ActionBar" parent="Widget.Sherlock.ActionBar">

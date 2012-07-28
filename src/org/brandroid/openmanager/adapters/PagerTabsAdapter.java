@@ -156,7 +156,7 @@ public class PagerTabsAdapter extends FragmentStatePagerAdapter
 				OpenPath path = (OpenPath)items[i];
 				if(path.isDirectory())
 					mFrags.add(ContentFragment.getInstance(path));
-				else if(path.isTextFile() || path.length() < 500000)
+				else if(path.isTextFile() || path.length() < Preferences.Pref_Text_Max_Size)
 					mFrags.add(new TextEditorFragment(path));
 			}
 	}

@@ -36,6 +36,7 @@ import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.fragments.DialogHandler;
+import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
 import org.brandroid.utils.SimpleCrypto;
@@ -118,6 +119,8 @@ public class SettingsActivity extends PreferenceActivity
 	@SuppressWarnings("deprecation")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		setTheme(R.style.AppTheme_Dark);
 		
 		Intent intent = getIntent();
 		if(intent == null) intent = new Intent();
@@ -553,7 +556,7 @@ public class SettingsActivity extends PreferenceActivity
 		return true;
 	}
 
-	public boolean onPreferenceChange(Preference preference, Object newValue) {
+	public boolean onPreferenceChange(final Preference preference, final Object newValue) {
 		if(EditTextPreference.class.equals(preference.getClass()) && ((EditTextPreference)preference).getEditText() != null && ((EditTextPreference)preference).getEditText().getTransformationMethod() != null)
 			preference.setSummary(((EditTextPreference)preference).getEditText().getTransformationMethod().getTransformation(newValue.toString(), ((EditTextPreference)preference).getEditText()));
 		else
@@ -563,6 +566,12 @@ public class SettingsActivity extends PreferenceActivity
 		//preference.getExtras().putString("value", newValue.toString());
 		Intent intent = getIntent();
 		intent.putExtra(preference.getKey().replace("server_", ""), newValue.toString());
+		final OpenApp app = ((OpenApplication)getApplication());
+		app.queueToTracker(new Runnable() {
+			public void run() {
+				app.getAnalyticsTracker().trackEvent("Preferences", "Change", preference.getKey(), newValue instanceof Integer ? (Integer)newValue : 0);
+			}
+		});
 		setIntent(intent);
 		return false;
 	}

@@ -185,8 +185,8 @@ public class OpenClipboard
 		View ret = convertView;
 		if(ret == null)
 		{
-			ret = ((LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-					.inflate(R.layout.list_content_layout, parent, false); 
+			ret = LayoutInflater.from(mContext)
+					.inflate(R.layout.list_content_layout, null); 
 		}
 		int w = mContext.getResources().getDimensionPixelSize(R.dimen.list_icon_size);
 		//ret.setLayoutParams(new Gallery.LayoutParams(w, w));

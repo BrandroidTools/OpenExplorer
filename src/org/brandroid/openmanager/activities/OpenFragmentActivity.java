@@ -3,6 +3,7 @@ package org.brandroid.openmanager.activities;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import jcifs.smb.ServerMessageBlock;
 import jcifs.smb.SmbComReadAndX;
@@ -22,6 +23,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuInflater;
 import com.jcraft.jsch.JSch;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -43,7 +45,7 @@ public abstract class OpenFragmentActivity
 	public static Thread UiThread = Thread.currentThread();
 	private Preferences mPreferences = null;
 	private final static boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
-	
+
 	public String getClassName()
 	{
 		return this.getClass().getSimpleName();
@@ -132,6 +134,7 @@ public abstract class OpenFragmentActivity
         new Preferences(context).setSetting("global", "pref_language", language);
     }
 	
+	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
 	public int getWindowWidth() {
 		if(Build.VERSION.SDK_INT > 13)

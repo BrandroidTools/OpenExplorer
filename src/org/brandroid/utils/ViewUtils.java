@@ -237,8 +237,10 @@ public class ViewUtils {
 		final int vis = visible ? View.VISIBLE : View.GONE;
 		//parent.post(new Runnable(){public void run(){
 			if(ids.length == 0)
-				parent.setVisibility(vis);
-			else
+			{
+				if(parent.getVisibility() != vis)
+					parent.setVisibility(vis);
+			} else
 				for(int id : ids)
 				{
 					View v = parent.findViewById(id);

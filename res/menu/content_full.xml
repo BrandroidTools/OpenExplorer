@@ -9,13 +9,6 @@
 		android:alphabeticShortcut="1"
 		android:title="@string/s_menu_sort">
 		<menu>
-		    <item
-			    android:id="@+id/menu_sort_folders_first"
-			    android:title="@string/s_menu_sort_folders"
-			    android:checkable="true"
-			    android:checked="true"
-				android:alphabeticShortcut="f"
-			    />
 			<group android:checkableBehavior="single">
 				<item
 					android:id="@+id/menu_sort_name_asc"
@@ -53,6 +46,12 @@
 					android:alphabeticShortcut="t"
 					android:showAsAction="withText" />
 			</group>
+		    <item
+			    android:id="@+id/menu_sort_folders_first"
+			    android:title="@string/s_menu_sort_folders"
+			    android:checkable="true"
+				android:alphabeticShortcut="f"
+			    />
 		</menu>
 	</item>
 	<item
@@ -62,12 +61,6 @@
 		android:showAsAction="ifRoom"
 		android:title="@string/s_view">
 		<menu>
-		    <item
-				android:id="@+id/menu_multi"
-				android:icon="@drawable/ic_multiselect"
-				android:showAsAction="ifRoom"
-				android:checkable="true"
-				android:title="@string/s_menu_multi" />
 			<group android:checkableBehavior="single">
 				<item
 					android:id="@+id/menu_view_grid"
@@ -82,26 +75,14 @@
 					android:visible="false"
 					android:title="@string/s_menu_carousel" />
 			</group>
-			<item
+	 		<item
 				android:id="@+id/menu_view_hidden"
 				android:checkable="true"
-				android:title="@string/s_menu_hidden" />
+				android:title="@string/s_menu_hidden" /> 
 			<item
 				android:id="@+id/menu_view_thumbs"
 				android:checkable="true"
 				android:title="@string/s_menu_thumbs" />
-			<group android:checkableBehavior="all">
-				<item
-				    android:id="@+id/menu_view_fullscreen"
-				    android:checkable="true"
-				    android:title="@string/s_pref_fullscreen" />
-				<item
-				    android:id="@+id/menu_view_split"
-				    android:checkable="true"
-				    android:title="@string/s_pref_basebar"
-				    android:visible="@bool/prehoneycomb" />
-			</group>
-				    
 		</menu>
 	</item>
     <item android:id="@+id/menu_content_ops"
@@ -141,7 +122,7 @@
 		        android:title="@android:string/selectAll"
 				android:alphabeticShortcut="a"
 		        android:showAsAction="ifRoom"
-		        android:icon="@drawable/ic_menu_selectall_holo_dark" />
+		        android:icon="?attr/actionIconSelectAll" />
 			<item
 			    android:id="@+id/content_paste"
 			    android:title="@android:string/paste"

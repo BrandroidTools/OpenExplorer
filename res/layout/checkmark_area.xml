@@ -9,11 +9,10 @@
         android:id="@+id/content_clipboard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_menu_clipboard_checked"
+        android:src="?attr/actionIconClipboardChecked"
         android:layout_centerInParent="true"
         android:contentDescription="@string/clipboard"
         android:clickable="false" 
-        android:alpha="0.8"
 		android:visibility="gone"
         />
 

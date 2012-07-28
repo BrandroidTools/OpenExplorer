@@ -36,6 +36,7 @@ public class WTFSenderActivity extends Activity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setTheme(R.style.AppTheme_Dark);
 		setContentView(R.layout.wtf_sender);
 		prefs = new Preferences(this);
 		findViewById(R.id.wtf_yes).setOnClickListener(this);

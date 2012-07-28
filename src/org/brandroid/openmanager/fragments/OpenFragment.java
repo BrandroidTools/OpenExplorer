@@ -32,6 +32,7 @@ import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -438,8 +439,12 @@ public abstract class OpenFragment
 		super.onAttach(activity);
 		if(activity instanceof OpenExplorer)
 			setOnFragmentDPADListener((OpenExplorer)activity);
+		final OpenPath path = (this instanceof OpenPathFragmentInterface) ? ((OpenPathFragmentInterface)this).getPath() : null;
 		if(DEBUG)
-			Logger.LogDebug("}-- onAttach :: " + getClassName() + (this instanceof OpenPathFragmentInterface && ((OpenPathFragmentInterface)this).getPath() != null ? " @ " + ((OpenPathFragmentInterface)this).getPath().getPath() : ""));
+			Logger.LogDebug("}-- onAttach :: " + getClassName() + " @ " + path);
+		queueToTracker(new Runnable(){public void run(){
+			getAnalyticsTracker().trackPageView("/" + getClassName() + "/" + path);
+		}});
 	}
 	
 	@Override
@@ -457,7 +462,10 @@ public abstract class OpenFragment
 	}
 	
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		queueToTracker(new Runnable() {public void run() {
+			getAnalyticsTracker().trackEvent("Clicks", "MenuItem", "Click", item.getItemId());
+		}});
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -534,16 +542,27 @@ public abstract class OpenFragment
 		else return false;
 	}
 	
-	public void onClick(View v) {
-		Logger.LogInfo(getClassName() + ".onClick(0x" + Integer.toHexString(v.getId()) + ")");
+	public void onClick(final View v) {
+		queueToTracker(new Runnable() {public void run() {
+			if(v != null)
+				getAnalyticsTracker().trackEvent("Clicks", v != null ? v.getClass().toString() : "Unknown", "Click", v.getId());
+		}});
+		Logger.LogInfo(getClassName() + ".onClick(" + v + ")");
 	}
 	
-	public boolean onClick(int id, View from) {
+	public boolean onClick(final int id, final View from) {
+		queueToTracker(new Runnable() {public void run() {
+			getAnalyticsTracker().trackEvent("Clicks", from != null ? from.getClass().toString() : "Unknown", "Click", id);
+		}});
 		Logger.LogInfo(getClassName() + ".onClick(0x" + Integer.toHexString(id) + ")");
 		return false;
 	}
 	
-	public boolean onLongClick(View v) {
+	public boolean onLongClick(final View v) {
+		queueToTracker(new Runnable() {public void run() {
+			if(v != null)
+				getAnalyticsTracker().trackEvent("Clicks", v.getClass().toString(), "Click", v.getId());
+		}});
 		Logger.LogInfo(getClassName() + ".onLongClick(" + Integer.toHexString(v.getId()) + ") - " + v.toString());
 		return false;
 	}
@@ -551,7 +570,7 @@ public abstract class OpenFragment
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		if(DEBUG)
-			Logger.LogDebug("]-- onCreate - " + getClassName() + (this instanceof OpenPathFragmentInterface && ((OpenPathFragmentInterface)this).getPath() != null ? " @ " + ((OpenPathFragmentInterface)this).getPath().getPath() : ""));
+			Logger.LogDebug("]-- onCreate - " + getClassName() + (this instanceof OpenPathFragmentInterface && ((OpenPathFragmentInterface)this).getPath() != null ? "#" + ((OpenPathFragmentInterface)this).getPath().getPath() : ""));
 		//CONTENT_FRAGMENT_FREE = false;
 		setRetainInstance(false);
 		super.onCreate(savedInstanceState);
@@ -654,6 +673,16 @@ public abstract class OpenFragment
 	public ShellSession getShellSession() {
 		return getExplorer().getShellSession();
 	}
+	
+	@Override
+	public GoogleAnalyticsTracker getAnalyticsTracker() {
+		return getExplorer().getAnalyticsTracker();
+	}
+	
+	@Override
+	public void queueToTracker(Runnable run) {
+		getExplorer().queueToTracker(run);
+	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -666,6 +695,11 @@ public abstract class OpenFragment
 		if(getExplorer() != null)
 			return getExplorer().getPagerTitleView(this);
 		return null;
+	}
+	
+	@Override
+	public int getThemedResourceId(int styleableId, int defaultResourceId) {
+		return getExplorer().getThemedResourceId(styleableId, defaultResourceId);
 	}
 	
 	/*

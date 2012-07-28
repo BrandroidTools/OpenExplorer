@@ -52,30 +52,9 @@
 		    android:defaultValue="false"
 		    />
 		<CheckBoxPreference
-		    android:key="pref_pagers"
-		    android:title="@string/s_pref_pagers" 
-		    android:summaryOn="@string/s_pref_pagers_summary_on"
-		    android:summaryOff="@string/s_pref_pagers_summary_off"
-		    android:defaultValue="true"
-		    android:enabled="false"
-		    />
-		<CheckBoxPreference
-		    android:key="pref_basebar"
-		    android:title="@string/s_pref_basebar"
-		    android:summaryOn="@string/s_pref_basebar_on"
-		    android:summaryOff="@string/s_pref_basebar_off"
-		    android:defaultValue="true"
-		    android:enabled="@bool/prehoneycomb"
-		    />
-		<CheckBoxPreference
 		    android:key="pref_showup"
 		    android:title="@string/s_pref_showup"
 		    android:defaultValue="false" />
-		<CheckBoxPreference
-		    android:key="pref_logview"
-		    android:title="@string/s_pref_logview"
-		    android:defaultValue="true" 
-		    />
 		<Preference
 		    android:key="pref_translate"
 		    android:title="@string/button_translate"
@@ -96,15 +75,12 @@
 			android:entries="@array/sorting"
 			android:entryValues="@array/sorting_value"
 			android:dialogTitle="@string/s_pref_sort" />
-			
-	</PreferenceCategory>
-	
-	<PreferenceCategory android:title="@string/s_pref_fancy_category">
 	    <CheckBoxPreference
-	        android:key="pref_fancy_context"
-	        android:title="@string/s_pref_fancy_context"
-	        android:defaultValue="true"
+	        android:key="pref_sorting_folders"
+	        android:title="@string/s_menu_sort_folders"
+	        android:defaultValue="true" 
 	        />
+			
 	</PreferenceCategory>
 	
 	<PreferenceCategory android:title="@string/s_text_editor_title">
@@ -117,6 +93,12 @@
 	        android:key="text_lines"
 	        android:title="@string/s_menu_view_line_numbers"
 	        android:defaultValue="true" 
+	        />
+	    <ListPreference
+	        android:key="text_max"
+	        android:title="@string/s_pref_text_max_size"
+	        android:entries="@array/text_max_size"
+	        android:entryValues="@array/text_max_size_values"
 	        />
 	</PreferenceCategory>
 	

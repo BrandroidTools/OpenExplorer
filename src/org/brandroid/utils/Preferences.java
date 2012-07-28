@@ -29,6 +29,8 @@ public class Preferences {
 	public static boolean Pref_ShowUp = false;
 	public static boolean Warn_TextEditor = false;
 	public static boolean Warn_Networking = false;
+	public static int Pref_Text_Max_Size = 500000;
+	public static boolean Pref_Analytics = true;
 	public static String Pref_Language = ""; // Default
 	
 	public interface OnPreferenceInteraction
@@ -66,6 +68,7 @@ public class Preferences {
 	}
 	public static SharedPreferences getPreferences(String file)
 	{
+		if(file == null) file = "global";
 		return getPreferences(mContext, file);
 	}
 	
@@ -122,7 +125,9 @@ public class Preferences {
 			try {
 				ret = getPreferences(file).getInt(key, defValue);
 			} catch(ClassCastException e) {
-				ret = Integer.parseInt(getSetting(file, key, defValue.toString()));
+				try {
+					ret = Integer.parseInt(getSetting(file, key, defValue.toString()));
+				} catch(Exception e2) { ret = defValue; }
 			}
 			//Logger.LogDebug("--GetSetting(" + file + "," + key + "," + defValue + ")=" + ret); 
 			return ret;

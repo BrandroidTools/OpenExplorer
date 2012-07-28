@@ -4,6 +4,11 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal" >
 
+    <View
+        android:background="@color/black"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        />
     <TextView
         android:id="@+id/text_line"
         android:layout_width="wrap_content"
@@ -14,8 +19,8 @@
         android:bufferType="normal"
         android:typeface="monospace"
         android:textSize="@dimen/text_size_small"
-        android:textColor="@color/offWhite"
-        android:background="@color/darkGray"
+        android:textColor="?attr/colorOffWhite"
+        android:background="?attr/colorDarkGray"
         android:gravity="right|top"
         android:text="1" />
     
@@ -31,7 +36,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/app_name"
-        android:textColor="@color/white"
+        android:textColor="?attr/colorWhite"
         android:textSize="@dimen/text_size_small"
         android:typeface="monospace" />
 

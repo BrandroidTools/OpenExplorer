@@ -471,8 +471,19 @@ public class ContentFragment extends OpenFragment
 		
 		SortType sort = SortType.ALPHA;
 		if(getExplorer() != null)
-			sort = new SortType(getViewSetting(path, "sort", 
-					getExplorer().getSetting(null, "pref_sorting", SortType.ALPHA.toString())));
+		{
+			String ds = getExplorer().getSetting(null, "pref_sorting", SortType.ALPHA.toString());
+			Logger.LogVerbose("Default Sort String: " + ds);
+			
+			SortType defSort = new SortType(ds);
+			defSort.setFoldersFirst(getExplorer().getSetting(null, "pref_sorting_folders", true));
+			
+			Logger.LogVerbose("Default Sort: " + defSort.toString());
+			
+			sort = new SortType(getViewSetting(path, "sort", defSort.toString()));
+			
+			Logger.LogVerbose("Path Sort: " + sort.toString());
+		}
 		try {
 			mContentAdapter.mShowThumbnails = getViewSetting(path, "thumbs", 
 						getExplorer() != null ?
@@ -706,17 +717,7 @@ public class ContentFragment extends OpenFragment
 		if(getActionMode() != null) {
 			if(mLastSelectionModeCallback != null)
 			{
-				boolean sel = mContentAdapter.toggleSelected(file);
-				ViewStub stub = (ViewStub)view.findViewById(R.id.checkmark_area_stub);
-				if(stub != null)
-					stub.inflate();
-				ViewUtils.setViewsVisible(view, true, R.id.content_check);
-				ViewUtils.setViewsChecked(view, sel, R.id.content_check);
-				
-				if(getSelectedCount() == 0 && getActionMode() != null)
-					getActionMode().finish();
-				else if(getActionMode() != null)
-					getActionMode().invalidate();
+				toggleSelection(view, file);
 			} else {
 				//Animation anim = Animation.
 				/*
@@ -740,7 +741,7 @@ public class ContentFragment extends OpenFragment
 		
 		if(file instanceof OpenNetworkPath && getActionMode() == null)
 		{
-			if(file.isTextFile() && file.length() < 500000 && getExplorer() != null)
+			if(file.isTextFile() && file.length() < Preferences.Pref_Text_Max_Size && getExplorer() != null)
 				getExplorer().editFile(file);
 			else
 				downloadFile((OpenNetworkPath)file);
@@ -762,15 +763,15 @@ public class ContentFragment extends OpenFragment
 			if(file.requiresThread() && FileManager.hasOpenCache(file.getAbsolutePath()))
 			{
 				//getExplorer().showToast("Still need to handle this.");
-				if(file.isTextFile())
-					getExplorer().editFile(file);
+				if(file.isTextFile() && getExplorer().editFile(file))
+					return;
 				else {
 					showCopyFromNetworkDialog(file);
 					//getEventHandler().copyFile(file, mPath, mContext);
 				}
 				return;
-			} else if(file.isTextFile() && Preferences.Pref_Text_Internal)
-				getExplorer().editFile(file);
+			} else if(file.isTextFile() && Preferences.Pref_Text_Internal && getExplorer().editFile(file))
+				return;
 			else if(!IntentManager.startIntent(file, getExplorer(), Preferences.Pref_Intents_Internal))
 				getExplorer().editFile(file);
 		}
@@ -972,6 +973,7 @@ public class ContentFragment extends OpenFragment
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		if(item == null) return false;
+		if(super.onOptionsItemSelected(item)) return true;
 		if(DEBUG)
 			Logger.LogDebug("ContentFragment.onOptionsItemSelected(" + item + ")");
 		OpenPath path = null;
@@ -1119,8 +1121,6 @@ public class ContentFragment extends OpenFragment
 				//fileList.add(file);
 				getHandler().deleteFile(file, this, true);
 				finishMode(mode);
-				if(getContentAdapter() != null)
-					getContentAdapter().notifyDataSetChanged();
 				return true;
 				
 			case R.id.menu_context_rename:
@@ -1303,8 +1303,21 @@ public class ContentFragment extends OpenFragment
 		MenuUtils.setMenuVisible(menu, mPath instanceof OpenNetworkPath, R.id.menu_context_download);
 		MenuUtils.setMenuVisible(menu, !(mPath instanceof OpenNetworkPath), R.id.menu_context_edit, R.id.menu_context_view);
 		
-		MenuUtils.setMenuChecked(menu, getSorting().foldersFirst(),
-				R.id.menu_sort_folders_first);
+		MenuItem mMenuFF = menu.findItem(R.id.menu_sort_folders_first);
+		if(mMenuFF != null)
+		{
+			if(mMenuFF.isCheckable())
+			{
+				mMenuFF.setChecked(getSorting().foldersFirst());
+			} else {
+				if(getSorting().foldersFirst())
+					mMenuFF.setIcon(getThemedResourceId(R.styleable.AppTheme_checkboxButtonOn, R.drawable.btn_check_on_holo_blue));
+				else
+					mMenuFF.setIcon(getThemedResourceId(R.styleable.AppTheme_checkboxButtonOff, R.drawable.btn_check_off));
+			}
+		}
+		//MenuUtils.setMenuChecked(menu, getSorting().foldersFirst(),
+		//		R.id.menu_sort_folders_first);
 		
 		if(mPath != null)
 			MenuUtils.setMenuEnabled(menu, !mPath.requiresThread() && mPath.canWrite(),
@@ -1779,6 +1792,8 @@ public class ContentFragment extends OpenFragment
 				addToMultiSelect(clip);
 			*/
 			getExplorer().startActionMode(mLastSelectionModeCallback);
+			mGrid.invalidateViews();
+			
 		}
 	}
 
@@ -1822,10 +1837,8 @@ public class ContentFragment extends OpenFragment
 		}
 	}
 
-
-	/** Implements {@link MessagesAdapter.Callback} */
 	@Override
-	public void onAdapterSelectedChanged(OpenPathView itemView,
+	public void onAdapterSelectedChanged(OpenPath path,
 			boolean newSelected, int mSelectedCount) {
 		updateSelectionMode();
 	}
@@ -2020,22 +2033,21 @@ public class ContentFragment extends OpenFragment
 				// the selection.
 				deselectAll();
 			}
+			mGrid.invalidateViews();
 		}
 	}
 
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view,
 			int position, long id) {
-		// FileListItem f = mListAdapter.getItem(position);
 		OpenPath path = getContentAdapter().getItem(position);
-		boolean sel = mContentAdapter.toggleSelected(path);
-		updateSelectionMode();
-		ViewStub stub = (ViewStub)view.findViewById(R.id.checkmark_area_stub);
-		if(stub != null)
-			stub.inflate();
-		ViewUtils.setViewsVisible(view, true, R.id.content_check);
-		ViewUtils.setViewsChecked(view, sel, R.id.content_check);
+		toggleSelection(view, path);
 		return true;
+	}
+
+	private void toggleSelection(View view, OpenPath path) {
+		view.invalidate();
+		mContentAdapter.toggleSelected(path);
 	}
 
 	public void notifyDataSetChanged() {
@@ -2045,11 +2057,13 @@ public class ContentFragment extends OpenFragment
 		if(mGrid != null && (mGrid.getAdapter() == null || !mGrid.getAdapter().equals(mContentAdapter)))
 			mGrid.setAdapter(mContentAdapter);
 		
-		mContentAdapter.updateData();
+		if(mContentAdapter != null)
+			mContentAdapter.updateData();
 		
 		ViewUtils.setText(getView(), getResources().getString(mPath.requiresThread() ? R.string.s_status_loading : R.string.no_items), android.R.id.empty);
 		ViewUtils.setViewsVisible(getView(), mContentAdapter == null || mContentAdapter.getCount() == 0, android.R.id.empty);
 		
+		//TODO check to see if this is the source of inefficiency
 		if(mGrid != null)
 			mGrid.invalidateViews();
 	}

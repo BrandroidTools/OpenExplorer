@@ -40,6 +40,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.DialogInterface.OnClickListener;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
@@ -194,6 +195,7 @@ import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.jcraft.jsch.JSchException;
 import com.viewpagerindicator.TabPageIndicator;
 import com.viewpagerindicator.TabPageIndicator.TabView;
@@ -279,6 +281,7 @@ public class OpenExplorer
 	private View mSearchView = null;
 	private int mTitleButtons = 0;
 	private static ActionBar mBar = null;
+    private OpenClipboard mClipboard;
 	
 	private static boolean bRetrieveDimensionsForPhotos = Build.VERSION.SDK_INT >= 10;
 	private static boolean bRetrieveExtraVideoDetails = Build.VERSION.SDK_INT > 8;
@@ -312,6 +315,31 @@ public class OpenExplorer
 		Preferences.Pref_Zip_Internal = prefs.getBoolean("global", "pref_zip_internal", true);
 		Preferences.Pref_ShowUp = prefs.getBoolean("global", "pref_showup", false);
 		Preferences.Pref_Language = prefs.getString("global", "pref_language", "");
+		Preferences.Pref_Analytics = prefs.getBoolean("global", "pref_stats", true);
+		Preferences.Pref_Text_Max_Size = prefs.getInt("global", "text_max", 500000);
+
+		PackageInfo pi = null;
+		try {
+			pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+		} catch (NameNotFoundException e) { }
+		
+		VERSION = pi.versionCode;
+		
+		if(Preferences.Pref_Analytics)
+		{
+			String gaCode = "UA-20719255-4";
+			if(pi != null && pi.applicationInfo != null && pi.applicationInfo.metaData != null && pi.applicationInfo.metaData.containsKey("ga_code"))
+				gaCode = pi.applicationInfo.metaData.getString("ga_code");
+			
+			final String ga = gaCode;
+			final PackageInfo pi2 = pi;
+			final Context atc = getApplicationContext();
+			
+			queueToTracker(new Runnable(){public void run(){
+				getAnalyticsTracker().startNewSession(ga, atc);
+				getAnalyticsTracker().setCustomVar(0, "version", (pi2 != null ? pi2.versionName : VERSION) + (IS_DEBUG_BUILD ? "-debug" : ""));
+			}});
+		}
 		
 		if(!Preferences.Pref_Language.equals(""))
 			setLanguage(getContext(), Preferences.Pref_Language);
@@ -355,8 +383,11 @@ public class OpenExplorer
 		
 		loadPreferences();
 		
-		boolean theme = getPreferences().getBoolean("global", "pref_theme", true);
-		setTheme(theme ? R.style.AppTheme_Dark : R.style.AppThemeCustom);
+		boolean themeDark = getPreferences().getBoolean("global", "pref_theme", true);
+		int theme = themeDark ? R.style.AppTheme_Dark : R.style.AppTheme_Light;
+		getApplicationContext().setTheme(theme);
+		setTheme(theme);
+		getOpenApplication().loadThemedAssets(this);
 		
 		if(getPreferences().getBoolean("global", "pref_hardware_accel", true) && !BEFORE_HONEYCOMB)
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
@@ -391,7 +422,9 @@ public class OpenExplorer
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_fragments);
-		getWindow().setBackgroundDrawableResource(R.drawable.background_holo_dark);
+		if(Build.VERSION.SDK_INT < 11)
+			getWindow().setBackgroundDrawableResource(
+				themeDark ? R.drawable.background_holo_dark : R.drawable.background_holo_light);
 		
 		try {
 			upgradeViewSettings();
@@ -424,7 +457,7 @@ public class OpenExplorer
 
 		checkWelcome();
 		
-		//checkRoot();
+		checkRoot();
 		
 		setViewVisibility(false, false, R.id.title_paste, R.id.title_ops, R.id.title_log);
 		setOnClicks(
@@ -505,8 +538,8 @@ public class OpenExplorer
 		
 		//handleMediaReceiver();
 
-		if(!getPreferences().getBoolean("global", "pref_splash", false))
-			showSplashIntent(this, getPreferences().getString("global", "pref_start", "Internal"));
+		//if(!getPreferences().getBoolean("global", "pref_splash", false))
+		//	showSplashIntent(this, getPreferences().getString("global", "pref_start", "Internal"));
 	}
 	
 	private void checkWelcome()	{
@@ -542,9 +575,9 @@ public class OpenExplorer
 	}
 	
 	private void requestRoot() {
-		//new Thread(new Runnable(){public void run(){
+		new Thread(new Runnable(){public void run(){
 			RootManager.Default.requestRoot();
-		//}}).start();
+		}}).start();
 	}
 	
 	private void exitRoot() {
@@ -952,8 +985,8 @@ public class OpenExplorer
 				anchor = findViewById(R.id.title_icon_holder);
 			if(anchor == null)
 				anchor = findViewById(android.R.id.home);
-			if(anchor == null && USE_ACTION_BAR && getActionBar() != null && getActionBar().getCustomView() != null)
-				anchor = getActionBar().getCustomView();
+			if(anchor == null && USE_ACTION_BAR && mBar != null && mBar.getCustomView() != null)
+				anchor = mBar.getCustomView();
 			if(anchor == null)
 				anchor = findViewById(R.id.title_bar);
 			mBookmarksPopup = new BetterPopupWindow(this, anchor);
@@ -1264,9 +1297,6 @@ public class OpenExplorer
 		super.onAttachedToWindow();
 		handleNetworking();
 		handleMediaReceiver();
-		try {
-			VERSION = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-		} catch (NameNotFoundException e) { }
 		if(getWindowManager() != null)
 		{
 			Display d = getWindowManager().getDefaultDisplay();
@@ -1356,8 +1386,8 @@ public class OpenExplorer
 	{
 		if(mStaticButtons == null)
 			mStaticButtons = (ViewGroup)findViewById(R.id.title_static_buttons);
-		if(mStaticButtons == null && USE_ACTION_BAR && getActionBar() != null && getActionBar().getCustomView() != null)
-			mStaticButtons = (ViewGroup)getActionBar().getCustomView().findViewById(R.id.title_static_buttons);
+		if(mStaticButtons == null && USE_ACTION_BAR && mBar != null && mBar.getCustomView() != null)
+			mStaticButtons = (ViewGroup)mBar.getCustomView().findViewById(R.id.title_static_buttons);
 		if(mStaticButtons == null)
 		{
 			Logger.LogWarning("Unable to find Title Separator");
@@ -1417,6 +1447,7 @@ public class OpenExplorer
 	protected void onStop() {
 		super.onStop();
 		saveOpenedEditors();
+		submitStats();
 		if(Logger.isLoggingEnabled() && Logger.hasDb())
 			Logger.closeDb();
 	}
@@ -1449,6 +1480,11 @@ public class OpenExplorer
 			Logger.LogDebug("Found " + logs.length() + " bytes of logs.");
 			new SubmitStatsTask(this).execute(logs);
 		//} else Logger.LogWarning("Logs not found.");
+		queueToTracker(new Runnable() {
+			public void run() {
+				getAnalyticsTracker().dispatch();
+			}
+		});
 	}
 	
 	
@@ -1534,6 +1570,8 @@ public class OpenExplorer
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		if(Preferences.Pref_Analytics)
+			getAnalyticsTracker().stopSession();
 		if(storageReceiver != null)
 			unregisterReceiver(storageReceiver);
 	}
@@ -1551,9 +1589,10 @@ public class OpenExplorer
 		mViewPager.setLocked(locked);
 	}
 	
-	@Override
 	public OpenClipboard getClipboard() {
-		return getOpenApplication().getClipboard();
+    	if(mClipboard == null)
+    		mClipboard = new OpenClipboard(this);
+    	return mClipboard;
 	}
 	
 	public void addHoldingFile(OpenPath path) { 
@@ -1853,13 +1892,13 @@ public class OpenExplorer
 	public void updateTitle(CharSequence cs)
 	{
 		TextView title = (TextView)findViewById(R.id.title_path);
-		if((title == null || !title.isShown()) && getActionBar() != null && getActionBar().getCustomView() != null)
-			title = (TextView)getActionBar().getCustomView().findViewById(R.id.title_path);
-		//if(BEFORE_HONEYCOMB || !USE_ACTION_BAR || getActionBar() == null)
+		if((title == null || !title.isShown()) && mBar != null && mBar.getCustomView() != null)
+			title = (TextView)mBar.getCustomView().findViewById(R.id.title_path);
+		//if(BEFORE_HONEYCOMB || !USE_ACTION_BAR || mBar == null)
 		if(title != null && title.getVisibility() != View.GONE)
 			title.setText(cs, BufferType.SPANNABLE);
-		if(!USE_ACTION_BAR && getActionBar() != null && (title == null || !title.isShown()))
-			getActionBar().setSubtitle(cs);
+		if(!USE_ACTION_BAR && mBar != null && (title == null || !title.isShown()))
+			mBar.setSubtitle(cs);
 		//else
 		{
 			SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getString(R.string.app_title));
@@ -1932,7 +1971,7 @@ public class OpenExplorer
 	{
 		if(path == null) return false;
 		if(!path.exists()) return false;
-		if(path.length() > getResources().getInteger(R.integer.max_text_editor_size)) return false;
+		if(path.length() > Preferences.Pref_Text_Max_Size) return false;
 		TextEditorFragment editor = new TextEditorFragment(path);
 		if(mViewPagerAdapter != null)
 		{
@@ -2182,11 +2221,6 @@ public class OpenExplorer
 						!getPreferences().getSetting("global", "pref_fullscreen", false));
 				goHome();
 				return true;
-	
-			case R.id.menu_view_split:
-				setSetting("pref_basebar", !USE_SPLIT_ACTION_BAR);
-				goHome();
-				return true;
 				
 			case R.id.title_ops:
 				refreshOperations();
@@ -2294,7 +2328,7 @@ public class OpenExplorer
 				anchor = item.getActionView();
 			if(anchor == null)
 			{
-				anchor = getActionBar().getCustomView();
+				anchor = mBar.getCustomView();
 				if(anchor.findViewById(item.getItemId()) != null)
 					anchor = anchor.findViewById(item.getItemId());
 			}
@@ -2303,7 +2337,7 @@ public class OpenExplorer
 			if(anchor == null)
 				anchor = findViewById(android.R.id.home);
 			if(anchor == null && USE_ACTION_BAR)
-				anchor = getActionBar().getCustomView().findViewById(android.R.id.home);
+				anchor = mBar.getCustomView().findViewById(android.R.id.home);
 			if(anchor == null)
 				anchor = getCurrentFocus().getRootView();
 			if(f != null)
@@ -2412,6 +2446,16 @@ public class OpenExplorer
 		//startActivity(new Intent(this, Authenticator.class));
 		DEBUG_TOGGLE = !DEBUG_TOGGLE;
 		notifyPager();
+		queueToTracker(new Runnable() {
+			public void run() {
+				final boolean d = getAnalyticsTracker().dispatch();
+				runOnUiThread(new Runnable() {
+					public void run() {
+						showToast(d ? "Dispatch worked!" : "Dispatch failed!");
+					}
+				});
+			}
+		});
 	}
 	
 	public boolean isSinglePane() { return mSinglePane; }
@@ -3123,7 +3167,7 @@ public class OpenExplorer
 		Logger.LogDebug("Adding Bookmark: " + file.getPath());
 		String sBookmarks = getPreferences().getSetting("bookmarks", "bookmarks", "");
 		sBookmarks += (sBookmarks != "" ? ";" : "") + file.getPath();
-		Logger.LogInfo("Bookmarks: " + sBookmarks);
+		Logger.LogVerbose("Bookmarks: " + sBookmarks);
 		getPreferences().setSetting("bookmarks", "bookmarks", sBookmarks);
 		if(mBookmarkListener != null)
 			mBookmarkListener.onBookMarkAdd(file);
@@ -3177,17 +3221,24 @@ public class OpenExplorer
 		if(getClipboard().size() == mLastClipSize) return;
 		if(DEBUG)
 			Logger.LogDebug("onClipboardUpdate(" + getClipboard().size() + ")");
-		View pb = mStaticButtons.findViewById(R.id.title_paste);
+		View pb = null;
+		if(mStaticButtons != null)
+			pb = mStaticButtons.findViewById(R.id.title_paste);
 		mLastClipSize = getClipboard().size();
+		TextView pbt = (TextView)pb.findViewById(R.id.title_paste_text);
 		ViewUtils.setViewsVisible(pb, mLastClipSize > 0 || mLastClipState);
-		ViewUtils.setText(pb, "" + mLastClipSize, R.id.title_paste_text);
-		ViewUtils.setImageResource(pb, mLastClipState ?
-					R.drawable.ic_menu_paste_multi : R.drawable.ic_menu_clipboard,
-					R.id.title_paste_icon);
+		//ViewUtils.setText(pb, "" + mLastClipSize, R.id.title_paste_text);
+		if(pbt != null)
+		{
+			pbt.setText(""+mLastClipSize);
+			pbt.setTextColor(getResources().getColor(getThemedResourceId(R.styleable.AppTheme_colorBlack, R.color.white)));
+		}
+		ViewUtils.setImageResource(pb,
+			getThemedResourceId(R.styleable.AppTheme_actionIconClipboard, R.drawable.ic_menu_clipboard),
+			R.id.title_paste_icon);
 		checkTitleSeparator();
 		//invalidateOptionsMenu();
-		if(mActionMode != null)
-			mActionMode.setTitle(getString(R.string.s_menu_multi) + ": " + mLastClipSize + " " + getString(R.string.s_files));
+
 		ContentFragment cf = getDirContentFragment(false);
 		if(cf != null && cf.isAdded() && cf.isVisible())
 			cf.notifyDataSetChanged();
@@ -3501,6 +3552,16 @@ public class OpenExplorer
 	public ShellSession getShellSession() {
 		return getOpenApplication().getShellSession();
 	}
+	
+	@Override
+	public GoogleAnalyticsTracker getAnalyticsTracker() {
+		return getOpenApplication().getAnalyticsTracker();
+	}
+	
+	@Override
+	public void queueToTracker(Runnable run) {
+		getOpenApplication().queueToTracker(run);
+	}
 
 	@Override
 	public void onIconContextItemSelected(IconContextMenu menu,
@@ -3596,5 +3657,10 @@ public class OpenExplorer
 				&& mMainMenu.findItem(v.getId()).hasSubMenu())
 			v.requestFocus();
 			*/
+	}
+
+	@Override
+	public int getThemedResourceId(int styleableId, int defaultResourceId) {
+		return getOpenApplication().getThemedResourceId(styleableId, defaultResourceId);
 	}
 }

@@ -12,11 +12,11 @@
 	</string-array>
 	<string-array name="sorting_value">
 		<item>none</item>
-		<item>alpha_asc</item>
+		<item>alpha</item>
 		<item>alpha_desc</item>
-		<item>date_asc</item>
+		<item>date</item>
 		<item>date_desc</item>
-		<item>size_asc</item>
+		<item>size</item>
 		<item>size_desc</item>
 		<item>type</item>
 	</string-array>
@@ -113,5 +113,20 @@
 	    <item>sk</item>
 	    <item>sv</item>
 	    <item>tr</item>
+	</string-array>
+	
+	<string-array name="text_max_size">
+	    <item>50kb</item>
+	    <item>500kb</item>
+	    <item>5mb</item>
+	    <item>20mb</item>
+	    <item>2gb</item>
+	</string-array>
+	<string-array name="text_max_size_values">
+	    <item>50000</item>
+	    <item>500000</item>
+	    <item>5000000</item>
+	    <item>20000000</item>
+	    <item>2000000000</item>
 	</string-array>
 </resources>

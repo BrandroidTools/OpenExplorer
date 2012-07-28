@@ -23,6 +23,7 @@ public class SplashActivity extends Activity implements OnClickListener
 	{
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
+		setTheme(R.style.AppTheme_Dark);
 
 		setContentView(R.layout.splash);
 		

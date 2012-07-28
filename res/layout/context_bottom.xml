@@ -9,7 +9,7 @@
 
     
     <LinearLayout
-        android:background="@drawable/contextmenu_square"
+        android:background="?attr/popupBackground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"

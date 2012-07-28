@@ -2,7 +2,9 @@ package org.brandroid.openmanager.activities;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.LinkedBlockingQueue;
 
+import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.OpenClipboard;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.ShellSession;
@@ -14,15 +16,16 @@ import org.brandroid.utils.Preferences;
 import com.actionbarsherlock.view.ActionMode;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
-import com.android.gallery3d.data.DownloadUtils;
 import com.android.gallery3d.data.ImageCacheService;
-import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.ThreadPool;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.util.SparseArray;
 
 public class OpenApplication extends Application implements OpenApp
 {
@@ -35,14 +38,17 @@ public class OpenApplication extends Application implements OpenApp
     private DownloadCache mDownloadCache;
     private LruCache<String, Bitmap> mBitmapCache;
     private DiskLruCache mBitmapDiskCache;
-    private OpenClipboard mClipboard;
     private ShellSession mShell;
     private ActionMode mActionMode;
+    private GoogleAnalyticsTracker mTracker;
+    private SparseArray<Integer> mThemedAssets = new SparseArray<Integer>();
     
     @Override
     public void onCreate() {
     	super.onCreate();
-    	Logger.LogDebug("OpenApplication.onCreate");
+    	setTheme(R.style.AppTheme_Dark);
+    	//Logger.LogDebug("OpenApplication.onCreate");
+    	//mTracker = GoogleAnalyticsTracker.getInstance();
         //GalleryUtils.initialize(this);
     }
     
@@ -65,6 +71,23 @@ public class OpenApplication extends Application implements OpenApp
     	super.onLowMemory();
     	
     }
+    
+    public void loadThemedAssets(Context c)
+    {
+    	mThemedAssets.clear();
+    	TypedArray ta = c.getTheme().obtainStyledAttributes(R.styleable.AppTheme);
+    	mThemedAssets.put(R.styleable.AppTheme_checkboxButtonOff, ta.getResourceId(R.styleable.AppTheme_checkboxButtonOff, R.drawable.btn_check_off_holo_dark));
+    	mThemedAssets.put(R.styleable.AppTheme_checkboxButtonOn, ta.getResourceId(R.styleable.AppTheme_checkboxButtonOn, R.drawable.btn_check_on_holo_dark));
+    	mThemedAssets.put(R.styleable.AppTheme_actionIconClipboard, ta.getResourceId(R.styleable.AppTheme_actionIconClipboard, R.drawable.ic_menu_clipboard));
+    	mThemedAssets.put(R.styleable.AppTheme_colorBlack, ta.getResourceId(R.styleable.AppTheme_colorBlack, R.color.black));
+    	ta.recycle();
+    }
+    
+    public int getThemedResourceId(int stylableId, int defaultResourceId)
+    {
+    	if(mThemedAssets.indexOfKey(stylableId) < 0) return defaultResourceId;
+    	return mThemedAssets.get(stylableId);
+    }
 
     public Context getContext() {
         return this;
@@ -80,9 +103,7 @@ public class OpenApplication extends Application implements OpenApp
     }
     public synchronized OpenClipboard getClipboard()
     {
-    	if(mClipboard == null)
-    		mClipboard = new OpenClipboard(this);
-    	return mClipboard;
+    	return null; // Override in Activity
     }
     
     public synchronized ShellSession getShellSession() {
@@ -149,6 +170,66 @@ public class OpenApplication extends Application implements OpenApp
 	public Preferences getPreferences() {
 		return new Preferences(getContext());
 	}
+	
+	@Override
+	public GoogleAnalyticsTracker getAnalyticsTracker() {
+		return mTracker;
+	}
+	
+	private final LinkedBlockingQueue<Runnable> trackerQueue = new LinkedBlockingQueue<Runnable>();
+	private TrackerThread trackerThread;
+	private Object lock = new Object();
+	
+	/**
+	 * Queue the GoogleAnalytics call to the database thread, but only if
+	 * GoogleAnalytics has been enabled.
+	 *
+	 * @param r the Runnable to execute
+	 */
+	public void queueToTracker(Runnable r) {
+		if(mTracker == null)
+		{
+			mTracker = GoogleAnalyticsTracker.getInstance();
+			trackerThread = new TrackerThread();
+			trackerThread.start();
+		}
+		if (Preferences.Pref_Analytics) {
+			synchronized (lock) {
+				trackerQueue.add(r);
+			}
+		}
+	}
+
+	/**
+	 * All Access to GoogleAnalyticsTracker methods are done on this Thread.	This
+	 * is done as GoogleAnalyticsTracker makes database calls which should be done
+	 * off the Main UI Thread.	It's also done in order to preserve the order of
+	 * those calls.
+	 */
+	private class TrackerThread extends Thread {
+
+		TrackerThread() {
+			super("TrackerThread");
+		}
+
+		/**
+		 * Simply pull Runnables from the Queue trackerQueue and call their run
+		 * methods, blocking until there is something in the Queue.
+		 */
+		@Override
+		public void run() {
+			while (true) {
+				Runnable r;
+				try {
+					r = trackerQueue.take();
+					r.run();
+				} catch (InterruptedException e) {
+					Logger.LogWarning("Unable to run Tracker", e);
+				}
+			}
+		}
+	}
+	
 
 	@Override
 	public void refreshBookmarks() {

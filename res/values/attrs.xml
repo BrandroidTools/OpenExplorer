@@ -17,6 +17,8 @@
 <resources>
 
     <declare-styleable name="AppTheme">
+        <attr name="vpiTabTextColor" format="reference" />
+        
         <attr name="actionbarCompatTitleStyle" format="reference" />
         <attr name="actionbarCompatItemStyle" format="reference" />
         <attr name="actionbarCompatItemHomeStyle" format="reference" />
@@ -24,6 +26,9 @@
         <attr name="actionbarCompatItemHomeAsUpStyle" format="reference" />
         
         <!-- Action Bar Icons -->
+        <attr name="actionIconClipboard" format="reference" />
+        <attr name="actionIconClipboardChecked" format="reference" />
+        <attr name="actionIconHomeUp" format="reference" />
         <attr name="actionIconSort" format="reference" />
         <attr name="actionIconView" format="reference" />
         <attr name="actionIconOperations" format="reference" />
@@ -33,6 +38,7 @@
         <!-- Action Mode Icons -->
         <attr name="actionIconRename" format="reference" />
         <attr name="actionIconCopy" format="reference" />
+        <attr name="actionIconPaste" format="reference" />
         <attr name="actionIconDelete" format="reference" />
         <attr name="actionIconShare" format="reference" />
         <attr name="actionIconInfo" format="reference" />
@@ -42,6 +48,15 @@
         <!-- Misc. UI Elements -->
         <attr name="checkboxButtonOn" format="reference" />
         <attr name="checkboxButtonOff" format="reference" />
+        
+        <attr name="popupBackground" format="reference" />
+        <attr name="popupArrow" format="reference" />
+        
+        <!-- Colors -->
+        <attr name="colorWhite" format="color" />
+        <attr name="colorOffWhite" format="color" />
+        <attr name="colorDarkGray" format="color" />
+        <attr name="colorBlack" format="color" />
 	</declare-styleable>
 
     

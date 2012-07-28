@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="AppTheme.Dark" parent="@style/Theme.Sherlock">
 		
         <item name="absForceOverflow">true</item>
@@ -8,6 +8,8 @@
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
         <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
         <item name="vpiTabTextStyle">@style/MyTabPageIndicator.Text</item>
+        
+        <item name="vpiTabTextColor">@color/vpi__dark_theme</item>
         
         <!-- for programmatic instantiation -->
         <item name="actionbarCompatTitleStyle">@style/ActionBarCompatTitle</item>
@@ -24,7 +26,11 @@
         <item name="actionIconSearch">@drawable/ic_action_search_holo_dark</item>
 
         <!-- Action Mode icons -->
+        <item name="actionIconClipboard">@drawable/ic_menu_clipboard</item>
+        <item name="actionIconClipboardChecked">@drawable/ic_menu_clipboard_checked</item>
+        <item name="actionIconHomeUp">@drawable/ic_ab_back_holo_dark</item>
         <item name="actionIconRename">@drawable/ic_rename</item>
+        <item name="actionIconPaste">@drawable/ic_action_paste_holo_dark</item>
         <item name="actionIconCopy">@drawable/ic_action_copy_holo_dark</item>
         <item name="actionIconDelete">@drawable/ic_action_delete_holo_dark</item>
         <item name="actionIconShare">@drawable/ic_action_share_holo_dark</item>
@@ -35,5 +41,66 @@
         <!-- Misc. UI elements -->
         <item name="checkboxButtonOn">@drawable/btn_check_on_holo_dark</item>
         <item name="checkboxButtonOff">@drawable/btn_check_off_holo_dark</item>
+        
+        <item name="popupBackground">@drawable/contextmenu_square</item>
+        <item name="popupArrow">@drawable/contextmenu_arrow</item>
+        
+        <!-- Colors -->
+        <item name="colorWhite">@color/white</item>
+        <item name="colorOffWhite">@color/offWhite</item>
+        <item name="colorDarkGray">@color/darkGray</item>
+        <item name="colorBlack">@color/black</item>
+    </style>
+    
+    <style name="AppTheme.Light" parent="@style/Theme.Sherlock.Light">
+		
+        <item name="absForceOverflow">true</item>
+
+        <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
+        <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
+        <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
+        <item name="vpiTabTextStyle">@style/MyTabPageIndicator.Text</item>
+        
+        <item name="vpiTabTextColor">@color/vpi__light_theme</item>
+        
+        <!-- for programmatic instantiation -->
+        <item name="actionbarCompatTitleStyle">@style/ActionBarCompatTitle</item>
+        <item name="actionbarCompatItemStyle">@style/ActionBarCompatItem</item>
+        <item name="actionbarCompatItemHomeStyle">@style/ActionBarCompatHomeItem</item>
+        <item name="actionbarCompatProgressIndicatorStyle">@style/ActionBarCompatProgressIndicator</item>
+        <item name="actionbarCompatItemHomeAsUpStyle">@style/ActionBarCompatHomeAsUp</item>
+           
+        <!-- Action Bar icons -->
+        <item name="actionIconClipboard">@drawable/ic_menu_clipboard_light</item>
+        <item name="actionIconClipboardChecked">@drawable/ic_menu_clipboard_checked_light</item>
+        <item name="actionIconHomeUp">@drawable/ic_ab_back_holo_light</item>
+        <item name="actionIconSort">@drawable/ic_action_sort_holo_light</item>
+        <item name="actionIconView">@drawable/ic_menu_view</item>
+        <item name="actionIconOperations">@drawable/ic_action_folder_holo_light</item>
+        <item name="actionIconRefresh">@drawable/ic_action_refresh_holo_light</item>
+        <item name="actionIconSearch">@drawable/ic_action_search_holo_light</item>
+
+        <!-- Action Mode icons -->
+        <item name="actionIconRename">@drawable/ic_rename</item>
+        <item name="actionIconCopy">@drawable/ic_action_copy_holo_light</item>
+        <item name="actionIconPaste">@drawable/ic_action_paste_holo_dark</item>
+        <item name="actionIconDelete">@drawable/ic_action_delete_holo_light</item>
+        <item name="actionIconShare">@drawable/ic_action_share_holo_light</item>
+        <item name="actionIconInfo">@drawable/ic_action_info_holo_light</item>
+        <item name="actionIconSelectAll">@drawable/ic_action_select_all_holo_light</item>
+        <item name="actionIconZip">@drawable/ic_action_zip_holo_light</item>
+        
+        <!-- Misc. UI elements -->
+        <item name="checkboxButtonOn">@drawable/btn_check_on_holo_light</item>
+        <item name="checkboxButtonOff">@drawable/btn_check_off_holo_light</item>
+        
+        <item name="popupBackground">@drawable/contextmenu_square_gray</item>
+        <item name="popupArrow">@drawable/contextmenu_arrow_gray</item>
+        
+        <!-- Colors -->
+        <item name="colorWhite">@color/black</item>
+        <item name="colorOffWhite">@color/darkGray</item>
+        <item name="colorDarkGray">@color/offWhite</item>
+        <item name="colorBlack">@color/white</item>
     </style>
 </resources>

@@ -460,7 +460,7 @@ public class TextEditorFragment extends OpenFragment
 		if(!mSalvage) return;
 		Logger.LogInfo("saveInstanceState @ TextEditor (" + mPath.getPath() + ")");
 		outState.putParcelable("edit_path", mPath);
-		if(mData != null && mData.length() < 500000)
+		if(mData != null && mData.length() < Preferences.Pref_Text_Max_Size)
 			outState.putString("edit_data", mData);
 		if(mPath instanceof OpenNetworkPath)
 		{

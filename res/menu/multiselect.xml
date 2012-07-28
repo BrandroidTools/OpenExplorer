@@ -11,7 +11,7 @@
 	    android:icon="@drawable/ic_menu_cut" />
 	<item android:id="@+id/menu_context_zip"
 	    android:title="@string/s_menu_zip"
-	    android:icon="@drawable/ic_zip" />
+	    android:icon="?attr/actionIconZip" />
 	<item android:id="@+id/menu_multi_all_clear"
 	    android:title="@string/s_clear"
 	    android:icon="@drawable/ic_menu_close_clear_cancel"

@@ -59,11 +59,6 @@
 			    android:id="@+id/menu_view_fullscreen"
 			    android:checkable="true"
 			    android:title="@string/s_pref_fullscreen" />
-			<item
-			    android:id="@+id/menu_view_split"
-			    android:checkable="true"
-			    android:enabled="@bool/prehoneycomb"
-			    android:title="@string/s_pref_basebar" />
         </menu>
     </item>
 </menu>

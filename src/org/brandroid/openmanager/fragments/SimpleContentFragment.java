@@ -92,7 +92,7 @@ public class SimpleContentFragment extends Fragment implements ContentAdapter.Ca
 	}
 
 	@Override
-	public void onAdapterSelectedChanged(OpenPathView itemView,
+	public void onAdapterSelectedChanged(OpenPath path,
 			boolean newSelected, int mSelectedCount) {
 		// TODO Auto-generated method stub
 		

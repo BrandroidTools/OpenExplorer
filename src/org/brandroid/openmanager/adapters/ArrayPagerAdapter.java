@@ -10,6 +10,8 @@ import org.brandroid.openmanager.fragments.OpenFragment;
 import org.brandroid.openmanager.fragments.OpenPathFragmentInterface;
 import org.brandroid.openmanager.fragments.TextEditorFragment;
 import org.brandroid.utils.Logger;
+import org.brandroid.utils.Preferences;
+
 import com.viewpagerindicator.TitleProvider;
 import com.viewpagerindicator.TabPageIndicator.TabView;
 
@@ -142,7 +144,7 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter
 						path = path.getParent();
 					} while(path != null);
 					notifyDataSetChanged();
-				} else if(path.isTextFile() || path.length() < 500000)
+				} else if(path.isTextFile() || path.length() < Preferences.Pref_Text_Max_Size)
 					mFrags.add(new TextEditorFragment(path));
 			}
 	}

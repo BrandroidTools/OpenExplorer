@@ -4,7 +4,7 @@ import org.brandroid.openmanager.util.SortType.Type;
 
 public class SortType {
 	
-	Type mWhich = Type.NONE;
+	Type mWhich = Type.ALPHA;
 	boolean mFoldersFirst = true;
 	boolean mShowHiddenFiles = false;
 	
@@ -18,7 +18,7 @@ public class SortType {
 		if(s.indexOf(" ") > -1)
 			t = s.substring(0, s.indexOf(" ")).trim();
 		for(Type type : SortType.Type.values())
-			if(type.toString().equals(t))
+			if(type.toString().equalsIgnoreCase(t))
 				mWhich = type;
 		if(s.indexOf("FM") > -1)
 			mFoldersFirst = false;
@@ -40,10 +40,10 @@ public class SortType {
 		NONE,
 		ALPHA,
 		TYPE,
-		SIZE,
-		SIZE_DESC,
-		DATE,
-		DATE_DESC,
+		SIZE, // smallest
+		SIZE_DESC, // largest
+		DATE, // newest
+		DATE_DESC, // oldest
 		ALPHA_DESC
 	}
 	

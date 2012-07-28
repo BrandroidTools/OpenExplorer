@@ -310,7 +310,7 @@ public class ThumbnailCreator {
 			if(file instanceof OpenFTP)
 				return (useLarge ? R.drawable.lg_ftp : R.drawable.sm_ftp);
 			if(file.getAbsolutePath() != null && file.getAbsolutePath().equals("/") && mName.equals(""))
-				return (R.drawable.drive);
+				return useLarge ? R.drawable.lg_drive : R.drawable.sm_drive;
 			else if(hasKids && sPath2.indexOf("download") > -1)
 				return (useLarge ? R.drawable.lg_download : R.drawable.sm_download);
 			else if(hasKids && (mName.equals("Photos") || mName.equalsIgnoreCase("dcim") || mName.equalsIgnoreCase("pictures") || mName.equalsIgnoreCase("camera")))
