@@ -16,5 +16,7 @@
 
 <resources>
     <item type="integer" name="max_base_buttons">1</item>
+    <item type="integer" name="max_grid_columns">2</item>
     <item type="bool" name="large">true</item>
+    <dimen name="bookmarks_width">200dp</dimen>
 </resources>

@@ -243,6 +243,12 @@ public class OpenExplorer
 	public static int SCREEN_HEIGHT = -1;
 	public static int SCREEN_DPI = -1;
 	public static int VERSION = 160;
+	public static int COLUMN_WIDTH_GRID = 128;
+	public static int COLUMN_WIDTH_LIST = 300;
+	public static int IMAGE_SIZE_GRID = 36;
+	public static int IMAGE_SIZE_LIST = 128;
+	public static int TEXT_EDITOR_MAX_SIZE = 500000;
+	public static float DP_RATIO = 1;
 
 	public static SparseArray<MenuItem> mMenuShortcuts;
 	
@@ -258,6 +264,7 @@ public class OpenExplorer
 	private static boolean mRunningCursorEnsure = false;
 	private Boolean mSinglePane = false;
 	private Boolean mStateReady = true;
+	private Boolean mTwoRowTitle = false;
 	private String mLastMenuClass = "";
 	private long lastInvalidate = 0l;
 	private int mLastClipSize = -1;
@@ -337,7 +344,6 @@ public class OpenExplorer
 			
 			queueToTracker(new Runnable(){public void run(){
 				getAnalyticsTracker().startNewSession(ga, atc);
-				getAnalyticsTracker().setCustomVar(0, "version", (pi2 != null ? pi2.versionName : VERSION) + (IS_DEBUG_BUILD ? "-debug" : ""));
 			}});
 		}
 		
@@ -361,11 +367,16 @@ public class OpenExplorer
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if(DEBUG && IS_DEBUG_BUILD)
+			Logger.LogVerbose("OpenExplorer.onResume");
 		onClipboardUpdate();
 	}
 	
 	public void onCreate(Bundle savedInstanceState)
 	{
+		if(DEBUG && IS_DEBUG_BUILD)
+			Logger.LogVerbose("OpenExplorer.onCreate");
+		
 		Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler());
 		
 		if(getPreferences().getBoolean("global", "pref_fullscreen", false))
@@ -389,17 +400,36 @@ public class OpenExplorer
 		setTheme(theme);
 		getOpenApplication().loadThemedAssets(this);
 		
-		if(getPreferences().getBoolean("global", "pref_hardware_accel", true) && !BEFORE_HONEYCOMB)
+		Resources res = getResources();
+		if(res != null)
+		{
+			COLUMN_WIDTH_GRID = res.getDimensionPixelSize(R.dimen.grid_width);
+			COLUMN_WIDTH_LIST = res.getDimensionPixelSize(R.dimen.list_width);
+			DP_RATIO = res.getDimension(R.dimen.one_dp);
+			IMAGE_SIZE_GRID = res.getInteger(R.integer.content_grid_image_size);
+			IMAGE_SIZE_LIST = res.getInteger(R.integer.content_list_image_size);
+			TEXT_EDITOR_MAX_SIZE = res.getInteger(R.integer.max_text_editor_size);
+		}
+		
+		if(getPreferences().getBoolean("global", "pref_hardware_accel", false) && !BEFORE_HONEYCOMB)
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 
 		USE_ACTION_BAR = true;
-
+		
 		mBar = getSupportActionBar();
+		
+		if(findViewById(R.id.content_pager_indicator_frame) != null)
+		{
+			mTwoRowTitle = true;
+			setTitle(R.string.app_name);
+		}
+		
 		if(mBar != null)
 		{
 			if(Build.VERSION.SDK_INT >= 14)
 				mBar.setHomeButtonEnabled(true);
 			mBar.setDisplayUseLogoEnabled(true);
+			//if(!mTwoRowTitle)
 			try {
 				//mBar.setDisplayOptions(ActionBar.NAVIGATION_MODE_TABS);
 				mBar.setCustomView(R.layout.title_bar);
@@ -412,6 +442,8 @@ public class OpenExplorer
 			} catch(InflateException e) {
 				Logger.LogWarning("Couldn't set up ActionBar custom view", e);
 			}
+			if(mTwoRowTitle)
+				setTitle(R.string.app_name);
 		} else USE_ACTION_BAR = false;
 		
 		OpenFile.setTempFileRoot(new OpenFile(getFilesDir()).getChild("temp"));
@@ -540,6 +572,28 @@ public class OpenExplorer
 
 		//if(!getPreferences().getBoolean("global", "pref_splash", false))
 		//	showSplashIntent(this, getPreferences().getString("global", "pref_start", "Internal"));
+	}
+	
+	@Override
+	public void setTitle(int titleId) {
+		setTitle(getText(titleId));
+	}
+	
+	@Override
+	public void setTitle(CharSequence title)
+	{
+		TextView tb = (TextView)findViewById(R.id.title_title);
+		if(tb == null && mBar != null && mBar.getCustomView() != null)
+			tb = (TextView)mBar.getCustomView().findViewById(R.id.title_title);
+		if(tb != null)
+		{
+			if(!tb.isShown())
+				tb.setVisibility(View.VISIBLE);
+			tb.setText(title);
+		} else if(mBar != null)
+			mBar.setTitle(title);
+		else
+			super.setTitle(title);
 	}
 	
 	private void checkWelcome()	{
@@ -1004,8 +1058,10 @@ public class OpenExplorer
 	{
 		if(mLogFragment == null)
 			mLogFragment = new LogViewerFragment();
+		/*
 		if(findViewById(R.id.frag_log) != null)
 			return;
+		*/
 		View anchor = ViewUtils.getFirstView(this, R.id.title_log, R.id.title_bar);
 		mLogFragment.setupPopup(this, anchor);
 	}
@@ -1015,9 +1071,9 @@ public class OpenExplorer
 		if(mOpsFragment == null)
 		{
 			mOpsFragment = new OperationsFragment();
-		View anchor = ViewUtils.getFirstView(this, R.id.title_ops, R.id.title_bar);
-		mOpsFragment.setupPopup(this, anchor);
-	}
+			View anchor = ViewUtils.getFirstView(this, R.id.title_ops, R.id.title_bar);
+			mOpsFragment.setupPopup(this, anchor);
+		}
 	}
 	
 	private void initPager() {
@@ -1025,7 +1081,8 @@ public class OpenExplorer
 		TabPageIndicator indicator = null;
 		if(mViewPagerEnabled && mViewPager != null)
 		{
-			setViewVisibility(false, false, R.id.content_frag, R.id.title_text, R.id.title_path);
+			setViewVisibility(false, false, R.id.content_frag, R.id.title_path);
+			setViewVisibility(mTwoRowTitle, false, R.id.title_text);
 			setViewVisibility(true, false, R.id.content_pager, R.id.content_pager_indicator);
 			mViewPager.setOnPageChangeListener(this);
 			//mViewPager.setOnPageIndicatorChangeListener(this);
@@ -1111,17 +1168,13 @@ public class OpenExplorer
 	private boolean setViewPageAdapter(PagerAdapter adapter, boolean reload)
 	{
 		if(adapter == null) adapter = mViewPager.getAdapter();
-		if(mViewPager != null)
+		if(mViewPager != null && getResources() != null)
 		{
 			try {
 				if(!adapter.equals(mViewPager.getAdapter()) || reload)
 					mViewPager.setAdapter(adapter);
-				else {
+				else
 					mViewPager.notifyDataSetChanged();
-					ContentFragment cf = getDirContentFragment(false);
-					if(cf != null)
-						cf.notifyDataSetChanged();
-				}
 				return true;
 			} catch(IndexOutOfBoundsException e) {
 				Logger.LogError("Why is this happening?", e);
@@ -1212,7 +1265,7 @@ public class OpenExplorer
 	{
 		String lang = DialogHandler.getLangCode();
 		if(lang.equals("EN")) return 0;
-		return ",ES,FR,KO,HE,DE,RU,".indexOf(","+DialogHandler.getLangCode()+",") == -1 ? 2 : 1;
+		return ",AR,EL,PL,ES,FR,KO,HE,DE,RU,".indexOf(","+DialogHandler.getLangCode()+",") == -1 ? 2 : 1;
 	}
 	
 	public static void showSplashIntent(Context context, String start)
@@ -1295,6 +1348,8 @@ public class OpenExplorer
 	@Override
 	public void onAttachedToWindow() {
 		super.onAttachedToWindow();
+		if(DEBUG && IS_DEBUG_BUILD)
+			Logger.LogVerbose("OpenExplorer.onAttachedToWindow");
 		handleNetworking();
 		handleMediaReceiver();
 		if(getWindowManager() != null)
@@ -1556,6 +1611,8 @@ public class OpenExplorer
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
+		if(DEBUG)
+			Logger.LogDebug("OpenExplorer.onPostCreate");
 		//mActionBarHelper.onPostCreate(savedInstanceState);
 		ensureCursorCache();
 		/*
@@ -2396,7 +2453,7 @@ public class OpenExplorer
 			showLogFrag(mLogFragment, true);
 			break;
 		case R.id.title_ops:
-			showLogFrag(mOpsFragment, true);
+			mOpsFragment.getPopup().showLikePopDownMenu();
 			break;
 		}
 		
@@ -2629,7 +2686,8 @@ public class OpenExplorer
 		if(Build.VERSION.SDK_INT > 100)
 		{
 			FragmentTransaction ft = fragmentManager.beginTransaction();
-			ft.hide(fragmentManager.findFragmentById(R.id.content_frag));
+			OpenFragment frag = getSelectedFragment();
+			ft.hide(frag);
 			//ft.replace(R.id.content_frag, new PreferenceFragment(this, path));
 			ft.setBreadCrumbTitle("prefs://" + (path != null ? path.getPath() : ""));
 			ft.addToBackStack("prefs");
@@ -2646,7 +2704,8 @@ public class OpenExplorer
 				}
 			});
 			android.app.FragmentTransaction ft2 = getFragmentManager().beginTransaction();
-			ft2.replace(R.id.content_frag, pf2);
+			ft2.replace(R.id.content_pager_frame, pf2);
+			ft2.setBreadCrumbTitle("prefs");
 			ft2.addToBackStack("prefs");
 			ft2.commit();
 		} else {
@@ -3443,10 +3502,12 @@ public class OpenExplorer
 		else if(l.getId() == 3)
 			mParent = mApkParent;
 		mParent.setCursor(c);
+		/*
 		mBookmarks.refresh();
 		OpenFragment f = getSelectedFragment();
 		if(f instanceof ContentFragment && ((ContentFragment)f).getPath().equals(mParent))
 			((ContentFragment)f).refreshData(null, false);
+		*/
 	}
 
 	@Override
@@ -3555,7 +3616,9 @@ public class OpenExplorer
 	
 	@Override
 	public GoogleAnalyticsTracker getAnalyticsTracker() {
-		return getOpenApplication().getAnalyticsTracker();
+		if(getOpenApplication() != null)
+			return getOpenApplication().getAnalyticsTracker();
+		else return null;
 	}
 	
 	@Override

@@ -26,6 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+    	android:background="@drawable/card_tag"
         >
 
         <LinearLayout
@@ -63,8 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-			android:alpha="0.5"
-            android:text="Filename" />
+			android:text="Filename" />
 
         <TextView
             android:id="@+id/content_info"

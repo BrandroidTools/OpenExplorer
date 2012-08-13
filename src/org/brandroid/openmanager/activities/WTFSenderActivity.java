@@ -81,7 +81,7 @@ public class WTFSenderActivity extends Activity
 		try {
 			activity.startActivityForResult(intent, REQ_CODE_WTF_SEND);
 		} catch(ActivityNotFoundException e) {
-			Toast.makeText(activity, R.string.s_error_no_intents, Toast.LENGTH_LONG);
+			Toast.makeText(activity, R.string.noApplications, Toast.LENGTH_LONG).show();
 		}
 	}
 	
@@ -91,7 +91,7 @@ public class WTFSenderActivity extends Activity
 		Logger.LogInfo("Activity Result for " + requestCode + " = " + resultCode);
 		if(requestCode == REQ_CODE_WTF_SEND)
 		{
-			Toast.makeText(this, getString(R.string.thanks), Toast.LENGTH_SHORT);
+			Toast.makeText(this, getString(R.string.thanks), Toast.LENGTH_SHORT).show();
 		}
 		finish();
 	}

@@ -1,49 +1,37 @@
 package org.brandroid.openmanager.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.List;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
-import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.util.OpenIntentChooser.IntentSelectedListener;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class IntentManager
 {
-	public static Intent getIntent(OpenPath file, Context activity)
+	public static Intent getIntent(OpenPath file, OpenExplorer app)
 	{
-		return getIntent(file, activity, Intent.ACTION_VIEW, Intent.CATEGORY_DEFAULT);
+		return getIntent(file, app, Intent.ACTION_VIEW, Intent.CATEGORY_DEFAULT);
 	}
-	public static Intent getIntent(OpenPath file, Context activity, String action, String... categories)
+	public static Intent getIntent(OpenPath file, OpenExplorer app, String action, String... categories)
 	{
 		String name = file.getName();
-		final String ext = name.substring(name.lastIndexOf(".") + 1).toLowerCase();
 		
 		if(file.isDirectory()) return null;
 		
@@ -58,10 +46,11 @@ public class IntentManager
 		//ret.putExtra(name, value)
 		//ret.set
 		
-		String mimeType = OpenExplorer.getMimeTypes(activity).getMimeType(name);
+		String mimeType = OpenExplorer.getMimeTypes(app).getMimeType(name);
+		
 		ret.setDataAndType(file.getUri(), mimeType);
-    	
-		PackageManager pm = activity.getPackageManager();
+		
+		PackageManager pm = app.getPackageManager();
 		List<ResolveInfo> lApps = pm.queryIntentActivities(ret, 0);
 		//for(ResolveInfo ri : lApps)
 		//	Logger.LogDebug("ResolveInfo: " + ri.toString());
@@ -73,10 +62,11 @@ public class IntentManager
 		return ret;
 	}
 
-	public static boolean startIntent(OpenPath file, Activity activity) { return startIntent(file, activity, Preferences.Pref_Intents_Internal); } 
-	public static boolean startIntent(final OpenPath file, final Activity activity, boolean bInnerChooser)
+	public static boolean startIntent(OpenPath file, OpenExplorer app) { return startIntent(file, app, Preferences.Pref_Intents_Internal); } 
+	public static boolean startIntent(final OpenPath file, final OpenExplorer app, boolean bInnerChooser)
 	{
-		if(!isIntentAvailable(file, activity))
+		final PackageManager pm = app.getPackageManager();
+		if(!isIntentAvailable(file, app))
 		{
 			Logger.LogWarning("No matching intents!");
 			return false;
@@ -84,32 +74,81 @@ public class IntentManager
 		Logger.LogDebug("Intents match. Use inner chooser? " + bInnerChooser);
 		if(bInnerChooser)
 		{
-			final Intent intent = getIntent(file, activity);
+			final Intent intent = getIntent(file, app);
+			String mime = file.getMimeType();
+			if(mime == null || mime.equals("*/*"))
+				mime = file.getExtension();
+			final String mext = mime;
+			String cls = app.getPreferences().getSetting("mimes", mext, "");
+			if(cls.indexOf("$")>-1)
+			{
+				Logger.LogInfo("Found default for " + mime + ": " + cls);
+				String pck = cls.substring(0, cls.indexOf("$"));
+				cls = cls.substring(cls.indexOf("$")+1);
+				intent.setClassName(pck, cls);	
+				try {
+					if(pck.equals("org.brandroid.openmanager"))
+						app.editFile(file);
+					else
+						app.startActivity(intent);
+				} catch(Exception e) {
+					Logger.LogError("Unable to start default activity for " + mime, e);
+				}
+			}
 			Logger.LogDebug("Chooser Intent: " + intent.toString());
-			final List<ResolveInfo> mResolves = activity.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+			final List<ResolveInfo> mResolves = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+			final ArrayList<String> mNames = new ArrayList<String>();
+			for(int i = mResolves.size() - 1; i >= 0; i--)
+			{
+				ResolveInfo ri = mResolves.get(i);
+				String name = pm.getApplicationLabel(ri.activityInfo.applicationInfo).toString(); //ri.activityInfo.applicationInfo.className
+				if(!mNames.contains(name))
+					mNames.add(name);
+				else
+					mResolves.remove(i);
+			}
+			Collections.sort(mResolves, new Comparator<ResolveInfo>() {
+				@Override
+				public int compare(ResolveInfo lhs, ResolveInfo rhs) {
+					String a = pm.getApplicationLabel(lhs.activityInfo.applicationInfo).toString();
+					String b = pm.getApplicationLabel(rhs.activityInfo.applicationInfo).toString();
+					//String a = lhs.loadLabel(pm).toString();
+					//String b = rhs.loadLabel(pm).toString();
+					return a.compareTo(b);
+				}
+			});
 			if(mResolves.size() == 1)
 			{
 				ResolveInfo item = mResolves.get(0);
 				PackageInfo packInfo = null;
 				try {
-					activity.getPackageManager().getPackageInfo(item.activityInfo.packageName, PackageManager.GET_INTENT_FILTERS);
+					pm.getPackageInfo(item.activityInfo.packageName, PackageManager.GET_INTENT_FILTERS);
 					intent.setClassName(packInfo != null ? packInfo.packageName : item.activityInfo.packageName, item.activityInfo.name);
-					activity.startActivity(intent);
-					return true;
+					Logger.LogInfo("Starting Intent(1): " + intent.toString());
+					if(intent.toString().indexOf("nitrodesk") == -1)
+					{
+						app.startActivity(intent);
+						return true;
+					}
 				} catch (NameNotFoundException e) {
 					Logger.LogError("Package not found for " + item.activityInfo.toString(), e);
 				} catch (ActivityNotFoundException ae) {
 					Logger.LogError("Activity not found for " + item.activityInfo.name, ae);
 				}
-			} else if(mResolves.size() > 1) {
-				new OpenIntentChooser(activity, mResolves)
-					.setTitle(file.getName() + " (" + intent.getType() + ")")
+			}
+			if(mResolves.size() > 0) {
+				new OpenIntentChooser(app, mResolves)
+					.setTitle(app.getResources().getString(R.string.whichApplication) + " (" + file.getName() + "):")
 					.setOnIntentSelectedListener(new IntentSelectedListener() {
-						public void onIntentSelected(ResolveInfo item) {
-							//activity.showToast("Package? [" + item.activityInfo.packageName + " / " + item.activityInfo.targetActivity + "]");
+						@Override
+						public void onUseSystemClicked() {
+							startIntent(file, app, false);
+						}
+						public void onIntentSelected(ResolveInfo item, boolean defaultSelected) {
+							//app.showToast("Package? [" + item.activityInfo.packageName + " / " + item.activityInfo.targetActivity + "]");
 							PackageInfo packInfo = null;
 							try {
-								packInfo = activity.getPackageManager().getPackageInfo(item.activityInfo.packageName, PackageManager.GET_INTENT_FILTERS);
+								packInfo = pm.getPackageInfo(item.activityInfo.packageName, PackageManager.GET_INTENT_FILTERS);
 								if(packInfo != null && packInfo.activities != null)
 								{
 									for(ActivityInfo info : packInfo.activities)
@@ -119,11 +158,19 @@ public class IntentManager
 									Logger.LogDebug("Intent chosen: " + item.activityInfo.toString());
 								}
 								//Intent activityIntent = new Intent();
-								intent.setClassName(packInfo != null ? packInfo.packageName : item.activityInfo.packageName, item.activityInfo.name);
+								String pck = packInfo != null ? packInfo.packageName : item.activityInfo.packageName;
+								String cls = item.activityInfo.name;
+								intent.setClassName(pck, cls);
+								
+								if(defaultSelected)
+									app.getPreferences().setSetting("mimes", mext, pck + "$" + cls);
 								
 								//intent.setData(file.getUri());
 								//intent.setType(file.ge)
-								activity.startActivity(intent);
+								if(!pck.equals("org.brandroid.openmanager"))
+									app.startActivity(intent);
+								else
+									app.editFile(file);
 							} catch (NameNotFoundException e) {
 								Logger.LogError("Package not found for " + item.activityInfo.toString(), e);
 							} catch (ActivityNotFoundException ae) {
@@ -134,15 +181,15 @@ public class IntentManager
 					.show();
 				return true;
 			} else {
-				Toast.makeText(activity, activity.getText(R.string.s_error_no_intents), Toast.LENGTH_LONG).show();
+				Toast.makeText(app, app.getText(R.string.noApplications), Toast.LENGTH_LONG).show();
 			}
 		}
-		Intent intent = getIntent(file, activity);
+		Intent intent = getIntent(file, app);
 		//intent.addFlags(Intent.FL);
 		if(intent != null)
 		{
 			try {
-				activity.startActivity(Intent.createChooser(intent, file.getName()));
+				app.startActivity(Intent.createChooser(intent, file.getName()));
 			} catch(ActivityNotFoundException e) {
 				Logger.LogWarning("Couldn't launch intent for " + file.getPath(), e);
 				return false;
@@ -155,38 +202,38 @@ public class IntentManager
 		return false;
 	}
 	
-	public static boolean isIntentAvailable(OpenPath file, Context activity)
+	public static boolean isIntentAvailable(OpenPath file, OpenExplorer app)
 	{
-		Intent toCheck = getIntent(file, activity);
+		Intent toCheck = getIntent(file, app);
 		if(toCheck == null) return false;
-		return activity.getPackageManager().queryIntentActivities(toCheck, PackageManager.MATCH_DEFAULT_ONLY).size() > 0;
+		return app.getPackageManager().queryIntentActivities(toCheck, PackageManager.MATCH_DEFAULT_ONLY).size() > 0;
 	}
 
-	public static ResolveInfo getResolveInfo(final OpenPath file, final Context activity)
+	public static ResolveInfo getResolveInfo(final OpenPath file, final OpenExplorer app)
 	{
-		return getResolveInfo(getIntent(file, activity), activity);
+		return getResolveInfo(getIntent(file, app), app);
 	}
-	public static ResolveInfo getResolveInfo(Intent toCheck, final Context activity)
+	public static ResolveInfo getResolveInfo(Intent toCheck, final OpenExplorer app)
 	{
 		if(toCheck == null) return null;
-		List<ResolveInfo> lResolves = activity.getPackageManager().queryIntentActivities(toCheck, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> lResolves = app.getPackageManager().queryIntentActivities(toCheck, PackageManager.MATCH_DEFAULT_ONLY);
 		if(lResolves.size() > 0)
 			return lResolves.get(0);
 		return null;
 	}
 	
-	public static Drawable getDefaultIcon(final OpenPath file, final Context activity)
+	public static Drawable getDefaultIcon(final OpenPath file, final OpenExplorer app)
 	{
-		ResolveInfo info = getResolveInfo(file, activity);
+		ResolveInfo info = getResolveInfo(file, app);
 		if(info == null) return null;
-		return info.loadIcon(activity.getPackageManager());
+		return info.loadIcon(app.getPackageManager());
 	}
 	
-	public static Drawable getDefaultIcon(final Intent intent, final Context activity)
+	public static Drawable getDefaultIcon(final Intent intent, final OpenExplorer app)
 	{
-		ResolveInfo info = getResolveInfo(intent, activity);
+		ResolveInfo info = getResolveInfo(intent, app);
 		if(info == null) return null;
-		return info.loadIcon(activity.getPackageManager());
+		return info.loadIcon(app.getPackageManager());
 	}
 	
 

@@ -105,7 +105,7 @@ public class OpenZip extends OpenPath
 
 	@Override
 	public Boolean isDirectory() {
-		return true;
+		return false; // this used to be true, but was causing too many issues
 	}
 
 	@Override

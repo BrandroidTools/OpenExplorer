@@ -9,19 +9,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-
-import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
 import org.brandroid.openmanager.data.OpenPath.OpenPathCopyable;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.util.DFInfo;
-import org.brandroid.openmanager.util.RootManager;
-import org.brandroid.openmanager.util.RootManager.UpdateCallback;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.utils.Logger;
 
@@ -222,7 +213,9 @@ public class OpenFile
 	{
 		if(mExternalDrive != null) return mExternalDrive;
 		for(OpenFile kid : getInternalMemoryDrive().getParent().listFiles())
-			if(kid.getName().toLowerCase().indexOf("ext") > -1 && kid.canRead() && kid.canWrite())
+			if((kid.getName().toLowerCase().indexOf("ext") > -1 ||
+					kid.getName().toLowerCase().indexOf("sdcard1") > -1)
+				&& kid.canRead() && kid.canWrite())
 			{
 				mExternalDrive = kid;
 				return kid;

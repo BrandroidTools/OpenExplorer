@@ -22,11 +22,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
+    
+    
    
 	<RelativeLayout
-	    android:layout_alignParentTop="true"
 		android:id="@+id/frag_holder"
 	    android:orientation="horizontal"
+	    android:layout_below="@+id/content_pager_indicator_frame"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
 	    android:layout_alignParentLeft="true"
@@ -37,14 +39,33 @@
 	    <FrameLayout android:id="@+id/list_frag"
 	        android:layout_width="@dimen/bookmarks_width"
 	        android:layout_height="match_parent"
+	        android:layout_alignParentTop="true"
 	        android:background="?attr/colorDarkGray"
 	        android:layout_alignWithParentIfMissing="true"
 	       	/>
 	    
+		<FrameLayout
+		    android:id="@+id/content_pager_indicator_frame"
+		    android:layout_height="40dp"
+			android:layout_width="match_parent"
+			android:layout_alignParentTop="true"
+			android:background="?attr/pagerBackground"
+			android:layout_alignLeft="@+id/list_frag_frame"
+			android:layout_alignWithParentIfMissing="true">
+	
+			<com.viewpagerindicator.TabPageIndicator
+				android:id="@+id/content_pager_indicator"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				/>
+		</FrameLayout>
+		
 	    <RelativeLayout
+	        android:id="@+id/list_frag_frame"
 	        android:layout_toRightOf="@+id/list_frag"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
+	        android:layout_below="@+id/content_pager_indicator_frame"
 	        >	
 		    <FrameLayout
 		        android:id="@+id/content_frag"
@@ -62,16 +83,5 @@
 	
 	
 	</RelativeLayout>
-		
-		    <FrameLayout
-				android:id="@+id/frag_log"
-				android:layout_alignParentTop="true"
-				android:layout_alignParentBottom="true"
-		        android:layout_width="@dimen/bookmarks_width"
-		        android:layout_height="match_parent"
-		        android:layout_alignParentRight="true"
-		        android:layout_alignWithParentIfMissing="true"
-		        >
-		    </FrameLayout>
 	
 </RelativeLayout>

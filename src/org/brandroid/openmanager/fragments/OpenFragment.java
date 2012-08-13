@@ -33,6 +33,7 @@ import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+import com.google.android.apps.analytics.Item;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -443,7 +444,9 @@ public abstract class OpenFragment
 		if(DEBUG)
 			Logger.LogDebug("}-- onAttach :: " + getClassName() + " @ " + path);
 		queueToTracker(new Runnable(){public void run(){
-			getAnalyticsTracker().trackPageView("/" + getClassName() + "/" + path);
+			GoogleAnalyticsTracker tracker = getAnalyticsTracker();
+			if(tracker != null)
+				tracker.trackPageView("/" + getClassName() + (path != null ? (!path.getPath().startsWith("/") ? "/" : "") + path : ""));
 		}});
 	}
 	
@@ -464,7 +467,8 @@ public abstract class OpenFragment
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		queueToTracker(new Runnable() {public void run() {
-			getAnalyticsTracker().trackEvent("Clicks", "MenuItem", "Click", item.getItemId());
+			if(getAnalyticsTracker() != null)
+				getAnalyticsTracker().trackEvent("Clicks", "MenuItem", item.getTitle().toString(), 1);
 		}});
 		return super.onOptionsItemSelected(item);
 	}
@@ -544,15 +548,16 @@ public abstract class OpenFragment
 	
 	public void onClick(final View v) {
 		queueToTracker(new Runnable() {public void run() {
-			if(v != null)
-				getAnalyticsTracker().trackEvent("Clicks", v != null ? v.getClass().toString() : "Unknown", "Click", v.getId());
+			if(getAnalyticsTracker() != null)
+				getAnalyticsTracker().trackEvent("Clicks", v != null ? v.getClass().getSimpleName() : "Unknown", ViewUtils.getText(v).toString(), 1);
 		}});
 		Logger.LogInfo(getClassName() + ".onClick(" + v + ")");
 	}
 	
 	public boolean onClick(final int id, final View from) {
 		queueToTracker(new Runnable() {public void run() {
-			getAnalyticsTracker().trackEvent("Clicks", from != null ? from.getClass().toString() : "Unknown", "Click", id);
+			if(getAnalyticsTracker() != null)
+				getAnalyticsTracker().trackEvent("Clicks", from != null ? from.getClass().getSimpleName() : "Unknown", ViewUtils.getText(from).toString(), 1);
 		}});
 		Logger.LogInfo(getClassName() + ".onClick(0x" + Integer.toHexString(id) + ")");
 		return false;
@@ -560,8 +565,8 @@ public abstract class OpenFragment
 	
 	public boolean onLongClick(final View v) {
 		queueToTracker(new Runnable() {public void run() {
-			if(v != null)
-				getAnalyticsTracker().trackEvent("Clicks", v.getClass().toString(), "Click", v.getId());
+			if(v != null && getAnalyticsTracker() != null)
+				getAnalyticsTracker().trackEvent("Long-Clicks", v.getClass().toString(), ViewUtils.getText(v).toString(), 1);
 		}});
 		Logger.LogInfo(getClassName() + ".onLongClick(" + Integer.toHexString(v.getId()) + ") - " + v.toString());
 		return false;
@@ -676,12 +681,15 @@ public abstract class OpenFragment
 	
 	@Override
 	public GoogleAnalyticsTracker getAnalyticsTracker() {
-		return getExplorer().getAnalyticsTracker();
+		if(getExplorer() != null)
+			return getExplorer().getAnalyticsTracker();
+		else return null;
 	}
 	
 	@Override
 	public void queueToTracker(Runnable run) {
-		getExplorer().queueToTracker(run);
+		if(getExplorer() != null)
+			getExplorer().queueToTracker(run);
 	}
 
 	@Override

@@ -254,10 +254,10 @@ public abstract class OpenPath
 		return ret;
 	}
 
-	public boolean isTextFile() { return isTextFile(getName()); }
+	public boolean isTextFile() { return !isDirectory() && isTextFile(getName()); }
 	public static boolean isTextFile(String file) {
 		if(file == null) return false;
-		if(file.indexOf(".") == -1) return false;
+		if(file.indexOf(".") == -1) return true;
 		String ext = file.substring(file.lastIndexOf(".") + 1);
 		if(MimeTypes.Default != null)
 			if(MimeTypes.Default.getMimeType(file).startsWith("text/"))
@@ -271,7 +271,7 @@ public abstract class OpenPath
 		return false;
 	}
 	
-	public boolean isImageFile() { return isImageFile(getName()); }
+	public boolean isImageFile() { return !isDirectory() && isImageFile(getName()); }
 	public static boolean isImageFile(String file) {
 		String ext = file.substring(file.lastIndexOf(".") + 1);
 		if(MimeTypes.Default != null)
@@ -285,7 +285,7 @@ public abstract class OpenPath
 		return false;
 	}
 	
-	public boolean isAPKFile() { return isAPKFile(getName()); }
+	public boolean isAPKFile() { return !isDirectory() && isAPKFile(getName()); }
 	public static boolean isAPKFile(String file) {
 		String ext = file.substring(file.lastIndexOf(".") + 1);
 		
@@ -298,7 +298,7 @@ public abstract class OpenPath
 		return getExtension().equalsIgnoreCase("zip") || getExtension().equalsIgnoreCase("jar");
 	}
 	
-	public boolean isVideoFile() { return isVideoFile(getName()); }
+	public boolean isVideoFile() { return !isDirectory() && isVideoFile(getName()); }
 	public static boolean isVideoFile(String path)
 	{
 		if(MimeTypes.Default != null)

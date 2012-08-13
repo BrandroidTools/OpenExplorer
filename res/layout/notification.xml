@@ -1,79 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="left|center_vertical"
-    android:padding="4dp"
-    android:orientation="horizontal" >
-    
-	<ImageView
-	    android:id="@android:id/icon"
-	    android:layout_width="72dp"
-	    android:layout_height="wrap_content"
-	    android:layout_marginRight="5dp"
-	    android:src="@drawable/icon"
-	    />
-		
-	<LinearLayout
-	    android:id="@+id/layout"
-	    android:layout_toRightOf="@android:id/icon"
-	    android:layout_toLeftOf="@android:id/closeButton"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="vertical">
-	    
-	    <LinearLayout
-	        android:orientation="horizontal"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content">
-	        
-	    <TextView
-		    android:id="@android:id/title"
-		    style="@style/Small"
-		    android:text="@string/s_sample_notification"
-		    android:textColor="@color/notification_text"
-		    android:layout_marginTop="1dp"
-		    />
-	    
-		<TextView
-		    android:id="@android:id/text1"
-		    style="@style/Small"
-		    android:layout_width="match_parent"
-		    android:text="@string/s_status_remaining"
-		    android:gravity="right" 
-		    />
-		
-		</LinearLayout>
-		
-		<ProgressBar
-		    android:id="@android:id/progress"
-		    style="@style/Widget.ProgressBar.Horizontal"
-		    android:progress="50"
-		    android:max="100"
-		    android:layout_width="match_parent" 
-		    android:layout_height="6dp"
-		    />
-		
-		<TextView
-		    android:id="@android:id/text2"
-		    style="@style/Mid"
-		    android:text="3 files"
-		    android:textColor="@color/notification_text"
-		    android:layout_marginBottom="2dp"
-		    android:ellipsize="start"
-		    android:singleLine="true"
-		    />
-	</LinearLayout>
-	
-	<ImageButton
-	    android:layout_alignParentRight="true"
-	    android:layout_alignParentTop="true"
-	    android:layout_alignBottom="@id/layout"
-	    android:layout_width="54dp"
-	    android:layout_height="wrap_content"
-	    android:id="@android:id/closeButton"
-	    android:src="@drawable/ic_menu_stop"
-	    android:background="@color/transparent"
-	    android:contentDescription="@string/s_menu_stop"
-	    />
-</RelativeLayout>
+    android:orientation="horizontal"
+    android:padding="4dp" >
+
+    <ImageView
+        android:id="@android:id/icon"
+        android:layout_width="72dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="5dp"
+        android:src="@drawable/icon" />
+
+    <LinearLayout
+        android:id="@+id/layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@android:id/title"
+                style="@android:style/TextAppearance.Small"
+                android:layout_marginTop="1dp"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:ellipsize="end"
+                android:text="@string/s_sample_notification"
+                />
+
+            <TextView
+                android:id="@android:id/text1"
+                style="@android:style/TextAppearance.Small"
+	            android:layout_width="0dp"
+	            android:layout_height="wrap_content"
+	            android:singleLine="true"
+                android:gravity="right"
+                android:ellipsize="none"
+                android:layout_weight="1"
+                android:text="@string/s_status_remaining" />
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@android:id/progress"
+            style="@style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:max="100"
+            android:progress="50" />
+            
+	        <TextView
+	            android:id="@android:id/text2"
+	            style="@android:style/TextAppearance.Small"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginBottom="2dp"
+	            android:ellipsize="start"
+	            android:singleLine="true"
+	            android:text="3 files"
+	            />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@android:id/closeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/list_selector_background"
+        android:contentDescription="@string/s_menu_stop"
+        android:src="@drawable/ic_menu_stop" />
+
+</LinearLayout>

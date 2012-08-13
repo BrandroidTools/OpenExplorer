@@ -5,6 +5,7 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.SearchManager;
@@ -49,7 +50,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-public class CarouselFragment extends OpenFragment implements OpenPathFragmentInterface {
+@SuppressLint("NewApi") public class CarouselFragment extends OpenFragment implements OpenPathFragmentInterface {
 	private static final String TAG = "CarouselTestActivity";
 	private static final int CARD_SLOTS = 56;
 	private static final int SLOTS_VISIBLE = 7;
@@ -99,7 +100,7 @@ public class CarouselFragment extends OpenFragment implements OpenPathFragmentIn
 					if(mPathItems[id].isDirectory())
 						setPath(mPathItems[id]);
 					else
-						IntentManager.startIntent(mPathItems[id], getActivity());
+						IntentManager.startIntent(mPathItems[id], getExplorer());
 				}});
 			//postMessage("Selection", "Card " + id + " was selected");
 		}

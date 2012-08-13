@@ -98,7 +98,7 @@ public class LoggerDbAdapter
         initialValues.put(KEY_MESSAGE, message);
         initialValues.put(KEY_LEVEL, level);
         initialValues.put(KEY_STACK, stack);
-		initialValues.put(KEY_STAMP, (new java.util.Date().getTime() - new Date(4,9,2011).getTime()) / 1000);
+		initialValues.put(KEY_STAMP, Math.abs(new java.util.Date().getTime() - new Date(4,9,2011).getTime()) / 1000);
 
 		try {
 			if(mDb.replace(DATABASE_TABLE, null, initialValues) > -1)

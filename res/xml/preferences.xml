@@ -203,7 +203,7 @@
 	        <CheckBoxPreference
 	            android:key="pref_hardware_accel"
 	            android:title="@string/s_pref_hardware_accel"
-	            android:defaultValue="@bool/honeycomb"
+	            android:defaultValue="false"
 	            />
 		</PreferenceCategory>
 	

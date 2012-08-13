@@ -3,13 +3,17 @@ package org.brandroid.openmanager.util;
 import java.util.List;
 
 import org.brandroid.openmanager.R;
+import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.utils.Logger;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ScaleDrawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,12 +24,10 @@ import android.widget.TextView;
 
 public class OpenIntentAdapter extends BaseAdapter
 {
-	private android.content.Context mExplorer;
 	private List<ResolveInfo> mData;
 	
-	public OpenIntentAdapter(Context explorer, List<ResolveInfo> queriedIntents)
+	public OpenIntentAdapter(List<ResolveInfo> queriedIntents)
 	{
-		mExplorer = explorer;
 		mData = queriedIntents;
 	}
 
@@ -44,19 +46,29 @@ public class OpenIntentAdapter extends BaseAdapter
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ResolveInfo item = mData.get(position);
 		
-        PackageManager pm = mExplorer.getPackageManager();
+		Context c = parent.getContext();
+		
+        PackageManager pm = c.getPackageManager();
 
-        TextView res = (TextView)convertView;
+        View res = convertView;
         if (res == null) {
-        	res = (TextView) LayoutInflater.from(mExplorer).inflate(android.R.layout.select_dialog_item, null);
+        	res = LayoutInflater.from(c).inflate(R.layout.chooser_item, null);
         }
         
+        TextView tv = (TextView)res.findViewById(android.R.id.text1);
+        ImageView iv = (ImageView)res.findViewById(android.R.id.icon);
+        
+        CharSequence cs = item.loadLabel(pm);
         res.setTag(item);
-        res.setText(item.loadLabel(pm));
+        tv.setText(cs);
         Drawable d = (Drawable)item.loadIcon(pm);
         if(BitmapDrawable.class.equals(d))
         	((BitmapDrawable)d).setGravity(Gravity.CENTER);
-        res.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
+        //ScaleDrawable sd = new ScaleDrawable(d, Gravity.CENTER, OpenExplorer.DP_RATIO * 48, OpenExplorer.DP_RATIO * 48);
+        //Rect size = d.getBounds();
+        //Logger.LogDebug(cs.toString() + " Icon Size: " + size.toShortString());
+        iv.setImageDrawable(d);
+        //res.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
         
 		return res;
 	}

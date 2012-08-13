@@ -40,4 +40,5 @@
     <dimen name="text_size_small">8dp</dimen>
     <dimen name="text_size_medium">12dp</dimen>
     <dimen name="text_size_large">16dp</dimen>
+    <dimen name="content_padding">8dp</dimen>
 </resources>

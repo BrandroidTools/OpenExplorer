@@ -47,10 +47,31 @@ public class MimeTypes {
 		
 		mMimeTypes.put(type, extension);
 	}
+
+	/**
+	 * Gets the extension of a file name, like ".png" or ".jpg".
+	 * 
+	 * @param uri
+	 * @return Extension including the dot("."); "" if there is no extension;
+	 *         null if uri was null.
+	 */
+	public static String getExtension(String uri) {
+		if (uri == null) {
+			return null;
+		}
+
+		int dot = uri.lastIndexOf(".");
+		if (dot >= 0) {
+			return uri.substring(dot);
+		} else {
+			// No extension.
+			return "";
+		}
+	}
 	
 	public String getMimeType(String filename) {
 		
-		String extension = FileUtils.getExtension(filename);
+		String extension = getExtension(filename);
 		
 		// Let's check the official map first. Webkit has a nice extension-to-MIME map.
 		// Be sure to remove the first character from the extension, which is the "." character.

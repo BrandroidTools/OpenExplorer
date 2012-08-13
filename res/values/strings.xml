@@ -147,7 +147,7 @@
     <string name="s_menu_copy_all">Copy Here</string>
     <string name="s_confirm_delete">Are you sure that you want to delete %s?</string>
     <string name="s_error_same_destination">The destination directory is the same.</string>
-    <string name="s_sample_notification">Copying -> sdcard: \n 3 Files</string>
+    <string name="s_sample_notification">Copying -> sdcard</string>
     <string name="s_pref_fullscreen">Full Screen</string>
     <string name="s_pref_fullscreen_summary_on">Hide Notification Bar</string>
     <string name="s_pref_fullscreen_summary_off">Show Notification Bar</string>
@@ -243,7 +243,7 @@
     <string name="alert_translate_google">Hello, this translation is provided by Google Translate. If you know English as well as %s, and would like to assist in providing a better translation, please click on this button:</string>
     <string name="alert_translate_none">Hello, it appears that you are using a non-supported language. Do you know English and %s? If you would you like to assist in providing a correct translation, click here:</string>
     <string name="button_translate">Translate</string>
-    <string name="s_status_remaining">Remaining:</string>
+    <string name="s_status_remaining">Time:</string>
     <string name="s_pref_logview">Network Log</string>
     <string name="s_alert_dirty" formatted="false">The contents of %s have changed. Would you like to save?</string>
     <string name="s_menu_sort_folders">Folders First</string>
@@ -328,6 +328,10 @@
     <string name="theme">Theme</string>
     <string name="theme_dark">Dark UI</string>
     <string name="theme_light">Light UI</string>
+    <string name="chooser_remember">Remember my choice</string>
+    <string name="use_system">Use System &gt;&gt;</string>
+    <string name="activity_resolver_use_always">Always</string>
+    <string name="activity_resolver_use_once">Just once</string>
     
     <plurals name="num_selected">
         <item quantity="one">One file selected</item>

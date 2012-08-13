@@ -44,6 +44,7 @@
         
         <item name="popupBackground">@drawable/contextmenu_square</item>
         <item name="popupArrow">@drawable/contextmenu_arrow</item>
+        <item name="pagerBackground">@drawable/ab_stacked_solid_inverse_holo</item>
         
         <!-- Colors -->
         <item name="colorWhite">@color/white</item>
@@ -96,6 +97,7 @@
         
         <item name="popupBackground">@drawable/contextmenu_square_gray</item>
         <item name="popupArrow">@drawable/contextmenu_arrow_gray</item>
+        <item name="pagerBackground">@drawable/ab_stacked_solid_light_holo</item>
         
         <!-- Colors -->
         <item name="colorWhite">@color/black</item>

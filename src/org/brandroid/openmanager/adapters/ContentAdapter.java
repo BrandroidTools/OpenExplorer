@@ -59,7 +59,7 @@ public class ContentAdapter extends BaseAdapter {
 	private final int GB = MG * KB;
 	
 	private final OpenPath mParent;
-	private final ArrayList<OpenPath> mData2 = new ArrayList();
+	private final ArrayList<OpenPath> mData2 = new ArrayList<OpenPath>();
 	public int mViewMode = OpenExplorer.VIEW_LIST;
 	public boolean mShowThumbnails = true;
 	private SortType mSorting = SortType.ALPHA;
@@ -131,7 +131,7 @@ public class ContentAdapter extends BaseAdapter {
 			final boolean doSort) {
 		long time = new Date().getTime();
 		if(items == null) {
-			Logger.LogWarning("ContentAdapter.updateData warning: Items are null!");
+			//Logger.LogWarning("ContentAdapter.updateData warning: Items are null!");
 			super.notifyDataSetChanged();
 			return;
 		}
@@ -246,7 +246,7 @@ public class ContentAdapter extends BaseAdapter {
 		
 		if(mPlusParent && position == 0)
 		{
-			mNameView.setText(getResources().getString(R.string.s_menu_up));
+			mNameView.setText(R.string.s_menu_up);
 			mIcon.setImageResource(useLarge ? R.drawable.lg_folder_up : R.drawable.sm_folder_up);
 			if(mInfo != null) mInfo.setText("");
 			if(mPathView != null) mPathView.setText("");
@@ -254,9 +254,9 @@ public class ContentAdapter extends BaseAdapter {
 		}
 		final String mName = file.getName();
 		
-		int mWidth = getResources().getInteger(getViewMode() == OpenExplorer.VIEW_GRID ?
-				R.integer.content_grid_image_size :
-				R.integer.content_list_image_size);
+		int mWidth = getViewMode() == OpenExplorer.VIEW_GRID ?
+				OpenExplorer.IMAGE_SIZE_GRID :
+				OpenExplorer.IMAGE_SIZE_LIST;
 		int mHeight = mWidth;
 		
 		boolean showLongDate = false;
@@ -295,10 +295,12 @@ public class ContentAdapter extends BaseAdapter {
 		if(mNameView != null)
 			mNameView.setText(mName);
 		
+		/*
 		if(file.isHidden())
 			ViewUtils.setAlpha(0.5f, mNameView, mPathView, mInfo);
 		else
 			ViewUtils.setAlpha(1.0f, mNameView, mPathView, mInfo);
+		*/
 						
 		//if(!mHolder.getTitle().equals(mName))
 		//	mHolder.setTitle(mName);
@@ -322,6 +324,7 @@ public class ContentAdapter extends BaseAdapter {
 				ThumbnailCreator.setThumbnail(mApp, mIcon, file, mWidth, mHeight,
 					new OnUpdateImageListener() {
 						public void updateImage(final Bitmap b) {
+							if(mIcon.getTag() == null || (mIcon.getTag() instanceof OpenPath && ((OpenPath)mIcon.getTag()).equals(file)))
 							//if(!ThumbnailCreator.getImagePath(mIcon).equals(file.getPath()))
 							{
 								Runnable doit = new Runnable(){public void run(){
@@ -334,7 +337,7 @@ public class ContentAdapter extends BaseAdapter {
 										mIcon.setImageBitmap(b);
 										//mIcon.setAlpha(255);
 									}
-									mIcon.setTag(file.getPath());
+									mIcon.setTag(file);
 								}};
 								if(!Thread.currentThread().equals(OpenExplorer.UiThread))
 									mIcon.post(doit);

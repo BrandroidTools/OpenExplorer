@@ -51,6 +51,7 @@
         
         <attr name="popupBackground" format="reference" />
         <attr name="popupArrow" format="reference" />
+        <attr name="pagerBackground" format="reference" />
         
         <!-- Colors -->
         <attr name="colorWhite" format="color" />

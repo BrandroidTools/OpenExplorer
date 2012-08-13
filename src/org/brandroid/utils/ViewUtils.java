@@ -368,10 +368,10 @@ public class ViewUtils {
 	}
 
 	public static CharSequence getText(View view) {
-		if(view == null) return null;
+		if(view == null) return "";
 		if(view instanceof TextView)
 			return ((TextView)view).getText();
-		return null;
+		return "";
 	}
 
 	public static void setEnabled(boolean enabled, View... views)
@@ -379,5 +379,12 @@ public class ViewUtils {
 		for(View v : views)
 			if(v != null)
 				v.setEnabled(enabled);
+	}
+
+	public static void setEnabled(View parent, boolean enabled, int... ids)
+	{
+		for(int id : ids)
+			if(parent.findViewById(id) != null)
+				parent.findViewById(id).setEnabled(enabled);
 	}
 }

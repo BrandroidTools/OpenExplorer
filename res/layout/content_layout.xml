@@ -16,23 +16,17 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="@dimen/content_padding"
     android:orientation="vertical" >
     
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" 
-        />
-
 	<GridView
 	    android:id="@+id/content_grid"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
-	    android:columnWidth="@dimen/grid_width"
+	    android:columnWidth="@dimen/grid_width"	    
 	    android:fastScrollEnabled="true"
 	    android:gravity="center"
 	    android:horizontalSpacing="4dp"
@@ -54,4 +48,4 @@
 	    android:visibility="gone"
 	    />
          
-</RelativeLayout>
+</FrameLayout>

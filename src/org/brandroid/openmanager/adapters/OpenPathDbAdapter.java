@@ -176,9 +176,9 @@ public class OpenPathDbAdapter
     		sParent = file.getParent().getPath();
     	else
     		sParent = file.getPath().replace("/" + file.getName(), "");
-    	sb.append(sParent.replace("'", "''"));
+    	sb.append(sParent.replaceAll("'", "''"));
     	sb.append("','");
-    	sb.append(file.getName().replace("'", "''"));
+    	sb.append(file.getName().replaceAll("'", "''"));
     	sb.append("','");
     	sb.append(file.length());
     	sb.append("','");
@@ -222,7 +222,7 @@ public class OpenPathDbAdapter
     	try {
     		if(mDb != null && parent != null) {
     			String sParent = parent.getPath();
-    			int ret = mDb.delete(DATABASE_TABLE, KEY_FOLDER + " = '" + sParent.replace("'", "\\'") + "'", null);
+    			int ret = mDb.delete(DATABASE_TABLE, KEY_FOLDER + " = '" + sParent.replaceAll("'", "''") + "'", null);
     			Logger.LogDebug("deleteFolder(" + parent.getPath() + ") removed " + ret + " rows");
     			return ret;
     		} else return 0;
@@ -268,7 +268,7 @@ public class OpenPathDbAdapter
     			folder = folder.substring(0, folder.length() - 1);
     		Logger.LogDebug("Fetching from folder: " + folder + " (" + sort.toString() + ")");
     		return mDb.query(true, DATABASE_TABLE,
-    				KEYS, KEY_FOLDER + " = '" + folder.replace("'", "\\'") + "'",
+    				KEYS, KEY_FOLDER + " = '" + folder.replaceAll("'", "''") + "'",
     				null, null, null, getSortString(sort), null);
     	} catch(Exception e)
     	{

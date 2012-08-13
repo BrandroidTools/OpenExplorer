@@ -177,7 +177,9 @@ public class Logger
 			LogToDB(Log.ASSERT, msg, Log.getStackTraceString(ex));
 		OpenFile crp = getCrashFile();
 		Throwable cause = ex.getCause();
-		StackTraceElement[] trace = getMyStackTrace(cause != null ? cause : ex);
+		if(cause == null) // get root cause
+			cause = ex;
+		StackTraceElement[] trace = getMyStackTrace(cause);
 		if(crp != null)
 		{
 			FileWriter fw = null;
@@ -196,7 +198,7 @@ public class Logger
 								trace[index].getFileName() + ":" + trace[index].getLineNumber() +
 									" (" + trace[index].getMethodName() + ")\n");
 					} else fw.write("\n");
-					fw.write(Log.getStackTraceString(ex));
+					fw.write(Log.getStackTraceString(cause));
 					fw.write("\nVersion " + OpenExplorer.VERSION + "\n");
 					fw.write(getDbLogs(true));
 					fw.write("\n");

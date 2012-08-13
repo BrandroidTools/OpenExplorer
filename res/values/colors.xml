@@ -15,4 +15,21 @@
 	<color name="transparent">@android:color/transparent</color>
 	<color name="translucent_gray">#66333333</color>
 	<color name="translucent_darkGray">#66000000</color>
+    <color name="card_background">#ffffffff</color>
+    <color name="card_author_name">#ff2d2d2d</color>
+    <color name="card_default_text">#ff2d2d2d</color>
+    <color name="card_not_plus_oned_text">#ff6b6b6b</color>
+    <color name="card_not_plus_oned_shadow_text">#ffffffff</color>
+    <color name="card_plus_oned_text">#ffffffff</color>
+    <color name="card_link">#ff33bede</color>
+    <color name="card_relative_time_text">#ffbbbbbb</color>
+    <color name="card_tag_text">#ffffffff</color>
+    <color name="card_tag_shadow_text">#ff000000</color>
+    <color name="card_tag_background">#44aaaaaa</color>
+    <color name="card_auto_text">#ffbbbbbb</color>
+    <color name="card_skyjam_title">#ffffffff</color>
+    <color name="card_skyjam_nontitle">#ff8b8b8b</color>
+    <color name="card_skyjam_listen_buy">#ff33bede</color>
+    <color name="card_hangout_join">#ffffffff</color>
+    <color name="card_hangout_unsupported">#ffcccccc</color>
 </resources>
