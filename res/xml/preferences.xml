@@ -33,6 +33,11 @@
 			android:entries="@array/view"
 			android:entryValues="@array/view_value"
 			android:dialogTitle="@string/s_pref_view" />
+		<CheckBoxPreference
+		    android:key="pref_show_bookmarks"
+		    android:title="@string/s_bookmarks"
+		    android:summary="@string/s_pref_bookmarks_summary"
+		    android:defaultValue="@bool/large"/>
         <!-- <PreferenceScreen
             android:key="pref_reset_views"
             android:title="@string/s_pref_reset" 

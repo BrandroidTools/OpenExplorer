@@ -350,7 +350,7 @@ public class ContentAdapter extends BaseAdapter {
 		
 		//row.setTag(file);
 		boolean mChecked = (mSelectedSet != null && mSelectedSet.contains(file));
-		boolean mShowCheck = mChecked || (mSelectedSet != null && mSelectedSet.size() > 0);
+		boolean mShowCheck = true; //mChecked || (mSelectedSet != null && mSelectedSet.size() > 0);
 		boolean mShowClip = mApp.getClipboard().contains(file);
 
 		if(mShowClip)
@@ -362,7 +362,15 @@ public class ContentAdapter extends BaseAdapter {
 					v.setVisibility(View.GONE);
 				}
 			}, R.id.content_clipboard);
-		} else ViewUtils.setViewsVisible(row, false, R.id.content_clipboard);
+		} else {
+			ViewUtils.setViewsVisible(row, false, R.id.content_clipboard);
+			ViewUtils.setOnClicks(row, new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					toggleSelected(file);
+				}
+			}, R.id.content_check);
+		}
 		if(mCheck != null) mCheck.setImageResource(mChecked ? checkboxOnId : checkboxOffId);
 		ViewUtils.setViewsVisible(row, mShowCheck, R.id.content_check);
 

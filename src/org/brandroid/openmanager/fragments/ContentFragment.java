@@ -765,11 +765,14 @@ public class ContentFragment extends OpenFragment
 		
 		if(file instanceof OpenNetworkPath && getActionMode() == null)
 		{
-			if(file.isTextFile() && file.length() < Preferences.Pref_Text_Max_Size && getExplorer() != null)
-				getExplorer().editFile(file);
-			else
-				downloadFile((OpenNetworkPath)file);
-			return;
+			if(file.isTextFile())
+			{
+				if(file.length() < Preferences.Pref_Text_Max_Size && getExplorer() != null)
+					getExplorer().editFile(file);
+				else
+					downloadFile((OpenNetworkPath)file);
+				return;
+			}
 		}
 		
 		if(file.isDirectory() && getActionMode() == null) {

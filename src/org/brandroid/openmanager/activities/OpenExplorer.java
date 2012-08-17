@@ -503,8 +503,9 @@ public class OpenExplorer
 		
 		if(findViewById(R.id.list_frag) == null)
 			mSinglePane = true;
-		else if(findViewById(R.id.list_frag).getVisibility() == View.GONE)
-			mSinglePane = true;
+		
+		setViewVisibility(getSetting(null, "pref_show_bookmarks", getResources().getBoolean(R.bool.large)),
+				false, R.id.list_frag);
 
 		Logger.LogDebug("Looking for path");
 		OpenPath path = mLastPath;
@@ -1844,28 +1845,43 @@ public class OpenExplorer
 		//mLastCursorEnsure = new Date().getTime();
 		mRunningCursorEnsure = false;
 	}
-	
 
-	public void toggleBookmarks(Boolean visible)
+	/**
+	 * Toggle Bookmarks View.
+	 * @param visible Whether to show Bookmarks. Will only affect popup.
+	 * @return Visibility of Bookmarks after event has occurred.
+	 */
+	public boolean toggleBookmarks(boolean visible) { return toggleBookmarks(visible, true); }
+
+	/**
+	 * Toggle Bookmarks View.
+	 * @param visible Whether to show Bookmarks.
+	 * @param auto Is automatic? If true, will only dismiss popup (when available), and will not affect fragment. If false, will affect fragment. 
+	 * @return Visibility of Bookmarks after event has occurred.
+	 */
+	public boolean toggleBookmarks(boolean visible, boolean auto)
 	{
-		if(!mSinglePane) return;
-		if(mBookmarksPopup != null)
+		if(isSinglePane() && mBookmarksPopup != null)
 		{
 			if(visible)
 				mBookmarksPopup.showLikePopDownMenu();
 			else
 				mBookmarksPopup.dismiss();
+		} else if(!auto) {
+			setViewVisibility(visible, true, R.id.list_frag);
 		}
+		return visible;
 	}
 	
-	public void toggleBookmarks()
+	/**
+	 * Toggle Bookmarks View. Only to be used in response to touch event.
+	 * @return Visibility of Bookmarks after event has occurred.
+	 */
+	public boolean toggleBookmarks()
 	{
 		final View mBookmarks = findViewById(R.id.list_frag);
 		final boolean in = mBookmarks == null || mBookmarks.getVisibility() == View.GONE;
-		if(isSinglePane())
-			toggleBookmarks(in);
-		else
-			setViewVisibility(in, true, R.id.list_frag);
+		return toggleBookmarks(in, false);
 	}
 
 	public void refreshOperations()
@@ -2246,8 +2262,8 @@ public class OpenExplorer
 	public boolean onOptionsItemSelected(MenuItem item)	{
 		if(item == null) return false;
 		int id = item.getItemId();
-		if(id != R.id.title_icon_holder && id != android.R.id.home);
-			toggleBookmarks(false);
+		//if(id != R.id.title_icon_holder && id != android.R.id.home);
+		//	toggleBookmarks(false);
 		OpenFragment f = getSelectedFragment();
 
 		if(DEBUG)
@@ -2258,7 +2274,8 @@ public class OpenExplorer
 				break;
 			case R.id.title_icon_holder:
 			case android.R.id.home:
-				toggleBookmarks();
+				setSetting("pref_show_bookmarks",
+					toggleBookmarks());
 				return true;
 				
 			case R.id.menu_view_carousel:
@@ -2421,7 +2438,7 @@ public class OpenExplorer
 		int id = v.getId();
 		
 		if(id == R.id.title_icon_holder)
-			toggleBookmarks();
+			setSetting("pref_show_bookmarks", toggleBookmarks());
 		
 		if(id == R.id.title_paste_icon)
 		{
@@ -2453,7 +2470,9 @@ public class OpenExplorer
 			showLogFrag(mLogFragment, true);
 			break;
 		case R.id.title_ops:
-			mOpsFragment.getPopup().showLikePopDownMenu();
+			BetterPopupWindow op = mOpsFragment.getPopup();
+			if(op != null)
+				op.showLikePopDownMenu();
 			break;
 		}
 		
@@ -2780,6 +2799,7 @@ public class OpenExplorer
 				refreshBookmarks();
 				notifyPager();
 				getDirContentFragment(false).refreshData();
+				toggleBookmarks(getSetting(null, "pref_show_bookmarks", getResources().getBoolean(R.bool.large)), false);
 				invalidateOptionsMenu();
 			}
 		} else if (requestCode == REQ_SPLASH) {

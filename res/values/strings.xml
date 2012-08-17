@@ -332,6 +332,7 @@
     <string name="use_system">Use System &gt;&gt;</string>
     <string name="activity_resolver_use_always">Always</string>
     <string name="activity_resolver_use_once">Just once</string>
+    <string name="s_pref_bookmarks_summary">Show Bookmarks</string>
     
     <plurals name="num_selected">
         <item quantity="one">One file selected</item>

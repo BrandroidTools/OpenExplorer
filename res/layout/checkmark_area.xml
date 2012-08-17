@@ -25,7 +25,6 @@
         android:paddingLeft="5dip"
         android:paddingRight="5dip"
         android:contentDescription="@string/s_menu_multi"
-        android:src="?attr/checkboxButtonOn"
-		android:visibility="gone"
+        android:src="?attr/checkboxButtonOff"
         />
 </RelativeLayout>
