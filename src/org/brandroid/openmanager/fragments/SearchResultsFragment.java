@@ -12,6 +12,7 @@ import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenPath.OpenPathThreadUpdater;
 import org.brandroid.openmanager.data.OpenSearch;
 import org.brandroid.openmanager.data.OpenSearch.SearchProgressUpdateListener;
+import org.brandroid.openmanager.util.EventHandler;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.utils.Logger;
 
@@ -48,11 +49,11 @@ public class SearchResultsFragment
 		setArguments(b);
 	}
 	
-	private class SearchTask extends AsyncTask<Void, Void, Void>
+	private class SearchTask extends AsyncTask<OpenPath, Integer, Integer> // Parameters specified for EventHandler compatibility
 	{
 
 		@Override
-		protected Void doInBackground(Void... params) {
+		protected Integer doInBackground(OpenPath... params) {
 			getSearch().setThreadUpdateCallback(new OpenPathThreadUpdater() {
 				@Override
 				public void update(String status) {
@@ -76,12 +77,12 @@ public class SearchResultsFragment
 		}
 		
 		@Override
-		protected void onProgressUpdate(Void... values) {
+		protected void onProgressUpdate(Integer... values) {
 			notifyDataSetChanged();
 		}
 		
 		@Override
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(Integer result) {
 			notifyDataSetChanged();
 		}
 		
@@ -177,11 +178,11 @@ public class SearchResultsFragment
 			ArrayList<Parcelable> results = b.getParcelableArrayList("results");
 			mPath = new OpenSearch(q, path, this, results);
 			//setArguments(b);
-			if(b.containsKey("running") && b.getBoolean("running")) myTask.execute();
+			if(b.containsKey("running") && b.getBoolean("running")) EventHandler.execute(myTask);
 		} else {
 			mPath = new OpenSearch(q, path, this);
 			if(myTask != null)
-				myTask.execute();
+				EventHandler.execute(myTask);
 		}
 		mContentAdapter = new ContentAdapter(getExplorer(), this, OpenExplorer.VIEW_LIST, getSearch());
 	}

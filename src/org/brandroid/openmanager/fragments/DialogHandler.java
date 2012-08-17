@@ -92,6 +92,7 @@ import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.interfaces.OpenContextProvider;
+import org.brandroid.openmanager.util.EventHandler;
 import org.brandroid.openmanager.util.OpenChromeClient;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
@@ -162,7 +163,8 @@ public class DialogHandler
 		
 		//if (file.isDirectory()) {
 			
-			new CountAllFilesTask(numDir, numFile, numSize, numFree, numTotal).execute(file);
+			new CountAllFilesTask(numDir, numFile, numSize, numFree, numTotal)
+					.execute(file);
 			
 		//} else {
 			//numFile.setText("-");
