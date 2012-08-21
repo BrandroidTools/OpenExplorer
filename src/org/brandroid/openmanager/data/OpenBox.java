@@ -321,6 +321,7 @@ public class OpenBox extends OpenNetworkPath
 
 	@Override
 	public Boolean canWrite() {
+		if(!super.canWrite()) return false;
 		return true;
 	}
 

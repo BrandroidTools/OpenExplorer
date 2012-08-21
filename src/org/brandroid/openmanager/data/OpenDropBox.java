@@ -247,6 +247,7 @@ public class OpenDropBox extends OpenNetworkPath
 
 	@Override
 	public Boolean canWrite() {
+		if(!super.canWrite()) return false;
 		if(mEntry != null)
 			return !mEntry.isDeleted;
 		return false;

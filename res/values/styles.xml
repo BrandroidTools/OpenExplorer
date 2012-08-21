@@ -180,7 +180,7 @@
         <item name="@android:windowExitAnimation">@anim/slide_out_left</item>
     </style>
     
-    <style name="Dialog" parent="Theme.Sherlock.Dialog" />
+    <style name="Dialog" parent="Theme.Sherlock" />
     
     <style name="Widget.ProgressBar.Horizontal" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:minHeight">16dip</item>

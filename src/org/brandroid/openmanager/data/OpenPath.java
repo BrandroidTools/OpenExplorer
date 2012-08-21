@@ -68,9 +68,18 @@ public abstract class OpenPath
 		return ((OpenPath[])list())[(int) index];
 		} catch(IOException e) { return null; }
 		}
+	
+	/**
+	 * Used to list cached files in directories. Use listFiles to ensure cache is current.
+	 * @return
+	 * @throws IOException
+	 */
 	public abstract OpenPath[] list() throws IOException;
 	
-	/* Provides a method to always get latest Files listing */
+	/**
+	 * Provides a method to always get latest Files listing.
+	 * @throws IOException
+	 */
 	public abstract OpenPath[] listFiles() throws IOException;
 	
 	public OpenPath[] listDirectories() throws IOException

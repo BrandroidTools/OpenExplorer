@@ -139,6 +139,7 @@ import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenPathArray;
+import org.brandroid.openmanager.data.OpenPathMerged;
 import org.brandroid.openmanager.data.OpenSFTP;
 import org.brandroid.openmanager.data.OpenSearch;
 import org.brandroid.openmanager.data.OpenSmartFolder;
@@ -306,7 +307,10 @@ public class OpenExplorer
 			mMusicParent = new OpenCursor("Music", MediaStore.Audio.Media.EXTERNAL_CONTENT_URI),
 			mApkParent = new OpenCursor("Apps", BEFORE_HONEYCOMB ? Uri.fromFile(OpenFile.getExternalMemoryDrive(true).getFile()) : MediaStore.Files.getContentUri("/mnt"));
 	private final static OpenSmartFolder
+			mVideoSearchParent = new OpenSmartFolder("Videos"),
 			mDownloadParent = new OpenSmartFolder("Downloads");
+	private final static OpenPathMerged
+			mVideosMerged = new OpenPathMerged("Videos");
 
 	
 	public boolean isViewPagerEnabled() { return mViewPagerEnabled; }
@@ -1667,9 +1671,9 @@ public class OpenExplorer
 		//if(mPhotoParent == null) refreshCursors();
 		return mPhotoParent;
 	}
-	public static final OpenCursor getVideoParent() {
+	public static final OpenPathMerged getVideoParent() {
 		//if(mVideoParent == null) refreshCursors();
-		return mVideoParent;
+		return mVideosMerged;
 	}
 	public static final OpenCursor getMusicParent() {
 		//if(mMusicParent == null) refreshCursors();
@@ -1682,10 +1686,15 @@ public class OpenExplorer
 	
 	private boolean findCursors()
 	{
-		mVideoParent.setName(getString(R.string.s_videos));
+		mVideosMerged.setName(getString(R.string.s_videos));
 		mPhotoParent.setName(getString(R.string.s_photos));
 		mMusicParent.setName(getString(R.string.s_music));
 		mDownloadParent.setName(getString(R.string.s_downloads));
+		
+		final OpenFile extDrive = OpenFile.getExternalMemoryDrive(false);
+		final OpenFile intDrive = OpenFile.getInternalMemoryDrive();
+		final boolean mHasExternal = extDrive != null && extDrive.exists();
+		final boolean mHasInternal = intDrive != null && intDrive.exists();
 		
 		if(mVideoParent.isLoaded())
 		{
@@ -1698,7 +1707,24 @@ public class OpenExplorer
 				Logger.LogVerbose("Finding videos");
 			//if(!IS_DEBUG_BUILD)
 			try {
+				mVideosMerged.addParent(mVideoParent);
+				mVideosMerged.addParent(mVideoSearchParent);
 				getSupportLoaderManager().initLoader(0, null, this);
+				new Thread(new Runnable(){public void run(){
+					if(mHasExternal)
+						for(OpenPath kid : extDrive.list())
+							if(kid.getName().toLowerCase().indexOf("movies")>-1||kid.getName().toLowerCase().indexOf("video")>-1)
+								mVideoSearchParent.addSearch(new SmartSearch(kid, SmartSearch.SearchType.TypeIn, "avi", "3gp", "mkv", "mp4"));
+					if(mHasInternal)
+						for(OpenPath kid : intDrive.list())
+							if(kid.getName().toLowerCase().indexOf("movies")>-1||kid.getName().toLowerCase().indexOf("video")>-1)
+								mVideoSearchParent.addSearch(new SmartSearch(kid, SmartSearch.SearchType.TypeIn, "avi", "3gp", "mkv", "mp4"));
+					try {
+						mVideosMerged.refreshKids();
+					} catch (IOException e) {
+						Logger.LogError("Couldn't refresh merged Videos");
+					}
+				}}).start();
 			} catch(Exception e) { Logger.LogError("Couldn't query videos.", e); }
 			Logger.LogDebug("Done looking for videos");
 		}
@@ -1734,16 +1760,6 @@ public class OpenExplorer
 		if(!mDownloadParent.isLoaded())
 		{
 			new Thread(new Runnable(){public void run(){
-				OpenFile extDrive = OpenFile.getExternalMemoryDrive(false);
-				OpenFile intDrive = OpenFile.getInternalMemoryDrive();
-				boolean mHasExternal = false;
-				boolean mHasInternal = false;
-				if(extDrive != null && extDrive.exists())
-					mHasExternal = true;
-				if(intDrive != null && intDrive.exists())
-					mHasInternal = true;
-					//OpenSmartFolder dlSmart = new OpenSmartFolder("Downloads");
-				
 				if(mHasExternal)
 					for(OpenPath kid : extDrive.list())
 						if(kid.getName().toLowerCase().indexOf("download")>-1)
@@ -2703,37 +2719,10 @@ public class OpenExplorer
 	
 	public void showPreferences(OpenPath path)
 	{
-		if(Build.VERSION.SDK_INT > 100)
-		{
-			FragmentTransaction ft = fragmentManager.beginTransaction();
-			OpenFragment frag = getSelectedFragment();
-			ft.hide(frag);
-			//ft.replace(R.id.content_frag, new PreferenceFragment(this, path));
-			ft.setBreadCrumbTitle("prefs://" + (path != null ? path.getPath() : ""));
-			ft.addToBackStack("prefs");
-			ft.commit();
-			final PreferenceFragmentV11 pf2 = new PreferenceFragmentV11(path);
-			getFragmentManager().addOnBackStackChangedListener(new android.app.FragmentManager.OnBackStackChangedListener() {
-				
-				public void onBackStackChanged() {
-					//android.app.FragmentTransaction ft3 = getFragmentManager().beginTransaction();
-					Logger.LogDebug("hide me!");
-					//getFragmentManager().removeOnBackStackChangedListener(this);
-					if(pf2 != null && pf2.getView() != null && getFragmentManager().getBackStackEntryCount() == 0)
-						pf2.getView().setVisibility(View.GONE);
-				}
-			});
-			android.app.FragmentTransaction ft2 = getFragmentManager().beginTransaction();
-			ft2.replace(R.id.content_pager_frame, pf2);
-			ft2.setBreadCrumbTitle("prefs");
-			ft2.addToBackStack("prefs");
-			ft2.commit();
-		} else {
-			Intent intent = new Intent(this, SettingsActivity.class);
-			if(path != null)
-				intent.putExtra("path", path.getPath());
-			startActivityForResult(intent, REQ_PREFERENCES);
-		}
+		Intent intent = new Intent(this, SettingsActivity.class);
+		if(path != null)
+			intent.putExtra("path", path.getPath());
+		startActivityForResult(intent, REQ_PREFERENCES);
 	}
 	
 	@Override
@@ -2812,7 +2801,7 @@ public class OpenExplorer
 				if(!start.equals(getCurrentPath().getPath()))
 				{
 					if("Videos".equals(start))
-						changePath(mVideoParent, true);
+						changePath(getVideoParent(), true);
 					else if("Photos".equals(start))
 						changePath(mPhotoParent, true);
 					else if("External".equals(start))
@@ -3496,7 +3485,7 @@ public class OpenExplorer
 				if(bRetrieveCursorFiles)
 				loader = new CursorLoader(
 					getApplicationContext(),
-					MediaStore.Files.getContentUri("/mnt"),
+					MediaStore.Files.getContentUri(OpenFile.getExternalMemoryDrive(true).getParent().getPath()),
 					new String[]{"_id", "_display_name", "_data", "_size", "date_modified"},
 					"_size > 10000 AND _data LIKE '%apk'", null,
 					"date modified DESC"
@@ -3525,6 +3514,12 @@ public class OpenExplorer
 		else if(l.getId() == 3)
 			mParent = mApkParent;
 		mParent.setCursor(c);
+		if(l.getId() == 0)
+			try {
+				mVideosMerged.refreshKids();
+			} catch (IOException e) {
+				Logger.LogError("Unable to merge videos after Cursor", e);
+			}
 		/*
 		mBookmarks.refresh();
 		OpenFragment f = getSelectedFragment();

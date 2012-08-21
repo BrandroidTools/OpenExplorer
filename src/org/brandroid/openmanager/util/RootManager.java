@@ -302,7 +302,8 @@ public class RootManager
 				while(mLastWrite != null) { Thread.sleep(10); }
 			} catch(InterruptedException e) { }
 			mLastWrite = cmd;
-			getSuProcess();
+			if(getSuProcess() == null) // No root
+				return;
 		
 			start();
 		

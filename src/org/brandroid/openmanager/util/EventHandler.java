@@ -945,6 +945,7 @@ public class EventHandler {
 				if(intoDir.length() > 0)
 					return true;
 			}*/
+			if(!intoDir.canWrite()) return false;
 			Logger.LogVerbose("EventHandler.copyToDirectory : Using Stream copy");
 			if (intoDir instanceof OpenCursor) {
 				try {

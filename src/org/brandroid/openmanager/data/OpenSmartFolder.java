@@ -115,6 +115,11 @@ public class OpenSmartFolder extends OpenPath
 	public long length() {
 		return mChildren.size();
 	}
+	
+	@Override
+	public int getListLength() {
+		return (int) length();
+	}
 
 	@Override
 	public OpenPath getParent() {
@@ -149,6 +154,16 @@ public class OpenSmartFolder extends OpenPath
 				for(OpenPath p : search.mParent.listFiles())
 					if(!mChildren.contains(p))
 						mChildren.add(p);
+				break;
+			case TypeIn:
+				ArrayList<String> types = new ArrayList<String>();
+				for(Object o : search.mParams)
+					if(o instanceof String && ((String)o).length() <= 8)
+						types.add(((String)o).toLowerCase());
+				for(OpenPath kid : search.mParent.listFiles())
+					if(types.contains(kid.getExtension().toLowerCase()))
+						if(!mChildren.contains(kid))
+							mChildren.add(kid);
 				break;
 			default:
 				throw new IOException("Type " + search.mType.toString() + " not yet implemented");

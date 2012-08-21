@@ -162,6 +162,7 @@ public class OpenSCP extends OpenNetworkPath
 
 	@Override
 	public Boolean canWrite() {
+		if(!super.canWrite()) return false;
 		return false;
 	}
 
