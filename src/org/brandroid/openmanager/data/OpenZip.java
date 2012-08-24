@@ -54,7 +54,7 @@ public class OpenZip extends OpenPath
 
 	@Override
 	public long length() {
-		return mZip.size();
+		return mFile.length();
 	}
 
 	@Override

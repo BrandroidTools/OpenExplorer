@@ -127,8 +127,6 @@ public abstract class OpenFragment
         		return ContentFragment.getInstance(path, args);
         	else if(fname.endsWith("TextEditorFragment"))
         		return TextEditorFragment.getInstance(path, args);
-        	else if(fname.endsWith("CarouselFragment"))
-        		return CarouselFragment.getInstance(args);
     	}
         return null;
     }
@@ -466,6 +464,7 @@ public abstract class OpenFragment
 	
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
+		if(!item.hasSubMenu())
 		queueToTracker(new Runnable() {public void run() {
 			if(getAnalyticsTracker() != null)
 				getAnalyticsTracker().trackEvent("Clicks", "MenuItem", item.getTitle().toString(), 1);

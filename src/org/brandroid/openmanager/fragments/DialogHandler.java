@@ -55,6 +55,8 @@ import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
@@ -81,6 +83,8 @@ import jcifs.smb.SmbFile;
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.activities.SettingsActivity;
+import org.brandroid.openmanager.adapters.HeatmapAdapter;
+import org.brandroid.openmanager.adapters.IconContextMenu;
 import org.brandroid.openmanager.data.BookmarkHolder;
 import org.brandroid.openmanager.data.OpenFTP;
 import org.brandroid.openmanager.data.OpenMediaStore;
@@ -92,6 +96,8 @@ import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.interfaces.OpenContextProvider;
+import org.brandroid.openmanager.util.BetterPopupWindow;
+import org.brandroid.openmanager.util.EventHandler;
 import org.brandroid.openmanager.util.OpenChromeClient;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
@@ -122,6 +128,55 @@ public class DialogHandler
 		
 		return v;
 	}
+	public static View createFileHeatmapDialog(final OpenApp app, LayoutInflater inflater, OpenPath file)
+	{
+		View v = inflater.inflate(R.layout.heatmap_layout, null);
+		
+		final HeatmapAdapter adapter = new HeatmapAdapter(app, file);
+		
+		ListView lv = (ListView)v.findViewById(android.R.id.list);
+		final TextView mTotalSize = (TextView)v.findViewById(R.id.heatmap_total);
+		Button mRefresh = (Button)v.findViewById(R.id.heatmap_refresh);
+		mRefresh.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				adapter.notifyDataSetChanged();
+			}
+		});
+		
+		adapter.setHeatmapCallback(new HeatmapAdapter.HeatmapCallback() {
+			@Override
+			public void OnHeatmapTasksComplete(long mTotalBytes, boolean allDone) {
+				mTotalSize.setText(app.getContext().getResources().getString(R.string.s_size) + ": " + formatSize(mTotalBytes) + (allDone ? "" : "..."));
+			}
+		});
+		
+		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				OpenPath path = adapter.getItem(position);
+				if(path.isDirectory())
+					showFileHeatmap(app, path);
+			}
+		});
+		
+		lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				OpenPath path = adapter.getItem(position);
+				IconContextMenu icm = new IconContextMenu(app.getContext(), R.menu.context_file, view);
+				icm.show();
+				return true;
+			}
+		});
+		
+		lv.setAdapter(adapter);
+		
+		return v;
+	}
 	public static String formatSize(long size) { return formatSize(size, true); }
 	public static String formatSize(long size, boolean includeUnits) { return formatSize(size, 2, includeUnits); }
 	public static String formatSize(long size, int decimalPoints) { return formatSize(size, decimalPoints, true); }
@@ -144,7 +199,7 @@ public class DialogHandler
 		
 		return ssize;
 	}
-	
+
 	public static void populateFileInfoViews(OpenApp app, View v, OpenPath file) throws IOException {
 			
 		String apath = file.getAbsolutePath();
@@ -162,7 +217,8 @@ public class DialogHandler
 		
 		//if (file.isDirectory()) {
 			
-			new CountAllFilesTask(numDir, numFile, numSize, numFree, numTotal).execute(file);
+			new CountAllFilesTask(numDir, numFile, numSize, numFree, numTotal)
+					.execute(file);
 			
 		//} else {
 			//numFile.setText("-");
@@ -180,6 +236,10 @@ public class DialogHandler
 			((ImageView)v.findViewById(R.id.info_icon)).setImageResource(R.drawable.lg_folder);
 		else
 			((ImageView)v.findViewById(R.id.info_icon)).setImageDrawable(getFileIcon(app, file, false));
+	}
+
+	public static void populateFileHeatmapList(OpenApp app, View v, OpenPath file)
+	{
 	}
 	
 	public static Drawable getFileIcon(OpenApp app, OpenPath file, boolean largeSize) {
@@ -348,6 +408,23 @@ public class DialogHandler
 		//DialogHandler dialogInfo = DialogHandler.newDialog(DialogHandler.DialogType.FILEINFO_DIALOG, this);
 		//dialogInfo.setFilePath(path.getPath());
 		//dialogInfo.show(fragmentManager, "info");
+	}
+	
+	public static void showFileHeatmap(final OpenApp app, final OpenPath path)
+	{
+		final Context mContext = app.getContext();
+		try {
+		new AlertDialog.Builder(mContext)
+			.setView(createFileHeatmapDialog(app, (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE), path))
+			.setTitle(path.getName())
+			.setIcon(new BitmapDrawable(mContext.getResources(),
+						path.getThumbnail(app, ContentFragment.mListImageSize, ContentFragment.mListImageSize)
+							.get()))
+			.create()
+			.show();
+		} catch(Exception e) {
+			Logger.LogError("Couldn't show File Info.", e);
+		}
 	}
 
 	/**

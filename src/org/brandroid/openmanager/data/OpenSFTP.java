@@ -265,6 +265,7 @@ public class OpenSFTP extends OpenNetworkPath
 
 	@Override
 	public Boolean canWrite() {
+		if(!super.canWrite()) return false;
 		return mAttrs != null && (mAttrs.getPermissions() & SftpATTRS.S_IWUSR) != 0;
 	}
 

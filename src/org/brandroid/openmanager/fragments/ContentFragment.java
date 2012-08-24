@@ -34,6 +34,7 @@ import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateListener;
 import org.brandroid.openmanager.util.EventHandler;
 import org.brandroid.openmanager.util.NetworkIOTask;
 import org.brandroid.openmanager.util.NetworkIOTask.OnTaskUpdateListener;
+import org.brandroid.openmanager.util.SortType.Type;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.InputDialog;
 import org.brandroid.openmanager.util.IntentManager;
@@ -361,7 +362,7 @@ public class ContentFragment extends OpenFragment
 				if(mViewMode != null)
 					tracker.setCustomVar(3, "View", mViewMode.toString(), 3);
 				if(getSorting() != null)
-					tracker.setCustomVar(4, "Sort", getSorting().toString(), 3);
+					tracker.setCustomVar(3, "Sort", getSorting().toString(), 3);
 			}
 		}});
 		super.onAttach(activity);
@@ -484,9 +485,9 @@ public class ContentFragment extends OpenFragment
 		}
 		
 		if(path instanceof OpenFile &&
-				(path.getName().equalsIgnoreCase("data") ||
-				path.getPath().indexOf("/data") > -1 ||
-				path.getPath().indexOf("/system") > -1))
+				(((path.getName().equalsIgnoreCase("data") ||
+				path.getPath().indexOf("/data") > -1) && !path.getPath().startsWith(OpenFile.getExternalMemoryDrive(true).getParent().getPath()))
+				|| path.getPath().startsWith("/system")))
 			path = new OpenFileRoot(path);
 		
 		mPath = path;
@@ -612,10 +613,7 @@ public class ContentFragment extends OpenFragment
 		*/
 		Logger.LogDebug("Running Task for " + sPath);
 		NetworkIOTask.addTask(sPath, mTask);
-		if(OpenExplorer.BEFORE_HONEYCOMB)
-			mTask.execute(mPath);
-		else
-			mTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mPath);
+		EventHandler.executeNetwork(mTask, mPath);
 		new Thread(new Runnable(){
 			@Override
 			public void run() {
@@ -765,11 +763,14 @@ public class ContentFragment extends OpenFragment
 		
 		if(file instanceof OpenNetworkPath && getActionMode() == null)
 		{
-			if(file.isTextFile() && file.length() < Preferences.Pref_Text_Max_Size && getExplorer() != null)
-				getExplorer().editFile(file);
-			else
-				downloadFile((OpenNetworkPath)file);
-			return;
+			if(file.isTextFile())
+			{
+				if(file.length() < Preferences.Pref_Text_Max_Size && getExplorer() != null)
+					getExplorer().editFile(file);
+				else
+					downloadFile((OpenNetworkPath)file);
+				return;
+			}
 		}
 		
 		if(file.isDirectory() && getActionMode() == null) {
@@ -1002,7 +1003,7 @@ public class ContentFragment extends OpenFragment
 		if(item == null) return false;
 		if(super.onOptionsItemSelected(item)) return true;
 		if(DEBUG)
-			Logger.LogDebug("ContentFragment.onOptionsItemSelected(" + item + ")");
+			Logger.LogDebug("ContentFragment.onOptionsItemSelected(0x" + Integer.toHexString(item.getItemId()) + ":" + item.getTitle() + ")");
 		OpenPath path = null;
 		if(mMenuContextItemIndex > -1 && mMenuContextItemIndex < getContentAdapter().getCount())
 			path = getContentAdapter().getItem(mMenuContextItemIndex);
@@ -1013,19 +1014,22 @@ public class ContentFragment extends OpenFragment
 		case R.id.menu_sort:
 		case R.id.menu_view:
 			return true;
+		case R.id.menu_context_heatmap:
+			DialogHandler.showFileHeatmap(getExplorer(), getPath());
+			return true;
 		case R.id.menu_new_file:
 			EventHandler.createNewFile(getPath(), getActivity());
 			return true;
 		case R.id.menu_new_folder:
 			EventHandler.createNewFolder(getPath(), getActivity());
 			return true;
-		case R.id.menu_sort_name_asc:	onSortingChanged(SortType.ALPHA); return true; 
-		case R.id.menu_sort_name_desc:	onSortingChanged(SortType.ALPHA_DESC); return true; 
-		case R.id.menu_sort_date_asc: 	onSortingChanged(SortType.DATE); return true;
-		case R.id.menu_sort_date_desc: 	onSortingChanged(SortType.DATE_DESC); return true; 
-		case R.id.menu_sort_size_asc: 	onSortingChanged(SortType.SIZE); return true; 
-		case R.id.menu_sort_size_desc: 	onSortingChanged(SortType.SIZE_DESC); return true; 
-		case R.id.menu_sort_type: 		onSortingChanged(SortType.TYPE); return true;
+		case R.id.menu_sort_name_asc:	onSortingChanged(SortType.Type.ALPHA); return true; 
+		case R.id.menu_sort_name_desc:	onSortingChanged(SortType.Type.ALPHA_DESC); return true; 
+		case R.id.menu_sort_date_asc: 	onSortingChanged(SortType.Type.DATE); return true;
+		case R.id.menu_sort_date_desc: 	onSortingChanged(SortType.Type.DATE_DESC); return true; 
+		case R.id.menu_sort_size_asc: 	onSortingChanged(SortType.Type.SIZE); return true; 
+		case R.id.menu_sort_size_desc: 	onSortingChanged(SortType.Type.SIZE_DESC); return true; 
+		case R.id.menu_sort_type: 		onSortingChanged(SortType.Type.TYPE); return true;
 		case R.id.menu_view_hidden:
 			onHiddenFilesChanged(!getShowHiddenFiles());
 			return true;
@@ -1260,6 +1264,11 @@ public class ContentFragment extends OpenFragment
 			
 			case R.id.menu_context_info:
 				DialogHandler.showFileInfo(getExplorer(), file);
+				finishMode(mode);
+				return true;
+				
+			case R.id.menu_context_heatmap:
+				DialogHandler.showFileHeatmap(getExplorer(), file);
 				finishMode(mode);
 				return true;
 				
@@ -1604,7 +1613,7 @@ public class ContentFragment extends OpenFragment
 				}
 			else {
 				//if(mProgressBarLoading == null) mProgressBarLoading = getView().findViewById(R.id.content_progress);
-				new NetworkIOTask(this).execute(mPath);
+				EventHandler.executeNetwork(new NetworkIOTask(this), mPath);
 			}
 			
 			//changePath(mPath, false);
@@ -1658,7 +1667,7 @@ public class ContentFragment extends OpenFragment
 	
 	public void onFoldersFirstChanged(boolean first)
 	{
-		setSorting(getSorting().setFoldersFirst(first));
+		setSorting(null, first, null);
 		refreshData(null, false);
 	}
 	public void onHiddenFilesChanged()
@@ -1670,7 +1679,7 @@ public class ContentFragment extends OpenFragment
 	{
 		Logger.LogInfo("onHiddenFilesChanged(" + toShow + ")");
 		saveTopPath();
-		setSorting(getSorting().setShowHiddenFiles(toShow));
+		setSorting(null, null, toShow);
 		//getManager().setShowHiddenFiles(state);
 		refreshData(new Bundle(), false);
 	}
@@ -1686,20 +1695,22 @@ public class ContentFragment extends OpenFragment
 	}
 	
 	//@Override
-	public void onSortingChanged(SortType type) {
-		setSorting(type);
+	public void onSortingChanged(SortType.Type type) {
+		setSorting(type, null, null);
 		//getManager().setSorting(type);
 		refreshData(new Bundle(), false);
 	}
 	
-	public void setSorting(SortType type)
+	public void setSorting(SortType.Type newType, Boolean foldersFirst, Boolean showHidden)
 	{
-		SortType old = type;
-		if(getContentAdapter() != null)
-			old = getContentAdapter().getSorting();
-		old.setType(type.getType());
-		getContentAdapter().setSorting(old);
-		setViewSetting(mPath, "sort", type.toString());
+		SortType newSort = getContentAdapter() != null ? getContentAdapter().getSorting() : SortType.ALPHA;
+		newSort.setType(newType)
+			.setFoldersFirst(foldersFirst)
+			.setShowHiddenFiles(showHidden);
+		
+		setViewSetting(mPath, "sort", newSort.toString());
+		
+		getContentAdapter().setSorting(newSort);
 	}
 	
 	public void setShowThumbnails(boolean thumbs)
@@ -1710,9 +1721,7 @@ public class ContentFragment extends OpenFragment
 	
 	public void setSettings(SortType sort, boolean thumbs, boolean hidden)
 	{
-		setSorting(sort);
-		setShowThumbnails(thumbs);
-		setSorting(getSorting().setShowHiddenFiles(hidden));
+		setSorting(sort.getType(), thumbs, hidden);
 		
 		refreshData(new Bundle(), false);
 	}

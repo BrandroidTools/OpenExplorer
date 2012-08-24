@@ -28,6 +28,7 @@ import org.brandroid.openmanager.data.OpenPath.NeedsTempFile;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.util.BetterPopupWindow;
+import org.brandroid.openmanager.util.EventHandler;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.openmanager.views.SeekBarActionView;
@@ -479,7 +480,7 @@ public class TextEditorFragment extends OpenFragment
 		mTask = new FileSaveTask(mPath);
 		if(mDirty)
 			mData = mEditText.getText().toString();
-		((FileSaveTask)mTask).execute(mData);
+		EventHandler.execute((FileSaveTask)mTask, mData);
 	}
 	
 	private void doSaveAs()
@@ -560,7 +561,7 @@ public class TextEditorFragment extends OpenFragment
 			mTask = new FileSaveTask(mPath);
 			if(mDirty)
 				mData = mEditText.getText().toString();
-			((FileSaveTask)mTask).execute(mData);
+			EventHandler.execute((FileSaveTask)mTask, mData);
 			notifyPager();
 		}
 	}

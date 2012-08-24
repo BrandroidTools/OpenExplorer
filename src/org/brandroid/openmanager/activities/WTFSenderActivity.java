@@ -107,7 +107,7 @@ public class WTFSenderActivity extends Activity
 		{
 		case R.id.wtf_yes:
 			if(crashFile != null && crashFile.exists())
-				new SubmitStatsTask(this).execute(crashFile.readAscii());
+				EventHandler.execute(new SubmitStatsTask(this), crashFile.readAscii());
 			String version = "?";
 			try {
 				version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;

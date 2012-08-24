@@ -4,7 +4,5 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry kind="lib" path="assets/httpmime-4.0.3.jar"/>
-	<classpathentry kind="lib" path="assets/json_simple-1.1.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

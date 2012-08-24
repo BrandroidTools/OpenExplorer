@@ -45,6 +45,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.io.BufferedInputStream;
@@ -57,6 +59,7 @@ import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.BluetoothActivity;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.OpenCursor;
+import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenSMB;
@@ -210,7 +213,7 @@ public class EventHandler {
 					+ getResourceString(mContext, R.string.s_files);
 
 		if (!showConfirmation) {
-			new BackgroundWork(DELETE_TYPE, mContext, null).execute(files);
+			execute(new BackgroundWork(DELETE_TYPE, mContext, null),files);
 			return;
 		}
 		AlertDialog.Builder b = new AlertDialog.Builder(mContext);
@@ -226,8 +229,7 @@ public class EventHandler {
 						new OnClickListener() {
 							public void onClick(DialogInterface dialog,
 									int which) {
-								new BackgroundWork(DELETE_TYPE, mContext, null)
-										.execute(files);
+								execute(new BackgroundWork(DELETE_TYPE, mContext, null), files);
 							}
 						})
 				.setNegativeButton(
@@ -275,7 +277,7 @@ public class EventHandler {
 						BackgroundWork work = new BackgroundWork(RENAME_TYPE,
 								mContext, path, newName);
 						if (newName.length() > 0) {
-							work.execute();
+							execute(work);
 						} else
 							dialog.dismiss();
 					}
@@ -435,8 +437,7 @@ public class EventHandler {
 	public void copyFile(OpenPath source, OpenPath destPath, Context mContext) {
 		if (!destPath.isDirectory())
 			destPath = destPath.getParent();
-		new BackgroundWork(COPY_TYPE, mContext, destPath, source.getName())
-				.execute(source);
+		execute(new BackgroundWork(COPY_TYPE, mContext, destPath, source.getName()), source);
 	}
 
 	public void copyFile(Collection<OpenPath> files, OpenPath newPath,
@@ -448,18 +449,59 @@ public class EventHandler {
 				+ mContext.getString(R.string.s_files);
 		if (array.length == 1)
 			title = array[0].getPath();
-		new BackgroundWork(COPY_TYPE, mContext, newPath, title).execute(array);
+		execute(new BackgroundWork(COPY_TYPE, mContext, newPath, title), array);
+	}
+
+	public static AsyncTask execute(AsyncTask job)
+	{
+		if(OpenExplorer.BEFORE_HONEYCOMB)
+			job.execute();
+		else
+			job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		return job;
+	}
+	public static AsyncTask execute(AsyncTask job, OpenFile... params)
+	{
+		if(OpenExplorer.BEFORE_HONEYCOMB)
+			job.execute(params);
+		else
+			job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+		return job;
+	}
+	public static AsyncTask<OpenPath, Integer, Integer> execute(AsyncTask<OpenPath, Integer, Integer> job, OpenPath... params)
+	{
+		if(OpenExplorer.BEFORE_HONEYCOMB)
+			job.execute(params);
+		else
+			job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+		return job;
+	}
+	public static NetworkIOTask executeNetwork(NetworkIOTask job, OpenPath... params)
+	{
+		if(OpenExplorer.BEFORE_HONEYCOMB)
+			job.execute(params);
+		else
+			job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+		return job;
+	}
+	public static AsyncTask execute(AsyncTask job, String... params)
+	{
+		if(OpenExplorer.BEFORE_HONEYCOMB)
+			job.execute(params);
+		else
+			job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+		return job;
 	}
 
 	public void cutFile(Collection<OpenPath> files, OpenPath newPath, Context mContext) {
 		OpenPath[] array = new OpenPath[files.size()];
 		files.toArray(array);
 
-		new BackgroundWork(CUT_TYPE, mContext, newPath).execute(array);
+		execute(new BackgroundWork(CUT_TYPE, mContext, newPath),array);
 	}
 
 	public void searchFile(OpenPath dir, String query, Context mContext) {
-		new BackgroundWork(SEARCH_TYPE, mContext, dir, query).execute();
+		execute(new BackgroundWork(SEARCH_TYPE, mContext, dir, query));
 	}
 
 	public BackgroundWork zipFile(OpenPath into, Collection<OpenPath> files,
@@ -469,9 +511,7 @@ public class EventHandler {
 
 	public BackgroundWork zipFile(OpenPath into, OpenPath[] files,
 			Context mContext) {
-		BackgroundWork bw = new BackgroundWork(ZIP_TYPE, mContext, into);
-		bw.execute(files);
-		return bw;
+		return (BackgroundWork)execute(new BackgroundWork(ZIP_TYPE, mContext, into), files);
 	}
 
 	public void unzipFile(final OpenPath file, final Context mContext) {
@@ -497,8 +537,7 @@ public class EventHandler {
 						}
 						Logger.LogVerbose("Unzipping " + file.getPath()
 								+ " into " + path);
-						new BackgroundWork(UNZIP_TYPE, mContext, path)
-								.execute(file);
+						execute(new BackgroundWork(UNZIP_TYPE, mContext, path), file);
 					}
 				}).setNegativeButton(android.R.string.cancel, null)
 				.setDefaultText(into.getPath()).create().show();
@@ -906,6 +945,7 @@ public class EventHandler {
 				if(intoDir.length() > 0)
 					return true;
 			}*/
+			if(!intoDir.canWrite()) return false;
 			Logger.LogVerbose("EventHandler.copyToDirectory : Using Stream copy");
 			if (intoDir instanceof OpenCursor) {
 				try {

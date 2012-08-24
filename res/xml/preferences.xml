@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 		android:title="@string/s_menu_prefs_global">
         
-	<PreferenceCategory android:title="@string/s_pref_display">
+	<PreferenceCategory android:key="display" android:title="@string/s_pref_display">
 	    <CheckBoxPreference
 	        android:key="pref_theme"
 	        android:title="@string/theme"
@@ -33,6 +33,11 @@
 			android:entries="@array/view"
 			android:entryValues="@array/view_value"
 			android:dialogTitle="@string/s_pref_view" />
+		<CheckBoxPreference
+		    android:key="pref_show_bookmarks"
+		    android:title="@string/s_bookmarks"
+		    android:summary="@string/s_pref_bookmarks_summary"
+		    android:defaultValue="@bool/large"/>
         <!-- <PreferenceScreen
             android:key="pref_reset_views"
             android:title="@string/s_pref_reset" 
@@ -51,6 +56,15 @@
 		    android:enabled="@bool/allow_fullscreen"
 		    android:defaultValue="false"
 		    />
+
+        <CheckBoxPreference
+            android:key="pref_actionmode"
+            android:title="@string/s_pref_actionmode"
+            android:defaultValue="true"
+            android:enabled="false"
+            android:summaryOn="@string/s_pref_actionmode_enabled"
+            android:summaryOff="@string/s_pref_actionmode_disabled"
+            />
 		<CheckBoxPreference
 		    android:key="pref_showup"
 		    android:title="@string/s_pref_showup"
@@ -67,7 +81,7 @@
 		    android:enabled="@bool/prehoneycomb"
 		    /> -->
 	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/s_pref_sort">
+	<PreferenceCategory android:key="sort" android:title="@string/s_pref_sort">
 		<ListPreference
 			android:key="pref_sorting"
 			android:title="@string/s_pref_sort"
@@ -83,7 +97,7 @@
 			
 	</PreferenceCategory>
 	
-	<PreferenceCategory android:title="@string/s_text_editor_title">
+	<PreferenceCategory android:key="text_editor" android:title="@string/s_text_editor_title">
 	    <PreferenceScreen
 	        android:key="text_size"
 	        android:title="@string/s_view_font_size"
@@ -102,7 +116,7 @@
 	        />
 	</PreferenceCategory>
 	
-	<PreferenceCategory android:title="@string/s_pref_view_category">
+	<PreferenceCategory android:key="bookmarks" android:title="@string/s_pref_view_category">
         <CheckBoxPreference
             android:key="pref_show_root"
             android:title="@string/s_pref_show_root"
@@ -139,7 +153,7 @@
             android:defaultValue="true" 
             />
 	</PreferenceCategory>
-	    <PreferenceCategory android:title="@string/s_pref_advanced">
+	    <PreferenceCategory android:key="advanced" android:title="@string/s_pref_advanced">
 	        <CheckBoxPreference
 	            android:key="pref_root"
 	            android:title="@string/s_menu_root"
@@ -186,26 +200,14 @@
 	            android:summary="@string/s_pref_autowtf_summary"
 	            android:defaultValue="false" 
 	            />
-	    </PreferenceCategory>
-	    
-	
-		<PreferenceCategory
-		    android:key="pref_honeyplus" android:title="@string/s_pref_honeyplus"
-		    android:enabled="@bool/honeycomb">
-	        <CheckBoxPreference
-	            android:key="pref_actionmode"
-	            android:title="@string/s_pref_actionmode"
-	            android:defaultValue="false"
-	            android:enabled="false"
-	            android:summaryOn="@string/s_pref_actionmode_enabled"
-	            android:summaryOff="@string/s_pref_actionmode_disabled"
-	            />
 	        <CheckBoxPreference
 	            android:key="pref_hardware_accel"
 	            android:title="@string/s_pref_hardware_accel"
+		    	android:enabled="@bool/honeycomb"
 	            android:defaultValue="false"
 	            />
-		</PreferenceCategory>
+	    </PreferenceCategory>
+	    
 	
 	<PreferenceCategory android:key="servers" android:title="@string/s_pref_servers">
     	<PreferenceScreen android:key="server_add"

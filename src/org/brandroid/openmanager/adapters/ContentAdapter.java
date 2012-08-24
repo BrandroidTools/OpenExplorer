@@ -1,24 +1,16 @@
 package org.brandroid.openmanager.adapters;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.BookmarkHolder;
-import org.brandroid.openmanager.data.OpenCursor;
-import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenPath;
-import org.brandroid.openmanager.data.OpenSearch;
-import org.brandroid.openmanager.data.OpenSmartFolder;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.openmanager.util.ThumbnailCreator;
@@ -31,22 +23,15 @@ import org.brandroid.utils.ViewUtils;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Handler;
-import android.os.Message;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.LinearLayout;
 
 
 
@@ -184,9 +169,9 @@ public class ContentAdapter extends BaseAdapter {
 	private OpenPath[] getList() {
 		try {
 			if(mParent.requiresThread() && Thread.currentThread().equals(OpenExplorer.UiThread))
-				return null;
-			else
 				return mParent.list();
+			else
+				return mParent.listFiles();
 		} catch (IOException e) {
 			Logger.LogError("Couldn't getList in ContentAdapter");
 			return null;
@@ -350,7 +335,7 @@ public class ContentAdapter extends BaseAdapter {
 		
 		//row.setTag(file);
 		boolean mChecked = (mSelectedSet != null && mSelectedSet.contains(file));
-		boolean mShowCheck = mChecked || (mSelectedSet != null && mSelectedSet.size() > 0);
+		boolean mShowCheck = true; //mChecked || (mSelectedSet != null && mSelectedSet.size() > 0);
 		boolean mShowClip = mApp.getClipboard().contains(file);
 
 		if(mShowClip)
@@ -362,7 +347,16 @@ public class ContentAdapter extends BaseAdapter {
 					v.setVisibility(View.GONE);
 				}
 			}, R.id.content_clipboard);
-		} else ViewUtils.setViewsVisible(row, false, R.id.content_clipboard);
+		} else {
+			ViewUtils.setViewsVisible(row, false, R.id.content_clipboard);
+			ViewUtils.setOnClicks(row, new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					toggleSelected(file);
+				}
+			}, R.id.checkmark_area);
+		}
+				
 		if(mCheck != null) mCheck.setImageResource(mChecked ? checkboxOnId : checkboxOffId);
 		ViewUtils.setViewsVisible(row, mShowCheck, R.id.content_check);
 

@@ -18,6 +18,7 @@ import org.brandroid.utils.Logger;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.view.ViewPager;
@@ -111,6 +112,14 @@ public class SearchResultsFragment
 			myTask.cancel(true);
 	}
 	
+	private void executeMyTask()
+	{
+		if(Build.VERSION.SDK_INT > 10)
+			myTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		else
+			myTask.execute();
+	}
+	
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -177,11 +186,11 @@ public class SearchResultsFragment
 			ArrayList<Parcelable> results = b.getParcelableArrayList("results");
 			mPath = new OpenSearch(q, path, this, results);
 			//setArguments(b);
-			if(b.containsKey("running") && b.getBoolean("running")) myTask.execute();
+			if(b.containsKey("running") && b.getBoolean("running")) executeMyTask();
 		} else {
 			mPath = new OpenSearch(q, path, this);
 			if(myTask != null)
-				myTask.execute();
+				executeMyTask();
 		}
 		mContentAdapter = new ContentAdapter(getExplorer(), this, OpenExplorer.VIEW_LIST, getSearch());
 	}
@@ -190,7 +199,7 @@ public class SearchResultsFragment
 	public void onStart() {
 		super.onStart();
 		if(myTask.getStatus() == Status.RUNNING) return;
-		//myTask.execute();
+		//executeMyTask();
 	}
 	
 	@Override

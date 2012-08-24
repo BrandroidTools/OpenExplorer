@@ -24,6 +24,7 @@ import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
+import org.brandroid.openmanager.data.OpenPathMerged;
 import org.brandroid.openmanager.data.OpenSCP;
 import org.brandroid.openmanager.data.OpenSFTP;
 import org.brandroid.openmanager.data.OpenSMB;
@@ -333,7 +334,7 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 	public String getPathTitleDefault(OpenPath file)
 	{
 		if(file.getDepth() > 4) return file.getName();
-		if(file instanceof OpenCursor || file instanceof OpenMediaStore) return file.getName();
+		if(file instanceof OpenCursor || file instanceof OpenMediaStore || file instanceof OpenPathMerged) return file.getName();
 		String path = file.getPath().toLowerCase();
 		if(path.equals("/"))
 			return "/";
@@ -394,6 +395,7 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 		if(path instanceof OpenCursor ||
 				path instanceof OpenNetworkPath ||
 				path instanceof OpenSmartFolder ||
+				path instanceof OpenPathMerged ||
 				path.exists())
 		{
 			addBookmark(type, path);
@@ -510,7 +512,7 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 			|| mPath.equals(OpenFile.getExternalMemoryDrive(false))
 			|| mPath.equals(OpenFile.getInternalMemoryDrive()))
 			removeId = R.string.s_hide;
-		else if(mPath instanceof OpenMediaStore || mPath instanceof OpenCursor)
+		else if(mPath instanceof OpenMediaStore || mPath instanceof OpenCursor || mPath instanceof OpenPathMerged)
 			removeId = R.string.s_hide;
 		final int idRemove = removeId;
 		
@@ -706,7 +708,7 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 			
 			if(mCountText != null)
 			{
-				if(path instanceof OpenSmartFolder)
+				if(path instanceof OpenSmartFolder || path instanceof OpenPathMerged)
 				{
 					if(!mCountText.isShown())
 						mCountText.setVisibility(View.VISIBLE);

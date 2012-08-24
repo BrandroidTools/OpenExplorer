@@ -47,7 +47,7 @@ public class SortType {
 		ALPHA_DESC
 	}
 	
-	public static SortType NONE = new SortType(Type.NONE),
+	public static final SortType NONE = new SortType(Type.NONE),
 			ALPHA = new SortType(Type.ALPHA),
 			TYPE = new SortType(Type.TYPE),
 			SIZE = new SortType(Type.SIZE),
@@ -56,15 +56,19 @@ public class SortType {
 			DATE_DESC = new SortType(Type.DATE_DESC),
 			ALPHA_DESC = new SortType(Type.ALPHA_DESC);
 
-	public SortType setShowHiddenFiles(boolean hidden) {
-		mShowHiddenFiles = hidden;
+	public SortType setShowHiddenFiles(Boolean hidden) {
+		if(hidden != null)
+			mShowHiddenFiles = hidden;
 		return this;
 	}
-	public SortType setFoldersFirst(boolean first) {
-		mFoldersFirst = first;
+	public SortType setFoldersFirst(Boolean first) {
+		if(first != null)
+			mFoldersFirst = first;
 		return this;
 	}
-	public void setType(Type which) {
-		mWhich = which;
+	public SortType setType(Type which) {
+		if(which != null)
+			mWhich = which;
+		return this;
 	}
 }

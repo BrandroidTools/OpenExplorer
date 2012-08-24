@@ -118,6 +118,12 @@
 				android:icon="@drawable/ic_menu_info_details"
 				/>
 		    <item
+		        android:id="@+id/menu_context_heatmap"
+		        android:title="@string/s_menu_heatmap"
+        		android:icon="@drawable/ic_menu_heatmap"
+		        android:showAsAction="ifRoom"
+		        />
+		    <item
 		    	android:id="@+id/menu_context_bookmark"
 				android:title="@string/s_menu_bookmark"
 				android:icon="@drawable/ic_menu_star"

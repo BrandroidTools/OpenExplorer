@@ -66,6 +66,11 @@ public abstract class OpenNetworkPath extends OpenPath
 	}
 	
 	@Override
+	public Boolean canWrite() {
+		return false; // disable network writing until we can get it fixed
+	}
+	
+	@Override
 	public final Boolean requiresThread() {
 		return true;
 	}

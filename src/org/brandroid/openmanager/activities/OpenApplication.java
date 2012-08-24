@@ -221,8 +221,8 @@ public class OpenApplication extends Application implements OpenApp {
 						e.printStackTrace();
 					}
 					mTracker.setCustomVar(1, "SDK", Build.VERSION.SDK, 1);
-					mTracker.setCustomVar(2, "Display", Build.DISPLAY, 1);
-					mTracker.setCustomVar(3, "Version", (pi2 != null ? pi2.versionName : VERSION) + (IS_DEBUG_BUILD ? "-debug" : ""));
+					mTracker.setCustomVar(1, "Display", Build.DISPLAY, 1);
+					mTracker.setCustomVar(1, "Version", (pi2 != null ? pi2.versionName : VERSION) + (IS_DEBUG_BUILD ? "-debug" : ""));
 				}
 			});
 		}

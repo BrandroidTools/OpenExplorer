@@ -332,6 +332,7 @@ public class OpenSMB extends OpenNetworkPath
 
 	@Override
 	public Boolean canWrite() {
+		if(!super.canWrite()) return false;
 		try {
 			if(mAttributes != null)
 				return (mAttributes & SmbFile.ATTR_READONLY) == 0;

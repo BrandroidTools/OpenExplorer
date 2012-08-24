@@ -139,11 +139,11 @@ import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenPathArray;
+import org.brandroid.openmanager.data.OpenPathMerged;
 import org.brandroid.openmanager.data.OpenSFTP;
 import org.brandroid.openmanager.data.OpenSearch;
 import org.brandroid.openmanager.data.OpenSmartFolder;
 import org.brandroid.openmanager.data.OpenSmartFolder.SmartSearch;
-import org.brandroid.openmanager.fragments.CarouselFragment;
 import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.fragments.ContentFragment;
 import org.brandroid.openmanager.fragments.LogViewerFragment;
@@ -227,6 +227,7 @@ public class OpenExplorer
 	public static final int VIEW_CAROUSEL = 2;
 	
 	public static final boolean BEFORE_HONEYCOMB = Build.VERSION.SDK_INT < 11;
+	public static final boolean SDK_JELLYBEAN = Build.VERSION.SDK_INT > 15;
 	public static boolean CAN_DO_CAROUSEL = false;
 	public static boolean USE_ACTION_BAR = false;
 	public static boolean USE_SPLIT_ACTION_BAR = true;
@@ -305,7 +306,10 @@ public class OpenExplorer
 			mMusicParent = new OpenCursor("Music", MediaStore.Audio.Media.EXTERNAL_CONTENT_URI),
 			mApkParent = new OpenCursor("Apps", BEFORE_HONEYCOMB ? Uri.fromFile(OpenFile.getExternalMemoryDrive(true).getFile()) : MediaStore.Files.getContentUri("/mnt"));
 	private final static OpenSmartFolder
+			mVideoSearchParent = new OpenSmartFolder("Videos"),
 			mDownloadParent = new OpenSmartFolder("Downloads");
+	private final static OpenPathMerged
+			mVideosMerged = new OpenPathMerged("Videos");
 
 	
 	public boolean isViewPagerEnabled() { return mViewPagerEnabled; }
@@ -503,8 +507,9 @@ public class OpenExplorer
 		
 		if(findViewById(R.id.list_frag) == null)
 			mSinglePane = true;
-		else if(findViewById(R.id.list_frag).getVisibility() == View.GONE)
-			mSinglePane = true;
+		
+		setViewVisibility(getSetting(null, "pref_show_bookmarks", getResources().getBoolean(R.bool.large)),
+				false, R.id.list_frag);
 
 		Logger.LogDebug("Looking for path");
 		OpenPath path = mLastPath;
@@ -545,7 +550,7 @@ public class OpenExplorer
 
 		Logger.LogDebug("Creating with " + path.getPath());
 		if(path instanceof OpenFile)
-			new PeekAtGrandKidsTask().execute((OpenFile)path);
+			EventHandler.execute(new PeekAtGrandKidsTask(), path);
 
 		initPager();
 		if(handleIntent(getIntent()))
@@ -1533,7 +1538,7 @@ public class OpenExplorer
 		if(logs == null || logs == "") logs = "[]";
 		//if(logs != null && logs != "") {
 			Logger.LogDebug("Found " + logs.length() + " bytes of logs.");
-			new SubmitStatsTask(this).execute(logs);
+			EventHandler.execute(new SubmitStatsTask(this), logs);
 		//} else Logger.LogWarning("Logs not found.");
 		queueToTracker(new Runnable() {
 			public void run() {
@@ -1665,9 +1670,9 @@ public class OpenExplorer
 		//if(mPhotoParent == null) refreshCursors();
 		return mPhotoParent;
 	}
-	public static final OpenCursor getVideoParent() {
+	public static final OpenPathMerged getVideoParent() {
 		//if(mVideoParent == null) refreshCursors();
-		return mVideoParent;
+		return mVideosMerged;
 	}
 	public static final OpenCursor getMusicParent() {
 		//if(mMusicParent == null) refreshCursors();
@@ -1680,10 +1685,15 @@ public class OpenExplorer
 	
 	private boolean findCursors()
 	{
-		mVideoParent.setName(getString(R.string.s_videos));
+		mVideosMerged.setName(getString(R.string.s_videos));
 		mPhotoParent.setName(getString(R.string.s_photos));
 		mMusicParent.setName(getString(R.string.s_music));
 		mDownloadParent.setName(getString(R.string.s_downloads));
+		
+		final OpenFile extDrive = OpenFile.getExternalMemoryDrive(false);
+		final OpenFile intDrive = OpenFile.getInternalMemoryDrive();
+		final boolean mHasExternal = extDrive != null && extDrive.exists();
+		final boolean mHasInternal = intDrive != null && intDrive.exists();
 		
 		if(mVideoParent.isLoaded())
 		{
@@ -1696,7 +1706,24 @@ public class OpenExplorer
 				Logger.LogVerbose("Finding videos");
 			//if(!IS_DEBUG_BUILD)
 			try {
+				mVideosMerged.addParent(mVideoParent);
+				mVideosMerged.addParent(mVideoSearchParent);
 				getSupportLoaderManager().initLoader(0, null, this);
+				new Thread(new Runnable(){public void run(){
+					if(mHasExternal)
+						for(OpenPath kid : extDrive.list())
+							if(kid.getName().toLowerCase().indexOf("movies")>-1||kid.getName().toLowerCase().indexOf("video")>-1)
+								mVideoSearchParent.addSearch(new SmartSearch(kid, SmartSearch.SearchType.TypeIn, "avi", "3gp", "mkv", "mp4"));
+					if(mHasInternal)
+						for(OpenPath kid : intDrive.list())
+							if(kid.getName().toLowerCase().indexOf("movies")>-1||kid.getName().toLowerCase().indexOf("video")>-1)
+								mVideoSearchParent.addSearch(new SmartSearch(kid, SmartSearch.SearchType.TypeIn, "avi", "3gp", "mkv", "mp4"));
+					try {
+						mVideosMerged.refreshKids();
+					} catch (IOException e) {
+						Logger.LogError("Couldn't refresh merged Videos");
+					}
+				}}).start();
 			} catch(Exception e) { Logger.LogError("Couldn't query videos.", e); }
 			Logger.LogDebug("Done looking for videos");
 		}
@@ -1732,16 +1759,6 @@ public class OpenExplorer
 		if(!mDownloadParent.isLoaded())
 		{
 			new Thread(new Runnable(){public void run(){
-				OpenFile extDrive = OpenFile.getExternalMemoryDrive(false);
-				OpenFile intDrive = OpenFile.getInternalMemoryDrive();
-				boolean mHasExternal = false;
-				boolean mHasInternal = false;
-				if(extDrive != null && extDrive.exists())
-					mHasExternal = true;
-				if(intDrive != null && intDrive.exists())
-					mHasInternal = true;
-					//OpenSmartFolder dlSmart = new OpenSmartFolder("Downloads");
-				
 				if(mHasExternal)
 					for(OpenPath kid : extDrive.list())
 						if(kid.getName().toLowerCase().indexOf("download")>-1)
@@ -1809,7 +1826,7 @@ public class OpenExplorer
 								}
 							}, buff);
 						else*/
-							new EnsureCursorCacheTask().execute(buff);
+							EventHandler.execute(new EnsureCursorCacheTask(),buff);
 					} catch(RejectedExecutionException e) {
 						Logger.LogWarning("Couldn't ensure cache.", e);
 						return;
@@ -1831,7 +1848,7 @@ public class OpenExplorer
 						}
 					}, buff);
 				else*/
-					new EnsureCursorCacheTask().execute(buff);
+					EventHandler.execute(new EnsureCursorCacheTask(), buff);
 			} catch(RejectedExecutionException e) {
 				Logger.LogWarning("Couldn't ensure cache.", e);
 				return;
@@ -1844,28 +1861,43 @@ public class OpenExplorer
 		//mLastCursorEnsure = new Date().getTime();
 		mRunningCursorEnsure = false;
 	}
-	
 
-	public void toggleBookmarks(Boolean visible)
+	/**
+	 * Toggle Bookmarks View.
+	 * @param visible Whether to show Bookmarks. Will only affect popup.
+	 * @return Visibility of Bookmarks after event has occurred.
+	 */
+	public boolean toggleBookmarks(boolean visible) { return toggleBookmarks(visible, true); }
+
+	/**
+	 * Toggle Bookmarks View.
+	 * @param visible Whether to show Bookmarks.
+	 * @param auto Is automatic? If true, will only dismiss popup (when available), and will not affect fragment. If false, will affect fragment. 
+	 * @return Visibility of Bookmarks after event has occurred.
+	 */
+	public boolean toggleBookmarks(boolean visible, boolean auto)
 	{
-		if(!mSinglePane) return;
-		if(mBookmarksPopup != null)
+		if(isSinglePane() && mBookmarksPopup != null)
 		{
 			if(visible)
 				mBookmarksPopup.showLikePopDownMenu();
 			else
 				mBookmarksPopup.dismiss();
+		} else if(!auto) {
+			setViewVisibility(visible, true, R.id.list_frag);
 		}
+		return visible;
 	}
 	
-	public void toggleBookmarks()
+	/**
+	 * Toggle Bookmarks View. Only to be used in response to touch event.
+	 * @return Visibility of Bookmarks after event has occurred.
+	 */
+	public boolean toggleBookmarks()
 	{
 		final View mBookmarks = findViewById(R.id.list_frag);
 		final boolean in = mBookmarks == null || mBookmarks.getVisibility() == View.GONE;
-		if(isSinglePane())
-			toggleBookmarks(in);
-		else
-			setViewVisibility(in, true, R.id.list_frag);
+		return toggleBookmarks(in, false);
 	}
 
 	public void refreshOperations()
@@ -2246,8 +2278,8 @@ public class OpenExplorer
 	public boolean onOptionsItemSelected(MenuItem item)	{
 		if(item == null) return false;
 		int id = item.getItemId();
-		if(id != R.id.title_icon_holder && id != android.R.id.home);
-			toggleBookmarks(false);
+		//if(id != R.id.title_icon_holder && id != android.R.id.home);
+		//	toggleBookmarks(false);
 		OpenFragment f = getSelectedFragment();
 
 		if(DEBUG)
@@ -2258,7 +2290,8 @@ public class OpenExplorer
 				break;
 			case R.id.title_icon_holder:
 			case android.R.id.home:
-				toggleBookmarks();
+				setSetting("pref_show_bookmarks",
+					toggleBookmarks());
 				return true;
 				
 			case R.id.menu_view_carousel:
@@ -2421,7 +2454,7 @@ public class OpenExplorer
 		int id = v.getId();
 		
 		if(id == R.id.title_icon_holder)
-			toggleBookmarks();
+			setSetting("pref_show_bookmarks", toggleBookmarks());
 		
 		if(id == R.id.title_paste_icon)
 		{
@@ -2453,7 +2486,9 @@ public class OpenExplorer
 			showLogFrag(mLogFragment, true);
 			break;
 		case R.id.title_ops:
-			mOpsFragment.getPopup().showLikePopDownMenu();
+			BetterPopupWindow op = mOpsFragment.getPopup();
+			if(op != null)
+				op.showLikePopDownMenu();
 			break;
 		}
 		
@@ -2625,37 +2660,10 @@ public class OpenExplorer
 			setSetting(getCurrentPath(), "view", newView);
 		if(!mSinglePane)
 		{
-			if(oldView == VIEW_CAROUSEL && mViewPagerEnabled)
-			{
-				setViewVisibility(false, false, R.id.content_frag);
-				setViewVisibility(true, false, R.id.content_pager_frame);
-				changePath(getCurrentPath(), false);
-			} else if(newView == VIEW_CAROUSEL && mViewPagerEnabled)
-			{
-				setViewVisibility(false, false, R.id.content_pager_frame);
-				setViewVisibility(true, false, R.id.content_frag);
-				changePath(getCurrentPath(), false);
-			}
 			ContentFragment cf = getDirContentFragment(true);
 			if(cf != null)
 				cf.onViewChanged(newView);
 			invalidateOptionsMenu();
-		} else if(newView == VIEW_CAROUSEL && oldView != VIEW_CAROUSEL && CAN_DO_CAROUSEL)
-		{
-			if(DEBUG && IS_DEBUG_BUILD)
-				Logger.LogDebug("Switching to carousel!");
-			if(mViewPagerEnabled)
-			{
-				setViewVisibility(false, false, R.id.content_pager_indicator,
-						R.id.content_pager_frame_stub, R.id.content_pager);
-				setViewVisibility(true, false, R.id.content_frag);
-			}
-			OpenPath path = getDirContentFragment(false).getPath();
-			fragmentManager.beginTransaction()
-				.replace(R.id.content_frag, new CarouselFragment(path))
-				.setBreadCrumbTitle(path.getPath())
-				.commit();
-			updateTitle(path.getPath());
 		} else if (oldView == VIEW_CAROUSEL && newView != VIEW_CAROUSEL && CAN_DO_CAROUSEL) { // if we need to transition from carousel
 			if(DEBUG && IS_DEBUG_BUILD)
 				Logger.LogDebug("Switching from carousel!");
@@ -2683,37 +2691,10 @@ public class OpenExplorer
 	
 	public void showPreferences(OpenPath path)
 	{
-		if(Build.VERSION.SDK_INT > 100)
-		{
-			FragmentTransaction ft = fragmentManager.beginTransaction();
-			OpenFragment frag = getSelectedFragment();
-			ft.hide(frag);
-			//ft.replace(R.id.content_frag, new PreferenceFragment(this, path));
-			ft.setBreadCrumbTitle("prefs://" + (path != null ? path.getPath() : ""));
-			ft.addToBackStack("prefs");
-			ft.commit();
-			final PreferenceFragmentV11 pf2 = new PreferenceFragmentV11(path);
-			getFragmentManager().addOnBackStackChangedListener(new android.app.FragmentManager.OnBackStackChangedListener() {
-				
-				public void onBackStackChanged() {
-					//android.app.FragmentTransaction ft3 = getFragmentManager().beginTransaction();
-					Logger.LogDebug("hide me!");
-					//getFragmentManager().removeOnBackStackChangedListener(this);
-					if(pf2 != null && pf2.getView() != null && getFragmentManager().getBackStackEntryCount() == 0)
-						pf2.getView().setVisibility(View.GONE);
-				}
-			});
-			android.app.FragmentTransaction ft2 = getFragmentManager().beginTransaction();
-			ft2.replace(R.id.content_pager_frame, pf2);
-			ft2.setBreadCrumbTitle("prefs");
-			ft2.addToBackStack("prefs");
-			ft2.commit();
-		} else {
-			Intent intent = new Intent(this, SettingsActivity.class);
-			if(path != null)
-				intent.putExtra("path", path.getPath());
-			startActivityForResult(intent, REQ_PREFERENCES);
-		}
+		Intent intent = new Intent(this, SettingsActivity.class);
+		if(path != null)
+			intent.putExtra("path", path.getPath());
+		startActivityForResult(intent, REQ_PREFERENCES);
 	}
 	
 	@Override
@@ -2780,6 +2761,7 @@ public class OpenExplorer
 				refreshBookmarks();
 				notifyPager();
 				getDirContentFragment(false).refreshData();
+				toggleBookmarks(getSetting(null, "pref_show_bookmarks", getResources().getBoolean(R.bool.large)), false);
 				invalidateOptionsMenu();
 			}
 		} else if (requestCode == REQ_SPLASH) {
@@ -2791,7 +2773,7 @@ public class OpenExplorer
 				if(!start.equals(getCurrentPath().getPath()))
 				{
 					if("Videos".equals(start))
-						changePath(mVideoParent, true);
+						changePath(getVideoParent(), true);
 					else if("Photos".equals(start))
 						changePath(mPhotoParent, true);
 					else if("External".equals(start))
@@ -2953,9 +2935,7 @@ public class OpenExplorer
 					.commitAllowingStateLoss();
 			}
 		}
-		final OpenFragment cf = (CAN_DO_CAROUSEL && newView == VIEW_CAROUSEL) ?
-			new CarouselFragment(path) :
-			ContentFragment.getInstance(path, newView, getSupportFragmentManager());
+		final OpenFragment cf = ContentFragment.getInstance(path, newView, getSupportFragmentManager());
 				
 			if(force || addToStack || path.requiresThread())
 			{
@@ -3034,7 +3014,7 @@ public class OpenExplorer
 			getSetting(path, "hide", true)
 			);*/
 		if(path instanceof OpenFile && !path.requiresThread())
-			new PeekAtGrandKidsTask().execute((OpenFile)path);
+			EventHandler.execute(new PeekAtGrandKidsTask(), path);
 		//ft.replace(R.id.content_frag, content);
 		//ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		Logger.LogDebug("Setting path to " + path.getPath());
@@ -3090,10 +3070,10 @@ public class OpenExplorer
 		return mEvHandler;
 	}
 
-	public class EnsureCursorCacheTask extends AsyncTask<OpenPath, Void, Void>
+	public class EnsureCursorCacheTask extends AsyncTask<OpenPath, Integer, Integer>
 	{
 		@Override
-		protected Void doInBackground(OpenPath... params) {
+		protected Integer doInBackground(OpenPath... params) {
 			//int done = 0;
 			final Context c = getApplicationContext();
 			for(OpenPath path : params)
@@ -3248,17 +3228,19 @@ public class OpenExplorer
 		mBookmarkListener = bookmarkListener;
 	}
 	
-	public class PeekAtGrandKidsTask extends AsyncTask<OpenFile, Void, Void>
+	public class PeekAtGrandKidsTask extends AsyncTask<OpenPath, Integer, Integer>
 	{
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
 		}
 		@Override
-		protected Void doInBackground(OpenFile... params) {
-			for(OpenFile file : params)
-				file.listFiles(true);
-			return null;
+		protected Integer doInBackground(OpenPath... params) {
+			int ret = 0;
+			for(OpenPath file : params)
+				if(file instanceof OpenFile)
+					ret += ((OpenFile)file).listFiles(true).length;
+			return ret;
 		}
 		
 	}
@@ -3473,7 +3455,7 @@ public class OpenExplorer
 				if(bRetrieveCursorFiles)
 				loader = new CursorLoader(
 					getApplicationContext(),
-					MediaStore.Files.getContentUri("/mnt"),
+					MediaStore.Files.getContentUri(OpenFile.getExternalMemoryDrive(true).getParent().getPath()),
 					new String[]{"_id", "_display_name", "_data", "_size", "date_modified"},
 					"_size > 10000 AND _data LIKE '%apk'", null,
 					"date modified DESC"
@@ -3502,6 +3484,12 @@ public class OpenExplorer
 		else if(l.getId() == 3)
 			mParent = mApkParent;
 		mParent.setCursor(c);
+		if(l.getId() == 0)
+			try {
+				mVideosMerged.refreshKids();
+			} catch (IOException e) {
+				Logger.LogError("Unable to merge videos after Cursor", e);
+			}
 		/*
 		mBookmarks.refresh();
 		OpenFragment f = getSelectedFragment();
