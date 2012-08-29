@@ -2,6 +2,8 @@ package org.brandroid.openmanager.fragments;
 
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.List;
+
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.activities.OpenFragmentActivity;
@@ -14,7 +16,9 @@ import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.BetterPopupWindow;
 import org.brandroid.openmanager.util.EventHandler;
 import org.brandroid.openmanager.util.FileManager;
+import org.brandroid.openmanager.util.IntentManager;
 import org.brandroid.openmanager.util.ShellSession;
+import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.DiskLruCache;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.LruCache;
@@ -28,6 +32,7 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
@@ -40,6 +45,9 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -106,8 +114,52 @@ public abstract class OpenFragment
 	
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		// TODO Auto-generated method stub
 		super.onCreateOptionsMenu(menu, inflater);
+
+		if(this instanceof OpenPathFragmentInterface)
+		{
+			OpenPath mPath = ((OpenPathFragmentInterface)this).getPath();
+			if(mPath.canHandleInternally())
+			{
+				Intent intent = IntentManager.getIntent(mPath, getExplorer());
+				List<ResolveInfo> resolves = IntentManager.getResolvesAvailable(mPath, getExplorer());
+				PackageManager pm = getExplorer().getPackageManager();
+				if(resolves.size() == 1 && (resolves.get(0).resolvePackageName == null || !resolves.get(0).resolvePackageName.startsWith("org.brandroid.openmanager")))
+				{
+					ResolveInfo resolve = resolves.get(0);
+					Drawable icon = null;
+					CharSequence title = null;
+					try {
+						icon = pm.getActivityIcon(intent);
+						title = pm.getApplicationLabel(resolve.activityInfo.applicationInfo);
+					} catch(NameNotFoundException nfe) { }
+					if(title == null)
+						title = "Default App";
+					if(icon == null)
+						icon = ThumbnailCreator.getDefaultDrawable(mPath, 32, 32, getContext());
+					menu.add(title)
+						.setIcon(icon)
+						.setIntent(intent)
+						.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+				} else if(resolves.size() > 1) {
+					for(ResolveInfo resolve : resolves)
+					{
+						if(resolve == null) continue;
+						if(resolve.resolvePackageName == null) continue;
+						if(resolve.resolvePackageName.startsWith("org.brandroid.openmanager")) continue;
+						Intent intent2 = new Intent(intent);
+						intent2.setPackage(resolve.resolvePackageName);
+						Drawable icon = pm.getApplicationIcon(resolve.activityInfo.applicationInfo);
+						CharSequence title = pm.getApplicationLabel(resolve.activityInfo.applicationInfo);
+						if(title == null)
+							title = getString(R.string.noApplications);
+						menu.add(title)
+							.setIcon(icon)
+							.setIntent(intent2);
+					}
+				}
+			}
+		}
 	}
 	
 	public static OpenFragment instantiate(Context context, String fname, Bundle args) {
@@ -127,8 +179,6 @@ public abstract class OpenFragment
         		return ContentFragment.getInstance(path, args);
         	else if(fname.endsWith("TextEditorFragment"))
         		return TextEditorFragment.getInstance(path, args);
-        	else if(fname.endsWith("CarouselFragment"))
-        		return CarouselFragment.getInstance(args);
     	}
         return null;
     }

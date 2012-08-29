@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="open" default="debug">
+    <!-- set some properties used for filtering/override. If those weren't defined
+         before, then this will create them with empty values, which are then ignored
+         by the custom tasks receiving them. -->
+    <xmlproperty file="AndroidManifest.xml" prefix="mymanifest" collapseAttributes="true" />
+    <property name="version.code" value="${mymanifest.manifest.android:versionCode}" />
+    <property name="version.name" value="${mymanifest.manifest.android:versionName}" />
+    <!-- ******************************************************* -->
+    <!-- ********************* Custom Tasks ******************** -->
+    <!-- ******************************************************* -->
+
+    <!-- jar file from where the tasks are loaded -->
+    <path id="android.antlibs">
+        <pathelement path="${sdk.dir}/tools/lib/anttasks.jar" />
+    </path>
+
+    <!-- Custom tasks -->
+    <taskdef resource="anttasks.properties" classpathref="android.antlibs" />
+    <taskdef name="xpath"
+        classname="com.android.ant.XPathTask"
+        classpathref="android.antlibs" />
+
+    <property name="out.release.dir" location="releases" />
+
+    <!-- ******************************************************* -->
+    <!-- **************** Debug specific targets *************** -->
+    <!-- ******************************************************* -->
+
+    <target name="-set-debug-files" depends="-set-mode-check">
+
+        <property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-debug-unaligned.apk" />
+        <property name="out.final.file" location="${out.absolute.dir}/${ant.project.name}_${mymanifest.manifest.android:versionCode}-debug.apk" />
+        <property name="build.is.mode.set" value="true" />
+    </target>
+
+
+    <target name="-set-debug-mode" depends="-setup">
+        <!-- record the current build target -->
+        <property name="build.target" value="debug" />
+
+        <if>
+            <condition>
+                <and>
+                    <istrue value="${project.is.testapp}" />
+                    <istrue value="${emma.enabled}" />
+                </and>
+            </condition>
+            <then>
+                <property name="build.is.instrumented" value="true" />
+            </then>
+            <else>
+                <property name="build.is.instrumented" value="false" />
+            </else>
+        </if>
+
+        <!-- whether the build is a debug build. always set. -->
+        <property name="build.is.packaging.debug" value="true" />
+
+        <!-- signing mode: debug -->
+        <property name="build.is.signing.debug" value="true" />
+
+        <!-- Renderscript optimization level: none -->
+        <property name="renderscript.opt.level" value="${renderscript.debug.opt.level}" />
+
+    </target>
+
+    <target name="-debug-obfuscation-check">
+        <!-- proguard is never enabled in debug mode -->
+        <property name="proguard.enabled" value="false"/>
+    </target>
+
+    <!-- Builds debug output package -->
+    <target name="-do-debug" depends="-set-debug-mode, -debug-obfuscation-check, -package, -post-package">
+        <!-- only create apk if *not* a library project -->
+        <do-only-if-not-library elseText="Library project: do not create apk..." >
+            <sequential>
+                <zipalign-helper in.package="${out.packaged.file}" out.package="${out.final.file}" />
+                <echo level="info">Debug Package: ${out.final.file}</echo>
+            </sequential>
+        </do-only-if-not-library>
+        <record-build-info />
+    </target>
+
+    <!-- Builds debug output package -->
+    <target name="debug" depends="-set-debug-files, -do-debug, -post-build"
+                description="Builds the application and signs it with a debug key.">
+    </target>
+
+
+    <!-- ******************************************************* -->
+    <!-- *************** Release specific targets ************** -->
+    <!-- ******************************************************* -->
+
+    <!-- called through target 'release'. Only executed if the keystore and
+         key alias are known but not their password. -->
+    <target name="-release-prompt-for-password" if="has.keystore" unless="has.password">
+        <!-- Gets passwords -->
+        <input
+                message="Please enter keystore password (store:${key.store}):"
+                addproperty="key.store.password" />
+        <input
+                message="Please enter password for alias '${key.alias}':"
+                addproperty="key.alias.password" />
+    </target>
+
+    <!-- called through target 'release'. Only executed if there's no
+         keystore/key alias set -->
+    <target name="-release-nosign" unless="has.keystore">
+        <!-- no release builds for library project -->
+        <do-only-if-not-library elseText="" >
+            <sequential>
+                <echo level="info">No key.store and key.alias properties found in build.properties.</echo>
+                <echo level="info">Please sign ${out.packaged.file} manually</echo>
+                <echo level="info">and run zipalign from the Android SDK tools.</echo>
+            </sequential>
+        </do-only-if-not-library>
+        <record-build-info />
+    </target>
+
+    <target name="-release-obfuscation-check">
+        <echo level="info">proguard.config is ${proguard.config}</echo>
+        <condition property="proguard.enabled" value="true" else="false">
+            <and>
+                <isset property="build.is.mode.release" />
+                <isset property="proguard.config" />
+            </and>
+        </condition>
+        <if condition="${proguard.enabled}">
+            <then>
+                <echo level="info">Proguard.config is enabled</echo>
+                <!-- Secondary dx input (jar files) is empty since all the
+                     jar files will be in the obfuscated jar -->
+                <path id="out.dex.jar.input.ref" />
+            </then>
+        </if>
+    </target>
+
+    <target name="-set-release-mode" depends="-set-mode-check">
+        <property name="out.packaged.file" location="${out.absolute.dir}/${ant.project.name}-release-unsigned.apk" />
+        <property name="out.final.file" location="${out.release.dir}/${ant.project.name}${mymanifest.manifest.android:versionCode}.apk" />
+        <property name="build.is.mode.set" value="true" />
+
+        <!-- record the current build target -->
+        <property name="build.target" value="release" />
+
+        <property name="build.is.instrumented" value="false" />
+
+        <!-- release mode is only valid if the manifest does not explicitly
+             set debuggable to true. default is false. -->
+        <xpath input="${manifest.abs.file}" expression="/manifest/application/@android:debuggable"
+                output="build.is.packaging.debug" default="false"/>
+
+        <!-- signing mode: release -->
+        <property name="build.is.signing.debug" value="false" />
+
+        <!-- Renderscript optimization level: aggressive -->
+        <property name="renderscript.opt.level" value="${renderscript.release.opt.level}" />
+
+        <if condition="${build.is.packaging.debug}">
+            <then>
+                <echo>*************************************************</echo>
+                <echo>****  Android Manifest has debuggable=true   ****</echo>
+                <echo>**** Doing DEBUG packaging with RELEASE keys ****</echo>
+                <echo>*************************************************</echo>
+            </then>
+            <else>
+                <!-- property only set in release mode.
+                     Useful for if/unless attributes in target node
+                     when using Ant before 1.8 -->
+                <property name="build.is.mode.release" value="true"/>
+            </else>
+        </if>
+    </target>
+
+    <target name="-release-sign" if="has.keystore" >
+        <!-- only create apk if *not* a library project -->
+        <do-only-if-not-library elseText="Library project: do not create apk..." >
+            <sequential>
+                <property name="out.unaligned.file" location="${out.absolute.dir}/${ant.project.name}-release-unaligned.apk" />
+
+                <!-- Signs the APK -->
+                <echo level="info">Signing final apk...</echo>
+                <signapk
+                        input="${out.packaged.file}"
+                        output="${out.unaligned.file}"
+                        keystore="${key.store}"
+                        storepass="${key.store.password}"
+                        alias="${key.alias}"
+                        keypass="${key.alias.password}"/>
+
+                <!-- Zip aligns the APK -->
+                <zipalign-helper
+                        in.package="${out.unaligned.file}"
+                        out.package="${out.final.file}" />
+                <echo level="info">Release Package: ${out.final.file}</echo>
+		<!--
+		<echo level="info">Uploading to release server</echo>
+		<ftp server="${ftp.server}" port="21" remotedir="www/releases/" userid="${ftp.user}" password="${ftp.password}" binary="yes" verbose="yes">
+		    <fileset dir="releases">
+			<include name="**/${ant.project.name}${mymanifest.manifest.android:versionCode}.apk" />
+		    </fileset>
+		</ftp>
+		-->
+            </sequential>
+        </do-only-if-not-library>
+        <record-build-info />
+    </target>
+
+</project>

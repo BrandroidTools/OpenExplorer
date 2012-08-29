@@ -56,6 +56,7 @@ import com.actionbarsherlock.view.ActionMode.Callback;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 import com.actionbarsherlock.widget.ShareActionProvider;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
@@ -85,6 +86,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -301,7 +306,7 @@ public class ContentFragment extends OpenFragment
 			mContentAdapter.updateData();
 			if(mContentAdapter.getCount() == 0 && !isDetached())
 			{
-				ViewUtils.setText(getView(), getResources().getString(mPath.requiresThread() ? R.string.s_status_loading : R.string.no_items), android.R.id.empty);
+				ViewUtils.setText(getView(), getResources().getString(!mPath.isLoaded() ? R.string.s_status_loading : R.string.no_items), android.R.id.empty);
 				ViewUtils.setViewsVisible(getView(), true, android.R.id.empty);
 			} else ViewUtils.setViewsVisible(getView(), false, android.R.id.empty);
 		}
@@ -485,9 +490,9 @@ public class ContentFragment extends OpenFragment
 		}
 		
 		if(path instanceof OpenFile &&
-				(path.getName().equalsIgnoreCase("data") ||
-				path.getPath().indexOf("/data") > -1 ||
-				path.getPath().indexOf("/system") > -1))
+				(((path.getName().equalsIgnoreCase("data") ||
+				path.getPath().indexOf("/data") > -1) && !path.getPath().startsWith(OpenFile.getExternalMemoryDrive(true).getParent().getPath()))
+				|| path.getPath().startsWith("/system")))
 			path = new OpenFileRoot(path);
 		
 		mPath = path;
@@ -773,7 +778,7 @@ public class ContentFragment extends OpenFragment
 			}
 		}
 		
-		if(file.isDirectory() && getActionMode() == null) {
+		if((file.isDirectory() || (file.isArchive() && Preferences.Pref_Zip_Internal)) && getActionMode() == null) {
 			/* if (mThumbnail != null) {
 				mThumbnail.setCancelThumbnails(true);
 				mThumbnail = null;
@@ -783,7 +788,7 @@ public class ContentFragment extends OpenFragment
 			//setContentPath(file, true);
 			getExplorer().onChangeLocation(file);
 
-		} else if (!file.isDirectory() && getActionMode() == null) {
+		} else {
 			
 			if(file.requiresThread() && FileManager.hasOpenCache(file.getAbsolutePath()))
 			{
@@ -1013,6 +1018,9 @@ public class ContentFragment extends OpenFragment
 		{
 		case R.id.menu_sort:
 		case R.id.menu_view:
+			return true;
+		case R.id.menu_context_heatmap:
+			DialogHandler.showFileHeatmap(getExplorer(), getPath());
 			return true;
 		case R.id.menu_new_file:
 			EventHandler.createNewFile(getPath(), getActivity());
@@ -1264,6 +1272,11 @@ public class ContentFragment extends OpenFragment
 				finishMode(mode);
 				return true;
 				
+			case R.id.menu_context_heatmap:
+				DialogHandler.showFileHeatmap(getExplorer(), file);
+				finishMode(mode);
+				return true;
+				
 			case R.id.menu_multi_all_clear:
 				getClipboard().clear();
 				return true;
@@ -1310,9 +1323,9 @@ public class ContentFragment extends OpenFragment
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		if(DEBUG)
-			Logger.LogDebug(getClassName() + ".onCreateOptionsMenu");
+			Logger.LogDebug(getClassName() + ".onCreateOptionsMenu (" + getPath() + ")");
 		super.onCreateOptionsMenu(menu, inflater);
-			inflater.inflate(R.menu.content_full, menu);
+		inflater.inflate(R.menu.content_full, menu);
 		MenuUtils.setMenuEnabled(menu, true, R.id.menu_view);
 		//MenuInflater inflater = new MenuInflater(mContext);
 		//if(!OpenExplorer.USE_PRETTY_MENUS||!OpenExplorer.BEFORE_HONEYCOMB)
@@ -2092,7 +2105,7 @@ public class ContentFragment extends OpenFragment
 		
 		boolean empty = mContentAdapter == null || mContentAdapter.getCount() == 0;
 		if(empty && getResources() != null)
-			ViewUtils.setText(getView(), getResources().getString(mPath.requiresThread() ? R.string.s_status_loading : R.string.no_items), android.R.id.empty);
+			ViewUtils.setText(getView(), getResources().getString(!mPath.isLoaded() ? R.string.s_status_loading : R.string.no_items), android.R.id.empty);
 		ViewUtils.setViewsVisibleNow(getView(), empty, android.R.id.empty);
 		
 		//TODO check to see if this is the source of inefficiency

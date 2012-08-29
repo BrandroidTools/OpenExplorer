@@ -144,7 +144,6 @@ import org.brandroid.openmanager.data.OpenSFTP;
 import org.brandroid.openmanager.data.OpenSearch;
 import org.brandroid.openmanager.data.OpenSmartFolder;
 import org.brandroid.openmanager.data.OpenSmartFolder.SmartSearch;
-import org.brandroid.openmanager.fragments.CarouselFragment;
 import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.fragments.ContentFragment;
 import org.brandroid.openmanager.fragments.LogViewerFragment;
@@ -2661,37 +2660,10 @@ public class OpenExplorer
 			setSetting(getCurrentPath(), "view", newView);
 		if(!mSinglePane)
 		{
-			if(oldView == VIEW_CAROUSEL && mViewPagerEnabled)
-			{
-				setViewVisibility(false, false, R.id.content_frag);
-				setViewVisibility(true, false, R.id.content_pager_frame);
-				changePath(getCurrentPath(), false);
-			} else if(newView == VIEW_CAROUSEL && mViewPagerEnabled)
-			{
-				setViewVisibility(false, false, R.id.content_pager_frame);
-				setViewVisibility(true, false, R.id.content_frag);
-				changePath(getCurrentPath(), false);
-			}
 			ContentFragment cf = getDirContentFragment(true);
 			if(cf != null)
 				cf.onViewChanged(newView);
 			invalidateOptionsMenu();
-		} else if(newView == VIEW_CAROUSEL && oldView != VIEW_CAROUSEL && CAN_DO_CAROUSEL)
-		{
-			if(DEBUG && IS_DEBUG_BUILD)
-				Logger.LogDebug("Switching to carousel!");
-			if(mViewPagerEnabled)
-			{
-				setViewVisibility(false, false, R.id.content_pager_indicator,
-						R.id.content_pager_frame_stub, R.id.content_pager);
-				setViewVisibility(true, false, R.id.content_frag);
-			}
-			OpenPath path = getDirContentFragment(false).getPath();
-			fragmentManager.beginTransaction()
-				.replace(R.id.content_frag, new CarouselFragment(path))
-				.setBreadCrumbTitle(path.getPath())
-				.commit();
-			updateTitle(path.getPath());
 		} else if (oldView == VIEW_CAROUSEL && newView != VIEW_CAROUSEL && CAN_DO_CAROUSEL) { // if we need to transition from carousel
 			if(DEBUG && IS_DEBUG_BUILD)
 				Logger.LogDebug("Switching from carousel!");
@@ -2963,9 +2935,7 @@ public class OpenExplorer
 					.commitAllowingStateLoss();
 			}
 		}
-		final OpenFragment cf = (CAN_DO_CAROUSEL && newView == VIEW_CAROUSEL) ?
-			new CarouselFragment(path) :
-			ContentFragment.getInstance(path, newView, getSupportFragmentManager());
+		final OpenFragment cf = ContentFragment.getInstance(path, newView, getSupportFragmentManager());
 				
 			if(force || addToStack || path.requiresThread())
 			{

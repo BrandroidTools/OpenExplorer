@@ -229,13 +229,6 @@ public class OpenApplication extends Application implements OpenApp {
 		if (Preferences.Pref_Analytics) {
 			synchronized (lock) {
 				trackerQueue.add(r);
-				if(trackerQueue.size() >= 5)
-					queueToTracker(new Runnable() {
-						@Override
-						public void run() {
-							mTracker.dispatch();
-						}
-					});
 			}
 		}
 	}

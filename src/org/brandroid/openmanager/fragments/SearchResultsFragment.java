@@ -15,6 +15,7 @@ import org.brandroid.openmanager.data.OpenSearch.SearchProgressUpdateListener;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.utils.Logger;
 
+import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
@@ -112,6 +113,7 @@ public class SearchResultsFragment
 			myTask.cancel(true);
 	}
 	
+	@SuppressLint("NewApi")
 	private void executeMyTask()
 	{
 		if(Build.VERSION.SDK_INT > 10)
@@ -285,6 +287,14 @@ public class SearchResultsFragment
 				notifyPager();
 				mTextSummary.setText(getString(R.string.search_results, getResults().size(), getSearch().getQuery(), getSearch().getBasePath().getPath()));
 				mCancel.setText(android.R.string.ok);
+				TextView te = (TextView)getView().findViewById(android.R.id.empty);
+				if(te != null)
+				{
+					if(getResults().size() > 0)
+						te.setVisibility(View.GONE);
+					else
+						te.setText(R.string.no_items);
+				}
 		}});
 	}
 	@Override
