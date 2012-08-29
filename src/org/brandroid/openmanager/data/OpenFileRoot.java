@@ -20,8 +20,10 @@ import org.brandroid.openmanager.util.RootManager;
 import org.brandroid.openmanager.util.RootManager.UpdateCallback;
 import org.brandroid.utils.Logger;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.os.PatternMatcher;
 
@@ -39,6 +41,7 @@ public class OpenFileRoot
 	private Long mDate = null;
 	private Long mSize = null;
 	private WeakReference<List<OpenPath>> mChildren = null;
+	private boolean mLoaded = false;
 	
 	public OpenFileRoot(OpenPath src)
 	{
@@ -94,6 +97,11 @@ public class OpenFileRoot
 		}
 		if(mPerms != null && mPerms.startsWith("d") && !mName.endsWith("/"))
 			mName += "/";
+	}
+	
+	@Override
+	public boolean isLoaded() {
+		return mLoaded;
 	}
 	
 	@Override
@@ -187,6 +195,7 @@ public class OpenFileRoot
 	}
 	
 	public void list(final OpenContentUpdater callback) throws IOException {
+		mLoaded = false;
 		if(getChildren() != null)
 		{
 			for(OpenPath kid : getChildren())
@@ -243,6 +252,7 @@ public class OpenFileRoot
 						processMessage(s);
 					}
 					buff[0] = msg;
+					mLoaded = true;
 					return true;
 				}
 				if(msg != null && !msg.trim().equals(""))
@@ -254,6 +264,7 @@ public class OpenFileRoot
 			public void onExit() {
 				Logger.LogDebug("CF onExit");
 				RootManager.Default.setUpdateCallback(null);
+				mLoaded = true;
 			}
 		};
 		RootManager.Default.write(w, callback2);
@@ -350,11 +361,12 @@ public class OpenFileRoot
 		return getFile().canWrite();
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public Boolean canExecute() {
 		if(mPerms != null)
 			return mPerms.indexOf("x") > -1;
-		return getFile().canExecute();
+		return Build.VERSION.SDK_INT > 8 ? getFile().canExecute() : true;
 	}
 
 	@Override

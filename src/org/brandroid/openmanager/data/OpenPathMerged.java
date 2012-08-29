@@ -33,6 +33,10 @@ public class OpenPathMerged extends OpenPath
 					mKids.add(kid);
 		mDirty = false;
 	}
+	@Override
+	public boolean isLoaded() {
+		return !mDirty;
+	}
 
 	@Override
 	public String getName() {

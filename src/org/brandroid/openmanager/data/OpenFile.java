@@ -15,6 +15,7 @@ import org.brandroid.openmanager.data.OpenPath.OpenPathCopyable;
 import org.brandroid.openmanager.util.DFInfo;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.utils.Logger;
+import org.brandroid.utils.Preferences;
 
 import android.database.Cursor;
 import android.net.Uri;
@@ -49,6 +50,13 @@ public class OpenFile
 	}
 	public OpenFile(OpenFile folder, String name) {
 		mFile = new File(folder.getFile(), name);
+	}
+	
+	@Override
+	public boolean canHandleInternally() {
+		if(isTextFile() && Preferences.Pref_Text_Internal)
+			return true;
+		return false;
 	}
 	
 	public File getFile() { return mFile; }
