@@ -39,6 +39,7 @@ public abstract class OpenPath
 	implements Serializable, Parcelable, Comparable<OpenPath>
 {
 	public static SortType Sorting = SortType.DATE_DESC;
+	public static Boolean ShowHiddenFiles = false;
 	
     private WeakReference<MediaObject> mObject;
 	

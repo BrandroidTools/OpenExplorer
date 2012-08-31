@@ -300,8 +300,10 @@ public class OpenFileRoot
 	private String getLSOpts()
 	{
 		String lsOpts = "";
+		/*
 		if(Sorting.showHidden())
 			lsOpts += "A";
+		*/
 		switch(Sorting.getType())
 		{
 		case ALPHA_DESC:

@@ -49,12 +49,15 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -124,15 +127,11 @@ public abstract class OpenFragment
 				Intent intent = IntentManager.getIntent(mPath, getExplorer());
 				List<ResolveInfo> resolves = IntentManager.getResolvesAvailable(mPath, getExplorer());
 				PackageManager pm = getExplorer().getPackageManager();
-				if(resolves.size() == 1 && (resolves.get(0).resolvePackageName == null || !resolves.get(0).resolvePackageName.startsWith("org.brandroid.openmanager")))
+				if(resolves.size() == 1 && (resolves.get(0).activityInfo.packageName == null || !resolves.get(0).activityInfo.packageName.startsWith("org.brandroid.openmanager")))
 				{
 					ResolveInfo resolve = resolves.get(0);
-					Drawable icon = null;
-					CharSequence title = null;
-					try {
-						icon = pm.getActivityIcon(intent);
-						title = pm.getApplicationLabel(resolve.activityInfo.applicationInfo);
-					} catch(NameNotFoundException nfe) { }
+					Drawable icon = getResolveIcon(pm, resolve);
+					CharSequence title = pm.getApplicationLabel(resolve.activityInfo.applicationInfo);
 					if(title == null)
 						title = "Default App";
 					if(icon == null)
@@ -142,24 +141,38 @@ public abstract class OpenFragment
 						.setIntent(intent)
 						.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 				} else if(resolves.size() > 1) {
+					int pos = 0;
 					for(ResolveInfo resolve : resolves)
 					{
 						if(resolve == null) continue;
-						if(resolve.resolvePackageName == null) continue;
-						if(resolve.resolvePackageName.startsWith("org.brandroid.openmanager")) continue;
+						String pkg = resolve.activityInfo.packageName;
+						if(pkg != null && pkg.startsWith("org.brandroid.openmanager")) continue;
 						Intent intent2 = new Intent(intent);
-						intent2.setPackage(resolve.resolvePackageName);
-						Drawable icon = pm.getApplicationIcon(resolve.activityInfo.applicationInfo);
+						intent2.setPackage(pkg);
+						Drawable icon = getResolveIcon(pm, resolve);
 						CharSequence title = pm.getApplicationLabel(resolve.activityInfo.applicationInfo);
 						if(title == null)
 							title = getString(R.string.noApplications);
 						menu.add(title)
 							.setIcon(icon)
-							.setIntent(intent2);
+							.setIntent(intent2)
+							.setShowAsAction(pos++ == 0 ? MenuItem.SHOW_AS_ACTION_ALWAYS : MenuItem.SHOW_AS_ACTION_IF_ROOM);
 					}
 				}
 			}
 		}
+	}
+	
+	private Drawable getResolveIcon(PackageManager pm, ResolveInfo info)
+	{
+		Drawable ret = pm.getApplicationIcon(info.activityInfo.applicationInfo);
+		if(ret instanceof BitmapDrawable)
+		{
+			Bitmap bmp = ((BitmapDrawable)ret).getBitmap();
+			ret = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bmp, 48, 48, false));
+		} else Logger.LogWarning("Unknown drawable: " + ret.getClass().toString());
+		return ret;
+		
 	}
 	
 	public static OpenFragment instantiate(Context context, String fname, Bundle args) {

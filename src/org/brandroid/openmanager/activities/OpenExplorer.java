@@ -29,7 +29,6 @@ import android.os.Handler;
 import android.os.StatFs;
 import android.provider.MediaStore;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
@@ -62,7 +61,6 @@ import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v4.widget.SearchViewCompat;
@@ -88,7 +86,6 @@ import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -132,7 +129,6 @@ import org.brandroid.openmanager.adapters.IconContextMenu.IconContextItemSelecte
 import org.brandroid.openmanager.adapters.OpenClipboard.OnClipboardUpdateListener;
 import org.brandroid.openmanager.adapters.IconContextMenu;
 import org.brandroid.openmanager.adapters.IconContextMenuAdapter;
-import org.brandroid.openmanager.adapters.OpenPathPagerAdapter;
 import org.brandroid.openmanager.data.OpenCursor;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenMediaStore;
@@ -141,7 +137,6 @@ import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenPathArray;
 import org.brandroid.openmanager.data.OpenPathMerged;
 import org.brandroid.openmanager.data.OpenSFTP;
-import org.brandroid.openmanager.data.OpenSearch;
 import org.brandroid.openmanager.data.OpenSmartFolder;
 import org.brandroid.openmanager.data.OpenSmartFolder.SmartSearch;
 import org.brandroid.openmanager.fragments.DialogHandler;
@@ -153,7 +148,6 @@ import org.brandroid.openmanager.fragments.OpenFragment.OnFragmentDPADListener;
 import org.brandroid.openmanager.fragments.OpenFragment.OnFragmentTitleLongClickListener;
 import org.brandroid.openmanager.fragments.OpenFragment.Poppable;
 import org.brandroid.openmanager.fragments.OpenPathFragmentInterface;
-import org.brandroid.openmanager.fragments.PreferenceFragmentV11;
 import org.brandroid.openmanager.fragments.SearchResultsFragment;
 import org.brandroid.openmanager.fragments.TextEditorFragment;
 import org.brandroid.openmanager.interfaces.OpenApp;
@@ -198,7 +192,6 @@ import com.android.gallery3d.util.ThreadPool;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.jcraft.jsch.JSchException;
 import com.viewpagerindicator.TabPageIndicator;
-import com.viewpagerindicator.TabPageIndicator.TabView;
 import org.xmlpull.v1.XmlPullParserException;
 
 @SuppressLint("NewApi")
@@ -2226,7 +2219,7 @@ public class OpenExplorer
 		MenuItem mMenuSearch = menu.findItem(R.id.menu_search);
 		if(mMenuSearch != null)
 		{
-			mMenuSearch.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+			mMenuSearch.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 			mMenuSearch.setActionView(mSearchView);
 			}
 		
@@ -2751,6 +2744,7 @@ public class OpenExplorer
 	}
 		
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Logger.LogDebug("OpenExplorer.onActivityResult(" + requestCode + ", " + resultCode + ", " + (data != null ? data.toString() : "null") + ")");
 		if(requestCode == REQ_PREFERENCES)
 		{
 			if(resultCode == RESULT_RESTART_NEEDED) {
@@ -2761,7 +2755,8 @@ public class OpenExplorer
 				refreshBookmarks();
 				notifyPager();
 				getDirContentFragment(false).refreshData();
-				toggleBookmarks(getSetting(null, "pref_show_bookmarks", getResources().getBoolean(R.bool.large)), false);
+				if(!mSinglePane)
+					toggleBookmarks(getSetting(null, "pref_show_bookmarks", getResources().getBoolean(R.bool.large)), false);
 				invalidateOptionsMenu();
 			}
 		} else if (requestCode == REQ_SPLASH) {

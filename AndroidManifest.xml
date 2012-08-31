@@ -19,8 +19,8 @@
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.brandroid.openmanager"
-	android:versionName="0.183"
-	android:versionCode="183"
+	android:versionName="0.184"
+	android:versionCode="184"
 	android:installLocation="auto">
 
 	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15" />
@@ -162,8 +162,12 @@
 		
 		<activity android:name=".activities.WTFSenderActivity" android:theme="@style/Dialog" />
 
-		<activity android:name=".activities.SettingsActivity" android:theme="@style/Dialog" android:label="@string/s_menu_prefs_global" />
-
+		<activity
+		    android:name=".activities.SettingsActivity"
+		    android:label="@string/s_menu_prefs_global" 
+	    	android:theme="@style/AppTheme.Dark"
+	    	/>
+		
 		<activity android:name=".activities.BluetoothActivity" android:label="Bluetooth"
 			android:theme="@style/Dialog" />
 		

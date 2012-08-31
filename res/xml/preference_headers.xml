@@ -1,0 +1,38 @@
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+    <header
+        android:fragment="org.brandroid.openmanager.activities.SettingsActivity$PreferenceFragmentV11"
+        android:icon="@drawable/ic_menu_view"
+        android:title="@string/s_pref_display">
+        <extra android:name="key" android:value="display" />
+    </header>
+    <header
+        android:fragment="org.brandroid.openmanager.activities.SettingsActivity$PreferenceFragmentV11"
+        android:title="@string/s_pref_sort"
+        android:icon="@drawable/ic_action_sort_holo_dark"
+        android:summary="@string/s_pref_sort_summary">
+        <extra android:name="key" android:value="sort" />
+    </header>
+    <header
+        android:fragment="org.brandroid.openmanager.activities.SettingsActivity$PreferenceFragmentV11"
+        android:icon="@drawable/ic_paper"
+        android:title="@string/s_text_editor_title">
+        <extra android:name="key" android:value="text_editor" />
+    </header>
+    <header
+        android:fragment="org.brandroid.openmanager.activities.SettingsActivity$PreferenceFragmentV11"
+        android:icon="@drawable/ic_favorites"
+        android:title="@string/s_pref_view_category">
+        <extra android:name="key" android:value="bookmarks" />
+    </header>
+    <header
+        android:fragment="org.brandroid.openmanager.activities.SettingsActivity$PreferenceFragmentV11"
+        android:title="@string/s_pref_advanced">
+        <extra android:name="key" android:value="advanced" />
+    </header>
+    <header
+        android:fragment="org.brandroid.openmanager.activities.SettingsActivity$PreferenceFragmentV11"
+        android:title="@string/s_pref_servers">
+        <extra android:name="key" android:value="servers" />
+    </header>
+        
+</preference-headers>

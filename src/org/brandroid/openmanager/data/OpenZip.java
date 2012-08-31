@@ -28,7 +28,7 @@ public class OpenZip extends OpenPath
 	private ArrayList<OpenZipEntry> mEntries = null;
 	private final Hashtable<String, List<OpenPath>> mFamily = new Hashtable<String, List<OpenPath>>();
 	private final Hashtable<String, OpenZipVirtualPath> mVirtualPaths = new Hashtable<String, OpenZip.OpenZipVirtualPath>();
-	private final boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
+	private final boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
 	
 	public OpenZip(OpenFile zipFile)
 	{
@@ -156,7 +156,8 @@ public class OpenZip extends OpenPath
 		parent = parent.substring(0, parent.lastIndexOf("/") + 1);
 		if(!parent.equals("") && !parent.endsWith("/"))
 			parent += "/";
-		Logger.LogDebug("FamilyPath adding [" + path + "] to [" + parent + "]");
+		if(DEBUG)
+			Logger.LogDebug("FamilyPath adding [" + path + "] to [" + parent + "]");
 		List<OpenPath> kids = mFamily.get(parent);
 		if(kids == null)
 			kids = new ArrayList<OpenPath>();
@@ -188,7 +189,8 @@ public class OpenZip extends OpenPath
 
 	@Override
 	public OpenPath[] listFiles() throws IOException {
-		Logger.LogVerbose("Listing OpenZip " + mFile);
+		if(DEBUG)
+			Logger.LogVerbose("Listing OpenZip " + mFile);
 		if(mZip == null)
 			return mChildren;
 		
@@ -201,13 +203,15 @@ public class OpenZip extends OpenPath
 	
 	public OpenPath[] listFiles(String rootRelative) throws IOException
 	{
-		Logger.LogDebug("OpenZip.listFiles(" + rootRelative + ")");
+		if(DEBUG)
+			Logger.LogDebug("OpenZip.listFiles(" + rootRelative + ")");
 		if(!mFamily.containsKey(rootRelative)) {
 			Logger.LogWarning("No children found for [" + rootRelative + "]");
 			return new OpenPath[0];
 		}
 		List<OpenPath> ret = mFamily.get(rootRelative);
-		Logger.LogVerbose(ret.size() + " children found for [" + rootRelative + "]");
+		if(DEBUG)
+			Logger.LogVerbose(ret.size() + " children found for [" + rootRelative + "]");
 		return ret.toArray(new OpenPath[ret.size()]);
 	}
 	

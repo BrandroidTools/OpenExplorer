@@ -47,6 +47,7 @@ public class ContentAdapter extends BaseAdapter {
 	private final ArrayList<OpenPath> mData2 = new ArrayList<OpenPath>();
 	public int mViewMode = OpenExplorer.VIEW_LIST;
 	public boolean mShowThumbnails = true;
+	private boolean mShowHiddenFiles = false;
 	private SortType mSorting = SortType.ALPHA;
 	private OpenApp mApp;
 	private boolean mPlusParent = false;
@@ -122,7 +123,7 @@ public class ContentAdapter extends BaseAdapter {
 		}
 		
 		//new Thread(new Runnable(){public void run() {
-		boolean showHidden = getSorting().showHidden();
+		boolean showHidden = getShowHiddenFiles();
 		boolean foldersFirst = getSorting().foldersFirst();
 		Logger.LogVerbose("updateData on " + items.length + " items (for " + mParent + ") : " +
 				(showHidden ? "show" : "hide") + " + " + (foldersFirst ? "folders" : "files") + " + " + (doSort ? mSorting.toString() : "no sort"));
@@ -272,7 +273,7 @@ public class ContentAdapter extends BaseAdapter {
 		{
 			if(mShowDetails)
 				mInfo.setText(String.format(
-						file.getDetails(getSorting().showHidden(), showLongDate),
+						file.getDetails(getShowHiddenFiles(), showLongDate),
 						getResources().getString(R.string.s_files)));
 			else mInfo.setText("");
 		}
@@ -445,5 +446,13 @@ public class ContentAdapter extends BaseAdapter {
 			mCallback.onAdapterSelectedChanged(path, newSelected,
 					mSelectedSet.size());
 		}
+	}
+
+	public void setShowHiddenFiles(boolean show)
+	{
+		mShowHiddenFiles = show;
+	}
+	public boolean getShowHiddenFiles() {
+		return mShowHiddenFiles;
 	}
 }

@@ -242,7 +242,7 @@ public class OpenSMB extends OpenNetworkPath
 		try {
 			getAttributes();
 			int opts = SmbFile.ATTR_DIRECTORY | SmbFile.ATTR_SYSTEM;
-			if(!Sorting.showHidden())
+			if(!ShowHiddenFiles)
 				opts |= SmbFile.ATTR_HIDDEN;
 			kids = mFile.listFiles("*", opts, null, null);
 		} catch(SmbAuthException e) {
