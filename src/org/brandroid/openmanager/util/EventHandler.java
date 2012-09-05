@@ -72,6 +72,7 @@ import org.brandroid.utils.Logger;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
 
+@SuppressLint("NewApi")
 public class EventHandler {
 	public static final EventType SEARCH_TYPE = EventType.SEARCH;
 	public static final EventType COPY_TYPE = EventType.COPY;
@@ -85,6 +86,7 @@ public class EventHandler {
 	public static final EventType TOUCH_TYPE = EventType.TOUCH;
 	public static final EventType ERROR_TYPE = EventType.ERROR;
 	public static final int BACKGROUND_NOTIFICATION_ID = 123;
+	private static boolean ENABLE_MULTITHREADS = !OpenExplorer.BEFORE_HONEYCOMB && false;
 
 	public enum EventType {
 		SEARCH, COPY, CUT, DELETE, RENAME, MKDIR, TOUCH, UNZIP, UNZIPTO, ZIP, ERROR
@@ -452,9 +454,10 @@ public class EventHandler {
 		execute(new BackgroundWork(COPY_TYPE, mContext, newPath, title), array);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static AsyncTask execute(AsyncTask job)
 	{
-		if(OpenExplorer.BEFORE_HONEYCOMB)
+		if(OpenExplorer.BEFORE_HONEYCOMB || !ENABLE_MULTITHREADS)
 			job.execute();
 		else
 			job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -462,7 +465,7 @@ public class EventHandler {
 	}
 	public static AsyncTask execute(AsyncTask job, OpenFile... params)
 	{
-		if(OpenExplorer.BEFORE_HONEYCOMB)
+		if(OpenExplorer.BEFORE_HONEYCOMB || !ENABLE_MULTITHREADS)
 			job.execute(params);
 		else
 			job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
@@ -470,7 +473,7 @@ public class EventHandler {
 	}
 	public static AsyncTask<OpenPath, Integer, Integer> execute(AsyncTask<OpenPath, Integer, Integer> job, OpenPath... params)
 	{
-		if(OpenExplorer.BEFORE_HONEYCOMB)
+		if(OpenExplorer.BEFORE_HONEYCOMB || !ENABLE_MULTITHREADS)
 			job.execute(params);
 		else
 			job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
@@ -478,7 +481,7 @@ public class EventHandler {
 	}
 	public static NetworkIOTask executeNetwork(NetworkIOTask job, OpenPath... params)
 	{
-		if(OpenExplorer.BEFORE_HONEYCOMB)
+		if(OpenExplorer.BEFORE_HONEYCOMB || !ENABLE_MULTITHREADS)
 			job.execute(params);
 		else
 			job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
@@ -486,7 +489,7 @@ public class EventHandler {
 	}
 	public static AsyncTask execute(AsyncTask job, String... params)
 	{
-		if(OpenExplorer.BEFORE_HONEYCOMB)
+		if(OpenExplorer.BEFORE_HONEYCOMB || !ENABLE_MULTITHREADS)
 			job.execute(params);
 		else
 			job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
@@ -682,8 +685,16 @@ public class EventHandler {
 
 		@Override
 		protected void onCancelled() {
-			super.onCancelled();
 			mNotifier.cancel(mNotifyId);
+			super.onCancelled();
+			mTasks.remove(this);
+		}
+		
+		@Override
+		protected void onCancelled(Integer result) {
+			mNotifier.cancel(mNotifyId);
+			super.onCancelled(result);
+			mTasks.remove(this);
 		}
 
 		protected void onPreExecute() {
@@ -742,14 +753,7 @@ public class EventHandler {
 			return notifIcon;
 		}
 
-		public void showNotification() {
-			if (!notifReady)
-				prepareNotification(R.drawable.ic_menu_copy, true);
-			mNotifier.notify(mNotifyId, mNote);
-		}
-
 		@SuppressLint("NewApi")
-		@SuppressWarnings("deprecation")
 		public void prepareNotification(int notifIcon, boolean isCancellable) {
 			boolean showProgress = true;
 			try {
@@ -757,8 +761,7 @@ public class EventHandler {
 				intent.putExtra("TaskId", taskId);
 				PendingIntent pendingIntent = PendingIntent.getActivity(
 						mContext, OpenExplorer.REQUEST_VIEW, intent, 0);
-				mNote = new Notification(notifIcon, getTitle(),
-						System.currentTimeMillis());
+				mNote = new Notification(notifIcon, getTitle(), System.currentTimeMillis());
 				if (showProgress) {
 					PendingIntent pendingCancel = PendingIntent.getActivity(
 							mContext, OpenExplorer.REQUEST_VIEW, intent, 0);
@@ -1241,14 +1244,16 @@ public class EventHandler {
 		protected void onPostExecute(Integer result) {
 			// NotificationManager mNotifier =
 			// (NotificationManager)mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-			BackgroundWork[] tasks = getRunningTasks();
-			if (tasks.length == 0
-					|| (tasks.length == 1 && tasks[0]
-							.equals(BackgroundWork.this)))
-				mNotifier.cancel(mNotifyId);
-
+			Logger.LogDebug("EventHandler.onPostExecute(" + mIntoPath + ")");
+			mNotifier.cancel(mNotifyId);
+			
 			if (mPDialog != null && mPDialog.isShowing())
 				mPDialog.dismiss();
+			
+			mTasks.remove(this);
+			
+			if(mTasks.size() == 0)
+				mNotifier.cancelAll();
 
 			switch (mType) {
 

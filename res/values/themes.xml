@@ -55,7 +55,7 @@
         <item name="colorBlack">@color/black</item>
     </style>
     
-    <style name="AppTheme.Light" parent="@style/Theme.Sherlock.Light.DarkActionBar">
+    <style name="AppTheme.Light" parent="@style/Theme.Sherlock.Light">
 		
         <item name="absForceOverflow">true</item>
 

@@ -137,6 +137,7 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter
 			if(items[i] != null && items[i] instanceof OpenPath)
 			{
 				OpenPath path = (OpenPath)items[i];
+				if(path == null) continue;
 				if(path.isDirectory())
 				{
 					do {

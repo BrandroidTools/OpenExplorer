@@ -12,24 +12,22 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.brandroid.openmanager.data.OpenNetworkPath.NetworkListener;
 import org.brandroid.openmanager.data.OpenPath.OpenPathByteIO;
 import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.util.FileManager;
-import org.brandroid.openmanager.util.RootManager;
-import org.brandroid.openmanager.util.RootManager.UpdateCallback;
 import org.brandroid.utils.Logger;
-
+import com.stericson.RootTools.Command;
+import com.stericson.RootTools.RootTools;
+import com.stericson.RootTools.Shell;
 import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
 import android.os.PatternMatcher;
 
 public class OpenFileRoot
 	extends OpenPath
-	implements //OpenPath.OpenPathUpdateListener,
+	implements OpenPath.OpenPathUpdateListener,
 		OpenPath.NeedsTempFile, OpenPath.OpenPathCopyable,
 		OpenPathByteIO
 {
@@ -175,10 +173,10 @@ public class OpenFileRoot
 	@Override
 	public OpenPath[] list() throws IOException {
 		if(mChildren == null)
-			return listFiles();
+			return new OpenPath[0];
 		if(getChildren() != null)
 			return getChildren().toArray(new OpenPath[getChildren().size()]);
-		else return null;
+		else return new OpenPath[0];
 	}
 	
 	private void addChild(OpenPath kid)
@@ -187,11 +185,9 @@ public class OpenFileRoot
 		{
 			ArrayList<OpenPath> tmp = new ArrayList<OpenPath>();
 			mChildren = new WeakReference<List<OpenPath>>(tmp);
-		} else {
-			if(!mChildren.get().contains(kid))
-				mChildren.get().add(kid);
 		}
-		
+		if(!mChildren.get().contains(kid))
+			mChildren.get().add(kid);
 	}
 	
 	public void list(final OpenContentUpdater callback) throws IOException {
@@ -207,67 +203,31 @@ public class OpenFileRoot
 			path += "/";
 		Logger.LogDebug("Trying to list " + path + " via Su with Callback");
 		final String[] buff = new String[]{null};
-		final String w = "ls -" + getLSOpts() + " " + path;
-		RootManager proc = new RootManager();
-		UpdateCallback callback2 = new UpdateCallback() {
-			
+		String lsopts = getLSOpts();
+		String bb = RootTools.getBusyBoxVersion();
+		if(bb == null) bb = "";
+		if(bb.equals(""))
+			lsopts = "";
+		final String w = (lsopts.equals("") ? "" : "busybox ") + "ls -l" + lsopts + " " + path;
+		Command cmd = new Command(0, 10, w) {
 			@Override
-			public void onUpdate() {
-				Logger.LogDebug("CF onUpdate");
-				callback.doneUpdating();
-				RootManager.Default.setUpdateCallback(null);
-			}
-			
-			private void processMessage(String msg)
-			{
-				String[] parts = msg.split(" +", 7);
-				if(parts.length < 7)
+			public void output(int id, String line) {
+				if(line.indexOf("\n") > -1)
+					for(String s : line.split("\n"))
+						output(id, s);
+				else
 				{
-					if(buff[0] != null)
-					{
-						msg = buff[0] + msg;
-						parts = msg.split(" +", 7);
-					} else buff[0] = msg;
-				}
-				if(parts.length >= 7)
-				{
-					OpenFileRoot kid = new OpenFileRoot(getPath(), msg);
+					OpenFileRoot kid = new OpenFileRoot(getPath(), line);
 					addChild(kid);
 					callback.addContentPath(kid);
 				}
-				else if(msg.trim().length() > 0)
-					Logger.LogDebug("CF Saving for later: " + msg);
 			}
-			
 			@Override
-			public boolean onReceiveMessage(String msg) {
-				Logger.LogDebug("CF Message: (" + w + "): " + msg.length()); //.replace("\n", "\\n"));
-				if(msg.indexOf("\n") > -1)
-				{
-					RootManager.Default.onUpdate();
-					while(msg.indexOf("\n") > -1)
-					{
-						String s = msg.substring(0, msg.indexOf("\n"));
-						msg = msg.substring(msg.indexOf("\n") + 1);
-						processMessage(s);
-					}
-					buff[0] = msg;
-					mLoaded = true;
-					return true;
-				}
-				if(msg != null && !msg.trim().equals(""))
-					processMessage(msg);
-				return false;
-			}
-			
-			@Override
-			public void onExit() {
-				Logger.LogDebug("CF onExit");
-				RootManager.Default.setUpdateCallback(null);
-				mLoaded = true;
+			public void commandFinished(int id) {
+				callback.doneUpdating();
 			}
 		};
-		RootManager.Default.write(w, callback2);
+		Shell.startRootShell().add(cmd);
 	}
 
 	@Override
@@ -281,7 +241,22 @@ public class OpenFileRoot
 		else mChildren = new WeakReference<List<OpenPath>>(new ArrayList<OpenPath>());
 		String opts = getLSOpts();
 		String cmd = "ls -l" + opts + " " + path;
-		String data = execute(cmd, !opts.equals(""));
+		Command command = new Command(0, 500, cmd) {
+			@Override
+			public void output(int id, String line) {
+				if(line.indexOf("\n") > -1)
+				{
+					for(String s : line.split("\n"))
+						output(id, s);
+					return;
+				}
+				addChild(new OpenFileRoot(getPath(), line));
+			}
+		};
+		try {
+			command.waitForFinish(500);
+		} catch(Exception e) { }
+		/*execute(cmd, !opts.equals(""));
 		while(!data.equals(""))
 		{
 			String child = data; 
@@ -293,17 +268,15 @@ public class OpenFileRoot
 			if(child.split(" ").length > 4)
 				addChild(new OpenFileRoot(getPath(), child));
 			else Logger.LogWarning("Skipping Row while listing: " + child);
-		}
+		}*/
 		return list();
 	}
 	
 	private String getLSOpts()
 	{
 		String lsOpts = "";
-		/*
-		if(Sorting.showHidden())
+		if(ShowHiddenFiles)
 			lsOpts += "A";
-		*/
 		switch(Sorting.getType())
 		{
 		case ALPHA_DESC:
@@ -441,71 +414,26 @@ public class OpenFileRoot
 		copyFrom(tmp);
 	}
 	
-	private String execute(final String cmd) { return execute(cmd, false, -1); }
-	private String execute(final String cmd, boolean useBusyBox) { return execute(cmd, useBusyBox, -1); }
-	private String execute(final String cmd, boolean useBusyBox, int size)
+	private String execute(final String cmd, boolean useBusyBox)
 	{
 		final boolean[] waiting = new boolean[]{true};
-		final int[] sizes = new int[]{size};
-		final String[] ret = new String[1];
-		String bb = useBusyBox ? RootManager.Default.getBusyBox() : "";
-		if(bb == null || !bb.startsWith("/"))
-			bb = "";
-		else if(!bb.equals(""))
-			bb += " ";
+		final String[] ret = new String[]{""};
+		final String bb = useBusyBox && RootTools.isBusyboxAvailable() ? "busybox " : "";
 		try {
-			RootManager.Default.write(bb + cmd,
-				new UpdateCallback() {
-					public void onUpdate() {
-						Logger.LogDebug("Done with command: " + cmd);
-						waiting[0] = false;
-					}
-					public boolean onReceiveMessage(String msg) {
-						Logger.LogDebug("OpenFileRoot.execute.onReceiveMessage(" + msg + ")");
-						ret[0] = (ret[0] == null ? "" : ret[0]) + msg;
-						if(msg.length() > sizes[0])
-						{
-							waiting[0] = false;
-							return true;
-						} else sizes[0] -= msg.length();
-						return false;
-					}
-					public void onExit() {
-						waiting[0] = false;
-					}
-			});
-		} catch(Exception e) {
-			Logger.LogError("Unable to execute command: " + cmd, e);
-			return null;
+			new Command(0, 500, bb + cmd) {
+				@Override
+				public void output(int id, String line) {
+					ret[0] = ret[0] + (ret[0] == "" ? "" : "\n") + line;
+				}
+			}.waitForFinish(500);
+		} catch (Exception e) {
+			Logger.LogError("Could not execute: " + cmd, e);
 		}
-		try {
-			while(waiting[0]) { Thread.sleep(50); }
-		} catch(InterruptedException e) { }
 		return ret[0];
 	}
 	
 	public static boolean copy(final OpenPath src, final OpenPath dest) {
-		final boolean[] waiting = new boolean[]{true};
-		try {
-			RootManager.Default.write("cp -f " + src.getPath() + " " + dest.getPath(),
-				new UpdateCallback() {
-					public void onUpdate() {
-						Logger.LogDebug("Done copying " + src.getPath() + " to " + dest.getPath());
-						waiting[0] = false;
-					}
-					public boolean onReceiveMessage(String msg) {
-						waiting[0] = false;
-						return true;
-					}
-					public void onExit() { }
-			});
-		} catch(Exception e) {
-			return false;
-		}
-		try {
-			while(waiting[0]) { Thread.sleep(50); }
-		} catch(InterruptedException e) { }
-		return true;
+		return RootTools.copyFile(src.getPath(), dest.getPath(), false, false);
 	}
 	public boolean copyTo(OpenFile dest) { return copy(this, dest); }
 	
@@ -513,24 +441,24 @@ public class OpenFileRoot
 	public boolean copyFrom(OpenPath file) {
 		if(file instanceof OpenFile)
 		{
-			String cmd = "cp -f " + file.getPath() + " " + getPath();
-			String output = execute(cmd, false);
-			if(output.indexOf(cmd) > -1)
-				return true;
+			RootTools.copyFile(file.getPath(), getPath(), true, false);
 		}
 		return copy(file, this);
 	}
 	@Override
 	public byte[] readBytes() {
 		OpenFile tmp = getTempFile();
-		if(tmp.exists() && tmp.length() > 0 && tmp.lastModified() >= lastModified())
+		try {
+			if(!(tmp.exists() && tmp.length() > 0 && tmp.lastModified() >= lastModified()))
+				tempDownload(null);
+			tmp = getTempFile();
+			if(tmp != null)
+				return tmp.readAscii().getBytes();
+		} catch(Exception e)
 		{
-			String ret = execute("cat " + tmp.getPath(), false);
-			return ret.getBytes();
-		} else {
-			String ret = execute("cat " + getPath(), false);
-			return ret.getBytes();
+			Logger.LogError("Unable to read root file: " + getPath(), e);
 		}
+		return null;
 		
 	}
 	@Override

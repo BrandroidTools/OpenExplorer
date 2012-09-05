@@ -191,6 +191,7 @@ import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.jcraft.jsch.JSchException;
+import com.stericson.RootTools.RootTools;
 import com.viewpagerindicator.TabPageIndicator;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -618,24 +619,33 @@ public class OpenExplorer
 	
 	private void checkRoot() {
 		try {
-			if(getPreferences().getSetting("global", "pref_root", false)
-					&& (RootManager.Default == null || !RootManager.Default.isRoot()))
+			if(getPreferences().getSetting("global", "pref_root", false))
+					//&& (RootManager.Default == null || !RootManager.Default.isRoot()))
 				requestRoot();
-			else if(RootManager.Default != null)
+			else //if(RootManager.Default != null)
 				exitRoot();
 		} catch(Exception e) { Logger.LogWarning("Couldn't get root.", e); }
 	}
 	
 	private void requestRoot() {
 		new Thread(new Runnable(){public void run(){
-			RootManager.Default.requestRoot();
+			if(RootTools.isAccessGiven())
+				try {
+					RootTools.getShell(true);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}}).start();
 	}
 	
 	private void exitRoot() {
-		if(RootManager.Default == null) return;
 		new Thread(new Runnable(){public void run(){
-			RootManager.Default.exitRoot();
+			try {
+				RootTools.closeAllShells();
+			} catch (IOException e) {
+				Logger.LogWarning("An exception occurred while closing root shells.", e);
+			}
 		}}).start();
 	}
 	
@@ -2747,7 +2757,7 @@ public class OpenExplorer
 		Logger.LogDebug("OpenExplorer.onActivityResult(" + requestCode + ", " + resultCode + ", " + (data != null ? data.toString() : "null") + ")");
 		if(requestCode == REQ_PREFERENCES)
 		{
-			if(resultCode == RESULT_RESTART_NEEDED) {
+			if(resultCode == RESULT_RESTART_NEEDED || data != null && data.hasExtra("restart") && data.getBooleanExtra("restart", true)) {
 				showToast(R.string.s_alert_restart);
 				goHome(); // just restart
 			} else {
@@ -2940,7 +2950,9 @@ public class OpenExplorer
 				{
 					OpenFragment f = mViewPagerAdapter.getItem(i);
 					if(f == null || !(f instanceof ContentFragment)) continue;
-					if(!familyTree.contains(((ContentFragment)f).getPath()))
+					OpenPath tp = ((ContentFragment)f).getPath();
+					if(tp instanceof OpenSmartFolder ||
+							!familyTree.contains(tp))
 					{
 						mViewPagerAdapter.remove(i);
 						//removed = true;

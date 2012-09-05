@@ -27,6 +27,7 @@ import org.brandroid.openmanager.data.OpenFileRoot;
 import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenFile;
+import org.brandroid.openmanager.data.OpenPathArray;
 import org.brandroid.openmanager.data.OpenZip;
 import org.brandroid.openmanager.data.OpenPath.OpenContentUpdater;
 import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateListener;
@@ -72,6 +73,8 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
+import android.content.ClipData.Item;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -238,9 +241,14 @@ public class ContentFragment extends OpenFragment
 			mContentAdapter.setShowHiddenFiles(
 					getViewSetting(getPath(), "show", getViewSetting(null, "pref_show", false))
 							);
-			mContentAdapter.setSorting(new SortType(
+			SortType sort = new SortType(
 					getViewSetting(getPath(), "sort", getViewSetting(null, "pref_sorting", SortType.ALPHA.toString()))
-					));
+					);
+			if(getViewSetting(getPath(), "ff", (Boolean)null) != null)
+				sort.setFoldersFirst(getViewSetting(getPath(), "ff", true));
+			else
+				sort.setFoldersFirst(getSetting(null, "pref_sorting_folders", true));
+			mContentAdapter.setSorting(sort);
 		}
 		return mContentAdapter;
 	}
@@ -572,18 +580,19 @@ public class ContentFragment extends OpenFragment
 		if(mPath instanceof OpenPathUpdateListener)
 		{
 			try {
+				mContentAdapter.clearData();
+				
 				((OpenPathUpdateListener)mPath).list(new OpenContentUpdater() {
 					public void addContentPath(OpenPath file) {
 						if(!mContentAdapter.contains(file))
-						{
 							mContentAdapter.add(file);
-						}
 					}
 
 					@Override
 					public void doneUpdating() {
 						mContentAdapter.sort();
 						notifyDataSetChanged();
+						ViewUtils.setViewsVisible(getView(), false, android.R.id.empty);
 					}
 				});
 				return;
@@ -996,7 +1005,9 @@ public class ContentFragment extends OpenFragment
 		if(DEBUG)
 			Logger.LogDebug("ContentFragment.onOptionsItemSelected(0x" + Integer.toHexString(item.getItemId()) + ":" + item.getTitle() + ")");
 		OpenPath path = null;
-		if(mMenuContextItemIndex > -1 && mMenuContextItemIndex < getContentAdapter().getCount())
+		if(getSelectedCount() > 0)
+			path = mContentAdapter.getSelectedSet().last();
+		else if(mMenuContextItemIndex > -1 && mMenuContextItemIndex < getContentAdapter().getCount())
 			path = getContentAdapter().getItem(mMenuContextItemIndex);
 		if(path != null && executeMenu(item.getItemId(), getActionMode(), path))
 			return true;
@@ -1077,7 +1088,19 @@ public class ContentFragment extends OpenFragment
 				return true;
 				
 			case R.id.menu_context_download:
-				downloadFile((OpenNetworkPath)file);
+				if(file instanceof OpenNetworkPath)
+					downloadFile((OpenNetworkPath)file);
+				else
+				{
+					OpenPath dl = OpenExplorer.getDownloadParent().getFirstDir();
+					if(dl == null)
+						dl = OpenFile.getExternalMemoryDrive(true).getChild("download");
+					dl = dl.getChild(file.getName());
+					if(!file.equals(dl))
+						getEventHandler().copyFile(file, dl, getExplorer());
+					else return true;
+				}
+				finishMode(mode);
 				return true;
 			
 			case R.id.menu_context_selectall:
@@ -1134,8 +1157,13 @@ public class ContentFragment extends OpenFragment
 				if(!fromPasteMenu)
 					getClipboard().add(file);
 				return true;
+				
 			case R.id.menu_context_bookmark:
-				getExplorer().addBookmark(file);
+				if(getSelectedCount() > 0)
+					for(OpenPath p : mContentAdapter.getSelectedSet())
+						getExplorer().addBookmark(p);
+				else
+					getExplorer().addBookmark(file);
 				finishMode(mode);
 				return true;
 				
@@ -1259,7 +1287,12 @@ public class ContentFragment extends OpenFragment
 				return true;
 				
 			case R.id.menu_context_heatmap:
-				DialogHandler.showFileHeatmap(getExplorer(), file);
+				if(getSelectedCount() > 0)
+				{
+					OpenPathArray sels = new OpenPathArray(mContentAdapter.getSelectedSet().toArray(new OpenPath[getSelectedCount()]));
+					DialogHandler.showFileHeatmap(getExplorer(), sels);
+				} else
+					DialogHandler.showFileHeatmap(getExplorer(), file);
 				finishMode(mode);
 				return true;
 				
@@ -1287,6 +1320,13 @@ public class ContentFragment extends OpenFragment
 	//			return true;
 			}
 		return false;
+	}
+	
+	@Override
+	protected void finishMode(ActionMode mode) {
+		super.finishMode(mode);
+		if(getSelectedCount() > 0)
+			mContentAdapter.clearSelection();
 	}
 
 /*	@Override
@@ -1904,8 +1944,15 @@ public class ContentFragment extends OpenFragment
 				mShareActionProvider = (ShareActionProvider) mShare
 						.getActionProvider();
 				if(mShareActionProvider != null)
+				{
+					OpenPath first = mContentAdapter.getSelectedSet().first();
+					Intent shareIntent = new Intent(Intent.ACTION_SEND);
+					shareIntent.setType(first.getMimeType());
+					shareIntent.putExtra(Intent.EXTRA_STREAM, first.getUri());
+					mShareActionProvider.setShareIntent(shareIntent);
 					mShareActionProvider
 						.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
+				}
 			}
 
 			return true;
@@ -1917,7 +1964,38 @@ public class ContentFragment extends OpenFragment
 			// Set title -- "# selected"
 			mode.setTitle(getExplorer().getResources().getQuantityString(
 					R.plurals.num_selected, num, num));
-					
+			
+			if(mShareActionProvider != null)
+			{
+				Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+				OpenPath first = mContentAdapter.getSelectedSet().first();
+				String type = first.getMimeType();
+				ArrayList<Uri> uris = new ArrayList<Uri>();
+				for(OpenPath sel : mContentAdapter.getSelectedSet())
+				{
+					if(!type.equals(sel.getMimeType()))
+						type = "*/*";
+					uris.add(sel.getUri());
+				}
+				shareIntent.setType(type);
+				shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+				mShareActionProvider.setShareIntent(shareIntent);
+			}
+			
+			boolean writable = true, readable = true;
+			for(OpenPath p : mContentAdapter.getSelectedSet())
+			{
+				if(!p.canWrite())
+					writable = false;
+				if(!p.canRead())
+					readable = false;
+			}
+			
+			MenuUtils.setMenuEnabled(menu, writable, R.id.menu_context_delete, R.id.menu_context_cut);
+			MenuUtils.setMenuEnabled(menu, readable, R.id.menu_context_copy, R.id.menu_context_cut, R.id.menu_context_download, R.id.menu_context_rename, R.id.menu_context_zip);
+			
+			MenuUtils.setMenuVisible(menu, num == 1, R.id.menu_context_bookmark);
+			
 			mRename.setVisible(num == 1);
 			mInfo.setVisible(num == 1);
 
@@ -2084,7 +2162,14 @@ public class ContentFragment extends OpenFragment
 	}
 
 	public void notifyDataSetChanged() {
-		if(mContentAdapter == null && getExplorer() != null) {
+		if(getExplorer() == null) return;
+		if(!Thread.currentThread().equals(OpenExplorer.UiThread))
+		{
+			if(getView() != null)
+				getView().post(new Runnable() {public void run() { notifyDataSetChanged(); } });
+			return;
+		}
+		if(mContentAdapter == null) {
 			mContentAdapter = getContentAdapter();
 		}
 		if(mGrid != null && (mGrid.getAdapter() == null || !mGrid.getAdapter().equals(mContentAdapter)))
@@ -2095,8 +2180,8 @@ public class ContentFragment extends OpenFragment
 		mContentAdapter.notifyDataSetChanged();
 		
 		boolean empty = mContentAdapter == null || mContentAdapter.getCount() == 0;
-		if(empty && getResources() != null)
-			ViewUtils.setText(getView(), getResources().getString(!mPath.isLoaded() ? R.string.s_status_loading : R.string.no_items), android.R.id.empty);
+		if(empty)
+			ViewUtils.setText(getView(), getString(!mPath.isLoaded() ? R.string.s_status_loading : R.string.no_items, ""), android.R.id.empty);
 		ViewUtils.setViewsVisibleNow(getView(), empty, android.R.id.empty);
 		
 		//TODO check to see if this is the source of inefficiency

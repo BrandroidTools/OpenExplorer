@@ -52,7 +52,11 @@ import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.ActionMode;
+import com.actionbarsherlock.view.MenuItem;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
@@ -80,8 +84,8 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.CheckBoxPreference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.view.Menu;
@@ -91,7 +95,7 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Toast;
 
-public class SettingsActivity extends PreferenceActivity
+public class SettingsActivity extends SherlockPreferenceActivity
 	implements OnPreferenceChangeListener, OpenApp
 {
 	//keys used for preference file
@@ -147,12 +151,21 @@ public class SettingsActivity extends PreferenceActivity
 		return super.onPreferenceStartFragment(caller, pref);
 	}
 	
-	@SuppressLint("NewApi")
+	public ActionBar getSupportActionBar()
+	{
+		return super.getSupportActionBar();
+		//return null;
+	}
+	
 	@SuppressWarnings("deprecation")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		setTheme(R.style.AppTheme_Dark);
+		
+		ActionBar bar = getSupportActionBar();
+		if(bar != null)
+			bar.setDisplayHomeAsUpEnabled(true);
 		
 		Intent intent = getIntent();
 		if(intent == null) intent = new Intent();
@@ -260,19 +273,6 @@ public class SettingsActivity extends PreferenceActivity
 					});
 				}
 				
-				PreferenceScreen pReset = (PreferenceScreen)pm.findPreference("pref_reset_views");
-				if(pReset != null)
-					pReset.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-						@Override
-						public boolean onPreferenceClick(Preference preference)
-						{
-							
-							Toast.makeText(getApplicationContext(),
-									R.string.s_toast_complete, Toast.LENGTH_SHORT);
-							return true;
-						}
-					});
-				
 				refreshServerList();
 			}
 		} else if(mode == MODE_SERVER) {
@@ -329,19 +329,6 @@ public class SettingsActivity extends PreferenceActivity
 		}
 		setOnChange(getPreferenceScreen(), false);
 		
-		if(!OpenExplorer.BEFORE_HONEYCOMB && hasHeaders())
-		{
-			Button button = new Button(this);
-			button.setText(android.R.string.ok);
-			button.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					finish();
-				}
-			});
-			setListFooter(button);
-		}
-		
 		/*
 		mHandler = new Handler();
 		mDonationObserver = new DonationObserver(mHandler);
@@ -362,7 +349,7 @@ public class SettingsActivity extends PreferenceActivity
 	}
 	
 	private void refreshServerList() {
-		PreferenceCategory mPrefServers = (PreferenceCategory)findPreference("servers");
+		PreferenceGroup mPrefServers = (PreferenceGroup)findPreference("servers");
 		if(mPrefServers != null)
 		{
 			//for(int i = mPrefServers.getPreferenceCount() - 1; i > 0; i--)
@@ -406,9 +393,9 @@ public class SettingsActivity extends PreferenceActivity
 	private void setOnChange(Preference p, Boolean forceSummaries)
 	{
 		if(p == null) return;
-		if(p instanceof PreferenceScreen)
+		if(p instanceof PreferenceGroup)
 		{
-			PreferenceScreen ps = (PreferenceScreen)p;
+			PreferenceGroup ps = (PreferenceGroup)p;
 			for(int i = 0; i < ps.getPreferenceCount(); i++)
 				setOnChange(ps.getPreference(i), forceSummaries);
 			return;
@@ -485,6 +472,16 @@ public class SettingsActivity extends PreferenceActivity
 			refreshServerList();
 			//prefs.setSetting("global", "servers", servers.getJSONObject());
 		}
+	}
+	
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId())
+		{
+		case android.R.id.home:
+			finish();
+			return true;
+		}
+		return false;
 	}
 
     @Override
@@ -581,21 +578,20 @@ public class SettingsActivity extends PreferenceActivity
         return null;
     }
     
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		//getMenuInflater().inflate(R.menu.actbar, menu);
-		return true;
-	}
-
 	public boolean onPreferenceChange(final Preference preference, final Object newValue) {
 		final String key = preference.getKey();
+		
+		Logger.LogDebug("SettingsActivity.onPreferenceChange(" + key + ", " + newValue + ")");
+		
 		if(key.equals("server_host") && (!getIntent().hasExtra("name") || getIntent().getStringExtra("name") == null))
 			onPreferenceChange(getPreferenceScreen().findPreference("server_name"), newValue);
 		Intent intent = getIntent();
 		if(Utils.inArray(key, "pref_fullscreen", "pref_fancy_menus", "pref_basebar", "pref_theme",
 					"pref_stats", "pref_root", "pref_language"))
-			setResult(OpenExplorer.RESULT_RESTART_NEEDED);
+		{
+			intent.putExtra("restart", true);
+			setResult(OpenExplorer.RESULT_RESTART_NEEDED, intent);
+		}
 		if(key.equals("pref_language"))
 			preference.setSummary(getDisplayLanguage((String)newValue));
 		else if(preference instanceof ListPreference && newValue instanceof String)
@@ -618,30 +614,54 @@ public class SettingsActivity extends PreferenceActivity
 				app.getAnalyticsTracker().trackEvent("Preferences", "Change", key, newValue instanceof Integer ? (Integer)newValue : 0);
 			}
 		});
+		setIntent(intent);
 		if(Arrays.binarySearch(new String[]{"pref_fullscreen", "pref_fancy_menus", "pref_basebar", "pref_theme",
 					"pref_stats", "pref_root", "pref_language"}, key) > -1)
-			setResult(OpenExplorer.RESULT_RESTART_NEEDED);
-		setIntent(intent);
+		{
+			intent.putExtra("restart", true);
+			setResult(OpenExplorer.RESULT_RESTART_NEEDED, intent);
+		} else
+			setResult(OpenExplorer.RESULT_OK, intent);
 		return true;
 	}
 	
 	private void askApplyToAll(final Preference preference, final String spKeyPrefix)
 	{
+		Preferences prefs = new Preferences(this);
+		final SharedPreferences sp = Preferences.getPreferences("views");
+		final SharedPreferences spGlobal = prefs.getPreferences();
+		final Runnable clearAll = new Runnable() {
+			public void run() {
+				SharedPreferences.Editor editor = sp.edit();
+				Map<String, ?> map = sp.getAll();
+				for(String pkey : map.keySet())
+					if(pkey.startsWith(spKeyPrefix))
+						editor.remove(pkey);
+				editor.commit();
+			}
+		};
+		/*if(spGlobal.getBoolean("pref_always_" + spKeyPrefix, false)) {
+			clearAll.run();
+		}*/
+		DialogInterface.OnClickListener listener =
+			new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					switch(which)
+					{
+					case R.string.activity_resolver_use_always:
+						spGlobal.edit().putBoolean("pref_always_" + spKeyPrefix, true).commit();
+					case R.string.activity_resolver_use_once:
+						clearAll.run();
+						break;
+					}
+				}
+			};
+		
 		DialogHandler.showConfirmationDialog(getContext(),
 				getString(R.string.apply_to_all),
 				preference.getTitle().toString(),
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						SharedPreferences sp = Preferences.getPreferences("views");
-						SharedPreferences.Editor editor = sp.edit();
-						Map<String, ?> map = sp.getAll();
-						for(String pkey : map.keySet())
-							if(pkey.startsWith(spKeyPrefix))
-								editor.remove(pkey);
-						editor.commit();
-					}
-				});
-	}
+				listener);
+		}
 	
 	public static File GetDefaultServerFile(Context context)
 	{
@@ -855,9 +875,9 @@ public class SettingsActivity extends PreferenceActivity
 			{
 				Preference p = ps.findPreference(getArguments().getCharSequence("key"));
 				ps.removeAll();
-				if(p instanceof PreferenceCategory)
+				if(p instanceof PreferenceGroup)
 				{
-					PreferenceCategory pc = (PreferenceCategory)p;
+					PreferenceGroup pc = (PreferenceGroup)p;
 					for(int i = 0; i < pc.getPreferenceCount(); i++)
 						ps.addPreference(pc.getPreference(i));
 				} else

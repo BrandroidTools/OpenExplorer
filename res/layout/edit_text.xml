@@ -5,14 +5,27 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 	
-	<ListView
-	    android:id="@android:id/list"
+    
+	<HorizontalScrollView
+	    android:id="@+id/text_view_scroller_horizontal"
 	    android:layout_width="match_parent"
-	    android:layout_height="match_parent" 
-	    android:scrollingCache="false"
-	    android:fastScrollEnabled="true"
-	    android:listSelector="@color/transparent"
-	    />
+	    android:layout_height="match_parent"
+	    >
+	</HorizontalScrollView>
+	<LinearLayout
+	    android:id="@+id/text_view_noscroll"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    >
+		<ListView
+		    android:id="@android:id/list"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent" 
+		    android:scrollingCache="false"
+		    android:fastScrollEnabled="true"
+		    android:listSelector="@color/transparent"
+		    />
+	</LinearLayout>
 	
 	<ScrollView android:id="@+id/text_view_scroller"
 	    android:layout_width="match_parent"
@@ -20,14 +33,14 @@
 	    android:scrollbars="vertical"
 	    android:visibility="gone"
 	    >
-	<TableLayout
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:id="@+id/text_view_table"
-	    >
-
-	    
-	</TableLayout>
+		<TableLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:id="@+id/text_view_table"
+		    >
+	
+		    
+		</TableLayout>
 	</ScrollView>
 	
     <EditText

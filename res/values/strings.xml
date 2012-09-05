@@ -335,6 +335,9 @@
     <string name="s_pref_bookmarks_summary">Show Bookmarks</string>
     <string name="s_menu_heatmap">Heatmap</string>
     <string name="apply_to_all">Would you like to apply to all folders?</string>
+    <string name="s_pref_view_folders">Folders Preferences</string>
+    <string name="s_pref_view_general">General Preferences</string>
+    <string name="s_pref_text_wrap">Wrap text</string>
     
     <plurals name="num_selected">
         <item quantity="one">One file selected</item>

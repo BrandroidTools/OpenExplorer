@@ -104,7 +104,10 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
 	
 	@Override
 	protected OpenPath[] doInBackground(OpenPath... params) {
-		if(instanceRunning) return null;
+		if(instanceRunning) {
+			Logger.LogWarning("Instance is already running!");
+			return null;
+		}
 		instanceRunning = true;
 		this.params = params;
 		publishProgress();

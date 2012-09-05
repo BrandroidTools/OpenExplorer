@@ -33,6 +33,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
+import com.actionbarsherlock.widget.ShareActionProvider;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
@@ -115,52 +116,40 @@ public abstract class OpenFragment
 		public OpenPath getPath() { return file; }
 	}
 	
+	private void modifyMenuShare(Menu menu, OpenPath mPath)
+	{
+		MenuItem mShare = menu.findItem(R.id.menu_context_share);
+		if(mShare == null) return;
+		mShare.setVisible(true);
+		ShareActionProvider mShareProvider = (ShareActionProvider)mShare.getActionProvider();
+		if(mShareProvider == null)
+		{
+			mShareProvider = new ShareActionProvider(getContext());
+			mShare.setActionProvider(mShareProvider);
+		}
+		
+		Intent intent = IntentManager.getIntent(mPath, getExplorer());
+		intent.setType(mPath.getMimeType());
+		mShareProvider.setShareIntent(intent);
+
+	}
+	
+	public String getString(int resId, String mDefault)
+	{
+		if(getExplorer() != null)
+			return getExplorer().getString(resId);
+		else return mDefault;
+	}
+	
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-
+		
 		if(this instanceof OpenPathFragmentInterface)
 		{
 			OpenPath mPath = ((OpenPathFragmentInterface)this).getPath();
-			if(mPath.canHandleInternally())
-			{
-				Intent intent = IntentManager.getIntent(mPath, getExplorer());
-				List<ResolveInfo> resolves = IntentManager.getResolvesAvailable(mPath, getExplorer());
-				PackageManager pm = getExplorer().getPackageManager();
-				if(resolves.size() == 1 && (resolves.get(0).activityInfo.packageName == null || !resolves.get(0).activityInfo.packageName.startsWith("org.brandroid.openmanager")))
-				{
-					ResolveInfo resolve = resolves.get(0);
-					Drawable icon = getResolveIcon(pm, resolve);
-					CharSequence title = pm.getApplicationLabel(resolve.activityInfo.applicationInfo);
-					if(title == null)
-						title = "Default App";
-					if(icon == null)
-						icon = ThumbnailCreator.getDefaultDrawable(mPath, 32, 32, getContext());
-					menu.add(title)
-						.setIcon(icon)
-						.setIntent(intent)
-						.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-				} else if(resolves.size() > 1) {
-					int pos = 0;
-					for(ResolveInfo resolve : resolves)
-					{
-						if(resolve == null) continue;
-						String pkg = resolve.activityInfo.packageName;
-						if(pkg != null && pkg.startsWith("org.brandroid.openmanager")) continue;
-						Intent intent2 = new Intent(intent);
-						intent2.setPackage(pkg);
-						Drawable icon = getResolveIcon(pm, resolve);
-						CharSequence title = pm.getApplicationLabel(resolve.activityInfo.applicationInfo);
-						if(title == null)
-							title = getString(R.string.noApplications);
-						menu.add(title)
-							.setIcon(icon)
-							.setIntent(intent2)
-							.setShowAsAction(pos++ == 0 ? MenuItem.SHOW_AS_ACTION_ALWAYS : MenuItem.SHOW_AS_ACTION_IF_ROOM);
-					}
-				}
-			}
-		}
+			modifyMenuShare(menu, mPath);
+		} else MenuUtils.setMenuVisible(menu, false, R.id.menu_context_share);
 	}
 	
 	private Drawable getResolveIcon(PackageManager pm, ResolveInfo info)
@@ -543,7 +532,7 @@ public abstract class OpenFragment
 			getExplorer().refreshOperations();
 	}
 	
-	protected final void finishMode(ActionMode mode)
+	protected void finishMode(ActionMode mode)
 	{
 		if(mode != null)
 			mode.finish();

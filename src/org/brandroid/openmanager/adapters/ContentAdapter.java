@@ -11,6 +11,8 @@ import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.BookmarkHolder;
 import org.brandroid.openmanager.data.OpenPath;
+import org.brandroid.openmanager.data.OpenPath.OpenContentUpdater;
+import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateListener;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.openmanager.util.ThumbnailCreator;
@@ -111,7 +113,12 @@ public class ContentAdapter extends BaseAdapter {
 	public void setSorting(SortType sort) { mSorting = sort; notifyDataSetChanged(); }
 	public SortType getSorting() { return mSorting; }
 	
-	public void updateData() { updateData(getList()); } 
+	public void updateData() {
+		OpenPath[] list = getList();
+		if(list == null)
+			list = new OpenPath[0];
+		updateData(list);
+	} 
 	public void updateData(final OpenPath[] items) { updateData(items, true); }
 	private void updateData(final OpenPath[] items,
 			final boolean doSort) {
@@ -169,6 +176,8 @@ public class ContentAdapter extends BaseAdapter {
 	
 	private OpenPath[] getList() {
 		try {
+			if(!mParent.isLoaded() && mParent instanceof OpenPathUpdateListener)
+				return new OpenPath[0];
 			if(mParent.requiresThread() && Thread.currentThread().equals(OpenExplorer.UiThread))
 				return mParent.list();
 			else
@@ -381,6 +390,10 @@ public class ContentAdapter extends BaseAdapter {
 	@Override
 	public long getItemId(int position) {
 		return position;
+	}
+	
+	public void clearData() {
+		mData2.clear();
 	}
 	
 	public void add(OpenPath p) {
