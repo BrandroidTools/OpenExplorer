@@ -103,6 +103,7 @@ public class OpenCursor extends OpenPath
 	}
 	public boolean hasListener() { return mListener != null; }
 	
+	@Override
 	public boolean isLoaded() { return loaded; }
 	
 	public interface UpdateBookmarkTextListener

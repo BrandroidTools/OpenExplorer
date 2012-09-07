@@ -55,6 +55,12 @@
 		        android:checkable="true"
 		        android:checked="true"
 		        />
+		    <item
+		        android:id="@+id/menu_text_wrap"
+		        android:title="@string/s_pref_text_wrap"
+		        android:checkable="true"
+		        android:checked="true"
+		        />
 			<item
 			    android:id="@+id/menu_view_fullscreen"
 			    android:checkable="true"

@@ -24,7 +24,7 @@
     <dimen name="grid_width">128dp</dimen>
     <dimen name="list_width">300dp</dimen>
     <dimen name="multiselect_width">48dp</dimen>
-    <dimen name="list_icon_size">36dp</dimen>
+    <dimen name="list_icon_size">44sp</dimen>
     <dimen name="grid_icon_size">128dp</dimen>
     <dimen name="large_text_size">16dp</dimen>
     <dimen name="large_text_height">20dp</dimen>

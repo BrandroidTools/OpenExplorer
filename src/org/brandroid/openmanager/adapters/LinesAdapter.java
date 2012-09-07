@@ -8,6 +8,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
@@ -19,6 +20,7 @@ public class LinesAdapter extends BaseAdapter
 	private float mTextSize;
 	private Integer mRefreshTicker = 0;
 	private boolean mShowLines = true;
+	private boolean mTextWrap = true;
 	
 	public LinesAdapter(Context c, String[] lines)
 	{
@@ -99,6 +101,14 @@ public class LinesAdapter extends BaseAdapter
 		}
 		TextView txtLine = (TextView)ret.findViewById(R.id.text_line);
 		TextView txtData = (TextView)ret.findViewById(R.id.text_data);
+		if(!mTextWrap)
+		{
+			txtData.getLayoutParams().width = LayoutParams.WRAP_CONTENT;
+			txtData.setSingleLine(true);
+		} else {
+			txtData.getLayoutParams().width = LayoutParams.MATCH_PARENT;
+			txtData.setSingleLine(false);
+		}
 		if(mShowLines)
 			txtLine.setText(repeat(" ", ((Integer)getCount()).toString().length() - ((Integer)position).toString().length())
 				+ position);
@@ -111,6 +121,11 @@ public class LinesAdapter extends BaseAdapter
 		}
 		
 		return ret;
+	}
+
+	public void setTextWrap(boolean wrap) {
+		mTextWrap = wrap;
+		notifyDataSetChanged();
 	}
 	
 }

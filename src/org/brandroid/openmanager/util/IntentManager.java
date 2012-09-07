@@ -66,7 +66,7 @@ public class IntentManager
 	public static boolean startIntent(final OpenPath file, final OpenExplorer app, boolean bInnerChooser)
 	{
 		final PackageManager pm = app.getPackageManager();
-		if(!isIntentAvailable(file, app))
+		if(getIntentsAvailable(file, app) < 1)
 		{
 			Logger.LogWarning("No matching intents!");
 			return false;
@@ -201,12 +201,19 @@ public class IntentManager
 		}
 		return false;
 	}
-	
-	public static boolean isIntentAvailable(OpenPath file, OpenExplorer app)
+
+	public static int getIntentsAvailable(OpenPath file, OpenExplorer app)
 	{
 		Intent toCheck = getIntent(file, app);
-		if(toCheck == null) return false;
-		return app.getPackageManager().queryIntentActivities(toCheck, PackageManager.MATCH_DEFAULT_ONLY).size() > 0;
+		if(toCheck == null) return 0;
+		return app.getPackageManager().queryIntentActivities(toCheck, PackageManager.MATCH_DEFAULT_ONLY).size();
+	}
+
+	public static List<ResolveInfo> getResolvesAvailable(OpenPath file, OpenExplorer app)
+	{
+		Intent toCheck = getIntent(file, app);
+		if(toCheck == null) return new ArrayList<ResolveInfo>();
+		return app.getPackageManager().queryIntentActivities(toCheck, 0);
 	}
 
 	public static ResolveInfo getResolveInfo(final OpenPath file, final OpenExplorer app)

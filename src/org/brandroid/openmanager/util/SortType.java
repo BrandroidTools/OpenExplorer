@@ -6,7 +6,6 @@ public class SortType {
 	
 	Type mWhich = Type.ALPHA;
 	boolean mFoldersFirst = true;
-	boolean mShowHiddenFiles = false;
 	
 	public SortType(Type which)
 	{
@@ -22,17 +21,14 @@ public class SortType {
 				mWhich = type;
 		if(s.indexOf("FM") > -1)
 			mFoldersFirst = false;
-		if(s.indexOf("SHOW") > -1)
-			mShowHiddenFiles = true;
 	}
 	
-	public boolean showHidden() { return mShowHiddenFiles; }
 	public boolean foldersFirst() { return mFoldersFirst; }
 	public Type getType() { return mWhich; }
 	
 	@Override
 	public String toString() {
-		return getType().toString() + " (" + (mShowHiddenFiles ? "SHOW+" : "HIDE+") + (mFoldersFirst ? "FF" : "FM") + ")";
+		return getType().toString() + " (" + (mFoldersFirst ? "FF" : "FM") + ")";
 	}
 	
 	public enum Type
@@ -56,11 +52,6 @@ public class SortType {
 			DATE_DESC = new SortType(Type.DATE_DESC),
 			ALPHA_DESC = new SortType(Type.ALPHA_DESC);
 
-	public SortType setShowHiddenFiles(Boolean hidden) {
-		if(hidden != null)
-			mShowHiddenFiles = hidden;
-		return this;
-	}
 	public SortType setFoldersFirst(Boolean first) {
 		if(first != null)
 			mFoldersFirst = first;

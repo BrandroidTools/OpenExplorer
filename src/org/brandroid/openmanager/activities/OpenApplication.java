@@ -90,6 +90,9 @@ public class OpenApplication extends Application implements OpenApp {
 		mThemedAssets.put(R.styleable.AppTheme_colorBlack,
 				ta.getResourceId(R.styleable.AppTheme_colorBlack,
 						R.color.black));
+		mThemedAssets.put(R.styleable.AppTheme_actionIconShare,
+				ta.getResourceId(R.styleable.AppTheme_actionIconShare,
+						R.drawable.ic_action_share_holo_dark));
 		ta.recycle();
 	}
 

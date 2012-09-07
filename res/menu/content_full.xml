@@ -5,7 +5,7 @@
     <item
         android:id="@+id/menu_search"
         android:icon="?attr/actionIconSearch"
-        android:showAsAction="always|collapseActionView"
+        android:showAsAction="ifRoom|collapseActionView"
         android:title="@android:string/search_go" 
         />
   	
@@ -72,15 +72,13 @@
 				<item
 					android:id="@+id/menu_view_grid"
 					android:alphabeticShortcut="g"
+					android:icon="?attr/actionIconViewGrid"
 					android:title="@string/s_menu_grid" />
 				<item
 					android:id="@+id/menu_view_list"
 					android:alphabeticShortcut="l"
+					android:icon="?attr/actionIconViewList"
 					android:title="@string/s_menu_list" />
-				<item
-					android:id="@+id/menu_view_carousel"
-					android:visible="false"
-					android:title="@string/s_menu_carousel" />
 			</group>
 	 		<item
 				android:id="@+id/menu_view_hidden"

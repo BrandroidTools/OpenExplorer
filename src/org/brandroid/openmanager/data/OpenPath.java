@@ -39,6 +39,7 @@ public abstract class OpenPath
 	implements Serializable, Parcelable, Comparable<OpenPath>
 {
 	public static SortType Sorting = SortType.DATE_DESC;
+	public static Boolean ShowHiddenFiles = false;
 	
     private WeakReference<MediaObject> mObject;
 	
@@ -533,6 +534,12 @@ public abstract class OpenPath
 		return getName();
 	}
 	
+	/**
+	 * Get string to show in "List View"
+	 * @param countHiddenChildren Count Hidden Files?
+	 * @param showLongDate Show Long Date?
+	 * @return String to show
+	 */
 	public String getDetails(boolean countHiddenChildren, boolean showLongDate)
 	{
 		String deets = "";
@@ -560,6 +567,22 @@ public abstract class OpenPath
 	}
 	public void clearChildren() {
 		
+	}
+	
+	/**
+	 * Complementary to requiresThread(), isLoaded() returns true when the thread completes. For non-threaded paths, this always returns true.
+	 * @return True if data can be read.
+	 */
+	public boolean isLoaded() {
+		return !requiresThread();
+	}
+	
+	/**
+	 * Can OpenExplorer handle this file type?
+	 * @return True if OpenExplorer can handle file type (and it is enabled in preferences)
+	 */
+	public boolean canHandleInternally() {
+		return false;
 	}
     
 }

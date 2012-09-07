@@ -159,7 +159,10 @@ public class Preferences {
 		} catch(Exception e)
 		{
 			try {
-				String s = getSetting(file, key, defValue.toString());
+				String def = "";
+				if(defValue != null)
+					def = defValue.toString();
+				String s = getSetting(file, key, def);
 				return Boolean.parseBoolean(s);
 			} catch(Exception e2) {
 				Logger.LogError("Error getting setting [" + key + "] from " + file, e2);

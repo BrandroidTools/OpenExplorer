@@ -19,11 +19,11 @@
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.brandroid.openmanager"
-	android:versionName="0.182"
-	android:versionCode="182"
+	android:versionName="0.189"
+	android:versionCode="189"
 	android:installLocation="auto">
 
-	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15" />
+	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16" />
 
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.BLUETOOTH" />
@@ -162,8 +162,12 @@
 		
 		<activity android:name=".activities.WTFSenderActivity" android:theme="@style/Dialog" />
 
-		<activity android:name=".activities.SettingsActivity" android:theme="@style/Dialog" android:label="@string/s_menu_prefs_global" />
-
+		<activity
+		    android:name=".activities.SettingsActivity"
+		    android:label="@string/s_menu_prefs_global" 
+	    	android:theme="@style/AppTheme.Dark"
+	    	/>
+		
 		<activity android:name=".activities.BluetoothActivity" android:label="Bluetooth"
 			android:theme="@style/Dialog" />
 		
