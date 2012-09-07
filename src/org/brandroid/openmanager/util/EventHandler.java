@@ -59,6 +59,7 @@ import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.BluetoothActivity;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.OpenCursor;
+import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenFile;
@@ -86,7 +87,7 @@ public class EventHandler {
 	public static final EventType TOUCH_TYPE = EventType.TOUCH;
 	public static final EventType ERROR_TYPE = EventType.ERROR;
 	public static final int BACKGROUND_NOTIFICATION_ID = 123;
-	private static boolean ENABLE_MULTITHREADS = !OpenExplorer.BEFORE_HONEYCOMB && false;
+	private static boolean ENABLE_MULTITHREADS = !OpenExplorer.BEFORE_HONEYCOMB;
 
 	public enum EventType {
 		SEARCH, COPY, CUT, DELETE, RENAME, MKDIR, TOUCH, UNZIP, UNZIPTO, ZIP, ERROR
@@ -203,8 +204,7 @@ public class EventHandler {
 
 	public void deleteFile(final Collection<OpenPath> path, final OpenApp mApp,
 			boolean showConfirmation) {
-		final OpenPath[] files = new OpenPath[path.size()];
-		path.toArray(files);
+		final OpenPath[] files = path.toArray(new OpenPath[path.size()]);
 		String name;
 		final Context mContext = mApp.getContext();
 
@@ -279,7 +279,7 @@ public class EventHandler {
 						BackgroundWork work = new BackgroundWork(RENAME_TYPE,
 								mContext, path, newName);
 						if (newName.length() > 0) {
-							execute(work);
+							execute(work, path);
 						} else
 							dialog.dismiss();
 					}
@@ -504,7 +504,7 @@ public class EventHandler {
 	}
 
 	public void searchFile(OpenPath dir, String query, Context mContext) {
-		execute(new BackgroundWork(SEARCH_TYPE, mContext, dir, query));
+		execute(new BackgroundWork(SEARCH_TYPE, mContext, dir, query), dir);
 	}
 
 	public BackgroundWork zipFile(OpenPath into, Collection<OpenPath> files,
@@ -572,6 +572,9 @@ public class EventHandler {
 		private final Date mStart;
 		private long mLastRate = 0;
 		private long mRemain = 0l;
+		private int mTotalCount = 0; 
+		private int mCurrentIndex = 0;
+		private OpenPath mCurrentPath;
 		private boolean notifReady = false;
 		private final int[] mLastProgress = new int[3];
 		private int notifIcon;
@@ -604,9 +607,9 @@ public class EventHandler {
 				mNotifier = (NotificationManager) context
 						.getSystemService(Context.NOTIFICATION_SERVICE);
 			taskId = mTasks.size();
-			mTasks.add(this);
 			mStart = new Date();
 			mNotifyId = BACKGROUND_NOTIFICATION_ID + EventCount++;
+			mTasks.add(this);
 			if (mTaskListener != null)
 				mTaskListener.OnTasksChanged(getRunningTasks().length);
 		}
@@ -649,16 +652,20 @@ public class EventHandler {
 						.toString();
 				break;
 			}
-			title += " " + '\u2192' + " " + mIntoPath;
+			if(mCurrentPath != null)
+			{
+				title += " " + '\u2192' + " " + mCurrentPath.getName();
+			}
 			return title;
 		}
 
 		public String getSubtitle() {
-			String subtitle = "";
-			if (mInitParams != null && mInitParams.length > 0)
-				subtitle = (mInitParams.length > 1 ? mInitParams.length + " "
-						+ mContext.getString(R.string.s_files) : mInitParams[0]);
-			return subtitle;
+			String ret = "";
+			if(mTotalCount > 1)
+				ret += "(" + (mCurrentIndex + 1) + "/" + mTotalCount + ") ";
+			if(mIntoPath != null)
+				ret += '\u2192' + " " + mIntoPath;
+			return ret;
 		}
 
 		public String getLastRate() {
@@ -824,13 +831,14 @@ public class EventHandler {
 		}
 
 		protected Integer doInBackground(OpenPath... params) {
-			int len = params.length;
+			Logger.LogDebug("Starting Op!");
+			mTotalCount = params.length;
 			int ret = 0;
 
 			switch (mType) {
 
 			case DELETE:
-				for (int i = 0; i < len; i++)
+				for (int i = 0; i < mTotalCount; i++)
 					ret += mFileMang.deleteTarget(params[i]);
 				break;
 			case SEARCH:
@@ -838,8 +846,11 @@ public class EventHandler {
 				searchDirectory(mIntoPath, mInitParams[0], mSearchResults);
 				break;
 			case RENAME:
-				ret += FileManager.renameTarget(mIntoPath.getPath(),
-						mInitParams[0]) ? 1 : 0;
+				OpenPath old = mIntoPath;
+				if(old instanceof OpenMediaStore)
+					old = ((OpenMediaStore)mIntoPath).getFile();
+				if(old instanceof OpenFile)
+					ret += FileManager.renameTarget((OpenFile)old, mInitParams[0]) ? 1 : 0;
 				break;
 			case MKDIR:
 				for (OpenPath p : params)
@@ -851,33 +862,35 @@ public class EventHandler {
 				break;
 			case COPY:
 				// / TODO: Add existing file check
-				for (OpenPath file : params) {
-					if (file.requiresThread()) {
+				for (int i = 0; i < params.length; i++) {
+					mCurrentIndex = i;
+					mCurrentPath = params[i];
+					if (mCurrentPath.requiresThread())
 						isDownload = true;
-						this.publishProgress();
-					}
+					publishProgress();
 					try {
-						if (copyToDirectory(file, mIntoPath, 0))
+						if (copyToDirectory(mCurrentPath, mIntoPath, 0))
 							ret++;
 					} catch (IOException e) {
-						Logger.LogError("Couldn't copy file (" + file.getName()
+						Logger.LogError("Couldn't copy file (" + mCurrentPath.getName()
 								+ " to " + mIntoPath.getPath() + ")", e);
 					}
 				}
 				break;
 			case CUT:
-				for (OpenPath file : params) {
+				for (int i = 0; i < params.length; i++) {
+					mCurrentIndex = i;
+					mCurrentPath = params[i];
+					if (mCurrentPath.requiresThread())
+						isDownload = true;
+					publishProgress();
 					try {
-						if (file.requiresThread()) {
-							isDownload = true;
-							this.publishProgress();
-						}
-						if (copyToDirectory(file, mIntoPath, 0)) {
+						if (copyToDirectory(mCurrentPath, mIntoPath, 0)) {
 							ret++;
-							mFileMang.deleteTarget(file);
+							mFileMang.deleteTarget(mCurrentPath);
 						}
 					} catch (IOException e) {
-						Logger.LogError("Couldn't copy file (" + file.getName()
+						Logger.LogError("Couldn't copy file (" + mCurrentPath.getName()
 								+ " to " + mIntoPath.getPath() + ")", e);
 					}
 				}
@@ -902,7 +915,7 @@ public class EventHandler {
 		 */
 		private Boolean copyFileToDirectory(final OpenFile source,
 				OpenFile into, final int total) {
-			Logger.LogVerbose("Using Channel copy");
+			Logger.LogVerbose("Using Channel copy for " + source);
 			if (into.isDirectory() || !into.exists())
 				into = into.getChild(source.getName());
 			if (source.getPath().equals(into.getPath()))
@@ -1182,6 +1195,8 @@ public class EventHandler {
 
 				try {
 					RemoteViews noteView = mNote.contentView;
+					noteView.setTextViewText(android.R.id.title, getTitle());
+					noteView.setTextViewText(android.R.id.text2, getSubtitle());
 					noteView.setTextViewText(android.R.id.text1, getLastRate());
 					if (values.length == 0 && isDownload)
 						noteView.setImageViewResource(android.R.id.icon,

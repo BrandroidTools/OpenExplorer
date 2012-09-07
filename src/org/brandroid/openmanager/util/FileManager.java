@@ -289,20 +289,15 @@ public class FileManager {
 	 * @param newName
 	 * @return
 	 */
-	public static boolean renameTarget(String filePath, String newName) {
-		File src = new File(filePath);
-		File dest;
-		
-		if(newName.length() < 1)
-			return false;
-	
-		String temp = filePath.substring(0, filePath.lastIndexOf("/"));
-		
-		dest = new File(temp + "/" + newName);
-		if(src.renameTo(dest))
+	public static boolean renameTarget(OpenFile file, String newName)
+	{
+		try {
+			file.rename(newName);
 			return true;
-		else
+		} catch(Exception e) {
+			Logger.LogError("Unable to rename file to [" + newName + "]: " + file, e);
 			return false;
+		}
 	}
 	
 	/**

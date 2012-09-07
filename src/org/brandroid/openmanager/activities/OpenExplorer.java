@@ -104,6 +104,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow.OnDismissListener;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.TextView.BufferType;
 import android.widget.Toast;
@@ -208,6 +209,7 @@ public class OpenExplorer
 	// Action Bar Menu Variables
 	private Menu mMainOptionsMenu;
 	private MenuItem mMenuPaste;
+	private MenuItem mMenuSearch;
 	
 	public static final int REQ_PREFERENCES = 6;
 	public static final int REQ_SPLASH = 7;
@@ -2205,33 +2207,34 @@ public class OpenExplorer
 		
 		if(IS_KEYBOARD_AVAILABLE)
 			MenuUtils.setMneumonics(menu);
-			
-		if(mSearchView == null) {
-					mSearchView = SearchViewCompat.newSearchView(this);
-					SearchViewCompat.setOnQueryTextListener(mSearchView,
-							new SearchViewCompat.OnQueryTextListenerCompat() {
-							public boolean onQueryTextSubmit(String query) {
-								mSearchView.clearFocus();
-								Intent intent = new Intent();
-								intent.setAction(Intent.ACTION_SEARCH);
-								Bundle appData = new Bundle();
-								appData.putString("path", getDirContentFragment(false).getPath().getPath());
-								intent.putExtra(SearchManager.APP_DATA, appData);
-								intent.putExtra(SearchManager.QUERY, query);
-								handleIntent(intent);
-								return true;
-							}
-							public boolean onQueryTextChange(String newText) {
-								return false;
-							}
-						});
+
+		mMenuSearch = menu.findItem(R.id.menu_search);
+		if(mMenuSearch != null && mSearchView == null) {
+			mSearchView = SearchViewCompat.newSearchView(this);
+			SearchViewCompat.setOnQueryTextListener(mSearchView,
+				new SearchViewCompat.OnQueryTextListenerCompat() {
+				public boolean onQueryTextSubmit(String query) {
+					mSearchView.clearFocus();
+					Intent intent = new Intent();
+					intent.setAction(Intent.ACTION_SEARCH);
+					Bundle appData = new Bundle();
+					appData.putString("path", getDirContentFragment(false).getPath().getPath());
+					intent.putExtra(SearchManager.APP_DATA, appData);
+					intent.putExtra(SearchManager.QUERY, query);
+					handleIntent(intent);
+					mMenuSearch.collapseActionView();
+					return true;
 				}
-		MenuItem mMenuSearch = menu.findItem(R.id.menu_search);
+				public boolean onQueryTextChange(String newText) {
+					return false;
+				}
+			});
+		}
 		if(mMenuSearch != null)
 		{
 			mMenuSearch.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 			mMenuSearch.setActionView(mSearchView);
-			}
+		}
 		
 		return super.onCreateOptionsMenu(menu);
 		}
