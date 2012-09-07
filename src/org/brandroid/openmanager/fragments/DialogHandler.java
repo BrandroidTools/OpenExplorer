@@ -36,6 +36,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable.Orientation;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Gravity;
@@ -55,6 +56,7 @@ import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SeekBar;
@@ -519,6 +521,39 @@ public class DialogHandler
 			
 			dialog.show();
 		} else onYes.onClick(dialog, DialogInterface.BUTTON_POSITIVE);
+	}
+	public static void showMultiButtonDialog(Context context,
+			String message, String title,
+			final DialogInterface.OnClickListener listener,
+			int... buttonStringIds) {
+		final View layout = ((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+				.inflate(R.layout.alert_multibutton_view, null);
+
+		ViewUtils.setText(layout, message, R.id.confirm_message);
+		
+		final AlertDialog dialog = new AlertDialog.Builder(context)
+			.setTitle(title)
+			.setView(layout)
+			.create();
+		
+		final LinearLayout buttons = (LinearLayout)layout.findViewById(R.id.buttons);
+		
+		for(final int id : buttonStringIds)
+		{
+			Button btn = new Button(context);
+			btn.setText(id);
+			btn.setId(id);
+			((LinearLayout.LayoutParams)btn.getLayoutParams()).weight = 1;
+			btn.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					listener.onClick(dialog, id);
+				}
+			});
+			buttons.addView(btn);
+		}
+		
+		dialog.show();
 	}
 
 	public static AlertDialog showConfirmationDialog(final Context context, String msg, String title, DialogInterface.OnClickListener onYes)

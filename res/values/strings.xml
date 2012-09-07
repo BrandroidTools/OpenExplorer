@@ -55,7 +55,7 @@
     <string name="s_pref_thumbs">Show Image Thumbnails</string>
     <string name="s_pref_thumbs_summary">Display a thumbnail for Image/Video/App files</string>
     <string name="s_pref_view">View Mode</string>
-    <string name="s_pref_view_summary">Display files in a grid, list, or carousel (Honeycomb only)</string>
+    <string name="s_pref_view_summary">Display files in a grid or list</string>
     <string name="s_pref_sort">Sorting</string>
     <string name="s_pref_sort_summary">Choose how to sort files and folders</string>
     <string name="s_pref_advanced">Advanced</string>
@@ -334,6 +334,10 @@
     <string name="activity_resolver_use_once">Just once</string>
     <string name="s_pref_bookmarks_summary">Show Bookmarks</string>
     <string name="s_menu_heatmap">Heatmap</string>
+    <string name="apply_to_all">Would you like to apply to all folders?</string>
+    <string name="s_pref_view_folders">Folders Preferences</string>
+    <string name="s_pref_view_general">General Preferences</string>
+    <string name="s_pref_text_wrap">Wrap text</string>
     
     <plurals name="num_selected">
         <item quantity="one">One file selected</item>

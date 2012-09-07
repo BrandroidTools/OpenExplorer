@@ -53,6 +53,8 @@
         <attr name="popupArrow" format="reference" />
         <attr name="pagerBackground" format="reference" />
         
+        <attr name="listDivider" format="reference" />
+        
         <!-- Colors -->
         <attr name="colorWhite" format="color" />
         <attr name="colorOffWhite" format="color" />

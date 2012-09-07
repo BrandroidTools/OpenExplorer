@@ -29,7 +29,6 @@ import android.os.Handler;
 import android.os.StatFs;
 import android.provider.MediaStore;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
@@ -62,7 +61,6 @@ import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v4.widget.SearchViewCompat;
@@ -88,7 +86,6 @@ import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewStub;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -107,6 +104,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow.OnDismissListener;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.TextView.BufferType;
 import android.widget.Toast;
@@ -132,7 +130,6 @@ import org.brandroid.openmanager.adapters.IconContextMenu.IconContextItemSelecte
 import org.brandroid.openmanager.adapters.OpenClipboard.OnClipboardUpdateListener;
 import org.brandroid.openmanager.adapters.IconContextMenu;
 import org.brandroid.openmanager.adapters.IconContextMenuAdapter;
-import org.brandroid.openmanager.adapters.OpenPathPagerAdapter;
 import org.brandroid.openmanager.data.OpenCursor;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenMediaStore;
@@ -141,7 +138,6 @@ import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenPathArray;
 import org.brandroid.openmanager.data.OpenPathMerged;
 import org.brandroid.openmanager.data.OpenSFTP;
-import org.brandroid.openmanager.data.OpenSearch;
 import org.brandroid.openmanager.data.OpenSmartFolder;
 import org.brandroid.openmanager.data.OpenSmartFolder.SmartSearch;
 import org.brandroid.openmanager.fragments.DialogHandler;
@@ -153,7 +149,6 @@ import org.brandroid.openmanager.fragments.OpenFragment.OnFragmentDPADListener;
 import org.brandroid.openmanager.fragments.OpenFragment.OnFragmentTitleLongClickListener;
 import org.brandroid.openmanager.fragments.OpenFragment.Poppable;
 import org.brandroid.openmanager.fragments.OpenPathFragmentInterface;
-import org.brandroid.openmanager.fragments.PreferenceFragmentV11;
 import org.brandroid.openmanager.fragments.SearchResultsFragment;
 import org.brandroid.openmanager.fragments.TextEditorFragment;
 import org.brandroid.openmanager.interfaces.OpenApp;
@@ -197,8 +192,8 @@ import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.jcraft.jsch.JSchException;
+import com.stericson.RootTools.RootTools;
 import com.viewpagerindicator.TabPageIndicator;
-import com.viewpagerindicator.TabPageIndicator.TabView;
 import org.xmlpull.v1.XmlPullParserException;
 
 @SuppressLint("NewApi")
@@ -214,6 +209,7 @@ public class OpenExplorer
 	// Action Bar Menu Variables
 	private Menu mMainOptionsMenu;
 	private MenuItem mMenuPaste;
+	private MenuItem mMenuSearch;
 	
 	public static final int REQ_PREFERENCES = 6;
 	public static final int REQ_SPLASH = 7;
@@ -625,24 +621,33 @@ public class OpenExplorer
 	
 	private void checkRoot() {
 		try {
-			if(getPreferences().getSetting("global", "pref_root", false)
-					&& (RootManager.Default == null || !RootManager.Default.isRoot()))
+			if(getPreferences().getSetting("global", "pref_root", false))
+					//&& (RootManager.Default == null || !RootManager.Default.isRoot()))
 				requestRoot();
-			else if(RootManager.Default != null)
+			else //if(RootManager.Default != null)
 				exitRoot();
 		} catch(Exception e) { Logger.LogWarning("Couldn't get root.", e); }
 	}
 	
 	private void requestRoot() {
 		new Thread(new Runnable(){public void run(){
-			RootManager.Default.requestRoot();
+			if(RootTools.isAccessGiven())
+				try {
+					RootTools.getShell(true);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}}).start();
 	}
 	
 	private void exitRoot() {
-		if(RootManager.Default == null) return;
 		new Thread(new Runnable(){public void run(){
-			RootManager.Default.exitRoot();
+			try {
+				RootTools.closeAllShells();
+			} catch (IOException e) {
+				Logger.LogWarning("An exception occurred while closing root shells.", e);
+			}
 		}}).start();
 	}
 	
@@ -2202,33 +2207,34 @@ public class OpenExplorer
 		
 		if(IS_KEYBOARD_AVAILABLE)
 			MenuUtils.setMneumonics(menu);
-			
-		if(mSearchView == null) {
-					mSearchView = SearchViewCompat.newSearchView(this);
-					SearchViewCompat.setOnQueryTextListener(mSearchView,
-							new SearchViewCompat.OnQueryTextListenerCompat() {
-							public boolean onQueryTextSubmit(String query) {
-								mSearchView.clearFocus();
-								Intent intent = new Intent();
-								intent.setAction(Intent.ACTION_SEARCH);
-								Bundle appData = new Bundle();
-								appData.putString("path", getDirContentFragment(false).getPath().getPath());
-								intent.putExtra(SearchManager.APP_DATA, appData);
-								intent.putExtra(SearchManager.QUERY, query);
-								handleIntent(intent);
-								return true;
-							}
-							public boolean onQueryTextChange(String newText) {
-								return false;
-							}
-						});
+
+		mMenuSearch = menu.findItem(R.id.menu_search);
+		if(mMenuSearch != null && mSearchView == null) {
+			mSearchView = SearchViewCompat.newSearchView(this);
+			SearchViewCompat.setOnQueryTextListener(mSearchView,
+				new SearchViewCompat.OnQueryTextListenerCompat() {
+				public boolean onQueryTextSubmit(String query) {
+					mSearchView.clearFocus();
+					Intent intent = new Intent();
+					intent.setAction(Intent.ACTION_SEARCH);
+					Bundle appData = new Bundle();
+					appData.putString("path", getDirContentFragment(false).getPath().getPath());
+					intent.putExtra(SearchManager.APP_DATA, appData);
+					intent.putExtra(SearchManager.QUERY, query);
+					handleIntent(intent);
+					mMenuSearch.collapseActionView();
+					return true;
 				}
-		MenuItem mMenuSearch = menu.findItem(R.id.menu_search);
+				public boolean onQueryTextChange(String newText) {
+					return false;
+				}
+			});
+		}
 		if(mMenuSearch != null)
 		{
-			mMenuSearch.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+			mMenuSearch.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 			mMenuSearch.setActionView(mSearchView);
-			}
+		}
 		
 		return super.onCreateOptionsMenu(menu);
 		}
@@ -2751,9 +2757,10 @@ public class OpenExplorer
 	}
 		
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Logger.LogDebug("OpenExplorer.onActivityResult(" + requestCode + ", " + resultCode + ", " + (data != null ? data.toString() : "null") + ")");
 		if(requestCode == REQ_PREFERENCES)
 		{
-			if(resultCode == RESULT_RESTART_NEEDED) {
+			if(resultCode == RESULT_RESTART_NEEDED || data != null && data.hasExtra("restart") && data.getBooleanExtra("restart", true)) {
 				showToast(R.string.s_alert_restart);
 				goHome(); // just restart
 			} else {
@@ -2761,7 +2768,8 @@ public class OpenExplorer
 				refreshBookmarks();
 				notifyPager();
 				getDirContentFragment(false).refreshData();
-				toggleBookmarks(getSetting(null, "pref_show_bookmarks", getResources().getBoolean(R.bool.large)), false);
+				if(!mSinglePane)
+					toggleBookmarks(getSetting(null, "pref_show_bookmarks", getResources().getBoolean(R.bool.large)), false);
 				invalidateOptionsMenu();
 			}
 		} else if (requestCode == REQ_SPLASH) {
@@ -2945,7 +2953,9 @@ public class OpenExplorer
 				{
 					OpenFragment f = mViewPagerAdapter.getItem(i);
 					if(f == null || !(f instanceof ContentFragment)) continue;
-					if(!familyTree.contains(((ContentFragment)f).getPath()))
+					OpenPath tp = ((ContentFragment)f).getPath();
+					if(tp instanceof OpenSmartFolder ||
+							!familyTree.contains(tp))
 					{
 						mViewPagerAdapter.remove(i);
 						//removed = true;

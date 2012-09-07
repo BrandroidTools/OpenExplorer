@@ -486,7 +486,7 @@ public class ThumbnailCreator {
 					valid = true;
 				} else Logger.LogError("Unable to create MediaStore thumbnail for " + file);
 			}
-			if (!valid && file.isAPKFile() && !useGeneric)
+			if (!valid && file.isAPKFile() && !useGeneric && file instanceof OpenFile)
 			{
 				//Logger.LogInfo("Getting apk icon for " + file.getName());
 				JarFile apk = null;

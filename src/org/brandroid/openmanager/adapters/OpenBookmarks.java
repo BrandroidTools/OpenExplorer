@@ -33,6 +33,7 @@ import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.data.OpenSmartFolder;
 import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.util.DFInfo;
+import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.InputDialog;
 import org.brandroid.openmanager.util.RootManager;
 import org.brandroid.openmanager.util.SimpleUserInfo;
@@ -336,15 +337,16 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 		if(file.getDepth() > 4) return file.getName();
 		if(file instanceof OpenCursor || file instanceof OpenMediaStore || file instanceof OpenPathMerged) return file.getName();
 		String path = file.getPath().toLowerCase();
+		String name = file.getName().toLowerCase();
 		if(path.equals("/"))
 			return "/";
-		else if(path.indexOf("ext") > -1)
+		else if(name.indexOf("ext") > -1 || name.equals("sdcard1"))
 			return mApp.getResources().getString(R.string.s_external);
-		else if(path.indexOf("download") > -1)
+		else if(name.indexOf("download") > -1)
 			return mApp.getResources().getString(R.string.s_downloads);
-		else if(path.indexOf("sdcard") > -1)
+		else if(name.indexOf("sdcard") > -1)
 			return mApp.getResources().getString(mHasExternal ? R.string.s_internal : R.string.s_external);
-		else if(path.indexOf("usb") > -1 || path.indexOf("/media") > -1 || path.indexOf("removeable") > -1)
+		else if(name.indexOf("usb") > -1 || name.indexOf("/media") > -1 || name.indexOf("removeable") > -1)
 		{
 			try {
 				return OpenExplorer.getVolumeName(file.getPath());
@@ -518,10 +520,13 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 		
 		final View v = mHolder != null ? mHolder.getView() : new View(getContext());
 		
+		final String oldPath = mPath.getPath();
+		
 		final InputDialog builder = new InputDialog(getContext())
 			.setTitle(R.string.s_title_bookmark_prefix)
 			.setIcon(mHolder != null ? mHolder.getIcon(mApp) : null)
 			.setDefaultText(getPathTitle(mPath))
+			.setDefaultTop(oldPath)
 			.setMessage(R.string.s_alert_bookmark_rename)
 			.setNeutralButton(removeId, new DialogInterface.OnClickListener() {
 				@SuppressLint("NewApi")
@@ -558,7 +563,16 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 		builder
 			.setPositiveButton(R.string.s_update, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
-					setPathTitle(mPath, builder.getInputText().toString());					
+					String path = builder.getInputTopText();
+					if(!path.equals(oldPath))
+					{
+						SharedPreferences sp = mApp.getPreferences().getPreferences("bookmarks");
+						String full = sp.getString("bookmarks", "") + ";";
+						full = full.replace(oldPath + ";", path + ";");
+						sp.edit().putString("bookmarks", full).commit();
+						setPathTitle(FileManager.getOpenCache(path), builder.getInputText());
+					} else
+						setPathTitle(mPath, builder.getInputText().toString());					
 					mBookmarkAdapter.notifyDataSetChanged();
 				}
 			})

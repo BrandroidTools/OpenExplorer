@@ -27,24 +27,54 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
 import org.brandroid.openmanager.R;
+import org.brandroid.openmanager.adapters.OpenClipboard;
+import org.brandroid.openmanager.data.OpenFTP;
 import org.brandroid.openmanager.data.OpenFile;
+import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
+import org.brandroid.openmanager.util.ShellSession;
+import org.brandroid.utils.DiskLruCache;
 import org.brandroid.utils.Logger;
+import org.brandroid.utils.LruCache;
 import org.brandroid.utils.Preferences;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
+import com.actionbarsherlock.view.ActionMode;
+import com.actionbarsherlock.view.MenuItem;
+import com.android.gallery3d.data.DataManager;
+import com.android.gallery3d.data.DownloadCache;
+import com.android.gallery3d.data.ImageCacheService;
+import com.android.gallery3d.util.ThreadPool;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
+import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.EditTextPreference;
@@ -52,17 +82,21 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.CheckBoxPreference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Toast;
 
-public class SettingsActivity extends PreferenceActivity
-	implements OnPreferenceChangeListener
+public class SettingsActivity extends SherlockPreferenceActivity
+	implements OnPreferenceChangeListener, OpenApp
 {
 	//keys used for preference file
 	/*
@@ -97,11 +131,41 @@ public class SettingsActivity extends PreferenceActivity
 		
 	}
 	
+	@TargetApi(11) @Override
+	public void onBuildHeaders(List<Header> target) {
+		loadHeadersFromResource(R.xml.preference_headers, target);
+	}
+	
+	@TargetApi(11)
+	@Override
+	public void startPreferenceFragment(Fragment fragment, boolean push) {
+		super.startPreferenceFragment(fragment, push);
+		Logger.LogDebug("startPreferenceFragment(" + fragment.toString() + ", " + push + ")");
+		setOnChange(((PreferenceFragment)fragment).getPreferenceScreen(), false);
+	}
+	
+	@TargetApi(11)
+	@Override
+	public boolean onPreferenceStartFragment(PreferenceFragment caller, Preference pref) {
+		Logger.LogDebug("onPreferenceStartFragment(" + caller + ", " + pref + ")");
+		return super.onPreferenceStartFragment(caller, pref);
+	}
+	
+	public ActionBar getSupportActionBar()
+	{
+		return super.getSupportActionBar();
+		//return null;
+	}
+	
 	@SuppressWarnings("deprecation")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		setTheme(R.style.AppTheme_Dark);
+		
+		ActionBar bar = getSupportActionBar();
+		if(bar != null)
+			bar.setDisplayHomeAsUpEnabled(true);
 		
 		Intent intent = getIntent();
 		if(intent == null) intent = new Intent();
@@ -126,13 +190,18 @@ public class SettingsActivity extends PreferenceActivity
 		if(!config.containsKey("path"))
 			config.putString("path", path);
 		
-		PreferenceManager pm = getPreferenceManager();
-		pm.setSharedPreferencesName(pathSafe);
+		intent.putExtras(config);
+		setIntent(intent);
+		
+		PreferenceManager.setDefaultValues(this, pathSafe, PreferenceActivity.MODE_PRIVATE, R.xml.preferences, false);
+		
 		//getPreferences(MODE_PRIVATE);
 		prefs = new Preferences(getApplicationContext());
 		
-		if(mode == MODE_PREFERENCES)
+		if(mode == MODE_PREFERENCES && Build.VERSION.SDK_INT < 11)
 		{
+			PreferenceManager pm = getPreferenceManager();
+			pm.setSharedPreferencesName(pathSafe);
 			if(!path.equals("global")) // folder preferences
 			{
 				PreferenceManager.setDefaultValues(this, pathSafe, PreferenceActivity.MODE_PRIVATE, R.xml.preferences_folders, false);
@@ -144,22 +213,9 @@ public class SettingsActivity extends PreferenceActivity
 				
 				
 			} else { // global preferences
-				PreferenceManager.setDefaultValues(this, pathSafe, PreferenceActivity.MODE_PRIVATE, R.xml.preferences, false);
 				addPreferencesFromResource(R.xml.preferences);
 				
 				final PreferenceActivity pa = this;
-				
-				ViewUtils.setOnPrefChange(pm, new OnPreferenceChangeListener() {
-					public boolean onPreferenceChange(Preference preference, Object newValue) {
-						if(preference.getKey().equals("pref_language"))
-							preference.setSummary(getDisplayLanguage((String)newValue));
-						if(newValue instanceof String)
-							preference.setSummary((String)newValue);
-						pa.setResult(OpenExplorer.RESULT_RESTART_NEEDED);
-						return true;
-					}
-				}, "pref_fullscreen", "pref_fancy_menus", "pref_basebar", "pref_theme",
-					"pref_stats", "pref_root", "pref_language");
 				
 				Preference pLanguage = pm.findPreference("pref_language");
 				if(pLanguage == null) pLanguage = findPreference("pref_language");
@@ -170,19 +226,6 @@ public class SettingsActivity extends PreferenceActivity
 						pLanguage.setSummary(getDisplayLanguage(lang));
 					else pLanguage.setSummary(pLanguage.getSummary() +
 							" (" + Locale.getDefault().getDisplayLanguage() + ")");
-				}
-
-				Preference pTranslate = pm.findPreference("pref_translate");
-				if(pTranslate == null) pTranslate = findPreference("pref_translate");
-				if(pTranslate != null)
-				{
-					pTranslate.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-						@Override
-						public boolean onPreferenceClick(Preference preference) {
-							OpenExplorer.launchTranslator(SettingsActivity.this);
-							return true;
-						}
-					});
 				}
 				
 				final Preference pSize = pm.findPreference("text_size") != null ? pm.findPreference("text_size") : findPreference("text_size");
@@ -229,47 +272,6 @@ public class SettingsActivity extends PreferenceActivity
 						}
 					});
 				}
-				
-				PreferenceScreen pReset = (PreferenceScreen)pm.findPreference("pref_reset_views");
-				if(pReset != null)
-					pReset.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-						@Override
-						public boolean onPreferenceClick(Preference preference)
-						{
-							
-							Toast.makeText(getApplicationContext(),
-									R.string.s_toast_complete, Toast.LENGTH_SHORT);
-							return true;
-						}
-					});
-				
-				Preference preference = pm.findPreference("pref_stats");
-				if(preference != null) { // "Help improve..."
-					/*
-					preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-						public boolean onPreferenceClick(Preference preference) {
-				    		try {
-					    		if(mBillingService == null)
-					    		{
-					    			mBillingService = new BillingService();
-					    			mBillingService.setContext(SettingsActivity.this);
-					    		}
-					    		if (mBillingService.checkBillingSupported())
-					    		{
-					    			if(mBillingService.requestPurchase("donate_01", null))
-					    				Logger.LogDebug("Donation success!");
-					    			else
-					    				Logger.LogWarning("Donation fail?");
-					    		} else
-					    			Logger.LogWarning("Billing not supported");
-				    		} catch(Exception e) {
-				    			Logger.LogError("Error using billing service.", e);
-				    		}
-				    		return false;
-						}
-					});
-					*/
-				} else Logger.LogWarning("Couldn't find donation button");
 				
 				refreshServerList();
 			}
@@ -327,8 +329,8 @@ public class SettingsActivity extends PreferenceActivity
 		}
 		setOnChange(getPreferenceScreen(), false);
 		
-		mHandler = new Handler();
 		/*
+		mHandler = new Handler();
 		mDonationObserver = new DonationObserver(mHandler);
 		mBillingService = new BillingService();
 		mBillingService.setContext(this);
@@ -347,7 +349,7 @@ public class SettingsActivity extends PreferenceActivity
 	}
 	
 	private void refreshServerList() {
-		PreferenceCategory mPrefServers = (PreferenceCategory)findPreference("servers");
+		PreferenceGroup mPrefServers = (PreferenceGroup)findPreference("servers");
 		if(mPrefServers != null)
 		{
 			//for(int i = mPrefServers.getPreferenceCount() - 1; i > 0; i--)
@@ -382,14 +384,23 @@ public class SettingsActivity extends PreferenceActivity
 		//ResponseHandler.unregister(mDonationObserver);
 	}
 	
+	public static void setOnPreferenceChangeListenerToChildren(PreferenceScreen parent, OnPreferenceChangeListener listener)
+	{
+		for(int i = 0; i < parent.getPreferenceCount(); i++)
+			parent.getPreference(i).setOnPreferenceChangeListener(listener);
+	}
+	
 	private void setOnChange(Preference p, Boolean forceSummaries)
 	{
-		if(p.getClass().equals(PreferenceScreen.class))
+		if(p == null) return;
+		if(p instanceof PreferenceGroup)
 		{
-			PreferenceScreen ps = (PreferenceScreen)p;
+			PreferenceGroup ps = (PreferenceGroup)p;
 			for(int i = 0; i < ps.getPreferenceCount(); i++)
 				setOnChange(ps.getPreference(i), forceSummaries);
+			return;
 		}
+		
 		p.setOnPreferenceChangeListener(this);
 		
 		if(forceSummaries || p.getSummary() == null || p.getSummary().equals(""))
@@ -462,34 +473,71 @@ public class SettingsActivity extends PreferenceActivity
 			//prefs.setSetting("global", "servers", servers.getJSONObject());
 		}
 	}
+	
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId())
+		{
+		case android.R.id.home:
+			finish();
+			return true;
+		}
+		return false;
+	}
 
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
     		Preference preference) {
-    	if(preference.getKey().equals("pref_global"))
+    	final String key = preference.getKey();
+    	if(key.equals("pref_global"))
     	{
     		Intent intentGlobal = new Intent(this, SettingsActivity.class);
     		startActivity(intentGlobal);
     		return true;
-    	} else if(preference.getKey().equals("server_add"))
+    	} else if(key.equals("pref_translate"))
     	{
+    		OpenExplorer.launchTranslator(SettingsActivity.this);
+    	} else if(key.equals("pref_language"))
+    	{
+    		
+    	} else if(key.equals("server_add"))
+    	{
+    		DialogHandler.showServerDialog(this, new OpenFTP((OpenFTP)null, null, null), null, true);
+    		/*
     		Intent intentServer = new Intent(this, SettingsActivity.class);
     		intentServer.putExtra("path", "server_add");
     		intentServer.putExtra("mode", MODE_SERVER);
     		startActivityForResult(intentServer, MODE_SERVER);
+    		*/
     		return true;
-    	} else if(preference.getKey().equals("pref_start"))
+    	} else if(key.equals("pref_start"))
     	{
     		OpenExplorer.showSplashIntent(this, new Preferences(this).getSetting("global", "pref_start", "External"));
     		return true;
     	}
-    	else if(preference.getKey().startsWith("server_modify")) {
-    		Intent intentServer = new Intent(this, SettingsActivity.class);
-    		intentServer.putExtra("path", preference.getKey());
-    		intentServer.putExtra("mode", MODE_SERVER);
-    		startActivityForResult(intentServer, MODE_SERVER);
+    	else if(key.startsWith("server_modify")) {
+    		int snum = -1;
+    		try {
+    			snum = Integer.parseInt(key.replace("server_modify_", ""));
+    		} catch(NumberFormatException e) { }
+    		if(snum > -1)
+    		{
+    			String type = OpenServers.DefaultServers.get(snum).getType();
+				if(type == null)
+					type = "ftp";
+				String[] types = getApplicationContext().getResources().getStringArray(R.array.server_types_values);
+				int pos = 0;
+				for(int i = 0; i < types.length; i++)
+					if(types[i].toLowerCase().equals(type.toLowerCase()))
+						pos = i;
+				DialogHandler.showServerDialog(this, snum, pos, null, true);
+    		} else {
+	    		Intent intentServer = new Intent(this, SettingsActivity.class);
+	    		intentServer.putExtra("path", key);
+	    		intentServer.putExtra("mode", MODE_SERVER);
+	    		startActivityForResult(intentServer, MODE_SERVER);
+    		}
     		return true;
-    	} else if(preference.getKey().equals("server_update")) {
+    	} else if(key.equals("server_update")) {
     		Intent iNew = getIntent();
     		//OpenServer server = new OpenServer();
     		Preference p = preferenceScreen.findPreference("server_type");
@@ -510,7 +558,7 @@ public class SettingsActivity extends PreferenceActivity
     		//prefs.setSetting("global", "servers", servers.getJSONObject());
     		setResult(RESULT_OK, iNew);
     		finish();
-    	} else if(preference.getKey().equals("server_delete")) {
+    	} else if(key.equals("server_delete")) {
     		setResult(RESULT_FIRST_USER, getIntent());
     		finish();
     	}
@@ -530,32 +578,90 @@ public class SettingsActivity extends PreferenceActivity
         return null;
     }
     
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		//getMenuInflater().inflate(R.menu.actbar, menu);
-		return true;
-	}
-
 	public boolean onPreferenceChange(final Preference preference, final Object newValue) {
-		if(EditTextPreference.class.equals(preference.getClass()) && ((EditTextPreference)preference).getEditText() != null && ((EditTextPreference)preference).getEditText().getTransformationMethod() != null)
-			preference.setSummary(((EditTextPreference)preference).getEditText().getTransformationMethod().getTransformation(newValue.toString(), ((EditTextPreference)preference).getEditText()));
-		else
-			preference.setSummary(newValue.toString());
-		if(preference.getKey().equals("server_host") && (!getIntent().hasExtra("name") || getIntent().getStringExtra("name") == null))
+		final String key = preference.getKey();
+		
+		Logger.LogDebug("SettingsActivity.onPreferenceChange(" + key + ", " + newValue + ")");
+		
+		if(key.equals("server_host") && (!getIntent().hasExtra("name") || getIntent().getStringExtra("name") == null))
 			onPreferenceChange(getPreferenceScreen().findPreference("server_name"), newValue);
-		//preference.getExtras().putString("value", newValue.toString());
 		Intent intent = getIntent();
-		intent.putExtra(preference.getKey().replace("server_", ""), newValue.toString());
+		if(Utils.inArray(key, "pref_fullscreen", "pref_fancy_menus", "pref_basebar", "pref_theme",
+					"pref_stats", "pref_root", "pref_language"))
+		{
+			intent.putExtra("restart", true);
+			setResult(OpenExplorer.RESULT_RESTART_NEEDED, intent);
+		}
+		if(key.equals("pref_language"))
+			preference.setSummary(getDisplayLanguage((String)newValue));
+		else if(preference instanceof ListPreference && newValue instanceof String)
+			preference.setSummary((String)newValue);
+		else if(EditTextPreference.class.equals(preference.getClass()) && ((EditTextPreference)preference).getEditText() != null && ((EditTextPreference)preference).getEditText().getTransformationMethod() != null)
+			preference.setSummary(((EditTextPreference)preference).getEditText().getTransformationMethod().getTransformation(newValue.toString(), ((EditTextPreference)preference).getEditText()));
+		
+		if(key.equals("pref_show"))
+			askApplyToAll(preference, "show_");
+		else if(key.equals("pref_sorting"))
+			askApplyToAll(preference, "sort_");
+		else if(key.equals("pref_sorting_folders"))
+			askApplyToAll(preference, "ff_");
+		
+		//preference.getExtras().putString("value", newValue.toString());
+		intent.putExtra(key.replace("server_", ""), newValue.toString());
 		final OpenApp app = ((OpenApplication)getApplication());
 		app.queueToTracker(new Runnable() {
 			public void run() {
-				app.getAnalyticsTracker().trackEvent("Preferences", "Change", preference.getKey(), newValue instanceof Integer ? (Integer)newValue : 0);
+				app.getAnalyticsTracker().trackEvent("Preferences", "Change", key, newValue instanceof Integer ? (Integer)newValue : 0);
 			}
 		});
 		setIntent(intent);
-		return false;
+		if(Arrays.binarySearch(new String[]{"pref_fullscreen", "pref_fancy_menus", "pref_basebar", "pref_theme",
+					"pref_stats", "pref_root", "pref_language"}, key) > -1)
+		{
+			intent.putExtra("restart", true);
+			setResult(OpenExplorer.RESULT_RESTART_NEEDED, intent);
+		} else
+			setResult(OpenExplorer.RESULT_OK, intent);
+		return true;
 	}
+	
+	private void askApplyToAll(final Preference preference, final String spKeyPrefix)
+	{
+		Preferences prefs = new Preferences(this);
+		final SharedPreferences sp = Preferences.getPreferences("views");
+		final SharedPreferences spGlobal = prefs.getPreferences();
+		final Runnable clearAll = new Runnable() {
+			public void run() {
+				SharedPreferences.Editor editor = sp.edit();
+				Map<String, ?> map = sp.getAll();
+				for(String pkey : map.keySet())
+					if(pkey.startsWith(spKeyPrefix))
+						editor.remove(pkey);
+				editor.commit();
+			}
+		};
+		/*if(spGlobal.getBoolean("pref_always_" + spKeyPrefix, false)) {
+			clearAll.run();
+		}*/
+		DialogInterface.OnClickListener listener =
+			new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					switch(which)
+					{
+					case R.string.activity_resolver_use_always:
+						spGlobal.edit().putBoolean("pref_always_" + spKeyPrefix, true).commit();
+					case R.string.activity_resolver_use_once:
+						clearAll.run();
+						break;
+					}
+				}
+			};
+		
+		DialogHandler.showConfirmationDialog(getContext(),
+				getString(R.string.apply_to_all),
+				preference.getTitle().toString(),
+				listener);
+		}
 	
 	public static File GetDefaultServerFile(Context context)
 	{
@@ -657,5 +763,159 @@ public class SettingsActivity extends PreferenceActivity
 			Logger.LogError("No Package for Signature?", e);
 		}
 		return ret;
+	}
+
+	@Override
+	public DataManager getDataManager() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ImageCacheService getImageCacheService() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public DownloadCache getDownloadCache() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ThreadPool getThreadPool() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public LruCache<String, Bitmap> getMemoryCache() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public DiskLruCache getDiskCache() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ActionMode getActionMode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setActionMode(ActionMode mode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public OpenClipboard getClipboard() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ShellSession getShellSession() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Context getContext() {
+		return this;
+	}
+
+	@Override
+	public Preferences getPreferences() {
+		return ((OpenApplication)getApplication()).getPreferences();
+	}
+
+	@Override
+	public void refreshBookmarks() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public GoogleAnalyticsTracker getAnalyticsTracker() {
+		return ((OpenApplication)getApplication()).getAnalyticsTracker();
+	}
+
+	@Override
+	public void queueToTracker(Runnable run) {
+		((OpenApplication)getApplication()).queueToTracker(run);
+	}
+
+	@Override
+	public int getThemedResourceId(int styleableId, int defaultResourceId) {
+		return ((OpenApplication)getApplication()).getThemedResourceId(styleableId, defaultResourceId);
+	}
+	
+	@TargetApi(11)
+	public static class PreferenceFragmentV11 extends PreferenceFragment
+	{
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			
+			addPreferencesFromResource(R.xml.preferences);
+			
+			PreferenceManager pm = getPreferenceManager();
+			pm.setSharedPreferencesName("global");
+			PreferenceManager.setDefaultValues(getActivity(), "global", R.xml.preferences, PreferenceActivity.MODE_PRIVATE, false);
+			
+			PreferenceScreen ps = getPreferenceScreen();
+			String key = null;
+			if(getArguments().containsKey("key"))
+			{
+				Preference p = ps.findPreference(getArguments().getCharSequence("key"));
+				ps.removeAll();
+				if(p instanceof PreferenceGroup)
+				{
+					PreferenceGroup pc = (PreferenceGroup)p;
+					for(int i = 0; i < pc.getPreferenceCount(); i++)
+						ps.addPreference(pc.getPreference(i));
+				} else
+					ps.addPreference(p);
+				setPreferenceScreen(ps);
+}
+			
+			((SettingsActivity)getActivity()).setOnChange(getPreferenceScreen(), false);
+		}
+		
+		@Override
+		public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
+				Preference preference) {
+			super.onPreferenceTreeClick(preferenceScreen, preference);
+			
+			if(((SettingsActivity)getActivity()).onPreferenceTreeClick(preferenceScreen, preference))
+				return true;
+			
+			if(preference.getKey().equals("server_prefs"))
+			{
+				getFragmentManager()
+					.beginTransaction()
+					.replace(R.id.content_frag, new ServerSettings())
+					.addToBackStack(null)
+					.commit();
+				return true;
+			}
+			return false;
+		}
+		
+		public class ServerSettings extends PreferenceFragment
+		{
+			@Override
+			public void onCreate(Bundle savedInstanceState) {
+				super.onCreate(savedInstanceState);
+				addPreferencesFromResource(R.xml.server_prefs);
+			}
+		}
+
 	}
 }
