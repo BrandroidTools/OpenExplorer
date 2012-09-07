@@ -1360,8 +1360,6 @@ public class ContentFragment extends OpenFragment
 		if(menu == null) return;
 		if(isDetached() || !isVisible()) return;
 		super.onPrepareOptionsMenu(menu);
-		if(OpenExplorer.BEFORE_HONEYCOMB)
-			MenuUtils.setMenuVisible(menu, false, R.id.menu_view_carousel);
 		
 		MenuUtils.setMenuVisible(menu, mPath instanceof OpenNetworkPath, R.id.menu_context_download);
 		MenuUtils.setMenuVisible(menu, !(mPath instanceof OpenNetworkPath), R.id.menu_context_edit, R.id.menu_context_view);
@@ -1406,16 +1404,12 @@ public class ContentFragment extends OpenFragment
 		
 		int mViewMode = getViewMode();
 		if(mViewMode == OpenExplorer.VIEW_GRID)
-			MenuUtils.setMenuChecked(menu, true, R.id.menu_view_grid, R.id.menu_view_list, R.id.menu_view_carousel);
-		else if(mViewMode == OpenExplorer.VIEW_CAROUSEL)
-			MenuUtils.setMenuChecked(menu, true, R.id.menu_view_carousel, R.id.menu_view_grid, R.id.menu_view_list);
+			MenuUtils.setMenuChecked(menu, true, R.id.menu_view_grid, R.id.menu_view_list);
 		else
-			MenuUtils.setMenuChecked(menu, true, R.id.menu_view_list, R.id.menu_view_grid, R.id.menu_view_carousel);
+			MenuUtils.setMenuChecked(menu, true, R.id.menu_view_list, R.id.menu_view_grid);
 		
 		MenuUtils.setMenuChecked(menu, getShowHiddenFiles(), R.id.menu_view_hidden);
 		MenuUtils.setMenuChecked(menu, getShowThumbnails(), R.id.menu_view_thumbs);
-		MenuUtils.setMenuVisible(menu, OpenExplorer.CAN_DO_CAROUSEL, R.id.menu_view_carousel);
-		
 	}
 	
 	/*

@@ -2299,11 +2299,7 @@ public class OpenExplorer
 				setSetting("pref_show_bookmarks",
 					toggleBookmarks());
 				return true;
-				
-			case R.id.menu_view_carousel:
-				changeViewMode(OpenExplorer.VIEW_CAROUSEL, true);
-				return true;
-				
+
 			case R.id.menu_view_grid:
 				changeViewMode(OpenExplorer.VIEW_GRID, true);
 				return true;

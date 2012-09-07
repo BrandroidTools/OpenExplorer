@@ -21,6 +21,8 @@
         <!-- Action Bar icons -->
         <item name="actionIconSort">@drawable/ic_action_sort_holo_dark</item>
         <item name="actionIconView">@drawable/ic_menu_view</item>
+        <item name="actionIconViewGrid">@drawable/ic_action_grid_view_holo_dark</item>
+        <item name="actionIconViewList">@drawable/ic_action_list_view_holo_dark</item>
         <item name="actionIconOperations">@drawable/ic_action_folder_holo_dark</item>
         <item name="actionIconRefresh">@drawable/ic_action_refresh_holo_dark</item>
         <item name="actionIconSearch">@drawable/ic_action_search_holo_dark</item>
@@ -79,6 +81,8 @@
         <item name="actionIconHomeUp">@drawable/ic_ab_back_holo_light</item>
         <item name="actionIconSort">@drawable/ic_action_sort_holo_light</item>
         <item name="actionIconView">@drawable/ic_menu_view</item>
+        <item name="actionIconViewGrid">@drawable/ic_action_grid_view_holo_light</item>
+        <item name="actionIconViewList">@drawable/ic_action_list_view_holo_light</item>
         <item name="actionIconOperations">@drawable/ic_action_folder_holo_light</item>
         <item name="actionIconRefresh">@drawable/ic_action_refresh_holo_light</item>
         <item name="actionIconSearch">@drawable/ic_action_search_holo_light</item>
