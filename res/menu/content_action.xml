@@ -21,6 +21,7 @@
     	android:icon="?attr/actionIconShare"
     	android:showAsAction="ifRoom"
     	android:orderInCategory="6"
+    	android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider"
 		/>
     <item
         android:id="@+id/menu_context_info"
@@ -29,6 +30,12 @@
     	android:showAsAction="ifRoom"
     	android:orderInCategory="8"
         />
+    <item
+    	android:id="@+id/menu_context_bookmark"
+		android:title="@string/s_menu_bookmark"
+		android:icon="@drawable/ic_menu_star"
+		android:showAsAction="ifRoom"
+    	/>
     <item
         android:id="@+id/menu_context_heatmap"
         android:title="@string/s_menu_heatmap"
@@ -49,6 +56,13 @@
         android:icon="?attr/actionIconSelectAll"
     	android:showAsAction="ifRoom"
     	android:orderInCategory="14"
+        />
+    <item
+        android:id="@+id/menu_context_download"
+        android:title="@string/s_menu_download"
+        android:showAsAction="never|withText"
+        android:icon="@drawable/ic_menu_down"
+        android:visible="false"
         />
     <item
 		android:id="@+id/menu_context_zip"

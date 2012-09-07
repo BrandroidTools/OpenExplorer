@@ -8,7 +8,7 @@
     android:fastScrollEnabled="true"
     android:gravity="center"
     android:horizontalSpacing="4dp"
-    android:listSelector="@drawable/list_selector_background"
+    android:listSelector="@drawable/list_selector"
     android:numColumns="auto_fit"
     android:stretchMode="columnWidth"
     android:verticalSpacing="4dp"

@@ -11,6 +11,8 @@ import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.BookmarkHolder;
 import org.brandroid.openmanager.data.OpenPath;
+import org.brandroid.openmanager.data.OpenPath.OpenContentUpdater;
+import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateListener;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.openmanager.util.ThumbnailCreator;
@@ -47,6 +49,7 @@ public class ContentAdapter extends BaseAdapter {
 	private final ArrayList<OpenPath> mData2 = new ArrayList<OpenPath>();
 	public int mViewMode = OpenExplorer.VIEW_LIST;
 	public boolean mShowThumbnails = true;
+	private boolean mShowHiddenFiles = false;
 	private SortType mSorting = SortType.ALPHA;
 	private OpenApp mApp;
 	private boolean mPlusParent = false;
@@ -110,7 +113,12 @@ public class ContentAdapter extends BaseAdapter {
 	public void setSorting(SortType sort) { mSorting = sort; notifyDataSetChanged(); }
 	public SortType getSorting() { return mSorting; }
 	
-	public void updateData() { updateData(getList()); } 
+	public void updateData() {
+		OpenPath[] list = getList();
+		if(list == null)
+			list = new OpenPath[0];
+		updateData(list);
+	} 
 	public void updateData(final OpenPath[] items) { updateData(items, true); }
 	private void updateData(final OpenPath[] items,
 			final boolean doSort) {
@@ -122,7 +130,7 @@ public class ContentAdapter extends BaseAdapter {
 		}
 		
 		//new Thread(new Runnable(){public void run() {
-		boolean showHidden = getSorting().showHidden();
+		boolean showHidden = getShowHiddenFiles();
 		boolean foldersFirst = getSorting().foldersFirst();
 		Logger.LogVerbose("updateData on " + items.length + " items (for " + mParent + ") : " +
 				(showHidden ? "show" : "hide") + " + " + (foldersFirst ? "folders" : "files") + " + " + (doSort ? mSorting.toString() : "no sort"));
@@ -168,6 +176,8 @@ public class ContentAdapter extends BaseAdapter {
 	
 	private OpenPath[] getList() {
 		try {
+			if(!mParent.isLoaded() && mParent instanceof OpenPathUpdateListener)
+				return new OpenPath[0];
 			if(mParent.requiresThread() && Thread.currentThread().equals(OpenExplorer.UiThread))
 				return mParent.list();
 			else
@@ -272,7 +282,7 @@ public class ContentAdapter extends BaseAdapter {
 		{
 			if(mShowDetails)
 				mInfo.setText(String.format(
-						file.getDetails(getSorting().showHidden(), showLongDate),
+						file.getDetails(getShowHiddenFiles(), showLongDate),
 						getResources().getString(R.string.s_files)));
 			else mInfo.setText("");
 		}
@@ -382,6 +392,10 @@ public class ContentAdapter extends BaseAdapter {
 		return position;
 	}
 	
+	public void clearData() {
+		mData2.clear();
+	}
+	
 	public void add(OpenPath p) {
 		mData2.add(p);
 	}
@@ -445,5 +459,13 @@ public class ContentAdapter extends BaseAdapter {
 			mCallback.onAdapterSelectedChanged(path, newSelected,
 					mSelectedSet.size());
 		}
+	}
+
+	public void setShowHiddenFiles(boolean show)
+	{
+		mShowHiddenFiles = show;
+	}
+	public boolean getShowHiddenFiles() {
+		return mShowHiddenFiles;
 	}
 }

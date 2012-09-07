@@ -2,6 +2,8 @@ package org.brandroid.openmanager.fragments;
 
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.List;
+
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.activities.OpenFragmentActivity;
@@ -14,7 +16,9 @@ import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.BetterPopupWindow;
 import org.brandroid.openmanager.util.EventHandler;
 import org.brandroid.openmanager.util.FileManager;
+import org.brandroid.openmanager.util.IntentManager;
 import org.brandroid.openmanager.util.ShellSession;
+import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.DiskLruCache;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.LruCache;
@@ -28,6 +32,8 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
+import com.actionbarsherlock.widget.ShareActionProvider;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
@@ -40,13 +46,19 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -104,10 +116,52 @@ public abstract class OpenFragment
 		public OpenPath getPath() { return file; }
 	}
 	
+	private void modifyMenuShare(Menu menu, OpenPath mPath)
+	{
+		MenuItem mShare = menu.findItem(R.id.menu_context_share);
+		if(mShare == null) return;
+		mShare.setVisible(true);
+		ShareActionProvider mShareProvider = (ShareActionProvider)mShare.getActionProvider();
+		if(mShareProvider == null)
+		{
+			mShareProvider = new ShareActionProvider(getContext());
+			mShare.setActionProvider(mShareProvider);
+		}
+		
+		Intent intent = IntentManager.getIntent(mPath, getExplorer());
+		intent.setType(mPath.getMimeType());
+		mShareProvider.setShareIntent(intent);
+
+	}
+	
+	public String getString(int resId, String mDefault)
+	{
+		if(getExplorer() != null)
+			return getExplorer().getString(resId);
+		else return mDefault;
+	}
+	
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		// TODO Auto-generated method stub
 		super.onCreateOptionsMenu(menu, inflater);
+		
+		if(this instanceof OpenPathFragmentInterface)
+		{
+			OpenPath mPath = ((OpenPathFragmentInterface)this).getPath();
+			modifyMenuShare(menu, mPath);
+		} else MenuUtils.setMenuVisible(menu, false, R.id.menu_context_share);
+	}
+	
+	private Drawable getResolveIcon(PackageManager pm, ResolveInfo info)
+	{
+		Drawable ret = pm.getApplicationIcon(info.activityInfo.applicationInfo);
+		if(ret instanceof BitmapDrawable)
+		{
+			Bitmap bmp = ((BitmapDrawable)ret).getBitmap();
+			ret = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bmp, 48, 48, false));
+		} else Logger.LogWarning("Unknown drawable: " + ret.getClass().toString());
+		return ret;
+		
 	}
 	
 	public static OpenFragment instantiate(Context context, String fname, Bundle args) {
@@ -478,7 +532,7 @@ public abstract class OpenFragment
 			getExplorer().refreshOperations();
 	}
 	
-	protected final void finishMode(ActionMode mode)
+	protected void finishMode(ActionMode mode)
 	{
 		if(mode != null)
 			mode.finish();

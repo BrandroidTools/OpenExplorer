@@ -73,19 +73,20 @@ public class OpenSmartFolder extends OpenPath
 	}
 	
 	public boolean isLoaded() { return mLoaded; }
-	public void setLoaded() { mLoaded = true; }
 	
 	public void addSearch(SmartSearch search)
 	{
 		if(search.mParent == null || !search.mParent.exists()) return;
 		if(!mSearches.contains(search))
 		{
+			mLoaded = false;
 			mSearches.add(search);
 			try {
 				doSearch(search);
 			} catch (IOException e) {
 				Logger.LogError("Error adding Search");
 			}
+			mLoaded = true;
 		}
 	}
 	
@@ -172,9 +173,11 @@ public class OpenSmartFolder extends OpenPath
 
 	@Override
 	public OpenPath[] listFiles() throws IOException {
+		mLoaded = false;
 		mChildren.clear();
 		for(SmartSearch search : mSearches)
 			doSearch(search);
+		mLoaded = true;
 		return mChildren.toArray(new OpenPath[mChildren.size()]);
 	}
 	
