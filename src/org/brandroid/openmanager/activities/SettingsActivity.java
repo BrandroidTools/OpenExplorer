@@ -151,10 +151,36 @@ public class SettingsActivity extends SherlockPreferenceActivity
 		return super.onPreferenceStartFragment(caller, pref);
 	}
 	
+	@Override
+	public boolean onIsMultiPane() {
+		// non-multipane doesn't work very well,
+		// it does not return intent to OpenExplorer for some reason,
+		// so we'll make sure to use multipane if there is enough room
+		return getResources().getBoolean(R.bool.large) || getResources().getBoolean(R.bool.land);
+	}
+	
 	public ActionBar getSupportActionBar()
 	{
 		return super.getSupportActionBar();
 		//return null;
+	}
+	
+	@Override
+	protected void onResume() {
+		Intent intent = getIntent();
+		Bundle data = intent != null ? intent.getExtras() : null;
+		if(data == null || (data.size() == 1 && data.containsKey("path")))
+		{
+			
+		}
+		Logger.LogDebug("SettingsActivity.onResume(" + data + ")");
+		super.onResume();
+	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle state) {
+		Logger.LogDebug("SettingsActivity.onRestoreInstanceState(" + state + ")");
+		super.onRestoreInstanceState(state);
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -174,6 +200,8 @@ public class SettingsActivity extends SherlockPreferenceActivity
 			config = savedInstanceState;
 		if(config == null)
 			config = new Bundle();
+		
+		Logger.LogDebug("SettingsActivity.onCreate(" + savedInstanceState + ")");
 		
 		String path = "global";
 		if(config.containsKey("path"))
@@ -588,10 +616,7 @@ public class SettingsActivity extends SherlockPreferenceActivity
 		Intent intent = getIntent();
 		if(Utils.inArray(key, "pref_fullscreen", "pref_fancy_menus", "pref_basebar", "pref_theme",
 					"pref_stats", "pref_root", "pref_language"))
-		{
-			intent.putExtra("restart", true);
-			setResult(OpenExplorer.RESULT_RESTART_NEEDED, intent);
-		}
+			getPreferences().setSetting("global", "restart", true);
 		if(key.equals("pref_language"))
 			preference.setSummary(getDisplayLanguage((String)newValue));
 		else if(preference instanceof ListPreference && newValue instanceof String)
@@ -618,7 +643,7 @@ public class SettingsActivity extends SherlockPreferenceActivity
 		if(Arrays.binarySearch(new String[]{"pref_fullscreen", "pref_fancy_menus", "pref_basebar", "pref_theme",
 					"pref_stats", "pref_root", "pref_language"}, key) > -1)
 		{
-			intent.putExtra("restart", true);
+			getPreferences().setSetting("global", "restart", true);
 			setResult(OpenExplorer.RESULT_RESTART_NEEDED, intent);
 		} else
 			setResult(OpenExplorer.RESULT_OK, intent);
@@ -863,11 +888,10 @@ public class SettingsActivity extends SherlockPreferenceActivity
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			
-			addPreferencesFromResource(R.xml.preferences);
-			
-			PreferenceManager pm = getPreferenceManager();
-			pm.setSharedPreferencesName("global");
+			getPreferenceManager().setSharedPreferencesName("global");
 			PreferenceManager.setDefaultValues(getActivity(), "global", R.xml.preferences, PreferenceActivity.MODE_PRIVATE, false);
+			
+			addPreferencesFromResource(R.xml.preferences);
 			
 			PreferenceScreen ps = getPreferenceScreen();
 			String key = null;
@@ -883,7 +907,7 @@ public class SettingsActivity extends SherlockPreferenceActivity
 				} else
 					ps.addPreference(p);
 				setPreferenceScreen(ps);
-}
+			}
 			
 			((SettingsActivity)getActivity()).setOnChange(getPreferenceScreen(), false);
 		}

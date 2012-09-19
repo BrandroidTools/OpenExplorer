@@ -18,7 +18,7 @@
     <string name="s_menu_sort_size_asc">大きい順に並び替え</string>
     <string name="s_menu_sort_size_desc">小さい順に並び替え</string>
     <string name="s_menu_sort_type">ファイル形式で並び替え</string>
-    <string name="s_menu_multi" auto="1">複数選択</string>
+    <string name="s_menu_multi">複数選択</string>
     <string name="s_menu_grid">グリッド表示</string>
     <string name="s_menu_list">リスト表示</string>
     <string name="s_menu_carousel" auto="1">カルーセル</string>
@@ -26,18 +26,18 @@
     <string name="s_menu_thumbs">サムネイル画像を表示</string>
     <string name="s_menu_new_folder">新しいフォルダー</string>
     <string name="s_menu_other">その他の設定</string>
-    <string name="s_menu_flush" auto="1">キャッシュのフラッシュ</string>
+    <string name="s_menu_flush">キャッシュ消去</string>
     <string name="s_menu_root" auto="1">ルート</string>
-    <string name="s_menu_prefs_folder" auto="1">フォルダの設定</string>
+    <string name="s_menu_prefs_folder">フォルダ設定</string>
     <string name="s_menu_prefs_global" auto="1">グローバル設定</string>
     <string name="s_menu_info" auto="1">情報</string>
     <string name="s_menu_copy" auto="1">コピー</string>
     <string name="s_menu_cut" auto="1">カット</string>
-    <string name="s_menu_paste" auto="1">貼り付ける</string>
+    <string name="s_menu_paste">貼り付け</string>
     <string name="s_menu_delete">削除</string>
-    <string name="s_menu_share" auto="1">/共有を送信...</string>
-    <string name="s_menu_zip" auto="1">zipファイル（複数可）...</string>
-    <string name="s_menu_unzip" auto="1">解凍します...</string>
+    <string name="s_menu_share">送信/共有</string>
+    <string name="s_menu_zip">Zipファイル(複数可)</string>
+    <string name="s_menu_unzip">解凍</string>
     <string name="s_menu_rename" auto="1">名前の変更...</string>
     <string name="s_menu_bookmark" auto="1">ブックマークに追加</string>
     <string name="s_save" auto="1">保存</string>
@@ -45,65 +45,65 @@
     <string name="s_cancel" auto="1">キャンセル</string>
     <string name="s_size" auto="1">サイズ</string>
     <string name="s_none" auto="1">なし</string>
-    <string name="s_pref_servers" auto="1">追加サーバー（Additional Servers）</string>
-    <string name="s_pref_server_add" auto="1">+新しいサーバーを追加する</string>
+    <string name="s_pref_servers">追加されたサーバー</string>
+    <string name="s_pref_server_add">+ 新しいサーバーを追加</string>
     <string name="s_pref_display" auto="1">表示設定</string>
     <string name="s_pref_hidden" auto="1">隠しファイルを表示</string>
-    <string name="s_pref_hidden_summary" auto="1">隠しファイルおよび隠しフォルダを表示します。</string>
-    <string name="s_pref_thumbs" auto="1">画像のサムネイルを表示する</string>
-    <string name="s_pref_thumbs_summary" auto="1">画像/ビデオ/アプリファイルのサムネイルを表示します。</string>
-    <string name="s_pref_view" auto="1">表示モード</string>
-    <string name="s_pref_view_summary" auto="1">グリッド内のファイル、リスト、またはカルーセル（ハニカムのみ）が表示されます</string>
-    <string name="s_pref_sort" auto="1">並べ替え</string>
-    <string name="s_pref_sort_summary" auto="1">ファイルとフォルダを並べ替える方法を選択します。</string>
-    <string name="s_pref_advanced" auto="1">高度な</string>
+    <string name="s_pref_hidden_summary">隠しファイル/フォルダの表示</string>
+    <string name="s_pref_thumbs">画像のサムネイルを表示</string>
+    <string name="s_pref_thumbs_summary">画像/ビデオ/アプリのサムネイルを表示</string>
+    <string name="s_pref_view">表示モード</string>
+    <string name="s_pref_view_summary">ファイルをグリッド/リスト/カルーセル(Android 3のみ)で表示</string>
+    <string name="s_pref_sort">並び替え</string>
+    <string name="s_pref_sort_summary">ファイルとフォルダの並び替え方法を選択</string>
+    <string name="s_pref_advanced">高度</string>
     <string name="s_pref_server_name">サーバー名</string>
-    <string name="s_pref_server_name_summary" auto="1">サーバー名を入力します。</string>
-    <string name="s_pref_server_url" auto="1">サーバのURL</string>
-    <string name="s_pref_server_url_summary" auto="1">完全なサーバーのURLを入力します。</string>
-    <string name="s_pref_server_host" auto="1">サーバーのホスト</string>
+    <string name="s_pref_server_name_summary">サーバー名入力</string>
+    <string name="s_pref_server_url">サーバーのURL</string>
+    <string name="s_pref_server_url_summary">サーバーの完全なURL入力</string>
+    <string name="s_pref_server_host">サーバーホスト</string>
     <string name="s_pref_server_user" auto="1">ユーザー</string>
-    <string name="s_pref_server_user_summary" auto="1">ユーザ名</string>
+    <string name="s_pref_server_user_summary">ユーザー名</string>
     <string name="s_pref_server_password" auto="1">パスワード</string>
     <string name="s_pref_server_password_summary" auto="1">ログインパスワード</string>
     <string name="s_pref_server_path" auto="1">サブディレクトリ</string>
-    <string name="s_pref_server_path_summary" auto="1">デフォルトのログイン·パスを入力します。</string>
-    <string name="s_pref_server_extras" auto="1">余分な設定</string>
+    <string name="s_pref_server_path_summary">デフォルトのログインディレクトリ入力</string>
+    <string name="s_pref_server_extras">拡張設定</string>
     <string name="s_pref_server_update" auto="1">追加/更新サーバ</string>
-    <string name="s_pref_server_type" auto="1">サーバーの種類]</string>
+    <string name="s_pref_server_type">サーバーの種類</string>
     <string name="s_files" auto="1">ファイル</string>
-    <string name="s_create" auto="1">作る</string>
-    <string name="s_title_holding_x_files" auto="1">％sのファイルを保持する</string>
-    <string name="s_title_newfolder" auto="1">新しいフォルダを作成する</string>
-    <string name="s_title_send" auto="1">％sに送信</string>
-    <string name="s_title_unzip" auto="1">％sの解凍</string>
-    <string name="s_title_zip" auto="1">郵便番号％sは</string>
+    <string name="s_create">作成</string>
+    <string name="s_title_holding_x_files" formatted="false">%sのファイルを保持</string>
+    <string name="s_title_newfolder">新規フォルダ作成</string>
+    <string name="s_title_send" formatted="false">%sを送信</string>
+    <string name="s_title_unzip" formatted="false">%sを解凍</string>
+    <string name="s_title_zip" formatted="false">%sを圧縮</string>
     <string name="s_title_executing" auto="1">実行</string>
     <string name="s_title_deleting" auto="1">削除</string>
     <string name="s_title_searching" auto="1">検索</string>
-    <string name="s_title_moving" auto="1">移動する</string>
-    <string name="s_title_copying" auto="1">複写</string>
+    <string name="s_title_moving">移動</string>
+    <string name="s_title_copying">コピー</string>
     <string name="s_title_zipping">Zip圧縮する</string>
-    <string name="s_title_unzipping" auto="1">解凍する</string>
+    <string name="s_title_unzipping">解凍中</string>
     <string name="s_title_wait" auto="1">しばらくお待ちください...</string>
     <string name="s_alert_confirm_delete" auto="1">％sを削除すると元に戻すことはできません。続行してもよろしいですか？</string>
     <string name="s_alert_rename" auto="1">このファイルに新しい名前を入力してください</string>
     <string name="s_alert_newfolder" auto="1">あなたが作成したいフォルダの名前を入力します。</string>
-    <string name="s_alert_unzip" auto="1">ここで、％sまたは他のいくつかのフォルダを解凍したいですか？</string>
-    <string name="s_button_unzip_here" auto="1">ここで解凍します</string>
-    <string name="s_button_unzip_else" auto="1">他の場所に解凍します。...</string>
-    <string name="s_msg_none" auto="1">ファイル（s）はできませんでした</string>
-    <string name="s_msg_some" auto="1">いくつかのファイル（s）はできませんでした</string>
-    <string name="s_msg_all" auto="1">成功したファイル（複数可）</string>
-    <string name="s_msg_deleted" auto="1">削除された</string>
-    <string name="s_msg_moved" auto="1">移動</string>
-    <string name="s_msg_copied" auto="1">コピー</string>
-    <string name="s_remove" auto="1">削除する</string>
-    <string name="s_eject" auto="1">イジェクト</string>
+    <string name="s_alert_unzip" formatted="false">%sをここへ、または幾つかのフォルダへ解凍しますか？</string>
+    <string name="s_button_unzip_here">ここへ解凍</string>
+    <string name="s_button_unzip_else">他の場所へ解凍</string>
+    <string name="s_msg_none">ファイル(複数の場合あり)はできません</string>
+    <string name="s_msg_some">幾つかのファイル(複数の場合あり)はできません</string>
+    <string name="s_msg_all">ファイル(複数の場合あり)は成功</string>
+    <string name="s_msg_deleted">削除済み</string>
+    <string name="s_msg_moved">移動済み</string>
+    <string name="s_msg_copied">コピー済み</string>
+    <string name="s_remove">取り除く</string>
+    <string name="s_eject">取り出し</string>
     <string name="s_update" auto="1">更新</string>
     <string name="s_alert_bookmark_rename" auto="1">ブックマークのタイトルを変更します。</string>
     <string name="s_title_bookmark_prefix" auto="1">ブックマークの管理：</string>
-    <string name="s_alert_remove_safe" auto="1">これで、ドライブを安全に削除することができます。</string>
+    <string name="s_alert_remove_safe">ドライブを安全に取り除く事が出来るようになりました</string>
     <string name="s_alert_remove_error" auto="1">取り出すことができません。</string>
     <string name="s_menu_about">このアプリについて</string>
     <string name="s_about_version" auto="1">バージョン</string>
@@ -120,53 +120,53 @@
     <string name="s_error_no_intents" auto="1">インストール済みのアプリケーションは、この種類のファイルを読み取ることはできません。</string>
     <string name="s_menu_root_disabled" auto="1">ルートを無効に</string>
     <string name="s_pref_start" auto="1">起動フォルダ</string>
-    <string name="s_pref_start_summary" auto="1">OpenExplorerがで開始するフォルダを示します。</string>
+    <string name="s_pref_start_summary">OpenExplorerの起動時フォルダを示します</string>
     <string name="s_custom" auto="1">カスタム...</string>
     <string name="s_text_intro_top" auto="1">OpenExplorerへようこそ！</string>
-    <string name="s_text_intro_body" auto="1">OpenExplorerの目標はAndroidのファイルシステム内およびクラウド内のあなたがより生産的にすることです。あなたが複数の場所からビデオや写真を管理したり、FTP経由でリモートウェブサーバを管理する必要があるかどうか、OpenExplorerニーズに合わせすることができます n  nしばらくは起動パスを選択します。</string>
+    <string name="s_text_intro_body">OpenExplorerの開発目標は、Androidのファイルシステムやクラウド上であなたがより生産的になれるようにする事です。あなたが多くのフォルダやあなたのウェブサーバーからftpを介してビデオや写真を管理する必要があるなら、OpenExplorerはあなたの必要に適するでしょう。\n\n起動時フォルダを選択してください：</string>
     <string name="s_info_num_folders" auto="1">フォルダの数：</string>
     <string name="s_info_num_files" auto="1">ファイル数：</string>
     <string name="s_info_last_modified" auto="1">最終更新日：</string>
     <string name="s_info_permissions" auto="1">ファイルの権限：</string>
-    <string name="s_info_permission_read" auto="1">お読みください。</string>
+    <string name="s_info_permission_read">読み込み：</string>
     <string name="s_info_permission_write" auto="1">書き込み：</string>
-    <string name="s_info_permission_execute" auto="1">実行します。</string>
+    <string name="s_info_permission_execute">実行：</string>
     <string name="s_toggle_keyboard" auto="1">キーボード</string>
-    <string name="s_show_password" auto="1">パスワードを表示する</string>
-    <string name="s_error_ftp" auto="1">FTPへの接続エラー</string>
+    <string name="s_show_password">パスワードを表示</string>
+    <string name="s_error_ftp">ネットワークへの接続エラー</string>
     <string name="s_prompt_zip" auto="1">新しいZipファイルのファイル名を入力します。</string>
     <string name="app_edit" auto="1">OpenExplorerで編集</string>
     <string name="s_menu_more" auto="1">その他のオプション...</string>
     <string name="s_msg_low_memory" auto="1">メモリ不足！</string>
-    <string name="s_clear" auto="1">明確な</string>
-    <string name="s_menu_delete_all" auto="1">すべてを削除します。</string>
+    <string name="s_clear">消去</string>
+    <string name="s_menu_delete_all">全削除</string>
     <string name="s_menu_move_all" auto="1">ここに移動</string>
     <string name="s_menu_copy_all" auto="1">ここにコピー</string>
-    <string name="s_confirm_delete" auto="1">あなたは％sを削除しますか？</string>
+    <string name="s_confirm_delete" formatted="false">本当に%sを削除しても宜しいですか？</string>
     <string name="s_error_same_destination" auto="1">コピー先のディレクトリは同じです。</string>
-    <string name="s_sample_notification" auto="1">コピー - &gt; SDカード： nの3ファイル</string>
+    <string name="s_sample_notification">コピー中→sdcard:</string>
     <string name="s_pref_fullscreen">全画面</string>
-    <string name="s_pref_fullscreen_summary_on" auto="1">通知バーを隠す</string>
-    <string name="s_pref_fullscreen_summary_off" auto="1">通知バーを表示する</string>
-    <string name="s_pref_pagers" auto="1">ページャを表示する</string>
+    <string name="s_pref_fullscreen_summary_on">通知バーを非表示</string>
+    <string name="s_pref_fullscreen_summary_off">通知バーを表示</string>
+    <string name="s_pref_pagers">ページャーを表示</string>
     <string name="s_pref_pagers_summary_on" auto="1">水平方向のスワイプ=ディレクトリのナビゲーション</string>
-    <string name="s_pref_pagers_summary_off" auto="1">水平方向のスワイプバリア</string>
+    <string name="s_pref_pagers_summary_off">水平方向のスワイプは無効</string>
     <string name="s_alert_new_media" auto="1">新しいメディアが挿入された！</string>
     <string name="s_warn_pager_title" auto="1">新機能：ビューページャ</string>
     <string name="s_warn_pager" auto="1">スワイプは、ディレクトリと戻るために右から左まで移動し、左から右へ。これは、ナビゲートしやすくする必要があります。 （外部メディア上の）それを試してみてください！</string>
     <string name="s_warn_confirm" auto="1">わかりますか？</string>
     <string name="s_warn_disable" auto="1">無効にする</string>
-    <string name="s_pref_intent_internal" auto="1">内部テント</string>
-    <string name="s_pref_intent_internal_on" auto="1">OpenExplorerインテントマネージャを使用して、</string>
-    <string name="s_pref_intent_internal_off" auto="1">システムのインテントマネージャを使用して</string>
-    <string name="s_pref_text_internal" auto="1">内部テキストエディタを使用して、</string>
+    <string name="s_pref_intent_internal">内部インテント</string>
+    <string name="s_pref_intent_internal_on">OpenExplorerのインテントマネージャーを使う</string>
+    <string name="s_pref_intent_internal_off">Androidのインテントマネージャーを使う</string>
+    <string name="s_pref_text_internal">内部テキストエディタを使う</string>
     <string name="s_text_editor_title" auto="1">テキストエディタ</string>
-    <string name="s_pref_show_root" auto="1">表示ルートファイルシステム（/）</string>
-    <string name="s_pref_show_internal" auto="1">内部メディアを表示する</string>
-    <string name="s_pref_show_external" auto="1">外部メディアを表示する</string>
+    <string name="s_pref_show_root">ルートファイルシステム(/)を表示</string>
+    <string name="s_pref_show_internal">内部メディアを表示</string>
+    <string name="s_pref_show_external">外部メディアを表示</string>
     <string name="s_error_no_media" auto="1">挿入したメディアが存在しないように見えます。 USB共有または再挿入するメディアを無効にしてください。</string>
-    <string name="s_prompt_password" auto="1">パスワードを入力します</string>
-    <string name="s_add" auto="1">加える</string>
+    <string name="s_prompt_password">パスワードを入力</string>
+    <string name="s_add">追加</string>
     <string name="s_server_ftp">FTP</string>
     <string name="s_server_sftp" auto="1">SFTP</string>
     <string name="s_pref_server_port" auto="1">ポート</string>
@@ -174,44 +174,46 @@
     <string name="s_default" auto="1">デフォルト</string>
     <string name="s_pref_timeout" auto="1">タイムアウト</string>
     <string name="s_pref_timeout_summary" auto="1">秒単位のタイムアウト</string>
-    <string name="s_menu_up" auto="1">上がる</string>
-    <string name="s_prompt_unzip" auto="1">に解凍するパスを入力してください。</string>
+    <string name="s_menu_up">上へ</string>
+    <string name="s_prompt_unzip">解凍先を入力：</string>
     <string name="s_pref_hardware_accel" auto="1">ハードウェアアクセラレーションを有効にする</string>
     <string name="s_pref_honeyplus" auto="1">アンドロイド3.0 +の設定</string>
     <string name="s_pref_actionmode" auto="1">アクションモード</string>
     <string name="s_pref_actionmode_enabled" auto="1">アクションモードを使用</string>
-    <string name="s_pref_actionmode_disabled" auto="1">標準のコンテキストメニューを使用して、</string>
+    <string name="s_pref_actionmode_disabled">標準コンテキストメニューを使う</string>
     <string name="s_server_smb" auto="1">SMB / Windowsの</string>
     <string name="s_bookmark_drives" auto="1">ドライブ</string>
     <string name="s_bookmark_smart" auto="1">スマートフォルダ</string>
     <string name="s_bookmark_favorites" auto="1">お気に入り</string>
     <string name="s_bookmark_servers">サーバー</string>
     <string name="s_bookmark_cache" auto="1">キャッシュ</string>
-    <string name="s_info_totalspace" auto="1">ディスク総容量：</string>
-    <string name="s_info_freespace" auto="1">ディスク空き領域：</string>
+    <string name="s_info_totalspace">ディスクの総空き容量：</string>
+    <string name="s_info_freespace">ディスクの空き容量：</string>
     <string name="s_status_rate" auto="1">レート：</string>
     <string name="s_about_hardware" auto="1">ハードウェア</string>
-    <string name="s_menu_refresh" auto="1">リフレッシュフォルダ</string>
+    <string name="s_menu_refresh">フォルダ更新</string>
     <string name="s_pref_reset" auto="1">再生回数をリセットする</string>
-    <string name="s_toast_complete" auto="1">操作が完了！</string>
+    <string name="s_toast_complete">処理完了！</string>
     <string name="s_pref_reset_summary" auto="1">デフォルトの状態に戻って、すべてのフォルダに固有の表示設定を削除するにはここをクリックしてください。</string>
     <string name="s_prompt_path" auto="1">パスを入力してください。</string>
     <string name="s_prompt_search" auto="1">検索：</string>
     <string name="s_prompt_search_within" auto="1">内で検索：</string>
-    <string name="s_pref_view_category" auto="1">ビューの設定]をブックマーク</string>
-    <string name="s_pref_show_videos" auto="1">動画を表示する</string>
+    <string name="s_pref_view_category">ブックマークビューの設定</string>
+    <string name="s_pref_show_videos">動画を表示</string>
     <string name="s_pref_show_photos" auto="1">写真を表示</string>
-    <string name="s_pref_show_music" auto="1">音楽を表示する</string>
+    <string name="s_pref_show_music">音楽を表示</string>
     <string name="s_pref_show_downloads" auto="1">ダウンロードを表示</string>
     <string name="s_hide" auto="1">隠す</string>
-    <string name="s_show" auto="1">表示する</string>
+    <string name="s_show">表示</string>
     <string name="s_msg_event_cancelled" auto="1">イベントがキャンセルされました。</string>
-    <string name="s_alert_newfolder_folder" auto="1">に新しいフォルダを作成します。</string>
+    <string name="s_alert_newfolder_folder">新規フォルダの作成先：</string>
     <string name="s_pref_fancy_category" auto="1">ファンシーディスプレイの設定</string>
     <string name="s_pref_fancy_menus" auto="1">ファンシーメニュー</string>
     <string name="s_pref_fancy_context" auto="1">ファンシーコンテキストメニュー</string>
     <string name="s_search_files" auto="1">検索ファイルシステム</string>
-    <string name="s_menu_exit" auto="1">終了する</string>
+    <string name="search_summary" auto="1">％sを探します n "％s"は（％d）の中で...</string>
+    <string name="search_results" auto="1">％sの中で "％s"は nのが見つかりました％d個の結果</string>
+    <string name="s_menu_exit">終了</string>
     <string name="s_warn_wtf_message" auto="1">おっと！これは、未処理のエラーが発生したことが表示されます！これは多くのベータ版のアプリで共通の問題であるとして、これらの問題を解決する唯一の方法は、問題を解決する方法を決定するためには、このようなあなたのようなさまざまなデバイスからレポートを受信することである。私たちは開発者にのみ、匿名のデータを含む、そのようなレポートを送信できますか？</string>
     <string name="s_warn_wtf_ps" auto="1">注意してください***このアプリはベータ版です。それがクラッシュしたというだけの理由で、このアプリに悪い評価を与えないでください。それは本当にあなたを悩ませている場合だけアンインストールしてください。ありがとう！</string>
     <string name="s_yes">はい</string>
@@ -226,17 +228,17 @@
     <string name="s_split_auto" auto="1">自動</string>
     <string name="s_split_top" auto="1">このページのトップへ力ボタン</string>
     <string name="s_split_top_single" auto="1">ページのトップへワンボタンを強制的に</string>
-    <string name="s_split_bottom" auto="1">ボトムに力ボタン</string>
+    <string name="s_split_bottom">強制ボタンを下に</string>
     <string name="s_split_none" auto="1">システムメニュー内のすべてのボタンを配置</string>
     <string name="s_about_screensize" auto="1">画面サイズ</string>
     <string name="s_about_density" auto="1">密度</string>
     <string name="s_menu_location_int" auto="1">内部メモリのパス</string>
-    <string name="s_menu_location_ext" auto="1">外部メモリ·パス</string>
+    <string name="s_menu_location_ext">外部メモリのパス</string>
     <string name="s_wtf_context" auto="1">クラッシュのコンテキストを記述してください：</string>
     <string name="thanks" auto="1">ありがとうございました！</string>
-    <string name="menu_view_font_small" auto="1">小さいフォントサイズ</string>
-    <string name="menu_view_font_medium" auto="1">フォントサイズ中</string>
-    <string name="menu_view_font_large" auto="1">フォントサイズ大</string>
+    <string name="menu_view_font_small">小フォント</string>
+    <string name="menu_view_font_medium">中フォント</string>
+    <string name="menu_view_font_large">大フォント</string>
     <string name="app_description" auto="1">エクスプローラを開き - すべてのデバイスのオープンソースのファイルマネージャ！ （錠剤、携帯電話、Googleのテレビ、サンドイッチ！）に nコンプリートファイルシステムの管理 n-USB、SDおよびその他の外部メディアの n - ネットワーク接続可能（FTP、SFTP、SMB /のSamba / Windows / LAN / WIFI）を n - テキスト·エディタは、 n、スマートフォルダ、メディアの種類（ビデオ、写真、音楽、ダウンロードする） n - ビューベルディレクトリナビゲーション（ディレクトリを移動する強打の右）に nスーパユーザ/ルート機能/リストへのスキャンシステムフォルダを読んでない（システムがまだ書かない）に来るの n  nFeaturesます： n-タブテキストエディタに n-多くのネットワーク機能（Dropboxが、Box.net、スカイドライブ）に n - オフラインファイル構造のキャッシュは、どのファイルを覚えていますあなたが接続する必要が n型ディスク·スペースのヒートマップは、あなたの最大のファイルがどこにあるかを示していなくても、別の場所に持っているの nを n *ご注意：このアプリはベータ版です。多くのバグが残っています。あなたはこれらのバグを体験したくない場合は、どうぞ、このアプリをダウンロードしないでください。あなたは私がこれらのバグを見つけるために希望される場合は、私に電子メールを送るか、またはGitHubの（https://github.com/BrandoCommando/OpenExplorer/）で私に協力してください。悪い評価は誰も助けない覚えておいてください。</string>
     <string name="alert_translate_google" auto="1">こんにちは、この翻訳はGoogle翻訳で提供されています。あなたが同様に％sは、英語を知って、よりよい翻訳を提供することを支援するためにご希望の場合は、このボタンをクリックしてください。</string>
     <string name="alert_translate_none" auto="1">こんにちは、それはあなたがサポートされていない言語を使用していることが表示されます。あなたは、英語と％sを知っていますか？あなたは、正しい翻訳を提供する際に支援したい場合は、ここをクリックしてください：</string>
@@ -280,4 +282,20 @@
     <string name="storage_usb">SDカード</string>
     <string name="extract_edit_menu_button">USBストレージ</string>
     <string name="activity_chooser_view_see_all">編集...</string>
+    <string name="s_title_picker">ディレクトリを選択してください</string>
+    <string name="selected_path">選択されたパス</string>
+    <string name="filename">ファイル名</string>
+    <string name="s_msg_saved">保存済み</string>
+    <string name="s_menu_view_line_numbers">行数</string>
+    <string name="warn_text_editor">Text Editorへようこそ。テキストを長押しして編集モードに入ってください。</string>
+    <string name="warn_networking">Networkingへようこそ。開発中の機能でバグを含んでいるでしょうから、この機能によってGoogle playにて悪い評価をしないようお願いします。</string>
+    <string name="s_menu_new_file">新規テキストファイル</string>
+    <string name="s_msg_created">作成済み</string>
+    <string name="s_title_newfile">新規ファイル</string>
+    <string name="s_alert_newfile_folder">新しいファイルの作成先</string>
+    <string name="s_alert_newfile">新しいファイルの名前を入力:</string>
+    <string name="s_alert_exit">本当に終了しますか？</string>
+    <string name="s_alert_clipboard">クリップボードへコピー済み</string>
+    <string name="s_alert_restart">再起動中。暫く待ってください。</string>
+    <string name="language">言語</string>
 </resources>

@@ -1913,6 +1913,9 @@ public class OpenExplorer
 		checkTitleSeparator();
 	}
 	
+	/**
+	 * Refresh list of bookmarks.
+	 */
 	public void refreshBookmarks()
 	{
 		if(DEBUG && IS_DEBUG_BUILD)
@@ -2394,16 +2397,7 @@ public class OpenExplorer
 				return true;
 				
 			case R.id.menu_exit:
-				DialogHandler.showConfirmationDialog(this,
-						getString(R.string.s_alert_exit),
-						getString(R.string.s_menu_exit),
-						getPreferences(), "exit",
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								finish();
-							}
-						});
+				showExitDialog();
 				return true;
 		}
 		
@@ -2449,6 +2443,19 @@ public class OpenExplorer
 		return onClick(item.getItemId(), item, null);
 	}
 	
+	private void showExitDialog() {
+		DialogHandler.showConfirmationDialog(this,
+			getString(R.string.s_alert_exit),
+			getString(R.string.s_menu_exit),
+			getPreferences(), "exit",
+			new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					finish();
+				}
+			});
+	}
+
 	@Override
 	public void onClick(View v) {
 		super.onClick(v);
@@ -2756,7 +2763,11 @@ public class OpenExplorer
 		Logger.LogDebug("OpenExplorer.onActivityResult(" + requestCode + ", " + resultCode + ", " + (data != null ? data.toString() : "null") + ")");
 		if(requestCode == REQ_PREFERENCES)
 		{
-			if(resultCode == RESULT_RESTART_NEEDED || data != null && data.hasExtra("restart") && data.getBooleanExtra("restart", true)) {
+			boolean needRestart = getPreferences().getSetting("global", "restart", false);
+			if(resultCode == RESULT_RESTART_NEEDED
+					|| (data != null && data.hasExtra("restart") && data.getBooleanExtra("restart", true))
+					|| needRestart) {
+				getPreferences().setSetting("global", "restart", false);
 				showToast(R.string.s_alert_restart);
 				goHome(); // just restart
 			} else {
@@ -2841,7 +2852,8 @@ public class OpenExplorer
 						Logger.LogDebug("last path set to " + mLastPath.getPath());
 						changePath(mLastPath, false);
 						//updateTitle(mLastPath.getPath());
-					} else finish();
+					} else
+						showExitDialog();
 					
 				} 
 				else {
@@ -2849,8 +2861,7 @@ public class OpenExplorer
 				}
 			}
 			else {
-				//updateTitle("");
-				showToast(R.string.s_alert_back_to_exit);
+				showExitDialog();
 			}
 		}
 		mLastBackIndex = i;

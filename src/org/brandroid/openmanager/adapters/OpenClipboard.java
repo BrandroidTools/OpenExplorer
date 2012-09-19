@@ -31,6 +31,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+/**
+ * System Clipboard Wrapper. Also implements Adapter so that it can be directly
+ * used by ListView.
+ * 
+ * @author BrandoCommando
+ *
+ */
 @SuppressLint("NewApi")
 public class OpenClipboard
 	extends BaseAdapter

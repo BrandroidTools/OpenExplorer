@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
-    <string name="app_name" auto="1">Explorer\'ı açık</string>
+    <string name="app_name">Open Explorer</string>
     <string name="s_photos" auto="1">Fotoğraflar</string>
     <string name="s_videos" auto="1">Videolar</string>
     <string name="s_music" auto="1">Müzik</string>
     <string name="s_downloads">Indir</string>
     <string name="s_external" auto="1">Dış</string>
     <string name="s_internal" auto="1">Iç</string>
-    <string name="s_view" auto="1">Görmek</string>
+    <string name="s_view">Görünüm</string>
     <string name="s_bookmarks" auto="1">Yer imleri</string>
     <string name="s_menu_favorites" auto="1">Toggle imleri</string>
-    <string name="s_menu_sort" auto="1">Tür</string>
-    <string name="s_menu_sort_name_asc" auto="1">Adı göre sırala (A-Z)</string>
-    <string name="s_menu_sort_name_desc" auto="1">Adı göre sırala (Z-A)</string>
-    <string name="s_menu_sort_date_asc">Yeni göre sırala</string>
-    <string name="s_menu_sort_date_desc">Eski göre sırala</string>
-    <string name="s_menu_sort_size_asc">Büyük boyuta göre sìrala</string>
-    <string name="s_menu_sort_size_desc" auto="1">Küçük göre sıralamak</string>
-    <string name="s_menu_sort_type" auto="1">Filetype göre sırala</string>
-    <string name="s_menu_multi" auto="1">Multi-Select</string>
+    <string name="s_menu_sort">Sırala</string>
+    <string name="s_menu_sort_name_asc">Ada göre sırala (A-Z)</string>
+    <string name="s_menu_sort_name_desc">Ada göre sırala (Z-A)</string>
+    <string name="s_menu_sort_date_asc">Yeniden eskiye sırala</string>
+    <string name="s_menu_sort_date_desc">Eskiden yeniye sırala</string>
+    <string name="s_menu_sort_size_asc">Büyükten küçüğe sırala</string>
+    <string name="s_menu_sort_size_desc">Boyuta göre sırala</string>
+    <string name="s_menu_sort_type">Dosya türüne göre sırala</string>
+    <string name="s_menu_multi">Çoklu seçim</string>
     <string name="s_menu_grid">Grid görünümü</string>
     <string name="s_menu_list" auto="1">Liste Görünümü</string>
     <string name="s_menu_carousel" auto="1">Atlıkarınca</string>
@@ -27,35 +27,35 @@
     <string name="s_menu_new_folder" auto="1">Yeni Klasör</string>
     <string name="s_menu_other" auto="1">Diğer Ayarlar</string>
     <string name="s_menu_flush" auto="1">Flush Önbellek</string>
-    <string name="s_menu_root">Root</string>
-    <string name="s_menu_prefs_folder" auto="1">Klasör Tercihleri</string>
-    <string name="s_menu_prefs_global" auto="1">Küresel Tercihler</string>
+    <string name="s_menu_root">Kök</string>
+    <string name="s_menu_prefs_folder">Klasör Seçenekleri</string>
+    <string name="s_menu_prefs_global">Genel Ayarlar</string>
     <string name="s_menu_info" auto="1">Bilgi</string>
     <string name="s_menu_copy" auto="1">Kopyala</string>
     <string name="s_menu_cut">Kes</string>
-    <string name="s_menu_paste">Yapìstìr</string>
+    <string name="s_menu_paste">Yapıştır</string>
     <string name="s_menu_delete">Sil</string>
     <string name="s_menu_share" auto="1">Paylaş / Gönder ...</string>
-    <string name="s_menu_zip" auto="1">Zip dosyası (ler) ...</string>
-    <string name="s_menu_unzip" auto="1">Unzip ...</string>
+    <string name="s_menu_zip">Zip dosyası(ları)</string>
+    <string name="s_menu_unzip">Unzip...</string>
     <string name="s_menu_rename" auto="1">Yeniden adlandır ...</string>
-    <string name="s_menu_bookmark" auto="1">Bookmark ekle</string>
+    <string name="s_menu_bookmark">Sık kullanılanlara ekle</string>
     <string name="s_save">Kaydet</string>
     <string name="s_saveas" auto="1">Farklı kaydet ...</string>
-    <string name="s_cancel" auto="1">Iptal</string>
+    <string name="s_cancel">İptal</string>
     <string name="s_size" auto="1">Boyut</string>
     <string name="s_none" auto="1">Hiçbiri</string>
     <string name="s_pref_servers" auto="1">Ek Sunucular</string>
     <string name="s_pref_server_add" auto="1">+ Yeni Sunucu Ekle</string>
-    <string name="s_pref_display" auto="1">Tercihler Göster</string>
+    <string name="s_pref_display">Görünüm Ayarları</string>
     <string name="s_pref_hidden" auto="1">Gizli Dosyaları Göster</string>
     <string name="s_pref_hidden_summary" auto="1">Gizli dosya ve klasörleri göster</string>
     <string name="s_pref_thumbs" auto="1">Resim Önizlemesi göster</string>
-    <string name="s_pref_thumbs_summary" auto="1">İmge / Video / Uygulama dosyaları için küçük resim görüntüleme</string>
+    <string name="s_pref_thumbs_summary">İmaj / Video / Uygulama için küçük resim göster</string>
     <string name="s_pref_view" auto="1">Görünüm Modu</string>
     <string name="s_pref_view_summary" auto="1">Bir tablo içinde resimler, liste veya atlıkarınca (sadece Honeycomb) görüntüleme</string>
-    <string name="s_pref_sort" auto="1">Sınıflandırma</string>
-    <string name="s_pref_sort_summary" auto="1">Dosya ve klasörleri sıralamak nasıl seçin</string>
+    <string name="s_pref_sort">Sıralama</string>
+    <string name="s_pref_sort_summary">Dosya ve klasörleri sıralama yöntemi</string>
     <string name="s_pref_advanced" auto="1">Ileri</string>
     <string name="s_pref_server_name" auto="1">Sunucu adı</string>
     <string name="s_pref_server_name_summary" auto="1">Sunucu Adı girin</string>
@@ -63,48 +63,48 @@
     <string name="s_pref_server_url_summary" auto="1">Tam sunucu URL\'sini girin</string>
     <string name="s_pref_server_host" auto="1">Server Host</string>
     <string name="s_pref_server_user" auto="1">Kullanıcı</string>
-    <string name="s_pref_server_user_summary" auto="1">Adı</string>
+    <string name="s_pref_server_user_summary">Kullanıcı adı</string>
     <string name="s_pref_server_password" auto="1">Şifre</string>
-    <string name="s_pref_server_password_summary" auto="1">Şifre Giriş</string>
+    <string name="s_pref_server_password_summary">Giriş Şifresi</string>
     <string name="s_pref_server_path" auto="1">Alt dizin</string>
     <string name="s_pref_server_path_summary" auto="1">Varsayılan giriş yolunu girin</string>
     <string name="s_pref_server_extras" auto="1">Ekstra Ayarlar</string>
-    <string name="s_pref_server_update" auto="1">Ekle / Güncelleme Sunucusu</string>
+    <string name="s_pref_server_update">Ekleme/Güncelleme Sunucusu</string>
     <string name="s_pref_server_type" auto="1">Sunucu Türü</string>
-    <string name="s_files" auto="1">Dosyaları</string>
-    <string name="s_create" auto="1">Oluşturmak</string>
-    <string name="s_title_holding_x_files" auto="1"> %S dosya Holding</string>
-    <string name="s_title_newfolder" auto="1">Yeni bir klasör oluşturun</string>
-    <string name="s_title_send" auto="1"> %S gönder</string>
-    <string name="s_title_unzip" auto="1"> %S Unzip</string>
-    <string name="s_title_zip" auto="1">Zip %s</string>
-    <string name="s_title_executing" auto="1">Executing</string>
-    <string name="s_title_deleting" auto="1">Silme</string>
-    <string name="s_title_searching" auto="1">Arama</string>
-    <string name="s_title_moving" auto="1">Hareketli</string>
-    <string name="s_title_copying" auto="1">Kopyalama</string>
-    <string name="s_title_zipping" auto="1">Sıkıştırma</string>
-    <string name="s_title_unzipping" auto="1">Unzipping</string>
+    <string name="s_files">Dosyalar</string>
+    <string name="s_create">Oluştur</string>
+    <string name="s_title_holding_x_files" formatted="false">% dosyaları seçildi</string>
+    <string name="s_title_newfolder">Yeni klasör oluştur</string>
+    <string name="s_title_send">...leri gonder</string>
+    <string name="s_title_unzip">...leri sıkıştırmadan çıkart</string>
+    <string name="s_title_zip">...leri sıkıştır</string>
+    <string name="s_title_executing">Çalıştırılıyor</string>
+    <string name="s_title_deleting">Siliniyor</string>
+    <string name="s_title_searching">Aranıyor</string>
+    <string name="s_title_moving">Taşınıyor</string>
+    <string name="s_title_copying">Kopyalanıyor</string>
+    <string name="s_title_zipping">Sıkıştırılıyor</string>
+    <string name="s_title_unzipping">Sıkıştırma açılıyor</string>
     <string name="s_title_wait" auto="1">Lütfen bekleyin ...</string>
-    <string name="s_alert_confirm_delete" auto="1"> %S silme geri alınamaz. Devam etmek istediğinizden emin misiniz?</string>
-    <string name="s_alert_rename" auto="1">Bu dosya yeni bir isim giriniz</string>
-    <string name="s_alert_newfolder" auto="1">Eğer oluşturmak istediğiniz klasörün adını yazın.</string>
-    <string name="s_alert_unzip" auto="1"> %S burada veya başka bir klasör açmak ister misiniz?</string>
-    <string name="s_button_unzip_here" auto="1">Burada Unzip</string>
-    <string name="s_button_unzip_else" auto="1">Başka Unzip ...</string>
-    <string name="s_msg_none" auto="1">Dosya (lar) olamazdı</string>
-    <string name="s_msg_some" auto="1">Bazı dosya (lar) olamazdı</string>
+    <string name="s_alert_confirm_delete" formatted="false">Silinen % lar geri alınamaz. Devam etmek istediğinize emin misiniz?</string>
+    <string name="s_alert_rename">Bu dosya için yeni bir isim giriniz</string>
+    <string name="s_alert_newfolder">Oluşturmak istediğiniz klasör için isim giriniz.</string>
+    <string name="s_alert_unzip" formatted="false">%ları buraya mı açmak istersiniz yoksa başka bir klasöre mi?</string>
+    <string name="s_button_unzip_here">Buraya çıkart</string>
+    <string name="s_button_unzip_else">Başka bir yere çıkart</string>
+    <string name="s_msg_none" formatted="false">Dosya(lar) %ılamadı</string>
+    <string name="s_msg_some" formatted="false">Bazı dosyalar %ılamadı</string>
     <string name="s_msg_all" auto="1">Dosya (lar) başarıyla</string>
     <string name="s_msg_deleted" auto="1">silindi</string>
     <string name="s_msg_moved" auto="1">taşındı</string>
-    <string name="s_msg_copied" auto="1">Kopyalanan</string>
-    <string name="s_remove" auto="1">Kaldırmak</string>
-    <string name="s_eject" auto="1">Çıkarmak</string>
-    <string name="s_update" auto="1">Güncelleştirmek</string>
-    <string name="s_alert_bookmark_rename" auto="1">Favori başlığını değiştirin.</string>
-    <string name="s_title_bookmark_prefix" auto="1">Bookmark yönetin:</string>
+    <string name="s_msg_copied">kopyalandı</string>
+    <string name="s_remove">Kaldır</string>
+    <string name="s_eject">Çıkart</string>
+    <string name="s_update">Güncelle</string>
+    <string name="s_alert_bookmark_rename">Başlığı değiştir</string>
+    <string name="s_title_bookmark_prefix">Sık Kullanılanları Yönet:</string>
     <string name="s_alert_remove_safe" auto="1">Şimdi sürücüyü güvenle kaldırabilirsiniz.</string>
-    <string name="s_alert_remove_error" auto="1">Çıkarmak için açılamıyor.</string>
+    <string name="s_alert_remove_error">Çıkartılamıyor</string>
     <string name="s_menu_about" auto="1">Hakkında</string>
     <string name="s_about_version" auto="1">Versiyon</string>
     <string name="s_about_author" auto="1">Yazar</string>
@@ -114,132 +114,135 @@
     <string name="s_chooser_email" auto="1">Geribildirim gönder ...</string>
     <string name="s_status_loading" auto="1">Yükleniyor ...</string>
     <string name="s_menu_open">Birlikte aç</string>
-    <string name="s_menu_edit" auto="1">Ile düzenle ...</string>
+    <string name="s_menu_edit">İle düzenle...</string>
     <string name="s_pref_stats_title" auto="1">OpenExplorer geliştirilmesine yardımcı olun</string>
     <string name="s_pref_stats_summary" auto="1">Anonim kullanım istatistikleri gönder. Bu, kullanıcı tanımlamak için kullanılabilir herhangi bir bilgi içermez.</string>
     <string name="s_error_no_intents" auto="1">Hayır yüklü uygulamalar bu türde bir dosya okuyabilirsiniz.</string>
     <string name="s_menu_root_disabled">Root devre dışı</string>
-    <string name="s_pref_start" auto="1">Klasör Başlangıç</string>
+    <string name="s_pref_start">Başlangıç Klasörü</string>
     <string name="s_pref_start_summary" auto="1">Klasöründe OpenExplorer başlar hangi gösterir</string>
     <string name="s_custom" auto="1">Özel ...</string>
-    <string name="s_text_intro_top" auto="1">OpenExplorer hoş geldiniz!</string>
+    <string name="s_text_intro_top">OpenExplorer\'a Hoşgeldiniz!</string>
     <string name="s_text_intro_body" auto="1">OpenExplorer amacı Android dosya sistemi içinde ve bulut içinde daha üretken hale getirmektir. Bir çok değişik merkezden video veya fotoğrafları yönetmek veya FTP üzerinden uzaktan web sunucunuza yönetmek için ihtiyacınız olsun, OpenExplorer sizin ihtiyaçlarınıza cevap verebilecek  n  nLütfen başlayan yolunu seçin.:</string>
     <string name="s_info_num_folders" auto="1">Klasör sayısı:</string>
-    <string name="s_info_num_files" auto="1">Dosyaları sayısı:</string>
+    <string name="s_info_num_files">Dosya sayısı:</string>
     <string name="s_info_last_modified" auto="1">Son Güncelleme:</string>
     <string name="s_info_permissions" auto="1">Dosya İzinleri:</string>
-    <string name="s_info_permission_read" auto="1">Okuyun:</string>
+    <string name="s_info_permission_read">Oku:</string>
     <string name="s_info_permission_write" auto="1">Yaz:</string>
-    <string name="s_info_permission_execute" auto="1">Yürütme:</string>
+    <string name="s_info_permission_execute">Çalıştır:</string>
     <string name="s_toggle_keyboard" auto="1">Klavye</string>
-    <string name="s_show_password" auto="1">Şifre göster</string>
-    <string name="s_error_ftp" auto="1">FTP\'ye bağlanırken hata</string>
+    <string name="s_show_password">Şifreleri Göster</string>
+    <string name="s_error_ftp">Ağa bağlanırken hata oluştu</string>
     <string name="s_prompt_zip" auto="1">Yeni Zip dosyasının dosya adı girin:</string>
-    <string name="app_edit" auto="1">OpenExplorer ile düzenleme</string>
+    <string name="app_edit">OpenExplorer ile düzenle</string>
     <string name="s_menu_more" auto="1">Diğer seçenekler ...</string>
-    <string name="s_msg_low_memory" auto="1">Düşük bellek!</string>
+    <string name="s_msg_low_memory">Yetersiz bellek!</string>
     <string name="s_clear" auto="1">Temizle</string>
     <string name="s_menu_delete_all" auto="1">Tümünü Sil</string>
     <string name="s_menu_move_all">Buraya Taşı</string>
     <string name="s_menu_copy_all">Buraya kopyala</string>
-    <string name="s_confirm_delete" auto="1">Eğer %s silmek istediğinizden emin misiniz?</string>
+    <string name="s_confirm_delete" formatted="false">%ları silmek istediğinizden emin misiniz?</string>
     <string name="s_error_same_destination" auto="1">Hedef dizin aynıdır.</string>
-    <string name="s_sample_notification" auto="1">Kopyalama -&gt; sdcard:  n 3 Dosyalar</string>
+    <string name="s_sample_notification">Kopyalanıyor -> sdcard: n 3 dosya</string>
     <string name="s_pref_fullscreen" auto="1">Tam Ekran</string>
-    <string name="s_pref_fullscreen_summary_on" auto="1">Bildirim Çubuğu Gizle</string>
-    <string name="s_pref_fullscreen_summary_off" auto="1">Bildirim Çubuğu Göster</string>
+    <string name="s_pref_fullscreen_summary_on">Bildirim Çubuğunu Gizle</string>
+    <string name="s_pref_fullscreen_summary_off">Bildirim Çubugunu Göster</string>
     <string name="s_pref_pagers" auto="1">Pagers görüntüle</string>
-    <string name="s_pref_pagers_summary_off" auto="1">Yatay swiping Engelli</string>
-    <string name="s_alert_new_media" auto="1">Yeni Medya Eklenen!</string>
+    <string name="s_pref_pagers_summary_on">Yatay sürükleme = Klasörler arası geçiş</string>
+    <string name="s_pref_pagers_summary_off">Yatay sürükleme devre dışı!</string>
+    <string name="s_alert_new_media">Yeni Medye Eklendi!</string>
     <string name="s_warn_pager_title" auto="1">Yeni Özellik: Profil Pagers</string>
-    <string name="s_warn_pager" auto="1">Tokatlamak bir dizin ve geri gitmek için sağdan sola yukarı gitmek için sağa sola. Bu gezinmek için daha kolay yapmak gerekir. (Dış ortama) deneyin!</string>
+    <string name="s_warn_pager">Bir üst klasöre çıkmak için soldan sağa, geri dönmek için sağdan sola sürükleyin. Bu size klasörler arasında geçişte kolaylık sağlar.</string>
     <string name="s_warn_confirm" auto="1">Anlıyor musun?</string>
-    <string name="s_warn_disable" auto="1">Devre Dışı Bırak</string>
+    <string name="s_warn_disable">Devre dışı</string>
     <string name="s_pref_intent_internal" auto="1">İç Niyet</string>
     <string name="s_pref_intent_internal_on" auto="1">OpenExplorer Niyet Yöneticisi\'ni kullanın</string>
     <string name="s_pref_intent_internal_off" auto="1">Sistem Niyet Yöneticisi\'ni kullanın</string>
     <string name="s_pref_text_internal" auto="1">İç Text Editor kullanın</string>
     <string name="s_text_editor_title" auto="1">Text Editor</string>
-    <string name="s_pref_show_root" auto="1">Göster Kök Dosya Sistemi (/)</string>
+    <string name="s_pref_show_root">Kök dosya sistemini göster (/)</string>
     <string name="s_pref_show_internal" auto="1">İç Medya göster</string>
     <string name="s_pref_show_external" auto="1">Harici Ortam göster</string>
-    <string name="s_error_no_media" auto="1">Takılı medya var gibi görünüyor. USB paylaşımı veya yeniden takın medya devre dışı bırakın.</string>
+    <string name="s_error_no_media">Takılı medya bulunamadı. USB paylaşımını kapatın ya da medyayı yeniden takın.</string>
     <string name="s_prompt_password" auto="1">Şifre girin</string>
-    <string name="s_add" auto="1">Eklemek</string>
+    <string name="s_add">Ekle</string>
     <string name="s_server_ftp" auto="1">FTP</string>
     <string name="s_server_sftp" auto="1">SFTP</string>
-    <string name="s_pref_server_port" auto="1">Liman</string>
+    <string name="s_pref_server_port">Port</string>
     <string name="s_about_buildtime" auto="1">Yapım Tarihi</string>
     <string name="s_default" auto="1">Standart</string>
     <string name="s_pref_timeout" auto="1">Zaman Aşımı</string>
     <string name="s_pref_timeout_summary" auto="1">Saniye olarak zaman aşımı</string>
     <string name="s_menu_up" auto="1">Yukarı git</string>
-    <string name="s_prompt_unzip" auto="1">Içine unzip yolunu girin:</string>
-    <string name="s_pref_hardware_accel" auto="1">Donanım Hızlandırma etkinleştirin</string>
-    <string name="s_pref_honeyplus" auto="1">Android 3.0 + Ayarlar</string>
+    <string name="s_prompt_unzip">Çıkartılacak yolu girin:</string>
+    <string name="s_pref_hardware_accel">Donanım hızlandırmayı aç</string>
+    <string name="s_pref_honeyplus">Android 3.0+ Ayarları</string>
     <string name="s_pref_actionmode" auto="1">Eylem Modu</string>
     <string name="s_pref_actionmode_enabled" auto="1">Eylem Modu\'nu kullanın</string>
-    <string name="s_pref_actionmode_disabled" auto="1">Standart İçerik Menüleri kullanma</string>
+    <string name="s_pref_actionmode_disabled">Standart İçerik Menülerini Kullan</string>
     <string name="s_server_smb" auto="1">SMB / Windows</string>
     <string name="s_bookmark_drives" auto="1">Sürücüler</string>
     <string name="s_bookmark_smart" auto="1">Akıllı Klasörler</string>
-    <string name="s_bookmark_favorites" auto="1">Sık</string>
+    <string name="s_bookmark_favorites">Favoriler</string>
     <string name="s_bookmark_servers" auto="1">Sunucular</string>
     <string name="s_bookmark_cache" auto="1">Önbellek</string>
-    <string name="s_info_totalspace" auto="1">Disk Toplam alan:</string>
-    <string name="s_info_freespace" auto="1">Disk Boş Alan:</string>
+    <string name="s_info_totalspace">Toplam Disk Alanı:</string>
+    <string name="s_info_freespace">Boş Disk Alanı:</string>
     <string name="s_status_rate" auto="1">Oranı:</string>
     <string name="s_about_hardware" auto="1">Donanım</string>
-    <string name="s_menu_refresh">Yenile Klasör</string>
-    <string name="s_pref_reset" auto="1">Görüntüleme sıfırlayın</string>
-    <string name="s_toast_complete" auto="1">Komple Operasyonu!</string>
-    <string name="s_pref_reset_summary" auto="1">Varsayılan bir devlet dönmeden, tüm klasör özel görünüm ayarlarını kaldırmak için buraya tıklayın.</string>
-    <string name="s_prompt_path" auto="1">Yolunu girin:</string>
+    <string name="s_menu_refresh">Klasörü yenile</string>
+    <string name="s_pref_reset">Görünümü sıfırla</string>
+    <string name="s_toast_complete">Operasyon Tamamlandı!</string>
+    <string name="s_pref_reset_summary">Tüm ayarları sıfırlayıp varsayılan ayarlara dönmek için buraya tıklayın.</string>
+    <string name="s_prompt_path">Yolu gir:</string>
     <string name="s_prompt_search" auto="1">Ara:</string>
     <string name="s_prompt_search_within" auto="1">Içinde ara:</string>
-    <string name="s_pref_view_category" auto="1">Görünüm Tercihleri ​​Bookmark</string>
+    <string name="s_pref_view_category">Sık kullanılanlar görünüm seçenekleri</string>
     <string name="s_pref_show_videos" auto="1">Videoları göster</string>
     <string name="s_pref_show_photos" auto="1">Resimleri Göster</string>
-    <string name="s_pref_show_music" auto="1">Müzik göster</string>
+    <string name="s_pref_show_music">Müzikleri göster</string>
     <string name="s_pref_show_downloads" auto="1">Dosyalar göster</string>
-    <string name="s_hide" auto="1">Gizlemek</string>
-    <string name="s_show" auto="1">Göstermek</string>
+    <string name="s_hide">Gizle</string>
+    <string name="s_show">Göster</string>
     <string name="s_msg_event_cancelled" auto="1">Etkinlik iptal edildi.</string>
     <string name="s_alert_newfolder_folder" auto="1">Yeni klasörü oluşturun:</string>
     <string name="s_pref_fancy_category" auto="1">Fantezi Görüntü Ayarları</string>
     <string name="s_pref_fancy_menus" auto="1">Fantezi Menüler</string>
     <string name="s_pref_fancy_context" auto="1">Fantezi Bağlam Menüler</string>
-    <string name="s_search_files" auto="1">Arama Filesystem</string>
+    <string name="s_search_files">Dosya sistemi ara</string>
+    <string name="search_summary" formatted="false">\" % \" yı (%d) içinde ara</string>
+    <string name="search_results" formatted="false">%d içindeki \" % \" sonuçları</string>
     <string name="s_menu_exit" auto="1">Çıkış</string>
-    <string name="s_warn_wtf_message" auto="1">Oops! Bu işlenmeyen bir hata oluştu olduğu ortaya çıktı! Bu birçok Beta apps sık karşılaşılan bir sorun olduğu için, bu sorunları çözmek için tek yol sorunun nasıl çözüleceğini belirlemek için, sizinki gibi çeşitli cihazlar, rapor almak olduğunu. Biz geliştirici, yalnızca anonim veriler içeren, böyle bir raporun gönderebilir miyim?</string>
-    <string name="s_warn_wtf_ps" auto="1">Lütfen ***, bu app Beta bulunmaktadır. Eve çünkü bu app kötü bir derece vermeyiniz. Gerçekten sizi rahatsız olmadığını Sadece kaldırın. Teşekkürler!</string>
+    <string name="s_warn_wtf_message">Oops! İşlenemeyen bir hata oluştu. Beta sürümlerde sık karşılaşılan bir durum ve çözümü bu gibi durumların anonim raporlarla geliştiriciye bildirilmeidir.  Bu durum geliştiriciye bildirilsin mi?</string>
+    <string name="s_warn_wtf_ps">***Bu Beta bir uygulamadır. Lütfen kötü bir değerlendirme puanı vermeyin. Sizi gerçekten rahatsız ederse sadece cihazınızdan kaldırın.</string>
     <string name="s_yes" auto="1">Evet</string>
-    <string name="s_no" auto="1">Yok</string>
+    <string name="s_no">Hayır</string>
     <string name="s_wtf_preview" auto="1">Önizleme Rapor Verileri</string>
     <string name="s_wtf_remember" auto="1">Bir daha sorma</string>
-    <string name="s_pref_basebar" auto="1">Eylem Çubuğu Böl</string>
-    <string name="s_pref_basebar_on" auto="1">Portre modunda ekranın alt Eylem düğmeleri</string>
+    <string name="s_pref_basebar">Eylem çubuğunu böl</string>
+    <string name="s_pref_basebar_on">Portre modunda eylem çubukları altta</string>
     <string name="s_pref_basebar_off" auto="1">Ekranın üstündeki Eylem düğmeleri (kullanılabilir)</string>
-    <string name="s_pref_autowtf" auto="1">Otomatik göndermek Crash Raporları</string>
+    <string name="s_pref_autowtf">Hata raporlarını otomatik gönder</string>
     <string name="s_pref_autowtf_summary" auto="1">Işlenmeyen bir özel durum oluştuğunda, otomatik olarak raporu gönderir.</string>
     <string name="s_split_auto" auto="1">Otomatik</string>
-    <string name="s_split_top" auto="1">Top zorla Düğmeler</string>
-    <string name="s_split_top_single" auto="1">Yukarıya Tek Tuşla zorla</string>
-    <string name="s_split_bottom" auto="1">Alt zorla Düğmeler</string>
-    <string name="s_split_none" auto="1">Sistem Menüsü tüm Düğmeler yerleştirin</string>
+    <string name="s_split_top">Zorlama düğmeleri üstte</string>
+    <string name="s_split_top_single">Tek zorlama düğmesi üstte</string>
+    <string name="s_split_bottom">Zorlama düğmeleri altta</string>
+    <string name="s_split_none">Tüm düğmeleri sistem menüsüne yerleştir</string>
     <string name="s_about_screensize" auto="1">Ekran Boyutu</string>
-    <string name="s_about_density" auto="1">Yoğunluk</string>
+    <string name="s_about_density">Çözünürlük</string>
     <string name="s_menu_location_int">Dahili Bellek</string>
     <string name="s_menu_location_ext">Harici Bellek</string>
-    <string name="s_wtf_context" auto="1">Çökme bağlamında açıklayınız:</string>
+    <string name="s_wtf_context">Çökme nedennini açıklayınız:</string>
     <string name="thanks" auto="1">Teşekkür ederiz!</string>
-    <string name="menu_view_font_small" auto="1">Küçük Yazı Tipi Boyutu</string>
-    <string name="menu_view_font_medium" auto="1">Yazı Tipi Boyutu Orta</string>
-    <string name="menu_view_font_large" auto="1">Yazı Tipi Boyutu Büyük</string>
+    <string name="menu_view_font_small">Küçük Boy Yazılar</string>
+    <string name="menu_view_font_medium">Orta Boy Yazılar</string>
+    <string name="menu_view_font_large">Büyük Boy Yazılar</string>
     <string name="app_description" auto="1">Açık Explorer - tüm cihazlar için açık kaynak bir dosya yöneticisi! (Tablet, Telefonları, Google TV, sandviçler!)  N-Komple dosya sistem yönetimi  n-USB, SD ve diğer dış ortam  n-Ağ Bağlanabilir (FTP, SFTP, SMB / Samba / Windows / Lan / WIFI)  n - Text Editor  n-Akıllı Klasörler farklı medya türlerini (Video, Fotoğraf, Müzik, indir)  n-View Çağrı dizin navigasyon (bir dizin yukarı çıkmak için tokatlamak sağ)  n-Superuser / Kök yeteneği / liste için tarama Sistem klasörleri (hiçbir sistem henüz yazma) gelmek  n  nFeatures okuyun:  n-Sekmeli Metin Editörü  n-Daha Fazla Ağ yeteneği (Dropbox, Box.net, Sky sürücü)  n-Çevrimdışı dosya yapısı önbellek, hatırlar, hangi dosyaların bağlanmak gerek  n-Disk alanı ısı haritası sizin en büyük dosyaların nerede gösterir olmadan farklı yerlerde var  n  n * LÜTFEN DİKKAT: Bu app Beta bulunmaktadır. BİRÇOK hataları hala var. Eğer bu hataları yaşamak istemiyorsanız, lütfen bu app indirmek yok. Eğer beni bu hataları bulmanıza yardımcı olmak isterseniz, lütfen bana e-posta veya GitHub (https://github.com/BrandoCommando/OpenExplorer/) benimle işbirliği. Kötü derecelendirme kimse yardım unutmayın.</string>
-    <string name="alert_translate_google" auto="1">Hello, bu çeviri Google Translate tarafından sağlanır. Siz de %s olarak İngilizce biliyorum ve daha iyi bir çeviri sağlanmasında yardımcı olmak isterseniz, bu düğmeye tıklayınız:</string>
-    <string name="alert_translate_none" auto="1">Merhaba, size desteklenmeyen bir dil kullanarak anlaşılmaktadır. İngilizce ve %s biliyor musunuz? Eğer doğru bir çeviri sağlanmasında yardımcı olmak istiyorsanız, buraya tıklayın:</string>
-    <string name="button_translate" auto="1">Çevirmek</string>
+    <string name="alert_translate_google">Merhaba bu çeviri Tuncay Acuner tarafından sağlandı. Eğer ingilizcenize güveniyorsanız ve daha iyi çeviririm diyorsanız buraya tıklayın:</string>
+    <string name="alert_translate_none" formatted="false" auto="1">Merhaba, size desteklenmeyen bir dil kullanarak anlaşılmaktadır. İngilizce ve %s biliyor musunuz? Eğer doğru bir çeviri sağlanmasında yardımcı olmak istiyorsanız, buraya tıklayın:</string>
+    <string name="button_translate">Çevir</string>
     <string name="httpError">Bir ağ hatası oluştu.</string>
     <string name="httpErrorAuth">Kimlik doğrulanamadı.</string>
     <string name="httpErrorProxyAuth">Proxy sunucusu üzerinden kimlik doğrulanamadı.</string>
@@ -259,24 +262,40 @@
     <string name="sim_restart_button">Yeniden başlat</string>
     <string name="extmedia_format_button_format">Biçimlendir</string>
     <string name="ext_media_nofs_notification_message">USB depolama birimi boş veya desteklenmeyen bir dosya sistemine sahip.</string>
-    <string name="activity_list_empty">SD kart boş veya desteklenmeyen dosya sistemi içeriyor</string>
-    <string name="ime_action_go">Eşleşen hiçbir etkinlik bulunamadı</string>
-    <string name="ime_action_send">Git</string>
-    <string name="ime_action_done">Gönder</string>
-    <string name="ime_action_default">Bitti</string>
-    <string name="upload_file">Çalıştır</string>
-    <string name="no_file_chosen">Dosya seç</string>
-    <string name="reset">Seçili dosya yok</string>
-    <string name="back_button_label">Sıfırla</string>
-    <string name="next_button_label">Geri</string>
-    <string name="no_matches">İleri</string>
-    <string name="find_on_page">Eşleşme yok</string>
-    <string name="find">Sayfada bul</string>
-    <string name="activitychooserview_choose_application">Bul</string>
-    <string name="shareactionprovider_share_with">Uygulama seçin</string>
-    <string name="storage_internal">Şununla paylaş:</string>
-    <string name="storage_sd_card">Dahili Depolama</string>
-    <string name="storage_usb">SD Kart</string>
-    <string name="extract_edit_menu_button">USB depolama birimi</string>
-    <string name="activity_chooser_view_see_all">Düzenle...</string>
+    <string name="activity_list_empty">Eşleşen hiçbir aktivite bulunamadı</string>
+    <string name="ime_action_go">Git</string>
+    <string name="ime_action_send">Gönder</string>
+    <string name="ime_action_done">Bitti</string>
+    <string name="ime_action_default">Çalıştır</string>
+    <string name="upload_file">Dosya seç</string>
+    <string name="no_file_chosen">Seçili dosya yok</string>
+    <string name="reset">Sıfırla</string>
+    <string name="back_button_label">Geri</string>
+    <string name="next_button_label">İleri</string>
+    <string name="no_matches">Eşleşme yok</string>
+    <string name="find_on_page">Sayfada bul</string>
+    <string name="find">Bul</string>
+    <string name="activitychooserview_choose_application">Uygulama seç</string>
+    <string name="shareactionprovider_share_with">Şununla paylaş</string>
+    <string name="storage_internal">Dahili depolama</string>
+    <string name="storage_sd_card">SD kart</string>
+    <string name="storage_usb">USB depolama birimi</string>
+    <string name="extract_edit_menu_button">Düzenle</string>
+    <string name="activity_chooser_view_see_all">Tümüne bak</string>
+    <string name="s_title_picker">Lutfen klasör seçiniz</string>
+    <string name="selected_path">Yolu seçiniz</string>
+    <string name="filename">Dosya adı</string>
+    <string name="s_msg_saved">Kaydedildi</string>
+    <string name="s_menu_view_line_numbers">Sıra numarası</string>
+    <string name="warn_text_editor">Text editöre hoşgeldiniz. Text\'e uzun süreli basın ve edit moduna geçin.</string>
+    <string name="warn_networking">Merhaba. Uygulama hala geliitirme aşamasındadır. Eğer hata ile karşılaiırsanız lütfen kötü değerlendirme notu vermeyiniz.</string>
+    <string name="s_menu_new_file">Yeni text dosyası</string>
+    <string name="s_msg_created">Oluşturuldu</string>
+    <string name="s_title_newfile">Yeni Dosya</string>
+    <string name="s_alert_newfile_folder">Yeni dosya olusturulacak yer:</string>
+    <string name="s_alert_newfile">Yeni dosyanın tipi:</string>
+    <string name="s_alert_exit">Çıkmak istediğinize emin misiniz?</string>
+    <string name="s_alert_clipboard">Kopyalandı</string>
+    <string name="s_alert_restart">Yeniden başlatılıyor. Lütfen bekleyiniz.</string>
+    <string name="language">Dil</string>
 </resources>
