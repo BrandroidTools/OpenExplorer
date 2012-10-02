@@ -33,7 +33,7 @@ public class IntentManager
 	{
 		String name = file.getName();
 		
-		if(file.isDirectory()) return null;
+		if(file.isDirectory() && !file.isArchive()) return null;
 		
 		Intent ret = new Intent();
 		ret.setAction(action);

@@ -666,13 +666,13 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 					bar.setVisibility(View.GONE);
 				else if(percent_width > 0) {
 					bar.setVisibility(View.VISIBLE);
-					RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)bar.getLayoutParams();
-							//new LayoutParams(percent_width, LayoutParams.MATCH_PARENT);
-					lp.rightMargin = total_width - percent_width;
-					//lp.width = percent_width;
-					lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-					//bar.setLayoutParams(lp);
-					bar.requestLayout();
+//					RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)bar.getLayoutParams();
+//							//new LayoutParams(percent_width, LayoutParams.MATCH_PARENT);
+//					lp.rightMargin = total_width - percent_width;
+//					//lp.width = percent_width;
+//					lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+//					//bar.setLayoutParams(lp);
+//					bar.requestLayout();
 				}
 				size_bar.setTag(true);
 			} else {

@@ -320,7 +320,10 @@ public class EventHandler {
 							// new folder wasn't created, and since we've
 							// already ruled out an existing folder, the folder
 							// can't be created for another reason
-							
+							OpenPath path = folder.getChild(name);
+							Logger.LogError("Unable to create folder (" + path + ")");
+							Toast.makeText(context, R.string.s_msg_folder_none, Toast.LENGTH_LONG)
+								.show();
 						}
 					} else {
 						// folder exists, so let the user know

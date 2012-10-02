@@ -593,7 +593,7 @@ public abstract class OpenPath
 		return false;
 	}
 	public boolean isArchive() {
-		return getExtension().equalsIgnoreCase("zip") || getExtension().equalsIgnoreCase("jar");
+		return getExtension().equalsIgnoreCase("zip");
 	}
 	
 	/**

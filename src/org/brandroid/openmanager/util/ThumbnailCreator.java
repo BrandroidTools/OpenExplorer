@@ -79,6 +79,7 @@ public class ThumbnailCreator {
 	
 	public static boolean useCache = true;
 	public static boolean showThumbPreviews = true;
+	public static boolean showCenteredCroppedPreviews = true;
 	
 	private static Hashtable<String, Integer> fails = new Hashtable<String, Integer>();
 	//private static Hashtable<String, Drawable> defaultDrawables = new Hashtable<String, Drawable>();
@@ -463,7 +464,8 @@ public class ThumbnailCreator {
 				opts.inSampleSize = 1;
 				opts.inPurgeable = true;
 				opts.outHeight = mHeight;
-				//opts.outWidth = mWidth;
+				//if(!showCenteredCroppedPreviews)
+				//	opts.outWidth = mWidth;
 				int kind = mWidth > 96 ? MediaStore.Video.Thumbnails.MINI_KIND : MediaStore.Video.Thumbnails.MICRO_KIND;
 				try {
 					if(om.getParent().getName().equals("Photos"))
@@ -559,7 +561,7 @@ public class ThumbnailCreator {
 				
 				BitmapFactory.Options options = new BitmapFactory.Options();
 				options.inJustDecodeBounds = true;
-				BitmapFactory.decodeFile(file.getPath(), options);
+				//BitmapFactory.decodeFile(file.getPath(), options);
 				options.inSampleSize = Math.min(options.outWidth / mWidth, options.outHeight / mHeight);
 				options.inJustDecodeBounds = false;
 				options.inPurgeable = true;
@@ -576,7 +578,7 @@ public class ThumbnailCreator {
 		
 		if(bmp != null && (mWidth < bmp.getWidth() || mHeight < bmp.getHeight()))
 		{
-			if(file.isImageFile())
+			if(file.isImageFile() && showCenteredCroppedPreviews)
 				bmp = cropBitmap(bmp, mWidth, mHeight);
 			else
 				bmp = Bitmap.createScaledBitmap(bmp, mWidth, mHeight, false);

@@ -324,6 +324,7 @@ public class OpenExplorer
 		Preferences.Pref_Language = prefs.getString("global", "pref_language", "");
 		Preferences.Pref_Analytics = prefs.getBoolean("global", "pref_stats", true);
 		Preferences.Pref_Text_Max_Size = prefs.getInt("global", "text_max", 500000);
+		ThumbnailCreator.showCenteredCroppedPreviews = prefs.getBoolean("global", "prefs_thumbs_crop", true);
 
 		PackageInfo pi = null;
 		try {

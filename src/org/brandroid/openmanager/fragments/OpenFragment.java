@@ -119,19 +119,32 @@ public abstract class OpenFragment
 	private void modifyMenuShare(Menu menu, OpenPath mPath)
 	{
 		MenuItem mShare = menu.findItem(R.id.menu_context_share);
-		if(mShare == null) return;
-		mShare.setVisible(true);
-		ShareActionProvider mShareProvider = (ShareActionProvider)mShare.getActionProvider();
-		if(mShareProvider == null)
+		if(mShare == null)
+			mShare = menu.add(0, R.id.menu_context_share, 0, R.string.s_menu_share)
+						.setIcon(getThemedResourceId(R.styleable.AppTheme_actionIconShare, R.drawable.ic_menu_share))
+						.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+		Intent intent = IntentManager.getIntent(mPath, getExplorer());
+		if(intent == null)
 		{
-			mShareProvider = new ShareActionProvider(getContext());
-			mShare.setActionProvider(mShareProvider);
+			mShare.setVisible(false);
+			return;
 		}
 		
-		Intent intent = IntentManager.getIntent(mPath, getExplorer());
-		intent.setType(mPath.getMimeType());
-		mShareProvider.setShareIntent(intent);
+		mShare.setVisible(true);
+		
+		ShareActionProvider mShareProvider = (ShareActionProvider)mShare.getActionProvider();
+		
+		if(mShareProvider == null)
+			mShareProvider = new ShareActionProvider(getContext());
 
+		if(mPath != null && mPath.getMimeType() != null)
+			intent.setType(mPath.getMimeType());
+		
+		mShareProvider.setShareIntent(intent);
+		mShare.setActionProvider(mShareProvider);
+		
+		mShare.setVisible(true);
 	}
 	
 	public String getString(int resId, String mDefault)

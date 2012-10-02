@@ -184,7 +184,7 @@ public class ContentAdapter extends BaseAdapter {
 				return mParent.listFiles();
 		} catch (IOException e) {
 			Logger.LogError("Couldn't getList in ContentAdapter");
-			return null;
+			return new OpenPath[0];
 		}
 	}
 	
