@@ -49,6 +49,8 @@
         <item name="pagerBackground">@drawable/ab_stacked_solid_inverse_holo</item>
         
         <item name="listDivider">@drawable/divider_horizontal_dark</item>
+        <item name="listBackground">@drawable/list_background_dark</item>
+        <item name="listColumnBackground">@drawable/list_column_background_dark</item>
         
         <!-- Colors -->
         <item name="colorWhite">@color/white</item>
@@ -104,7 +106,9 @@
         <item name="popupBackground">@drawable/contextmenu_square_gray</item>
         <item name="popupArrow">@drawable/contextmenu_arrow_gray</item>
         <item name="pagerBackground">@drawable/ab_stacked_solid_light_holo</item>
-        <item name="listDivider">@drawable/divider_horizontal_dark</item>
+        <item name="listDivider">@drawable/divider_horizontal_bright</item>
+        <item name="listBackground">@drawable/list_background_light</item>
+        <item name="listColumnBackground">@drawable/list_column_background_light</item>
         
         <!-- Colors -->
         <item name="colorWhite">@color/black</item>

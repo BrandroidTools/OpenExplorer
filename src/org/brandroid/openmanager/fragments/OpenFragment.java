@@ -781,6 +781,7 @@ public abstract class OpenFragment
 	
 	@Override
 	public int getThemedResourceId(int styleableId, int defaultResourceId) {
+		if(getExplorer() == null) return defaultResourceId;
 		return getExplorer().getThemedResourceId(styleableId, defaultResourceId);
 	}
 	

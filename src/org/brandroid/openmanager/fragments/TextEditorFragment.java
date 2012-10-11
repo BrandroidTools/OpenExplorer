@@ -463,8 +463,13 @@ public class TextEditorFragment extends OpenFragment
 	
 	@Override
 	public void setInitialSavedState(SavedState state) {
-		super.setInitialSavedState(state);
-		Logger.LogInfo("setInitialSavedState @ TextEditor (" + mPath + ")");
+		if(!isAdded())
+		try {
+			super.setInitialSavedState(state);
+			Logger.LogInfo("setInitialSavedState @ TextEditor (" + mPath + ")");
+		} catch(Exception e) {
+			Logger.LogWarning("Unable to set Initial State for text editor (" + mPath + ")", e);
+		}
 	}
 	
 	@Override
@@ -617,13 +622,14 @@ public class TextEditorFragment extends OpenFragment
 			if(mPath.canWrite() && mDirty)
 			{
 				DialogHandler.showConfirmationDialog(getActivity(),
-						getString(R.string.s_alert_dirty, mPath.getName()),
+						getString(R.string.s_alert_dirty, mPath.getName()).replace("%s", mPath.getName()),
 						getText(R.string.s_save).toString() + "?",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {
 								doSave();
 								mEditText.setVisibility(View.GONE);
 								mViewList.setVisibility(View.VISIBLE);
+								refreshList();
 							}
 						},
 						new DialogInterface.OnClickListener() {

@@ -27,6 +27,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -234,6 +237,7 @@ public class ContentAdapter extends BaseAdapter {
 			return row;
 		
 		TextView mInfo = (TextView)row.findViewById(R.id.content_info);
+		TextView mDate = (TextView)row.findViewById(R.id.content_date);
 		TextView mPathView = (TextView)row.findViewById(R.id.content_fullpath); 
 		TextView mNameView = (TextView)row.findViewById(R.id.content_text);
 		final ImageView mIcon = (ImageView)row.findViewById(R.id.content_icon);
@@ -244,6 +248,7 @@ public class ContentAdapter extends BaseAdapter {
 			mNameView.setText(R.string.s_menu_up);
 			mIcon.setImageResource(useLarge ? R.drawable.lg_folder_up : R.drawable.sm_folder_up);
 			if(mInfo != null) mInfo.setText("");
+			if(mDate != null) mDate.setText("");
 			if(mPathView != null) mPathView.setText("");
 			return row;
 		}
@@ -282,9 +287,12 @@ public class ContentAdapter extends BaseAdapter {
 		{
 			if(mShowDetails)
 				mInfo.setText(String.format(
-						file.getDetails(getShowHiddenFiles(), showLongDate),
+						file.getDetails(getShowHiddenFiles()),
 						getResources().getString(R.string.s_files)));
 			else mInfo.setText("");
+			if(mDate != null)
+				mDate.setText(file.getFormattedDate(showLongDate));
+			else mInfo.append(" | " + file.getFormattedDate(showLongDate));
 		}
 
 		if(mNameView != null)
@@ -369,6 +377,25 @@ public class ContentAdapter extends BaseAdapter {
 				
 		if(mCheck != null) mCheck.setImageResource(mChecked ? checkboxOnId : checkboxOffId);
 		ViewUtils.setViewsVisible(row, mShowCheck, R.id.content_check);
+
+		TextView tvHilight = mNameView;
+		TextView[] tvLowlight = new TextView[] {mDate, mInfo};
+		switch(OpenPath.Sorting.getType())
+		{
+		case DATE:
+		case DATE_DESC:
+			tvHilight = mDate;
+			break;
+		case SIZE:
+		case SIZE_DESC:
+			tvHilight = mInfo;
+			break;
+		case ALPHA:
+		case ALPHA_DESC:
+			tvHilight = mNameView;
+			break;
+		}
+		tvHilight.setText(Html.fromHtml("<b>" + tvHilight.getText() + "</b>"));
 
 		return row;
 	}

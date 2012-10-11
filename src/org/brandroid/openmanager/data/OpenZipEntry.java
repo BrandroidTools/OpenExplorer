@@ -97,8 +97,8 @@ public class OpenZipEntry extends OpenPath
 	}
 	
 	@Override
-	public String getDetails(boolean countHiddenChildren, boolean showLongDate) {
-		String ret = super.getDetails(countHiddenChildren, showLongDate);
+	public String getDetails(boolean countHiddenChildren) {
+		String ret = super.getDetails(countHiddenChildren);
 		if(!isDirectory())
 			ret = ret.substring(0, ret.indexOf(" |")) + "(" + DialogHandler.formatSize(ze.getCompressedSize()) + ")" + ret.substring(ret.indexOf(" |"));
 		return ret;
