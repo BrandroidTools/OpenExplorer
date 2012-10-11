@@ -19,7 +19,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/content_padding"
+    android:foreground="?attr/listBackground"
     android:orientation="vertical" >
     
 	<GridView
@@ -29,10 +29,8 @@
 	    android:columnWidth="@dimen/grid_width"	    
 	    android:fastScrollEnabled="true"
 	    android:gravity="center"
-	    android:horizontalSpacing="4dp"
 	    android:numColumns="auto_fit"
 	    android:stretchMode="columnWidth"
-	    android:verticalSpacing="4dp"
 	    android:listSelector="@drawable/list_selector"
 	    android:drawSelectorOnTop="false"
 	    android:scrollingCache="false"

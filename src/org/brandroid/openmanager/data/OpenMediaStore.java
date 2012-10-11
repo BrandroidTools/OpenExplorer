@@ -214,7 +214,7 @@ public class OpenMediaStore extends OpenPath
 	}
 
 	@Override
-	public String getDetails(boolean countHidden, boolean showLongDate) {
+	public String getDetails(boolean countHidden) {
 		
 		String deets = "";
 		
@@ -223,14 +223,7 @@ public class OpenMediaStore extends OpenPath
 		if(getDuration() > 0)
 			deets += DialogHandler.formatDuration(getDuration()) + " | ";
 		
-		deets += DialogHandler.formatSize(length()) + " | ";
-		
-		Long last = lastModified();
-		if(last != null)
-		{
-			DateFormat df = new SimpleDateFormat(showLongDate ? "MM-dd-yyyy HH:mm" : "MM-dd-yy");
-			deets += df.format(last);
-		}
+		deets += DialogHandler.formatSize(length());
 		
 		return deets;
 	}

@@ -31,9 +31,10 @@ public class IntentManager
 	}
 	public static Intent getIntent(OpenPath file, OpenExplorer app, String action, String... categories)
 	{
+		if(app == null) return null;
 		String name = file.getName();
 		
-		if(file.isDirectory()) return null;
+		if(file.isDirectory() && !file.isArchive()) return null;
 		
 		Intent ret = new Intent();
 		ret.setAction(action);

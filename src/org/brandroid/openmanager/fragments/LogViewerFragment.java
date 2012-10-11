@@ -22,6 +22,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.text.ClipboardManager;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -33,8 +34,11 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewParent;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -51,6 +55,7 @@ public class LogViewerFragment extends OpenFragment
 	private LayoutInflater mInflater = null;
 	private Context mContext;
 	private String mLast = null;
+	private ViewGroup mRootView = null;
 	
 	public LogViewerFragment() {
 	}
@@ -149,10 +154,10 @@ public class LogViewerFragment extends OpenFragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		mInflater = inflater; 
-		View ret = inflater.inflate(R.layout.log_viewer, null);
+		View ret = inflater.inflate(R.layout.log_viewer, container, false);
 		ret.setOnLongClickListener(this);
 		ViewUtils.setOnClicks(ret, this, R.id.log_clear, R.id.log_copy);
-		mListView = (ListView)ret.findViewById(R.id.log_list);
+		getListView();
 		return ret;
 	}
 	
@@ -161,7 +166,8 @@ public class LogViewerFragment extends OpenFragment
 		super.onViewCreated(view, savedInstanceState);
 		mAdapter = new LinedArrayAdapter(mContext, R.layout.edit_text_view_row, mData);
 		mAdapter.setShowLineNumbers(false);
-		getListView().setAdapter(mAdapter);
+		if(getListView() != null)
+			getListView().setAdapter(mAdapter);
 	}
 	
 	public ListView getListView() {
@@ -170,8 +176,13 @@ public class LogViewerFragment extends OpenFragment
 		{
 			if(getView() instanceof ListView)
 				mListView = (ListView)getView();
-			else if(getView().findViewById(R.id.log_list) != null)
+			else if(getView().findViewById(R.id.log_list) != null && getView().findViewById(R.id.log_list) instanceof ListView)
 				mListView = (ListView)getView().findViewById(R.id.log_list);
+			if(mListView == null)
+			{
+				mListView = new ListView(getView().getContext());
+				((ViewGroup)getView()).addView(mListView);
+			}
 		}
 		return mListView;
 	}
@@ -224,16 +235,23 @@ public class LogViewerFragment extends OpenFragment
 		return mAdapter;
 		
 	}
+	
+	@Override
+	public View getView() {
+		if(mRootView != null) return (View)mRootView;
+		return super.getView();
+	}
 
 	public void setupPopup(Context c, View anchor) {
 		if(mPopup == null)
 		{
 			mContext = c;
 			mInflater = (LayoutInflater)c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View view = onCreateView(mInflater, null, getArguments()); 
+			mRootView = new LinearLayout(c);
+			View view = onCreateView(mInflater, mRootView, getArguments()); 
 			onViewCreated(view, getArguments());
 			mPopup = new BetterPopupWindow(c, anchor);
-			mPopup.setContentView(view);
+			mPopup.setContentView(mRootView);
 		} else mPopup.setAnchor(anchor);
 	}
 	

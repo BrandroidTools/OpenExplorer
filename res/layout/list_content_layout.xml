@@ -26,8 +26,6 @@
     android:paddingRight="10dip"
     android:paddingTop="2dip" >
 
-    <include layout="@layout/checkmark_area" />
-
     <org.brandroid.openmanager.views.RemoteImageView
         android:id="@+id/content_icon"
         style="@style/icon.small"

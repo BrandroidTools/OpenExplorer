@@ -110,6 +110,7 @@ import android.widget.TextView.BufferType;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -324,6 +325,7 @@ public class OpenExplorer
 		Preferences.Pref_Language = prefs.getString("global", "pref_language", "");
 		Preferences.Pref_Analytics = prefs.getBoolean("global", "pref_stats", true);
 		Preferences.Pref_Text_Max_Size = prefs.getInt("global", "text_max", 500000);
+		ThumbnailCreator.showCenteredCroppedPreviews = prefs.getBoolean("global", "prefs_thumbs_crop", true);
 
 		PackageInfo pi = null;
 		try {
@@ -960,9 +962,20 @@ public class OpenExplorer
 		else if ((Intent.ACTION_VIEW.equals(intent.getAction()) || Intent.ACTION_EDIT.equals(intent.getAction()))
 				&& intent.getData() != null)
 		{
-			OpenPath path = FileManager.getOpenCache(intent.getDataString(), this);
+			Uri uri = intent.getData();
+			OpenPath path = FileManager.getOpenCache(uri.toString(), this);
+			if(path == null && uri.getScheme().equals("file"))
+				path = new OpenFile(uri.toString().replace("file:///", "/").replace("file://", "/").replace("file:/", "/"));
+			if(path == null) return false;
+			if(path.isArchive())
+			{
+				onChangeLocation(path);
+				return true;
+			}
 			if(editFile(path))
 				return true;
+			else
+				changePath(path, true, true);
 		}else if(intent.hasExtra("state"))
 		{
 			Bundle state = intent.getBundleExtra("state");
@@ -1450,7 +1463,11 @@ public class OpenExplorer
 	private void checkTitleSeparator()
 	{
 		if(mStaticButtons == null)
-			mStaticButtons = (ViewGroup)findViewById(R.id.title_static_buttons);
+		{
+			View tsb = findViewById(R.id.title_static_buttons);
+			if(tsb != null && tsb instanceof ViewGroup)
+				mStaticButtons = (ViewGroup)tsb;
+		}
 		if(mStaticButtons == null && USE_ACTION_BAR && mBar != null && mBar.getCustomView() != null)
 			mStaticButtons = (ViewGroup)mBar.getCustomView().findViewById(R.id.title_static_buttons);
 		if(mStaticButtons == null)
@@ -2685,7 +2702,7 @@ public class OpenExplorer
 			} else {
 				fragmentManager.beginTransaction()
 					.replace(R.id.content_frag, ContentFragment.getInstance(getCurrentPath(), mViewMode, getSupportFragmentManager()))
-					.setBreadCrumbTitle(getCurrentPath().getAbsolutePath())
+					.setBreadCrumbTitle(getCurrentPath().getPath())
 					//.addToBackStack(null)
 					.commit();
 				updateTitle(getCurrentPath().getPath());

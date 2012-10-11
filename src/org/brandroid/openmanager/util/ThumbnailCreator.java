@@ -62,6 +62,7 @@ import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenSFTP;
 import org.brandroid.openmanager.data.OpenSMB;
+import org.brandroid.openmanager.data.OpenSmartFolder;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.views.RemoteImageView;
 import org.brandroid.utils.ImageUtils;
@@ -79,6 +80,7 @@ public class ThumbnailCreator {
 	
 	public static boolean useCache = true;
 	public static boolean showThumbPreviews = true;
+	public static boolean showCenteredCroppedPreviews = true;
 	
 	private static Hashtable<String, Integer> fails = new Hashtable<String, Integer>();
 	//private static Hashtable<String, Drawable> defaultDrawables = new Hashtable<String, Drawable>();
@@ -293,7 +295,7 @@ public class ThumbnailCreator {
 		final String mName = file.getName();
 		final String ext = mName.substring(mName.lastIndexOf(".") + 1);
 		final String sPath2 = mName.toLowerCase();
-		final boolean useLarge = mWidth > 72;
+		final boolean useLarge = mWidth > 36;
 		boolean hasKids = false;
 		try {
 			if(!file.requiresThread() && file.isDirectory())
@@ -311,11 +313,11 @@ public class ThumbnailCreator {
 				return (useLarge ? R.drawable.lg_ftp : R.drawable.sm_ftp);
 			if(file.getAbsolutePath() != null && file.getAbsolutePath().equals("/") && mName.equals(""))
 				return useLarge ? R.drawable.lg_drive : R.drawable.sm_drive;
-			else if(hasKids && sPath2.indexOf("download") > -1)
+			else if(file instanceof OpenSmartFolder || sPath2.indexOf("download") > -1)
 				return (useLarge ? R.drawable.lg_download : R.drawable.sm_download);
-			else if(hasKids && (mName.equals("Photos") || mName.equalsIgnoreCase("dcim") || mName.equalsIgnoreCase("pictures") || mName.equalsIgnoreCase("camera")))
+			else if((mName.equalsIgnoreCase("Photos") || mName.equalsIgnoreCase("dcim") || mName.equalsIgnoreCase("pictures") || mName.equalsIgnoreCase("camera")))
 				return (useLarge ? R.drawable.lg_photo : R.drawable.sm_photo);
-			else if(hasKids && mName.equals("Videos"))
+			else if(mName.equalsIgnoreCase("Videos") || mName.equalsIgnoreCase("Movies"))
 				return (useLarge ? R.drawable.lg_movie : R.drawable.sm_movie);
 			else if(hasKids && mName.equals("Music"))
 				return (useLarge ? R.drawable.lg_music : R.drawable.sm_music);
@@ -463,7 +465,8 @@ public class ThumbnailCreator {
 				opts.inSampleSize = 1;
 				opts.inPurgeable = true;
 				opts.outHeight = mHeight;
-				//opts.outWidth = mWidth;
+				//if(!showCenteredCroppedPreviews)
+				//	opts.outWidth = mWidth;
 				int kind = mWidth > 96 ? MediaStore.Video.Thumbnails.MINI_KIND : MediaStore.Video.Thumbnails.MICRO_KIND;
 				try {
 					if(om.getParent().getName().equals("Photos"))
@@ -559,7 +562,7 @@ public class ThumbnailCreator {
 				
 				BitmapFactory.Options options = new BitmapFactory.Options();
 				options.inJustDecodeBounds = true;
-				BitmapFactory.decodeFile(file.getPath(), options);
+				//BitmapFactory.decodeFile(file.getPath(), options);
 				options.inSampleSize = Math.min(options.outWidth / mWidth, options.outHeight / mHeight);
 				options.inJustDecodeBounds = false;
 				options.inPurgeable = true;
@@ -576,7 +579,7 @@ public class ThumbnailCreator {
 		
 		if(bmp != null && (mWidth < bmp.getWidth() || mHeight < bmp.getHeight()))
 		{
-			if(file.isImageFile())
+			if(file.isImageFile() && showCenteredCroppedPreviews)
 				bmp = cropBitmap(bmp, mWidth, mHeight);
 			else
 				bmp = Bitmap.createScaledBitmap(bmp, mWidth, mHeight, false);

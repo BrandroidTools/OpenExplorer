@@ -338,6 +338,9 @@
     <string name="s_pref_view_folders">Folders Preferences</string>
     <string name="s_pref_view_general">General Preferences</string>
     <string name="s_pref_text_wrap">Wrap text</string>
+    <string name="s_pref_thumbs_crop">Crop/Center Thumbnails</string>
+    <string name="s_pref_thumbs_cache_clear">Clear Thumbnail Cache</string>
+    <string name="s_msg_folder_none">Folder unable to be created</string>
     
     <plurals name="num_selected">
         <item quantity="one">One file selected</item>

@@ -527,6 +527,10 @@ public class SettingsActivity extends SherlockPreferenceActivity
     	} else if(key.equals("pref_language"))
     	{
     		
+    	} else if(key.equals("pref_thumbs_cache_clear"))
+    	{
+    		Toast.makeText(this, "Cache cleared!", Toast.LENGTH_SHORT).show();
+    		return true;
     	} else if(key.equals("server_add"))
     	{
     		DialogHandler.showServerDialog(this, new OpenFTP((OpenFTP)null, null, null), null, true);

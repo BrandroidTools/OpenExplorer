@@ -22,16 +22,25 @@
     - Text View should set text to a random long string (android:text="@string/long_string")
     - Image View should set source to a specific asset
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:baselineAligned="false" >
+    android:orientation="vertical"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    android:layout_toLeftOf="@+id/content_right"
+	    android:id="@+id/item_wrapper"
+	    android:padding="4dp"
+	    android:paddingRight="0dp"
+	    android:baselineAligned="false" >
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:padding="8dp" >
+        >
 
         <org.brandroid.openmanager.views.RemoteImageView
             android:id="@+id/content_icon"
@@ -60,18 +69,27 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true" />
         
-        <include
+        <FrameLayout
+            android:id="@+id/checkmark_area_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-	    	layout="@layout/checkmark_area" />
+            android:layout_alignParentTop="true"
+            android:layout_alignBottom="@+id/content_info"
+            >
+        	<include
+        	    android:layout_gravity="center"
+	    		layout="@layout/checkmark_area" />
+       	</FrameLayout>
         
         <TextView
             android:id="@+id/content_text"
             style="@style/Large"
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"
-            android:layout_toLeftOf="@+id/checkmark_area"
+            android:layout_toLeftOf="@+id/checkmark_area_wrapper"
             android:layout_toRightOf="@+id/content_icon"
-            android:paddingTop="8dip"
+            android:paddingTop="4dip"
             android:paddingBottom="6dip"
             android:text="@string/filename" />
 
@@ -85,8 +103,44 @@
             android:ellipsize="none"
             android:gravity="left"
             android:singleLine="true"
-            android:text="2 files | 6/14/2012 | 0 B" />
+            android:text="2 files | 0 B" />
+        
+        <TextView
+            android:id="@+id/content_date"
+            style="@style/Small"
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@+id/content_info"
+            android:layout_marginLeft="8dp"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_below="@+id/content_text"
+            android:ellipsize="none"
+            android:gravity="right"
+            android:singleLine="true"
+            android:text="6/14/2012" />
 
     </RelativeLayout>
 
-</LinearLayout>
+    </LinearLayout>
+    
+    <View
+        android:layout_width="1dp"
+        android:layout_height="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignBottom="@+id/content_bottom"
+        android:id="@+id/content_right"
+        android:background="?attr/colorDarkGray"
+        android:layout_marginLeft="3dp"
+        android:layout_alignParentRight="true"
+        /> 
+
+    <View
+        android:layout_width="match_parent"
+        android:id="@+id/content_bottom"
+        android:layout_height="1dp"
+        android:background="?attr/colorDarkGray"
+        android:layout_below="@+id/item_wrapper"
+        />
+    
+</RelativeLayout>
+

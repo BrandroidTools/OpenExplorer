@@ -212,7 +212,7 @@ public class IconContextMenu implements OnKeyListener
 				}
 				View kid = IconContextMenuAdapter.createView(row, item, textLayoutId);
 				kid.setId(id);
-				kid.setBackgroundResource(R.drawable.list_selector_background);
+				kid.setBackgroundResource(android.R.drawable.list_selector_background);
 				kid.setFocusable(true);
 				if(i == 0)
 				{

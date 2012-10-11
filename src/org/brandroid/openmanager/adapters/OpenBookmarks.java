@@ -1,5 +1,6 @@
 package org.brandroid.openmanager.adapters;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -330,7 +331,7 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 	
 	public void setPathTitle(OpenPath path, String title)
 	{
-		setSetting("title_" + path.getAbsolutePath(), title);
+		setSetting("title_" + path.getPath(), title);
 	}
 	public String getPathTitleDefault(OpenPath file)
 	{
@@ -456,7 +457,7 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 	}
 
 	public boolean onItemLongClick(AdapterView<?> list, View v, int pos, long id) {
-		Logger.LogDebug("Long Click pos: " + pos + " (" + id + "," + v.getTag() + "!)");
+		//Logger.LogDebug("Long Click pos: " + pos + " (" + id + "," + v.getTag() + "!)");
 		return onLongClick(v);
 	}
 	
@@ -542,7 +543,7 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 					else if(idRemove == R.string.s_eject)
 						tryEject(mPath.getPath(), mHolder);
 					else {
-						setSetting("hide_" + mPath.getAbsolutePath(), true);
+						setSetting("hide_" + mPath.getPath(), true);
 						if(mBookmarkString != null && (";"+mBookmarkString+";").indexOf(mPath.getPath()) > -1)
 							mBookmarkString = (";" + mBookmarkString + ";").replace(";" + mPath.getPath() + ";", ";").replaceAll("^;|;$", "");
 						if(Build.VERSION.SDK_INT >= 12)
@@ -666,13 +667,13 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 					bar.setVisibility(View.GONE);
 				else if(percent_width > 0) {
 					bar.setVisibility(View.VISIBLE);
-					RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)bar.getLayoutParams();
-							//new LayoutParams(percent_width, LayoutParams.MATCH_PARENT);
-					lp.rightMargin = total_width - percent_width;
-					//lp.width = percent_width;
-					lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-					//bar.setLayoutParams(lp);
-					bar.requestLayout();
+//					RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)bar.getLayoutParams();
+//							//new LayoutParams(percent_width, LayoutParams.MATCH_PARENT);
+//					lp.rightMargin = total_width - percent_width;
+//					//lp.width = percent_width;
+//					lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+//					//bar.setLayoutParams(lp);
+//					bar.requestLayout();
 				}
 				size_bar.setTag(true);
 			} else {
@@ -759,17 +760,24 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 			else 
 				ViewUtils.setViewsVisible(ret, false, R.id.size_layout, R.id.size_bar);
 			
+			boolean hasKids = true;
+			try {
+				hasKids = path.getChildCount(true) > 0;
+			} catch(IOException e) { }
+			
 			ViewUtils.setText(ret, getPathTitle(path), R.id.content_text);
 			
 			if(group == BOOKMARK_FAVORITE)
 			{
 				Drawable d = mIcon.getResources().getDrawable(
-						ThumbnailCreator.getDefaultResourceId(path, 36, 36));
+						ThumbnailCreator.getDefaultResourceId(path, 48, 48));
 				LayerDrawable ld = new LayerDrawable(new Drawable[]{d,
 						mIcon.getResources().getDrawable(R.drawable.ic_favorites)
 					});
 				mIcon.setImageDrawable(ld);
-			} else mIcon.setImageResource(ThumbnailCreator.getDefaultResourceId(path, 36, 36));
+			} else mIcon.setImageResource(ThumbnailCreator.getDefaultResourceId(path, 48, 48));
+			
+			ViewUtils.setAlpha(mIcon, !hasKids ? 0.5f : 1.0f);	
 			
             return ret;
 		}
