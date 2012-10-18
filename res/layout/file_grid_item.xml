@@ -58,7 +58,7 @@
 
         <TextView
             android:id="@+id/content_text"
-            style="@style/Large"
+            style="@style/Large.Dim"
             android:layout_alignTop="@+id/content_icon_frame"
 			android:background="@color/translucent_gray"
             android:layout_width="match_parent"
@@ -68,16 +68,36 @@
 
         <TextView
             android:id="@+id/content_info"
-            style="@style/Small"
-            android:layout_width="match_parent"
+            style="@style/Small.Dim"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 			android:background="@color/translucent_gray"
             android:layout_alignBottom="@+id/content_icon_frame"
-            android:ellipsize="none"
-            android:gravity="center"
-			android:alpha="0.5"
+            android:layout_alignLeft="@+id/content_icon_frame"
+            android:ellipsize="end"
+            android:layout_marginLeft="5dp"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp"
+            android:gravity="left"
             android:singleLine="true"
-            android:text="2 files | 6/14/2012 | 0 B"
+            android:text="2 files | 0 B"
+            android:typeface="monospace" />
+
+        <TextView
+            android:id="@+id/content_date"
+            style="@style/Small.Dim"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+			android:background="@color/translucent_gray"
+            android:layout_alignBottom="@+id/content_icon_frame"
+            android:layout_alignRight="@+id/content_icon_frame"
+            android:layout_marginRight="5dp"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp"
+            android:ellipsize="none"
+            android:gravity="right"
+            android:singleLine="true"
+            android:text="6/14/2012"
             android:typeface="monospace" />
 
     </RelativeLayout>

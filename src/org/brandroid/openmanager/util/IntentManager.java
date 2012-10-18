@@ -217,6 +217,13 @@ public class IntentManager
 		return app.getPackageManager().queryIntentActivities(toCheck, 0);
 	}
 
+	public static List<ResolveInfo> getResolvesAvailable(Intent toCheck, OpenExplorer app)
+	{
+		if(toCheck == null) return new ArrayList<ResolveInfo>();
+		return app.getPackageManager().queryIntentActivities(toCheck, 0);
+	}
+	
+
 	public static ResolveInfo getResolveInfo(final OpenPath file, final OpenExplorer app)
 	{
 		return getResolveInfo(getIntent(file, app), app);

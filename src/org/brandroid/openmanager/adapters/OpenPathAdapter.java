@@ -119,7 +119,7 @@ public class OpenPathAdapter extends BaseAdapter
 		final Context mContext = mApp.getContext();
 
 		if(mApp.getClipboard().contains(file))
-			mNameView.setTextAppearance(mContext, R.style.Highlight);
+			mNameView.setTextAppearance(mContext, R.style.Large_Hilite);
 		else
 			mNameView.setTextAppearance(mContext,  R.style.Large);
 		

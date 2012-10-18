@@ -762,7 +762,8 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 			
 			boolean hasKids = true;
 			try {
-				hasKids = path.getChildCount(true) > 0;
+				if(!path.requiresThread())
+					hasKids = path.getChildCount(true) > 0;
 			} catch(IOException e) { }
 			
 			ViewUtils.setText(ret, getPathTitle(path), R.id.content_text);

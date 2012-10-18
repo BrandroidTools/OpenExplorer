@@ -2596,44 +2596,17 @@ public class OpenExplorer
 				//OpenPath file = mClipboard.get(pos);
 				//if(file.getParent().equals(mLastPath))
 				int animTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-				/*if(Build.VERSION.SDK_INT > 11)
-				{
-					View unwanted = view;
-					View icon = unwanted.findViewById(R.id.content_icon);
-					View check = unwanted.findViewById(R.id.checkmark_area);
-					View ctxt = unwanted.findViewById(R.id.content_text);
-					unwanted.animate()
-						.alpha(0)
-						.setDuration(animTime)
-						.start();
-					if(check != null)
-						check.setVisibility(View.GONE);
-					if(ctxt != null)
-						ctxt.animate()
-						.setDuration(animTime)
-						.scaleY(0)
-						.start();
-					if(icon != null)
-						icon.animate()
-						.setDuration(animTime)
-						.translationX(-200)
-						.start();
-				} else {
-					*/
-					Animation anim = AnimationUtils.loadAnimation(OpenExplorer.this,
-							R.anim.slide_out_left);
-					anim.setDuration(animTime);
-					//anim.setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
-					view.startAnimation(anim);
-				//}
+				Animation anim = AnimationUtils.loadAnimation(OpenExplorer.this,
+						R.anim.slide_out_left);
+				anim.setDuration(animTime);
+				//anim.setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
+				view.startAnimation(anim);
 				new Handler().postDelayed(new Runnable(){public void run() {
 					getClipboard().remove(pos);
 					getClipboard().notifyDataSetChanged();
 					if(getClipboard().getCount() == 0)
 						clipdrop.dismiss();
 				}}, animTime);
-				//else
-					//getEventHandler().copyFile(file, mLastPath, OpenExplorer.this);
 			}
 		});
 		final Menu menu = IconContextMenu.newMenu(this, R.menu.multiselect);
