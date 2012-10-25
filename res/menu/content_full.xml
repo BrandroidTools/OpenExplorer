@@ -9,6 +9,14 @@
         android:title="@android:string/search_go" 
         />
   	
+    <item
+        android:id="@+id/menu_context_share"
+        android:icon="?attr/actionIconShare"
+        android:showAsAction="always"
+        android:title="@string/s_menu_share"
+        android:visible="false"
+        />
+    
 	<item
 		android:id="@+id/menu_sort"
 		android:icon="?attr/actionIconSort"

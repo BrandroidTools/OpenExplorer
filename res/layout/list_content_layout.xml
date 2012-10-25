@@ -26,12 +26,15 @@
     android:paddingRight="10dip"
     android:paddingTop="2dip" >
 
-    <include layout="@layout/checkmark_area" />
-
     <org.brandroid.openmanager.views.RemoteImageView
         android:id="@+id/content_icon"
         style="@style/icon.small"
 	    android:layout_marginRight="6dip"
+        />
+    
+    <include
+        layout="@layout/checkmark_area"
+        android:id="@+id/checkmark_area" 
         />
 
     <TextView
@@ -61,16 +64,34 @@
     <TextView
         android:id="@+id/content_info"
         style="@style/Small"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_alignWithParentIfMissing="true"
         android:layout_below="@+id/content_text"
-        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
         android:layout_toRightOf="@+id/content_icon"
         android:layout_gravity="right"
         android:ellipsize="none"
+        android:gravity="left"
+        android:singleLine="true"
+        android:text="2 files | 0 B"
+        android:typeface="monospace"
+        />
+
+    <TextView
+        android:id="@+id/content_date"
+        style="@style/Small"
+        android:layout_width="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_below="@+id/content_text"
+        android:layout_marginLeft="4dp"
+        android:layout_toRightOf="@+id/content_info"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="right"
+        android:layout_marginRight="6dp"
+        android:ellipsize="none"
         android:gravity="right"
         android:singleLine="true"
-        android:text="2 files | 6/14/2012 | 0 B"
+        android:text="6/14/2012"
         android:typeface="monospace"
         />
 

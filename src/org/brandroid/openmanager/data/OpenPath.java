@@ -593,7 +593,7 @@ public abstract class OpenPath
 		return false;
 	}
 	public boolean isArchive() {
-		return getExtension().equalsIgnoreCase("zip") || getExtension().equalsIgnoreCase("jar");
+		return getExtension().equalsIgnoreCase("zip");
 	}
 	
 	/**
@@ -941,27 +941,30 @@ public abstract class OpenPath
 	 * @param showLongDate Show Long Date?
 	 * @return String to show
 	 */
-	public String getDetails(boolean countHiddenChildren, boolean showLongDate)
+	public String getDetails(boolean countHiddenChildren)
 	{
 		String deets = "";
 		
 		try {
 			if(isDirectory())
-				deets += getChildCount(countHiddenChildren) + " %s | ";
+				deets += getChildCount(countHiddenChildren) + " %s";
 			else if(isFile())
-				deets += DialogHandler.formatSize(length()) + " | ";
+				deets += DialogHandler.formatSize(length());
 		} catch (Exception e) { }
 		
+		return deets;
+	}
+	
+	public CharSequence getFormattedDate(boolean showLongDate) {
 		Long last = lastModified();
 		if(last != null)
 		{
 			try {
-				deets += new SimpleDateFormat(showLongDate ? "MM-dd-yyyy HH:mm" : "MM-dd-yy")
+				return new SimpleDateFormat(showLongDate ? "MM-dd-yyyy HH:mm" : "MM-dd-yy")
 							.format(last);
 			} catch(Exception e) { }
 		}
-		
-		return deets;
+		return "";
 	}
 	
 	/**

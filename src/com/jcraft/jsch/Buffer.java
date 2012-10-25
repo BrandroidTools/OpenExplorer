@@ -56,6 +56,8 @@ public class Buffer{
     index+=length;
   }
   public void putString(byte[] foo){
+	  if(JSch.getLogger().isEnabled(Logger.DEBUG))
+		  JSch.getLogger().log(Logger.DEBUG, new String(foo));
     putString(foo, 0, foo.length);
   }
   public void putString(byte[] foo, int begin, int length) {

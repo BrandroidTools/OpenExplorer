@@ -56,12 +56,16 @@
         <attr name="pagerBackground" format="reference" />
         
         <attr name="listDivider" format="reference" />
+        <attr name="listBackground" format="reference" />
+        <attr name="listColumnBackground" format="reference" />
         
         <!-- Colors -->
         <attr name="colorWhite" format="color" />
         <attr name="colorOffWhite" format="color" />
         <attr name="colorDarkGray" format="color" />
         <attr name="colorBlack" format="color" />
+        <attr name="colorHilite" format="color" />
+        <attr name="colorWhiteDim" format="color" />
 	</declare-styleable>
 
     

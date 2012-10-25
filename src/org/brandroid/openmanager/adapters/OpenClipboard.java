@@ -26,9 +26,11 @@ import android.graphics.drawable.LayerDrawable;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 /**
@@ -51,6 +53,7 @@ public class OpenClipboard
 	private OnClipboardUpdateListener listener = null;
 	//private boolean mMultiselect = false;
 	private OpenPath mCurrentPath = null;
+	private OnClickListener mOnClickListener = null;
 	
 	public static class OpenClipItem
 	{
@@ -222,9 +225,21 @@ public class OpenClipboard
 			TextView pathView = (TextView)ret.findViewById(R.id.content_fullpath);
 			TextView info = (TextView)ret.findViewById(R.id.content_info);
 			ImageView check = (ImageView)ret.findViewById(R.id.content_check);
-			check.setImageResource(checkbox);
-			check.setVisibility(View.VISIBLE);
-			check.setClickable(false);
+			if(check != null)
+			{
+				check.setImageResource(checkbox);
+				check.setVisibility(View.VISIBLE);
+				check.setOnClickListener(new View.OnClickListener() {
+					public void onClick(View v) {
+						if(mOnClickListener != null)
+							mOnClickListener.onClick(v);
+						else {
+							remove(file);
+							onClipboardUpdate();
+						}
+					}
+				});
+			}
 			
 			//info.setVisibility(View.GONE);
 			if(file.isDirectory())
@@ -378,6 +393,10 @@ public class OpenClipboard
 
 	public <T> T[] toArray(T[] array) {
 		return list.toArray(array);
+	}
+
+	public void setOnClickListener(OnClickListener listen) {
+		mOnClickListener = listen;
 	}
 
 }

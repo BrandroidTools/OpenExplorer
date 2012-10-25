@@ -9,11 +9,6 @@
 	    <PreferenceCategory
 	        android:title="@string/s_pref_view_folders">
 		<CheckBoxPreference
-			android:key="pref_thumbs"
-			android:title="@string/s_pref_thumbs"
-			android:defaultValue="true"
-			android:summary="@string/s_pref_thumbs_summary"/>
-		<CheckBoxPreference
 			android:key="pref_show"
 			android:title="@string/s_pref_hidden"
 			android:summary="@string/s_pref_hidden_summary"/>
@@ -36,6 +31,20 @@
 	        android:title="@string/s_menu_sort_folders"
 	        android:defaultValue="true" 
 	        />
+		<CheckBoxPreference
+			android:key="pref_thumbs"
+			android:title="@string/s_pref_thumbs"
+			android:defaultValue="true"
+			android:summary="@string/s_pref_thumbs_summary"/>
+		<CheckBoxPreference
+		    android:key="pref_thumbs_crop"
+		    android:title="@string/s_pref_thumbs_crop"
+		    android:dependency="pref_thumbs"
+		    android:defaultValue="true" />
+		<PreferenceScreen
+		    android:key="pref_thumbs_cache_clear"
+		    android:title="@string/s_pref_thumbs_cache_clear"
+		    android:dependency="pref_thumbs" />
         <!-- <PreferenceScreen
             android:key="pref_reset_views"
             android:title="@string/s_pref_reset" 

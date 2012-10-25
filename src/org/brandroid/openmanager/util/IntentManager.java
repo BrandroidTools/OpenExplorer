@@ -31,9 +31,10 @@ public class IntentManager
 	}
 	public static Intent getIntent(OpenPath file, OpenExplorer app, String action, String... categories)
 	{
+		if(app == null) return null;
 		String name = file.getName();
 		
-		if(file.isDirectory()) return null;
+		if(file.isDirectory() && !file.isArchive()) return null;
 		
 		Intent ret = new Intent();
 		ret.setAction(action);
@@ -215,6 +216,13 @@ public class IntentManager
 		if(toCheck == null) return new ArrayList<ResolveInfo>();
 		return app.getPackageManager().queryIntentActivities(toCheck, 0);
 	}
+
+	public static List<ResolveInfo> getResolvesAvailable(Intent toCheck, OpenExplorer app)
+	{
+		if(toCheck == null) return new ArrayList<ResolveInfo>();
+		return app.getPackageManager().queryIntentActivities(toCheck, 0);
+	}
+	
 
 	public static ResolveInfo getResolveInfo(final OpenPath file, final OpenExplorer app)
 	{

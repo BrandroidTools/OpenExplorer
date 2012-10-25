@@ -27,6 +27,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,7 +67,7 @@ public class ContentAdapter extends BaseAdapter {
 	/**
 	 * Set of seleced message IDs.
 	 */
-	private final TreeSet<OpenPath> mSelectedSet = new TreeSet<OpenPath>();
+	private final ArrayList<OpenPath> mSelectedSet = new ArrayList<OpenPath>();
 
 	/**
 	 * Callback from MessageListAdapter. All methods are called on the UI
@@ -184,7 +187,7 @@ public class ContentAdapter extends BaseAdapter {
 				return mParent.listFiles();
 		} catch (IOException e) {
 			Logger.LogError("Couldn't getList in ContentAdapter");
-			return null;
+			return new OpenPath[0];
 		}
 	}
 	
@@ -234,6 +237,7 @@ public class ContentAdapter extends BaseAdapter {
 			return row;
 		
 		TextView mInfo = (TextView)row.findViewById(R.id.content_info);
+		TextView mDate = (TextView)row.findViewById(R.id.content_date);
 		TextView mPathView = (TextView)row.findViewById(R.id.content_fullpath); 
 		TextView mNameView = (TextView)row.findViewById(R.id.content_text);
 		final ImageView mIcon = (ImageView)row.findViewById(R.id.content_icon);
@@ -244,6 +248,7 @@ public class ContentAdapter extends BaseAdapter {
 			mNameView.setText(R.string.s_menu_up);
 			mIcon.setImageResource(useLarge ? R.drawable.lg_folder_up : R.drawable.sm_folder_up);
 			if(mInfo != null) mInfo.setText("");
+			if(mDate != null) mDate.setText("");
 			if(mPathView != null) mPathView.setText("");
 			return row;
 		}
@@ -282,9 +287,12 @@ public class ContentAdapter extends BaseAdapter {
 		{
 			if(mShowDetails)
 				mInfo.setText(String.format(
-						file.getDetails(getShowHiddenFiles(), showLongDate),
+						file.getDetails(getShowHiddenFiles()),
 						getResources().getString(R.string.s_files)));
 			else mInfo.setText("");
+			if(mDate != null)
+				mDate.setText(file.getFormattedDate(showLongDate));
+			else mInfo.append(" | " + file.getFormattedDate(showLongDate));
 		}
 
 		if(mNameView != null)
@@ -370,6 +378,33 @@ public class ContentAdapter extends BaseAdapter {
 		if(mCheck != null) mCheck.setImageResource(mChecked ? checkboxOnId : checkboxOffId);
 		ViewUtils.setViewsVisible(row, mShowCheck, R.id.content_check);
 
+		switch(OpenPath.Sorting.getType())
+		{
+		case DATE:
+		case DATE_DESC:
+			mDate.setTextAppearance(getContext(), R.style.Small_Hilite);
+			mInfo.setTextAppearance(getContext(), R.style.Small);
+			mNameView.setTextAppearance(getContext(), R.style.Large_Dim);
+			break;
+		case SIZE:
+		case SIZE_DESC:
+			mInfo.setTextAppearance(getContext(), R.style.Small_Hilite);
+			mDate.setTextAppearance(getContext(), R.style.Small);
+			mNameView.setTextAppearance(getContext(), R.style.Large_Dim);
+			break;
+		case ALPHA:
+		case ALPHA_DESC:
+			mNameView.setTextAppearance(getContext(), R.style.Large);
+			mInfo.setTextAppearance(getContext(), R.style.Small);
+			mDate.setTextAppearance(getContext(), R.style.Small);
+			break;
+		default:
+			mNameView.setTextAppearance(getContext(), R.style.Large_Dim);
+			mInfo.setTextAppearance(getContext(), R.style.Small);
+			mDate.setTextAppearance(getContext(), R.style.Small);
+			break;
+		}
+
 		return row;
 	}
 
@@ -408,11 +443,11 @@ public class ContentAdapter extends BaseAdapter {
 		return mData2;
 	}
 	
-	public TreeSet<OpenPath> getSelectedSet() {
+	public ArrayList<OpenPath> getSelectedSet() {
 		return mSelectedSet;
 	}
 	
-	public void setSelectedSet(Set<OpenPath> set) {
+	public void setSelectedSet(ArrayList<OpenPath> set) {
 		for (OpenPath rememberedPath : set) {  
 			mSelectedSet.add(rememberedPath);
 		}
@@ -423,9 +458,8 @@ public class ContentAdapter extends BaseAdapter {
 	 * {@link #getSelectedSet()}, because it also notifies observers.
 	 */
 	public void clearSelection() {
-		Set<OpenPath> checkedset = getSelectedSet();
-		if (checkedset.size() > 0) {
-			checkedset.clear();
+		if (mSelectedSet.size() > 0) {
+			mSelectedSet.clear();
 			notifyDataSetChanged();
 		}
 	}

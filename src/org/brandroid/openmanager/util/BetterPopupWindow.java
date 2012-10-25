@@ -473,14 +473,17 @@ public class BetterPopupWindow {
 			//if(popup.getMaxAvailableHeight(anchor) < widgetHeight)
 			//	popup.setHeight(widgetHeight + 20);
 			try {
-				root.measure(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
-				rootWidth = root.getMeasuredWidth();
-				rootHeight = root.getMeasuredHeight();
-				if(rootWidth > getWindowWidth())
-					rootWidth = widgetWidth;
-				if(rootHeight > getWindowHeight())
-					rootHeight = widgetHeight;
-				root.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				if(root != null)
+				{
+					root.measure(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+					rootWidth = root.getMeasuredWidth();
+					rootHeight = root.getMeasuredHeight();
+					if(rootWidth > getWindowWidth())
+						rootWidth = widgetWidth;
+					if(rootHeight > getWindowHeight())
+						rootHeight = widgetHeight;
+					root.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				}
 			} catch(Exception e) {
 				Logger.LogError("Error measuring root", e);
 			}

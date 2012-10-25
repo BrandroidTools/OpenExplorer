@@ -216,19 +216,12 @@ public abstract class OpenNetworkPath extends OpenPath
 	public int getPort() { return mPort; }
 	
 	@Override
-	public String getDetails(boolean countHiddenChildren, boolean showLongDate)
+	public String getDetails(boolean countHiddenChildren)
 	{
 		String deets = "";
 		
 		if(!isDirectory())
-			deets += DialogHandler.formatSize(length()) + " | ";
-		
-		Long last = lastModified();
-		if(last != null)
-		{
-			deets += new SimpleDateFormat(showLongDate ? "MM-dd-yyyy HH:mm" : "MM-dd-yy")
-						.format(last);
-		}
+			deets += DialogHandler.formatSize(length());
 		
 		return deets;
 	}

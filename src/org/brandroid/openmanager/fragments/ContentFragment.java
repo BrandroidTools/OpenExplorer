@@ -741,7 +741,7 @@ public class ContentFragment extends OpenFragment
 				*/
 				
 				addToMultiSelect(file);
-				((TextView)view.findViewById(R.id.content_text)).setTextAppearance(list.getContext(), R.style.Highlight);
+				((TextView)view.findViewById(R.id.content_text)).setTextAppearance(list.getContext(), R.style.Large_Hilite);
 			}
 			return;
 		}
@@ -991,7 +991,7 @@ public class ContentFragment extends OpenFragment
 			Logger.LogDebug("ContentFragment.onOptionsItemSelected(0x" + Integer.toHexString(item.getItemId()) + ":" + item.getTitle() + ")");
 		OpenPath path = null;
 		if(getSelectedCount() > 0)
-			path = mContentAdapter.getSelectedSet().last();
+			path = mContentAdapter.getSelectedSet().get(getSelectedCount() - 1);
 		else if(mMenuContextItemIndex > -1 && mMenuContextItemIndex < getContentAdapter().getCount())
 			path = getContentAdapter().getItem(mMenuContextItemIndex);
 		if(path != null && executeMenu(item.getItemId(), getActionMode(), path))
@@ -1059,7 +1059,7 @@ public class ContentFragment extends OpenFragment
 			parent = OpenFile.getExternalMemoryDrive(true);
 		final OpenPath folder = parent;
 		String name = file != null ? file.getName() : null;
-		Set<OpenPath> selection = mContentAdapter.getSelectedSet();
+		ArrayList<OpenPath> selection = mContentAdapter.getSelectedSet();
 		
 		final boolean fromPasteMenu = file.equals(mPath);
 		
@@ -1366,8 +1366,8 @@ public class ContentFragment extends OpenFragment
 		//		R.id.menu_sort_folders_first);
 		
 		if(mPath != null)
-			MenuUtils.setMenuEnabled(menu, !mPath.requiresThread() && mPath.canWrite(),
-					R.id.menu_multi_all_copy, R.id.menu_multi_all_move);		
+			MenuUtils.setMenuEnabled(menu, !mPath.requiresThread() && mPath.canWrite() && !mPath.isArchive(),
+					R.id.menu_multi_all_copy, R.id.menu_multi_all_move, R.id.menu_new_file, R.id.menu_new_folder);
 		
 		SortType.Type st = getSorting().getType();
 		int sti = Utils.getArrayIndex(sortTypes, st);
@@ -1838,7 +1838,8 @@ public class ContentFragment extends OpenFragment
 			for(OpenPath clip : getClipboard().getAll())
 				addToMultiSelect(clip);
 			*/
-			getExplorer().startActionMode(mLastSelectionModeCallback);
+			if(getExplorer() != null)
+				getExplorer().startActionMode(mLastSelectionModeCallback);
 			mGrid.invalidateViews();
 			
 		}
@@ -1920,10 +1921,15 @@ public class ContentFragment extends OpenFragment
 						.getActionProvider();
 				if(mShareActionProvider != null)
 				{
-					OpenPath first = mContentAdapter.getSelectedSet().first();
-					Intent shareIntent = new Intent(Intent.ACTION_SEND);
-					shareIntent.setType(first.getMimeType());
-					shareIntent.putExtra(Intent.EXTRA_STREAM, first.getUri());
+					int cnt = getSelectedCount();
+					OpenPath first = mContentAdapter.getSelectedSet().get(0);
+					Intent shareIntent = null;
+					shareIntent = new Intent(cnt > 1 ? Intent.ACTION_SEND : Intent.ACTION_VIEW);
+					if(first != null)
+					{
+						shareIntent.setType(first.getMimeType());
+						shareIntent.putExtra(Intent.EXTRA_STREAM, first.getUri());
+					}
 					mShareActionProvider.setShareIntent(shareIntent);
 					mShareActionProvider
 						.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
@@ -1942,19 +1948,30 @@ public class ContentFragment extends OpenFragment
 			
 			if(mShareActionProvider != null)
 			{
-				Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-				OpenPath first = mContentAdapter.getSelectedSet().first();
-				String type = first.getMimeType();
-				ArrayList<Uri> uris = new ArrayList<Uri>();
-				for(OpenPath sel : mContentAdapter.getSelectedSet())
+				Intent shareIntent = null;
+				int cnt = getSelectedCount();
+				OpenPath first = mContentAdapter.getSelectedSet().get(0);
+				if(cnt > 1)
 				{
-					if(!type.equals(sel.getMimeType()))
-						type = "*/*";
-					uris.add(sel.getUri());
+					shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+					String type = first.getMimeType();
+					ArrayList<Uri> uris = new ArrayList<Uri>();
+					for(OpenPath sel : mContentAdapter.getSelectedSet())
+					{
+						if(!type.equals(sel.getMimeType()))
+							type = "*/*";
+						uris.add(sel.getUri());
+					}
+					shareIntent.setType(type);
+					shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+				} else {
+					shareIntent = new Intent(Intent.ACTION_VIEW);
+					shareIntent.setDataAndType(first.getUri(), first.getMimeType());
 				}
-				shareIntent.setType(type);
-				shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-				mShareActionProvider.setShareIntent(shareIntent);
+				boolean hasIntents = IntentManager.getResolvesAvailable(shareIntent, getExplorer()).size() > 0;
+				MenuUtils.setMenuVisible(menu, hasIntents, R.id.menu_context_share);
+				if(hasIntents)
+					mShareActionProvider.setShareIntent(shareIntent);
 			}
 			
 			boolean writable = true, readable = true;
@@ -1965,7 +1982,7 @@ public class ContentFragment extends OpenFragment
 				if(!p.canRead())
 					readable = false;
 			}
-			OpenPath last = mContentAdapter.getSelectedSet().last();
+			OpenPath last = mContentAdapter.getSelectedSet().get(getSelectedCount() - 1);
 			
 			MenuUtils.setMenuEnabled(menu, writable, R.id.menu_context_delete, R.id.menu_context_cut);
 			MenuUtils.setMenuEnabled(menu, readable, R.id.menu_context_copy, R.id.menu_context_cut, R.id.menu_context_download, R.id.menu_context_rename, R.id.menu_context_zip);
@@ -1990,8 +2007,8 @@ public class ContentFragment extends OpenFragment
 		@Override
 		public boolean onActionItemClicked(final ActionMode mode, MenuItem item)
 		{
-			final TreeSet<OpenPath> selections = mContentAdapter.getSelectedSet();
-			final OpenPath last = selections.last();
+			final ArrayList<OpenPath> selections = mContentAdapter.getSelectedSet();
+			final OpenPath last = selections.get(selections.size() - 1);
 			switch (item.getItemId())
 			{
 				case R.id.menu_context_selectall:

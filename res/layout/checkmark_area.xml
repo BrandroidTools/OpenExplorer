@@ -3,10 +3,7 @@
     android:id="@+id/checkmark_area"
     android:layout_alignParentRight="true"
     android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    android:clickable="true"
+    android:layout_height="wrap_content"
     >
         
     <ImageView
@@ -17,7 +14,7 @@
         android:layout_centerInParent="true"
         android:contentDescription="@string/clipboard"
         android:clickable="false" 
-		android:visibility="gone"
+        android:visibility="gone"
         />
 
     <ImageView
@@ -26,6 +23,8 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_gravity="center"
+    	android:paddingTop="6dp"
+    	android:paddingRight="6dp"
         android:contentDescription="@string/s_menu_multi"
         android:src="?attr/checkboxButtonOff"
         android:clickable="false" 

@@ -366,17 +366,13 @@ public class OpenFileRoot
 	}
 
 	@Override
-	public String getDetails(boolean countHiddenChildren, boolean showLongDate)
+	public String getDetails(boolean countHiddenChildren)
 	{
 		String deets = "";
 		if(getChildren() != null)
 			deets = getChildren().size() + " %s | ";
 		else if(isFile())
-			deets = DialogHandler.formatSize(length()) + " | ";
-		Long last = lastModified();
-		if(last != null && last > 0)
-			deets += new SimpleDateFormat(showLongDate ? "MM-dd-yyyy HH:mm" : "MM-dd-yy")
-						.format(last);
+			deets = DialogHandler.formatSize(length());
 		return deets;
 	}
 

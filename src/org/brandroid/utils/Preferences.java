@@ -25,6 +25,9 @@ public class Preferences {
 	private static Hashtable<String, SharedPreferences> mStorageHash = new Hashtable<String, SharedPreferences>();
 	public static boolean Pref_Intents_Internal = true;
 	public static boolean Pref_Text_Internal = true;
+	/**
+	 * Handle Zip Files using OpenExplorer
+	 */
 	public static boolean Pref_Zip_Internal = true;
 	public static boolean Pref_ShowUp = false;
 	public static boolean Warn_TextEditor = false;

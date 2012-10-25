@@ -204,7 +204,6 @@ public class DialogHandler
 
 	public static void populateFileInfoViews(OpenApp app, View v, OpenPath file) throws IOException {
 			
-		String apath = file.getAbsolutePath();
 		if(file instanceof OpenMediaStore)
 			file = ((OpenMediaStore)file).getFile();
 		Date date = new Date();

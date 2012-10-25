@@ -110,6 +110,7 @@ import android.widget.TextView.BufferType;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -323,6 +324,7 @@ public class OpenExplorer
 		Preferences.Pref_Language = prefs.getString("global", "pref_language", "");
 		Preferences.Pref_Analytics = prefs.getBoolean("global", "pref_stats", false);
 		Preferences.Pref_Text_Max_Size = prefs.getInt("global", "text_max", 500000);
+		ThumbnailCreator.showCenteredCroppedPreviews = prefs.getBoolean("global", "prefs_thumbs_crop", true);
 
 		PackageInfo pi = null;
 		try {
@@ -944,9 +946,20 @@ public class OpenExplorer
 		else if ((Intent.ACTION_VIEW.equals(intent.getAction()) || Intent.ACTION_EDIT.equals(intent.getAction()))
 				&& intent.getData() != null)
 		{
-			OpenPath path = FileManager.getOpenCache(intent.getDataString(), this);
+			Uri uri = intent.getData();
+			OpenPath path = FileManager.getOpenCache(uri.toString(), this);
+			if(path == null && uri.getScheme().equals("file"))
+				path = new OpenFile(uri.toString().replace("file:///", "/").replace("file://", "/").replace("file:/", "/"));
+			if(path == null) return false;
+			if(path.isArchive())
+			{
+				onChangeLocation(path);
+				return true;
+			}
 			if(editFile(path))
 				return true;
+			else
+				changePath(path, true, true);
 		}else if(intent.hasExtra("state"))
 		{
 			Bundle state = intent.getBundleExtra("state");
@@ -1434,7 +1447,11 @@ public class OpenExplorer
 	private void checkTitleSeparator()
 	{
 		if(mStaticButtons == null)
-			mStaticButtons = (ViewGroup)findViewById(R.id.title_static_buttons);
+		{
+			View tsb = findViewById(R.id.title_static_buttons);
+			if(tsb != null && tsb instanceof ViewGroup)
+				mStaticButtons = (ViewGroup)tsb;
+		}
 		if(mStaticButtons == null && USE_ACTION_BAR && mBar != null && mBar.getCustomView() != null)
 			mStaticButtons = (ViewGroup)mBar.getCustomView().findViewById(R.id.title_static_buttons);
 		if(mStaticButtons == null)
@@ -2546,44 +2563,17 @@ public class OpenExplorer
 				//OpenPath file = mClipboard.get(pos);
 				//if(file.getParent().equals(mLastPath))
 				int animTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-				/*if(Build.VERSION.SDK_INT > 11)
-				{
-					View unwanted = view;
-					View icon = unwanted.findViewById(R.id.content_icon);
-					View check = unwanted.findViewById(R.id.checkmark_area);
-					View ctxt = unwanted.findViewById(R.id.content_text);
-					unwanted.animate()
-						.alpha(0)
-						.setDuration(animTime)
-						.start();
-					if(check != null)
-						check.setVisibility(View.GONE);
-					if(ctxt != null)
-						ctxt.animate()
-						.setDuration(animTime)
-						.scaleY(0)
-						.start();
-					if(icon != null)
-						icon.animate()
-						.setDuration(animTime)
-						.translationX(-200)
-						.start();
-				} else {
-					*/
-					Animation anim = AnimationUtils.loadAnimation(OpenExplorer.this,
-							R.anim.slide_out_left);
-					anim.setDuration(animTime);
-					//anim.setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
-					view.startAnimation(anim);
-				//}
+				Animation anim = AnimationUtils.loadAnimation(OpenExplorer.this,
+						R.anim.slide_out_left);
+				anim.setDuration(animTime);
+				//anim.setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
+				view.startAnimation(anim);
 				new Handler().postDelayed(new Runnable(){public void run() {
 					getClipboard().remove(pos);
 					getClipboard().notifyDataSetChanged();
 					if(getClipboard().getCount() == 0)
 						clipdrop.dismiss();
 				}}, animTime);
-				//else
-					//getEventHandler().copyFile(file, mLastPath, OpenExplorer.this);
 			}
 		});
 		final Menu menu = IconContextMenu.newMenu(this, R.menu.multiselect);
@@ -2652,7 +2642,7 @@ public class OpenExplorer
 			} else {
 				fragmentManager.beginTransaction()
 					.replace(R.id.content_frag, ContentFragment.getInstance(getCurrentPath(), mViewMode, getSupportFragmentManager()))
-					.setBreadCrumbTitle(getCurrentPath().getAbsolutePath())
+					.setBreadCrumbTitle(getCurrentPath().getPath())
 					//.addToBackStack(null)
 					.commit();
 				updateTitle(getCurrentPath().getPath());
