@@ -379,6 +379,7 @@ public class OpenExplorer
 		IS_KEYBOARD_AVAILABLE = getContext().getResources().getConfiguration().keyboard == Configuration.KEYBOARD_QWERTY;
 		
 		loadPreferences();
+		checkRoot();
 		
 		boolean themeDark = getPreferences().getBoolean("global", "pref_theme", true);
 		int theme = themeDark ? R.style.AppTheme_Dark : R.style.AppTheme_Light;
@@ -474,8 +475,6 @@ public class OpenExplorer
 		refreshCursors();
 
 		checkWelcome();
-		
-		checkRoot();
 		
 		setViewVisibility(false, false, R.id.title_paste, R.id.title_ops, R.id.title_log);
 		setOnClicks(

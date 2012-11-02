@@ -19,8 +19,8 @@
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.brandroid.openmanager"
-	android:versionName="0.193"
-	android:versionCode="193"
+	android:versionName="0.194"
+	android:versionCode="194"
 	android:installLocation="auto">
 
 	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16" />
@@ -125,6 +125,14 @@
 	    <activity
 	        android:name=".activities.SearchableActivity"
             android:launchMode="singleTop">
+	    </activity>
+	    
+	    <service
+	        android:name=".services.FileScannerService">
+	    </service>
+	    
+	    <activity
+	        android:name=".activities.FileScannerProgress">
 	    </activity>
 	    
 		<activity android:name=".activities.UsbActivity" android:label="@string/app_name" android:launchMode="singleInstance">
