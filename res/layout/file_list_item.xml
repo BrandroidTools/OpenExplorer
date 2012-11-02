@@ -47,6 +47,7 @@
             style="@style/icon.small"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
+            android:paddingLeft="4dp"
             android:paddingRight = "8dp" />
     </RelativeLayout>
 
@@ -78,7 +79,7 @@
             android:layout_alignBottom="@+id/content_info"
             >
         	<include
-        	    android:layout_gravity="center"
+        	    android:layout_gravity="right|top"
 	    		layout="@layout/checkmark_area" />
        	</FrameLayout>
         
@@ -89,8 +90,9 @@
             android:layout_alignWithParentIfMissing="true"
             android:layout_toLeftOf="@+id/checkmark_area_wrapper"
             android:layout_toRightOf="@+id/content_icon"
-            android:paddingTop="4dip"
-            android:paddingBottom="6dip"
+            android:layout_alignParentTop="true"
+            android:paddingTop="2dip"
+            android:paddingBottom="4dip"
             android:text="@string/filename" />
 
         <TextView

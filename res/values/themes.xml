@@ -57,6 +57,8 @@
         <item name="colorOffWhite">@color/offWhite</item>
         <item name="colorDarkGray">@color/darkGray</item>
         <item name="colorBlack">@color/black</item>
+        <item name="colorHilite">@color/lightBlue</item>
+        <item name="colorWhiteDim">@color/dark_dim</item>
     </style>
     
     <style name="AppTheme.Light" parent="@style/Theme.Sherlock.Light">
@@ -115,5 +117,7 @@
         <item name="colorOffWhite">@color/darkGray</item>
         <item name="colorDarkGray">@color/offWhite</item>
         <item name="colorBlack">@color/white</item>
+        <item name="colorHilite">@color/darkBlue</item>
+        <item name="colorWhiteDim">@color/light_dim</item>
     </style>
 </resources>

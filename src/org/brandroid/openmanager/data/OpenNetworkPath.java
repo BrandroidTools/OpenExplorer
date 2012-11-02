@@ -221,7 +221,7 @@ public abstract class OpenNetworkPath extends OpenPath
 		String deets = "";
 		
 		if(!isDirectory())
-			deets += DialogHandler.formatSize(length()) + " | ";
+			deets += DialogHandler.formatSize(length());
 		
 		return deets;
 	}

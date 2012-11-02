@@ -127,6 +127,14 @@
             android:launchMode="singleTop">
 	    </activity>
 	    
+	    <service
+	        android:name=".services.FileScannerService">
+	    </service>
+	    
+	    <activity
+	        android:name=".activities.FileScannerProgress">
+	    </activity>
+	    
 		<activity android:name=".activities.UsbActivity" android:label="@string/app_name" android:launchMode="singleInstance">
 			<intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />

@@ -96,8 +96,10 @@ public class BookmarkHolder {
 			mEject.setVisibility(eject ? View.VISIBLE : View.GONE);
 	}
 	public Boolean isEjectable() {
-		if(mFile.getPath().toLowerCase().indexOf("ext") == -1 || !mFile.getPath().toLowerCase().startsWith("/removable/")) return false;
-		if(mFile.getDepth() > 2 + (mFile.getPath().startsWith("/mnt/") ? 1 : 0))
+		String path = mFile.getPath().toLowerCase();
+		if(path.startsWith("/storage/") && (path.endsWith("sdcard1") || path.contains("usb"))) return true;
+		if(path.indexOf("ext") == -1 || !path.startsWith("/removable/")) return false;
+		if(mFile.getDepth() > 2 + (path.startsWith("/mnt/") ? 1 : 0))
 			return false;
 		return true;
 	}

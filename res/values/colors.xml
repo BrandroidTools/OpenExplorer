@@ -8,7 +8,11 @@
 	<color name="whitegray">#969696</color>
 	<color name="offWhite">#DDDDDD</color>
 	<color name="darkGray">#333333</color>
-	<color name="blue">#ff33b5e5</color>	
+	<color name="blue">#ff33b5e5</color>
+	<color name="dark_dim">#88F1F1F1</color>
+	<color name="light_dim">#88000000</color>
+	<color name="lightBlue">#ffa7def3</color>
+	<color name="darkBlue">#ff105f7c</color>
 	<color name="actionbar_title_color">#224894</color>
 	<color name="notification_text">@android:color/primary_text_dark</color>
 	<color name="section_title">#AA66CC</color>

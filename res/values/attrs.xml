@@ -64,6 +64,8 @@
         <attr name="colorOffWhite" format="color" />
         <attr name="colorDarkGray" format="color" />
         <attr name="colorBlack" format="color" />
+        <attr name="colorHilite" format="color" />
+        <attr name="colorWhiteDim" format="color" />
 	</declare-styleable>
 
     

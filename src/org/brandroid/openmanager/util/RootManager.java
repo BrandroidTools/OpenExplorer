@@ -23,6 +23,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.Thread.State;
 import java.util.HashSet;
+import java.util.Hashtable;
 
 import org.brandroid.utils.ByteQueue;
 import org.brandroid.utils.Logger;
@@ -167,6 +168,25 @@ public class RootManager
 		if(execute("mount -o " + (rw ? "rw" : "ro") + ",remount -t yaffs2 " + sysDev + " /system").size() > 0)
 			return false;
 		return true;
+	}
+	
+	public String getDriveLabel(String path, String sDefault)
+	{
+		if(!rootEnabled) return sDefault;
+		HashSet<String> blkid = execute("blkid `cat /proc/mounts | grep \"" + sDefault.replace("\"", "\\\"") + "\"`");
+		for(String line : blkid)
+		{
+			int i = line.toLowerCase().indexOf("LABEL=");
+			if(i > -1)
+			{
+				line = line.substring(i + 6);
+				if(line.startsWith("\""))
+					line = line.substring(1, line.indexOf("\"", 1));
+				else line = line.substring(0, line.indexOf(" "));
+				return line;
+			}
+		}
+		return sDefault;
 	}
 
     /**
@@ -323,11 +343,11 @@ public class RootManager
 	}
 	public HashSet<String> execute(String cmd)
 	{
+		HashSet<String> ret = new HashSet<String>();
 		if(!isRoot()) {
 			Logger.LogWarning("Root execute without request?");
-			return null;
+			return ret;
 		}
-		HashSet<String> ret = new HashSet<String>();
 		try {
 			Process suProcess = getSuProcess();
 

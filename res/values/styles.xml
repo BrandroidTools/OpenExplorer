@@ -24,8 +24,23 @@
         <item name="android:ellipsize">marquee</item>
         <item name="android:textSize">@dimen/large_text_size</item>
     </style>
-    <style name="Highlight" parent="@style/Large">
-        <item name="android:textColor">@color/blue</item>
+    <style name="Small.Hilite" parent="@style/Small">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="Mid.Hilite" parent="@style/Mid">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="Large.Hilite" parent="@style/Large">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="Small.Dim" parent="@style/Small">
+        <item name="android:textColor">?attr/colorWhiteDim</item>
+    </style>
+    <style name="Mid.Dim" parent="@style/Mid">
+        <item name="android:textColor">?attr/colorWhiteDim</item>
+    </style>
+    <style name="Large.Dim" parent="@style/Large">
+        <item name="android:textColor">?attr/colorWhiteDim</item>
     </style>
     <style name="icon"></style>
     <style name="icon.grid">

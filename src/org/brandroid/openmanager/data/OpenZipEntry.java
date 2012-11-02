@@ -100,7 +100,7 @@ public class OpenZipEntry extends OpenPath
 	public String getDetails(boolean countHiddenChildren) {
 		String ret = super.getDetails(countHiddenChildren);
 		if(!isDirectory())
-			ret = ret.substring(0, ret.indexOf(" |")) + "(" + DialogHandler.formatSize(ze.getCompressedSize()) + ")" + ret.substring(ret.indexOf(" |"));
+			ret += " (" + DialogHandler.formatSize(ze.getCompressedSize()) + ")";
 		return ret;
 	}
 

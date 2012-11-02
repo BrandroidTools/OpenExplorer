@@ -35,6 +35,7 @@ public class OpenFile
 	private OutputStream output = null;
 	private static OpenFile mInternalDrive = null;
 	private static OpenFile mExternalDrive = null;
+	private static OpenFile mUsbDrive = null;
 	private static OpenFile mTempDir = null;
 	private String deets = null;
 	
@@ -86,7 +87,7 @@ public class OpenFile
 	public long getFreeSpace() {
 		if(getDepth() > 3)
 		{
-			if(getPath().indexOf("/mnt/") > -1)
+			if(getPath().startsWith("/mnt/"))
 			{
 				OpenFile toCheck = this;
 				for(int i=3; i < getDepth(); i++)
@@ -261,6 +262,22 @@ public class OpenFile
 		mInternalDrive = ret;
 		return mInternalDrive;
 	}
+	public static void setUsbDrive(OpenFile usb) { mUsbDrive = usb; }
+	public static OpenFile getUsbDrive()
+	{
+		if(mUsbDrive != null && mUsbDrive.exists()) return mUsbDrive;
+		OpenFile parent = getExternalMemoryDrive(true).getParent();
+		if(parent == null) return null;
+		if(!parent.exists()) return null;
+		for(OpenFile kid : parent.listFiles())
+			if(kid.getName().toLowerCase().contains("usb") &&
+				kid.exists() && kid.canRead() && kid.list().length > 0)
+			{
+				mUsbDrive = kid;
+				return kid;
+			}
+		return null;
+	}
 	
 
 	private OpenFile[] getOpenPaths(File[] files)
@@ -429,7 +446,9 @@ public class OpenFile
 	}
 	@Override
 	public Boolean isHidden() {
-		return mFile.isHidden() || mFile.getName().startsWith(".");
+		if(mFile.isHidden() || mFile.getName().startsWith(".")) return true;
+		if(mFile.getParent().equals("/mnt") && getUsableSpace() == 0) return true;
+		return false;
 	}
 	
 	@Override
@@ -565,7 +584,8 @@ public class OpenFile
 	{
 		if(getPath().indexOf("/remov") > -1) return true;
 		if(getPath().indexOf("/mnt/media") > -1) return true;
-		if(getPath().indexOf("usb") > -1) return true;
+		if(getPath().startsWith("/storage")) return true;
+		if(getPath().toLowerCase().indexOf("usb") > -1) return true;
 		return false;
 	}
 }

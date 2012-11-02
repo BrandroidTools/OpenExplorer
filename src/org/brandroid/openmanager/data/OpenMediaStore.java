@@ -3,21 +3,9 @@ package org.brandroid.openmanager.data;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.ref.SoftReference;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Hashtable;
-
-import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.fragments.DialogHandler;
-import org.brandroid.openmanager.util.ThumbnailCreator;
-
-import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.provider.MediaStore;
 
 public class OpenMediaStore extends OpenPath
 {

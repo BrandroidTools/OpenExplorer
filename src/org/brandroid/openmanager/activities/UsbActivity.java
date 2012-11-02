@@ -17,6 +17,7 @@
 package org.brandroid.openmanager.activities;
 
 
+import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.utils.Logger;
 
 import android.app.Activity;
@@ -36,6 +37,8 @@ public final class UsbActivity extends Activity {
         //
         Intent intent = new Intent(this, OpenExplorer.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setData(OpenFile.getUsbDrive().getUri());
         try {
             startActivity(intent);
         } catch (ActivityNotFoundException e) {

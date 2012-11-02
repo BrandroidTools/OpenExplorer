@@ -3,8 +3,11 @@ package org.brandroid.openmanager.adapters;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
@@ -43,6 +46,9 @@ import org.brandroid.openmanager.util.OpenInterfaces.OnBookMarkChangeListener;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
 import org.brandroid.utils.ViewUtils;
+
+import com.stericson.RootTools.RootTools;
+import com.stericson.RootTools.RootToolsException;
 
 import android.animation.Animator;
 import android.annotation.SuppressLint;
@@ -87,6 +93,8 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 	private Long mAllDataSize = 0l;
 	private Long mLargestDataSize = 0l;
 	private SharedPreferences mPrefs;
+	private List<String> mBlkids = null;
+	private List<String> mProcMounts = null;
 	private final OpenApp mApp;
 	public static final int BOOKMARK_DRIVE = 0;
 	public static final int BOOKMARK_SMART_FOLDER = 1;
@@ -107,6 +115,27 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 			setupListView(newList);
 		if(app != null)
 			scanBookmarks();
+	}
+	
+	public void scanRoot()
+	{
+		Logger.LogDebug("Trying to get roots");
+		if(mBlkids == null && mProcMounts == null && RootTools.isRootAvailable())
+		{
+			mBlkids = new ArrayList<String>();
+			mProcMounts = new ArrayList<String>();
+			new Thread(new Runnable() {
+				public void run() {
+					try {
+						mProcMounts = RootTools.sendShell("cat /proc/mounts", 0);
+						mBlkids = RootTools.sendShell("blkid", 0);
+						Logger.LogVerbose("Successfully got " + mProcMounts.size() + " procmounts and " + mBlkids.size() + " blkids!");
+					} catch(Exception e) {
+						Logger.LogError("Unable to get roots from shell", e);
+					}
+				}
+			}).start();
+		} else Logger.LogWarning("No root, can't get roots");
 	}
 	
 	public enum BookmarkType
@@ -138,6 +167,7 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 	
 	public void scanBookmarks()
 	{
+		scanRoot();
 		scanBookmarksInner();
 		/*
 		new Thread(new Runnable() {
@@ -162,6 +192,7 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 			mHasInternal = true;
 		if(checkAndAdd(BookmarkType.BOOKMARK_DRIVE, OpenFile.getInternalMemoryDrive()))
 			mHasExternal = true;
+		checkAndAdd(BookmarkType.BOOKMARK_DRIVE, OpenFile.getUsbDrive());
 		
 		checkAndAdd(BookmarkType.BOOKMARK_SMART_FOLDER, OpenExplorer.getVideoParent());
 		checkAndAdd(BookmarkType.BOOKMARK_SMART_FOLDER, OpenExplorer.getPhotoParent());
@@ -326,7 +357,34 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 
 	public String getPathTitle(OpenPath path)
 	{
-		return getSetting("title_" + path.getPath(), getPathTitleDefault(path));
+		String ret = getPathTitleDefault(path);
+		if(mPrefs.contains("title_" + path.getPath()))
+			ret = getSetting("title_" + path.getPath(), getPathTitleDefault(path));
+		else if(path.getPath().startsWith("/") && mBlkids != null && mProcMounts != null)
+		{
+			Logger.LogDebug("Looking for " + path + " in procmounts");
+			for(String pm : mProcMounts)
+			{
+				if(pm.indexOf(path.getPath()) > -1)
+				{
+					String dev = pm.substring(0, pm.indexOf(" "));
+					for(String blk : mBlkids)
+						if(blk.indexOf(dev) > -1 && blk.toLowerCase().indexOf("label=") > -1)
+						{
+							String lbl = blk.substring(blk.toLowerCase().indexOf("label=") + 6);
+							if(lbl.startsWith("\""))
+								lbl = lbl.substring(1, lbl.indexOf("\"", 2));
+							else lbl = lbl.substring(0, lbl.indexOf(" "));
+							lbl = lbl.trim();
+							if(lbl.equals("")) return ret;
+							Logger.LogVerbose("Found Device Label for " + path + " = " + lbl);
+							setPathTitle(path, lbl);
+							return lbl;
+						}
+				}
+			}
+		}
+		return ret;
 	}
 	
 	public void setPathTitle(OpenPath path, String title)
@@ -347,7 +405,7 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 			return mApp.getResources().getString(R.string.s_downloads);
 		else if(name.indexOf("sdcard") > -1)
 			return mApp.getResources().getString(mHasExternal ? R.string.s_internal : R.string.s_external);
-		else if(name.indexOf("usb") > -1 || name.indexOf("/media") > -1 || name.indexOf("removeable") > -1)
+		else if(name.indexOf("usb") > -1 || name.indexOf("/media") > -1 || name.indexOf("removeable") > -1 || name.indexOf("storage") > -1)
 		{
 			try {
 				return OpenExplorer.getVolumeName(file.getPath());
@@ -762,7 +820,8 @@ public class OpenBookmarks implements OnBookMarkChangeListener,
 			
 			boolean hasKids = true;
 			try {
-				hasKids = path.getChildCount(true) > 0;
+				if(!path.requiresThread())
+					hasKids = path.getChildCount(true) > 0;
 			} catch(IOException e) { }
 			
 			ViewUtils.setText(ret, getPathTitle(path), R.id.content_text);
