@@ -7,36 +7,32 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/blue" 
-        />
+        android:background="@color/blue" />
+
     <FrameLayout
         android:id="@+id/picker_widget"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1" 
-        />
-    
+        android:layout_weight="1" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/blue" 
-        />
+        android:background="@color/blue" />
 
     <LinearLayout
+        android:id="@+id/pick_path_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:id="@+id/pick_path_row"
-         >
+        android:padding="4dp" >
 
         <TextView
             style="@style/Mid"
-            android:gravity="left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/selected_path"
+            android:gravity="left"
             android:paddingRight="4dp"
-            />
+            android:text="@string/selected_path" />
 
         <TextView
             android:id="@+id/pick_path"
@@ -44,31 +40,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="left" />
+    </LinearLayout>
 
-    </LinearLayout>
-    
-    <EditText 
+    <EditText
         android:id="@+id/pick_filename"
-        android:hint="@string/filename"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        />
-    
-    <LinearLayout android:orientation="horizontal"
+        android:hint="@string/filename" />
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        >
-        <Button android:id="@android:id/button1"
-            android:text="@android:string/ok"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@android:id/button1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            />
-        <Button android:id="@android:id/button2"
-            android:text="@android:string/cancel"
+            android:text="@android:string/ok" />
+
+        <Button
+            android:id="@android:id/button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            />
+            android:text="@android:string/cancel" />
     </LinearLayout>
+
 </LinearLayout>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
+
     <string name="app_name">Open Explorer</string>
     <string name="s_photos">Фотографии</string>
     <string name="s_videos">Видео</string>
@@ -211,8 +212,8 @@
     <string name="s_pref_fancy_menus">Необычное меню</string>
     <string name="s_pref_fancy_context">Необычные контекстные меню:</string>
     <string name="s_search_files" auto="1">Поиск файловой системы</string>
-    <string name="search_summary" formatted="false" auto="1">Поиск " %s " \n в " %s " (%г) ...</string>
-    <string name="search_results" formatted="false" auto="1">Найдено%D результатов для " %s " \n в " %s "</string>
+    <string name="search_summary" auto="1" formatted="false">Поиск " %s " \n в " %s " (%г) ...</string>
+    <string name="search_results" auto="1" formatted="false">Найдено%D результатов для " %s " \n в " %s "</string>
     <string name="s_menu_exit" auto="1">Выход</string>
     <string name="s_warn_wtf_message">Ой-ой-ой.Кажется возникла ошибка в программе.Такое часто случается с программами, которые находятся в тестовом состоянии.Единственный способ устранения таких ошибок, это сбор информации с различных устройств, таких как ваше например. Можем ли мы отсылать анонимные отчеты об ошибках в программе разработчикам?</string>
     <string name="s_warn_wtf_ps">Пожалуйста, обратите внимание на то, что данное приложение находится в состоянии Beta. Просьба не ставить плохие рейтинги из за возможных ошибок и вылетов из программы. Просто удалите ее, если она вам не нравится. Большое спасибо!</string>
@@ -298,4 +299,5 @@
     <string name="s_alert_clipboard" auto="1">Скопировать в буфер обмена</string>
     <string name="s_alert_restart" auto="1">Перезагрузка. Пожалуйста, подождите.</string>
     <string name="language" auto="1">язык</string>
+
 </resources>

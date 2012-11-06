@@ -1,34 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-        android:title="Settings">
-        
-	<PreferenceCategory android:title="Folder Options" android:key="folder_title">
-		<CheckBoxPreference
-			android:key="pref_hiddenFiles"
-			android:title="Show Hidden Files"
-			android:summary="Display hidden files and folders"/>
-		<CheckBoxPreference
-			android:key="pref_thumbnail"
-			android:title="Show Image Thumbnails"
-			android:summary="Display a thumbnail for image files"/>
-		<ListPreference
-			android:key="pref_view"
-			android:title="View Type"
-			android:summary="Display files in a grid or a list"
-			android:entries="@array/view"
-			android:entryValues="@array/view_value"
-			android:dialogTitle="Choose a View" />
-		<ListPreference
-			android:key="pref_sorting"
-			android:title="Sorting Type"
-			android:summary="Choose how to sort files and folders"
-			android:entries="@array/sorting"
-			android:entryValues="@array/sorting_value"
-			android:dialogTitle="Choose a Sorting Option" />
-		
-	</PreferenceCategory>
-	
-	<PreferenceCategory android:title="Global Options">
-	    <PreferenceScreen android:key="pref_global" android:title="See Global Preferences" />
-	</PreferenceCategory>
+    android:title="Settings" >
+
+    <PreferenceCategory
+        android:key="folder_title"
+        android:title="Folder Options" >
+        <CheckBoxPreference
+            android:key="pref_hiddenFiles"
+            android:summary="Display hidden files and folders"
+            android:title="Show Hidden Files" />
+        <CheckBoxPreference
+            android:key="pref_thumbnail"
+            android:summary="Display a thumbnail for image files"
+            android:title="Show Image Thumbnails" />
+
+        <ListPreference
+            android:dialogTitle="Choose a View"
+            android:entries="@array/view"
+            android:entryValues="@array/view_value"
+            android:key="pref_view"
+            android:summary="Display files in a grid or a list"
+            android:title="View Type" />
+        <ListPreference
+            android:dialogTitle="Choose a Sorting Option"
+            android:entries="@array/sorting"
+            android:entryValues="@array/sorting_value"
+            android:key="pref_sorting"
+            android:summary="Choose how to sort files and folders"
+            android:title="Sorting Type" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Global Options" >
+        <PreferenceScreen
+            android:key="pref_global"
+            android:title="See Global Preferences" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

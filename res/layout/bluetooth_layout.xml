@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<!-- 
+<?xml version="1.0" encoding="utf-8"?>
+<!--
 	OpenExplorer, an open source file manager for the Android system
     Copyright (C) 2011  Brandon Bowles <brandroid64@gmail.com>
 
@@ -14,47 +14,49 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- -->
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:padding="8dip">
-	
-	<TextView
-		android:id="@+id/bt_title"
-		android:drawableLeft="@drawable/bluetooth"
-		android:layout_height="wrap_content"
-		android:layout_width="match_parent"
-		android:layout_gravity="center|center_vertical"
-		android:gravity="center"
-		android:text="Bluetooth Transfer"
-		android:textAppearance="?android:attr/textAppearanceLarge" />
-	
-	<TextView
-		android:id="@+id/bt_message"
-		android:layout_height="wrap_content"
-		android:layout_width="match_parent"
-		android:gravity="center"
-		android:textAppearance="?android:attr/textAppearanceMedium" />
-	<Button
-		android:id="@+id/bt_button"
-		android:layout_height="wrap_content"
-		android:layout_width="match_parent"
-		android:layout_marginTop="15dip"
-		android:gravity="center"
-		android:text="start bluetooth" />
-	<GridView
-			android:id="@+id/bt_gridview"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:verticalSpacing="20dp"
-			android:horizontalSpacing="40dp"
-			android:columnWidth="140dp"
-			android:numColumns="auto_fit"
-			android:stretchMode="columnWidth"
-			android:gravity="center"/>
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dip" >
+
+    <TextView
+        android:id="@+id/bt_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|center_vertical"
+        android:drawableLeft="@drawable/bluetooth"
+        android:gravity="center"
+        android:text="Bluetooth Transfer"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/bt_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/bt_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dip"
+        android:gravity="center"
+        android:text="start bluetooth" />
+
+    <GridView
+        android:id="@+id/bt_gridview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnWidth="140dp"
+        android:gravity="center"
+        android:horizontalSpacing="40dp"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="20dp" />
 
 </LinearLayout>

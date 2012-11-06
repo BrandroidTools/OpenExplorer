@@ -29,24 +29,22 @@
             <TextView
                 android:id="@android:id/title"
                 style="@android:style/TextAppearance.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:ellipsize="end"
-                android:text="@string/s_sample_notification"
-                />
+                android:ellipsize="end"
+                android:text="@string/s_sample_notification" />
 
             <TextView
                 android:id="@android:id/text1"
                 style="@android:style/TextAppearance.Small"
-	            android:layout_width="0dp"
-	            android:layout_height="wrap_content"
-	            android:singleLine="true"
-                android:gravity="right"
-                android:ellipsize="none"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:ellipsize="none"
+                android:gravity="right"
+                android:singleLine="true"
                 android:text="@string/s_status_remaining" />
-
         </LinearLayout>
 
         <ProgressBar
@@ -56,17 +54,16 @@
             android:layout_height="6dp"
             android:max="100"
             android:progress="50" />
-            
-	        <TextView
-	            android:id="@android:id/text2"
-	            style="@android:style/TextAppearance.Small"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_marginBottom="2dp"
-	            android:ellipsize="start"
-	            android:singleLine="true"
-	            android:text="3 files"
-	            />
+
+        <TextView
+            android:id="@android:id/text2"
+            style="@android:style/TextAppearance.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:ellipsize="start"
+            android:singleLine="true"
+            android:text="3 files" />
     </LinearLayout>
 
     <ImageButton

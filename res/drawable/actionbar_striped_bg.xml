@@ -8,7 +8,7 @@
             <solid android:color="@color/icsblue" />
         </shape>
     </item>
-        <!-- An opaque black layer underneath. -->
+    <!-- An opaque black layer underneath. -->
     <item
         android:bottom="2dp"
         android:drawable="@color/actionbarstripedbackground"

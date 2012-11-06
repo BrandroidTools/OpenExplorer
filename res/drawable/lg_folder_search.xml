@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:drawable="@drawable/lg_back" />
-    <item android:drawable="@drawable/lg_paper" />
-	<item android:drawable="@drawable/lg_magnifier" />
+
+    <item android:drawable="@drawable/lg_back"/>
+    <item android:drawable="@drawable/lg_paper"/>
+    <item android:drawable="@drawable/lg_magnifier"/>
+
 </layer-list>

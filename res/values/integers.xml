@@ -12,14 +12,16 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 
 <resources>
-    <item type="integer" name="content_grid_image_size">128</item>
-    <item type="integer" name="content_list_image_size">36</item>
-    <item type="integer" name="max_text_editor_size">500000</item>
-    <item type="integer" name="max_base_buttons">4</item>
-    <item type="integer" name="max_grid_columns">2</item>
-    <item type="integer" name="config_shortAnimTime">150</item>
-    <item type="integer" name="config_mediumAnimTime">@android:integer/config_mediumAnimTime</item>
+
+    <item name="content_grid_image_size" type="integer">128</item>
+    <item name="content_list_image_size" type="integer">36</item>
+    <item name="max_text_editor_size" type="integer">500000</item>
+    <item name="max_base_buttons" type="integer">4</item>
+    <item name="max_grid_columns" type="integer">2</item>
+    <item name="config_shortAnimTime" type="integer">150</item>
+    <item name="config_mediumAnimTime" type="integer">@android:integer/config_mediumAnimTime</item>
+
 </resources>

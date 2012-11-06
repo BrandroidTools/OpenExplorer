@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
+
     <string name="app_name" auto="1">פתח את Internet</string>
     <string name="s_photos" auto="1">תמונות</string>
     <string name="s_videos" auto="1">וידאו</string>
@@ -280,4 +281,5 @@
     <string name="storage_usb">כרטיס SD</string>
     <string name="extract_edit_menu_button">אחסון USB</string>
     <string name="activity_chooser_view_see_all">ערוך...</string>
+
 </resources>

@@ -16,7 +16,6 @@
 
 package org.brandroid.openmanager.activities;
 
-
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.utils.Logger;
 

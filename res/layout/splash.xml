@@ -2,62 +2,60 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:padding="20dp" >
 
     <TextView
         android:id="@+id/text_intro_top"
-        android:text="@string/s_text_intro_top"
         style="@style/Large"
-        />
-    
+        android:text="@string/s_text_intro_top" />
+
     <TextView
         android:id="@+id/text_intro"
-        android:text="@string/s_text_intro_body"
         style="@style/Mid"
-        android:gravity="left"
-        android:ellipsize="none"
-        android:scrollbarStyle="outsideOverlay"
         android:layout_below="@+id/text_intro_top"
-        />
+        android:ellipsize="none"
+        android:gravity="left"
+        android:scrollbarStyle="outsideOverlay"
+        android:text="@string/s_text_intro_body" />
 
     <RadioButton
-        android:layout_below="@+id/text_intro"
         android:id="@+id/pref_start_videos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/text_intro"
         android:text="@string/s_videos" />
 
     <RadioButton
         android:id="@+id/pref_start_photos"
-        android:layout_alignTop="@+id/pref_start_videos"
-        android:layout_toRightOf="@+id/pref_start_videos"
-        android:layout_alignLeft="@+id/pref_start_internal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/pref_start_internal"
+        android:layout_alignTop="@+id/pref_start_videos"
+        android:layout_toRightOf="@+id/pref_start_videos"
         android:text="@string/s_photos" />
 
     <RadioButton
         android:id="@+id/pref_start_external"
-        android:layout_below="@+id/pref_start_photos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/pref_start_photos"
         android:layout_marginRight="10dp"
         android:text="@string/s_external" />
 
     <RadioButton
         android:id="@+id/pref_start_internal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/pref_start_videos"
         android:layout_toRightOf="@+id/pref_start_external"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/s_internal" />
-    
+
     <RadioButton
         android:id="@+id/pref_start_root"
-        android:layout_below="@+id/pref_start_external"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/pref_start_external"
         android:text="/" />
 
 </RelativeLayout>

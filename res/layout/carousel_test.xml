@@ -12,25 +12,28 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical" >
 
-    <View android:layout_width="match_parent"
+    <View
+        android:layout_width="match_parent"
         android:layout_height="100dip"
         android:background="#ff800000"
         android:visibility="gone" />
 
-    <org.brandroid.carousel.MyCarouselView android:id="@+id/carousel"
+    <org.brandroid.carousel.MyCarouselView
+        android:id="@+id/carousel"
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="1"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:layout_weight="1" />
 
-    <View android:layout_width="match_parent"
+    <View
+        android:layout_width="match_parent"
         android:layout_height="100dip"
         android:background="#ff008000"
         android:visibility="gone" />

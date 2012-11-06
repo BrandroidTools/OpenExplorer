@@ -11,10 +11,10 @@
         style="@style/ActionBarCompatHomeItem"
         android:layout_width="@dimen/actionbar_compat_button_width"
         android:layout_height="match_parent"
-        android:scaleType="center"
         android:layout_alignParentTop="true"
         android:clickable="true"
         android:longClickable="true"
+        android:scaleType="center"
         android:src="?attr/actionIconClipboard" />
 
     <TextView

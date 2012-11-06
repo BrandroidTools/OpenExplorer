@@ -5,16 +5,16 @@
     android:layout_height="match_parent"
     android:background="?attr/dialogBackgroundColorPrimary"
     android:orientation="vertical" >
-
+
     <GridView
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:columnWidth="150dp"
-        android:numColumns="auto_fit"
         android:focusable="true"
         android:focusableInTouchMode="true"
+        android:numColumns="auto_fit"
         android:padding="10dp"
         android:stretchMode="spacingWidthUniform" />
 

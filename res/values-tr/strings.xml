@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
+
     <string name="app_name">Open Explorer</string>
     <string name="s_photos" auto="1">Fotoğraflar</string>
     <string name="s_videos" auto="1">Videolar</string>
@@ -241,7 +242,7 @@
     <string name="menu_view_font_large">Büyük Boy Yazılar</string>
     <string name="app_description" auto="1">Açık Explorer - tüm cihazlar için açık kaynak bir dosya yöneticisi! (Tablet, Telefonları, Google TV, sandviçler!)  N-Komple dosya sistem yönetimi  n-USB, SD ve diğer dış ortam  n-Ağ Bağlanabilir (FTP, SFTP, SMB / Samba / Windows / Lan / WIFI)  n - Text Editor  n-Akıllı Klasörler farklı medya türlerini (Video, Fotoğraf, Müzik, indir)  n-View Çağrı dizin navigasyon (bir dizin yukarı çıkmak için tokatlamak sağ)  n-Superuser / Kök yeteneği / liste için tarama Sistem klasörleri (hiçbir sistem henüz yazma) gelmek  n  nFeatures okuyun:  n-Sekmeli Metin Editörü  n-Daha Fazla Ağ yeteneği (Dropbox, Box.net, Sky sürücü)  n-Çevrimdışı dosya yapısı önbellek, hatırlar, hangi dosyaların bağlanmak gerek  n-Disk alanı ısı haritası sizin en büyük dosyaların nerede gösterir olmadan farklı yerlerde var  n  n * LÜTFEN DİKKAT: Bu app Beta bulunmaktadır. BİRÇOK hataları hala var. Eğer bu hataları yaşamak istemiyorsanız, lütfen bu app indirmek yok. Eğer beni bu hataları bulmanıza yardımcı olmak isterseniz, lütfen bana e-posta veya GitHub (https://github.com/BrandoCommando/OpenExplorer/) benimle işbirliği. Kötü derecelendirme kimse yardım unutmayın.</string>
     <string name="alert_translate_google">Merhaba bu çeviri Tuncay Acuner tarafından sağlandı. Eğer ingilizcenize güveniyorsanız ve daha iyi çeviririm diyorsanız buraya tıklayın:</string>
-    <string name="alert_translate_none" formatted="false" auto="1">Merhaba, size desteklenmeyen bir dil kullanarak anlaşılmaktadır. İngilizce ve %s biliyor musunuz? Eğer doğru bir çeviri sağlanmasında yardımcı olmak istiyorsanız, buraya tıklayın:</string>
+    <string name="alert_translate_none" auto="1" formatted="false">Merhaba, size desteklenmeyen bir dil kullanarak anlaşılmaktadır. İngilizce ve %s biliyor musunuz? Eğer doğru bir çeviri sağlanmasında yardımcı olmak istiyorsanız, buraya tıklayın:</string>
     <string name="button_translate">Çevir</string>
     <string name="httpError">Bir ağ hatası oluştu.</string>
     <string name="httpErrorAuth">Kimlik doğrulanamadı.</string>
@@ -298,4 +299,5 @@
     <string name="s_alert_clipboard">Kopyalandı</string>
     <string name="s_alert_restart">Yeniden başlatılıyor. Lütfen bekleyiniz.</string>
     <string name="language">Dil</string>
+
 </resources>

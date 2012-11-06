@@ -3,17 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
-    <Button android:id="@+id/auth_test"
+
+    <Button
+        android:id="@+id/auth_test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Get Token"
-        />
+        android:text="Get Token" />
 
     <ListView
         android:id="@+id/auth_output"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
-    
+        android:layout_height="match_parent" />
+
 </LinearLayout>

@@ -11,20 +11,19 @@
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License.
-  -->
+  limitations under the License.
+-->
 
 <resources>
 
     <declare-styleable name="AppTheme">
         <attr name="vpiTabTextColor" format="reference" />
-        
         <attr name="actionbarCompatTitleStyle" format="reference" />
         <attr name="actionbarCompatItemStyle" format="reference" />
         <attr name="actionbarCompatItemHomeStyle" format="reference" />
         <attr name="actionbarCompatProgressIndicatorStyle" format="reference" />
         <attr name="actionbarCompatItemHomeAsUpStyle" format="reference" />
-        
+
         <!-- Action Bar Icons -->
         <attr name="actionIconClipboard" format="reference" />
         <attr name="actionIconClipboardChecked" format="reference" />
@@ -36,7 +35,7 @@
         <attr name="actionIconOperations" format="reference" />
         <attr name="actionIconRefresh" format="reference" />
         <attr name="actionIconSearch" format="reference" />
-        
+
         <!-- Action Mode Icons -->
         <attr name="actionIconRename" format="reference" />
         <attr name="actionIconCopy" format="reference" />
@@ -46,53 +45,44 @@
         <attr name="actionIconInfo" format="reference" />
         <attr name="actionIconSelectAll" format="reference" />
         <attr name="actionIconZip" format="reference" />
-        
+
         <!-- Misc. UI Elements -->
         <attr name="checkboxButtonOn" format="reference" />
         <attr name="checkboxButtonOff" format="reference" />
-        
         <attr name="popupBackground" format="reference" />
         <attr name="popupArrow" format="reference" />
         <attr name="pagerBackground" format="reference" />
-        
         <attr name="listDivider" format="reference" />
         <attr name="listBackground" format="reference" />
         <attr name="listColumnBackground" format="reference" />
-        
+
         <!-- Colors -->
         <attr name="actionBarTextColorPrimary" format="color" />
         <attr name="actionBarTextColorSecondary" format="color" />
         <attr name="actionBarTextColorHighlight" format="color" />
         <attr name="actionBarTextColorInverse" format="color" />
-        
         <attr name="appTextColorPrimary" format="color" />
         <attr name="appTextColorSecondary" format="color" />
         <attr name="appTextColorHighlight" format="color" />
         <attr name="appTextColorInverse" format="color" />
-        
         <attr name="appBackgroundColorPrimary" format="color" />
         <attr name="appDividerColor" format="color" />
-        
         <attr name="dialogTextColorPrimary" format="color" />
         <attr name="dialogTextColorSecondary" format="color" />
         <attr name="dialogTextColorHighlight" format="color" />
         <attr name="dialogTextColorInverse" format="color" />
         <attr name="dialogAccentColorPrimary" format="color" />
-        
         <attr name="dialogBackgroundColorPrimary" format="color" />
-        
         <attr name="colorWhite" format="color" />
         <attr name="colorOffWhite" format="color" />
         <attr name="colorDarkGray" format="color" />
         <attr name="colorBlack" format="color" />
         <attr name="colorHilite" format="color" />
         <attr name="colorWhiteDim" format="color" />
-	</declare-styleable>
-
-    
+    </declare-styleable>
     <declare-styleable name="BezelImageView">
         <attr name="maskDrawable" format="reference" />
         <attr name="borderDrawable" format="reference" />
     </declare-styleable>
-    
+
 </resources>

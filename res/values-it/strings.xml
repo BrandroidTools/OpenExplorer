@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
+
     <string name="app_name">Open Explorer</string>
     <string name="s_photos">Foto</string>
     <string name="s_videos">Video</string>
@@ -296,4 +297,5 @@
     <string name="s_alert_clipboard" auto="1">Copiato negli appunti</string>
     <string name="s_alert_restart" auto="1">Riavvio. Si prega di attendere.</string>
     <string name="language" auto="1">Lingua</string>
+
 </resources>

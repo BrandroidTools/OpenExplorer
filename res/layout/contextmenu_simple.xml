@@ -5,11 +5,10 @@
     android:background="?attr/dialogBackgroundColorPrimary"
     android:orientation="vertical" >
 
-	    <FrameLayout
-	        android:id="@android:id/widget_frame"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent" 
-		    android:minHeight="40dp"
-	        />
+    <FrameLayout
+        android:id="@android:id/widget_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:minHeight="40dp" />
 
 </LinearLayout>

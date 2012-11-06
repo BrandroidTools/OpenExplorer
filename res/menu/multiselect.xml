@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-	<item android:id="@+id/menu_multi_all_delete"
-	    android:title="@string/s_menu_delete_all"
-	    android:icon="@drawable/ic_menu_delete_all" />
-	<item android:id="@+id/menu_multi_all_copy"
-	    android:title="@string/s_menu_copy_all"
-	    android:icon="@drawable/ic_menu_copy" />
-	<item android:id="@+id/menu_multi_all_move"
-	    android:title="@string/s_menu_move_all"
-	    android:icon="@drawable/ic_menu_cut" />
-	<item android:id="@+id/menu_context_zip"
-	    android:title="@string/s_menu_zip"
-	    android:icon="?attr/actionIconZip" />
-	<item android:id="@+id/menu_multi_all_clear"
-	    android:title="@string/s_clear"
-	    android:icon="@drawable/ic_menu_close_clear_cancel"
-	    />
+
+    <item
+        android:id="@+id/menu_multi_all_delete"
+        android:icon="@drawable/ic_menu_delete_all"
+        android:title="@string/s_menu_delete_all"/>
+    <item
+        android:id="@+id/menu_multi_all_copy"
+        android:icon="@drawable/ic_menu_copy"
+        android:title="@string/s_menu_copy_all"/>
+    <item
+        android:id="@+id/menu_multi_all_move"
+        android:icon="@drawable/ic_menu_cut"
+        android:title="@string/s_menu_move_all"/>
+    <item
+        android:id="@+id/menu_context_zip"
+        android:icon="?attr/actionIconZip"
+        android:title="@string/s_menu_zip"/>
+    <item
+        android:id="@+id/menu_multi_all_clear"
+        android:icon="@drawable/ic_menu_close_clear_cancel"
+        android:title="@string/s_clear"/>
+
 </menu>

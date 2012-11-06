@@ -12,11 +12,14 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 
 <resources>
-    <item type="integer" name="max_base_buttons">1</item>
-    <item type="integer" name="max_grid_columns">2</item>
-    <item type="bool" name="large">true</item>
+
+    <item name="max_base_buttons" type="integer">1</item>
+    <item name="max_grid_columns" type="integer">2</item>
+    <item name="large" type="bool">true</item>
+
     <dimen name="bookmarks_width">200dp</dimen>
+
 </resources>

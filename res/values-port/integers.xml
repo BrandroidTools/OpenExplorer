@@ -12,8 +12,10 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 
 <resources>
-    <item type="integer" name="max_grid_columns">1</item>
+
+    <item name="max_grid_columns" type="integer">1</item>
+
 </resources>

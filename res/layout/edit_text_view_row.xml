@@ -5,32 +5,31 @@
     android:orientation="horizontal" >
 
     <View
-        android:background="@color/black"
         android:layout_width="1dp"
         android:layout_height="match_parent"
-        />
+        android:background="@color/black" />
+
     <TextView
         android:id="@+id/text_line"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_margin="0dp"
-        android:paddingRight="4dp"
-        android:paddingLeft="2dp"
-        android:bufferType="normal"
-        android:typeface="monospace"
-        android:textSize="@dimen/text_size_small"
-        android:textColor="?attr/appTextColorSecondary"
         android:background="?attr/appBackgroundColorPrimary"
+        android:bufferType="normal"
         android:gravity="right|top"
-        android:text="1" />
-    
+        android:paddingLeft="2dp"
+        android:paddingRight="4dp"
+        android:text="1"
+        android:textColor="?attr/appTextColorSecondary"
+        android:textSize="@dimen/text_size_small"
+        android:typeface="monospace" />
+
     <View
-        android:background="@color/blue"
         android:layout_width="1dp"
         android:layout_height="match_parent"
         android:layout_marginRight="4dp"
-        />
-
+        android:background="@color/blue" />
+
     <TextView
         android:id="@+id/text_data"
         android:layout_width="match_parent"

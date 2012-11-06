@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:drawable="@drawable/lg_back" />
-    <item android:drawable="@drawable/lg_photo_png" />
-	<item android:drawable="@drawable/lg_front_short" />
+
+    <item android:drawable="@drawable/lg_back"/>
+    <item android:drawable="@drawable/lg_photo_png"/>
+    <item android:drawable="@drawable/lg_front_short"/>
+
 </layer-list>

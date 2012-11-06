@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    
+
     <style name="Widget.Styled.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
         <item name="background">@drawable/actionbar_striped_bg</item>
         <item name="android:background">@drawable/actionbar_striped_bg</item>
@@ -8,16 +8,17 @@
         <item name="android:backgroundSplit">@drawable/actionbar_striped_bg_split</item>
         <!--
         <item name="backgroundSplit">@drawable/bg_striped_split</item>
-        <item name="android:backgroundSplit">@drawable/bg_striped_split</item>
+        <item name="android:backgroundSplit">@drawable/bg_striped_split</item>
         -->
     </style>
-    
+
     <style name="Small" parent="@android:style/TextAppearance.Small">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">?attr/appTextColorPrimary</item>
-		<item name="android:textSize">10dp</item>
+        <item name="android:textSize">10dp</item>
     </style>
+
     <style name="Mid" parent="@android:style/TextAppearance.Medium">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -27,6 +28,7 @@
         <item name="android:ellipsize">marquee</item>
         <item name="android:textSize">14dp</item>
     </style>
+
     <style name="Large" parent="@android:style/TextAppearance.Large">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/large_text_height</item>
@@ -36,47 +38,58 @@
         <item name="android:ellipsize">marquee</item>
         <item name="android:textSize">@dimen/large_text_size</item>
     </style>
+
     <style name="Small.Hilite" parent="@style/Small">
         <item name="android:textStyle">bold</item>
     </style>
+
     <style name="Mid.Hilite" parent="@style/Mid">
         <item name="android:textStyle">bold</item>
     </style>
+
     <style name="Large.Hilite" parent="@style/Large">
         <item name="android:textStyle">bold</item>
     </style>
+
     <style name="Small.Dim" parent="@style/Small">
         <item name="android:textColor">?attr/appTextColorPrimary</item>
     </style>
+
     <style name="Mid.Dim" parent="@style/Mid">
         <item name="android:textColor">?attr/appTextColorPrimary</item>
     </style>
+
     <style name="Large.Dim" parent="@style/Large">
         <item name="android:textColor">?attr/appTextColorPrimary</item>
     </style>
+
     <style name="icon"></style>
+
     <style name="icon.grid">
-    	<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">wrap_content</item>
-		<item name="android:minWidth">@dimen/grid_icon_size</item>
-		<item name="android:minHeight">@dimen/grid_icon_size</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">@dimen/grid_icon_size</item>
+        <item name="android:minHeight">@dimen/grid_icon_size</item>
     </style>
+
     <style name="icon.big">
-    	<item name="android:layout_width">@dimen/grid_icon_size</item>
-		<item name="android:layout_height">@dimen/grid_icon_size</item>
+        <item name="android:layout_width">@dimen/grid_icon_size</item>
+        <item name="android:layout_height">@dimen/grid_icon_size</item>
     </style>
+
     <style name="icon.small">
-    	<item name="android:layout_width">@dimen/list_icon_size</item>
-		<item name="android:layout_height">@dimen/list_icon_size</item>
+        <item name="android:layout_width">@dimen/list_icon_size</item>
+        <item name="android:layout_height">@dimen/list_icon_size</item>
     </style>
-    
-   	<style name="MyTabPageIndicator" parent="Widget">
+
+    <style name="MyTabPageIndicator" parent="Widget">
         <item name="android:gravity">center</item>
         <item name="android:background">@drawable/vpi__tab_indicator</item>
         <item name="android:ellipsize">none</item>
         <item name="android:paddingLeft">@dimen/vpi_padding_horizontal</item>
         <item name="android:paddingRight">@dimen/vpi_padding_horizontal</item>
     </style>
+
     <style name="MyTabPageIndicator.Text" parent="Widget">
         <item name="android:textAppearance">@style/TextAppearance.MyTabPageIndicator</item>
         <item name="android:textColor">?attr/vpiTabTextColor</item>
@@ -93,15 +106,15 @@
     <style name="ActionBarTitle">
         <item name="android:textColor">@color/actionbar_title_color</item>
     </style>
-    
-    <style name="TextAppearance.MyTabPageIndicator" parent="Mid">
-    </style>
+
+    <style name="TextAppearance.MyTabPageIndicator" parent="Mid"></style>
 
     <style name="ActionBarCompat">
         <item name="android:background">#eee</item>
     </style>
 
     <style name="ActionBarCompatItemBase">
+
         <!-- layout_width/height must be set in code -->
         <item name="android:scaleType">center</item>
         <item name="android:background">@drawable/list_selector_background</item>
@@ -127,14 +140,13 @@
         <item name="android:textColor">@color/actionbar_title_color</item>
     </style>
 
-    <style name="ActionBarCompatItem" parent="style/ActionBarCompatItemBase">
-    </style>
+    <style name="ActionBarCompatItem" parent="style/ActionBarCompatItemBase"></style>
 
     <style name="ActionBarCompatHomeItem" parent="style/ActionBarCompatItemBase">
         <item name="android:longClickable">true</item>
         <item name="android:background">@android:drawable/list_selector_background</item>
     </style>
-    
+
     <style name="ActionBarCompatHomeAsUp" parent="style/ActionBarCompatItemBase">
         <item name="android:src">@drawable/ic_ab_back_holo_dark</item>
     </style>
@@ -148,14 +160,14 @@
         <item name="android:windowEnterAnimation">@android:anim/slide_in_left</item>
         <item name="android:windowExitAnimation">@android:anim/slide_out_right</item>
     </style>
-        
+
     <style name="Animations" />
 
     <style name="Animations.Fade">
         <item name="@android:windowEnterAnimation">@anim/fade_in</item>
         <item name="@android:windowExitAnimation">@anim/fade_out</item>
     </style>
-    
+
     <style name="Animations.SlideDown">
         <item name="@android:windowEnterAnimation">@anim/slide_down_in</item>
         <item name="@android:windowExitAnimation">@anim/slide_up_out</item>
@@ -165,52 +177,56 @@
         <item name="@android:windowEnterAnimation">@anim/grow_from_topleft</item>
         <item name="@android:windowExitAnimation">@anim/shrink_to_bottomright</item>
     </style>
+
     <style name="Animations.GrowFromTopRight">
         <item name="@android:windowEnterAnimation">@anim/grow_from_topright</item>
         <item name="@android:windowExitAnimation">@anim/shrink_to_bottomleft</item>
     </style>
-        <style name="Animations.GrowFromBottomLeft">
+
+    <style name="Animations.GrowFromBottomLeft">
         <item name="@android:windowEnterAnimation">@anim/grow_from_bottomleft</item>
         <item name="@android:windowExitAnimation">@anim/shrink_to_topright</item>
     </style>
+
     <style name="Animations.GrowFromBottomRight">
         <item name="@android:windowEnterAnimation">@anim/grow_from_bottomright</item>
         <item name="@android:windowExitAnimation">@anim/shrink_to_topleft</item>
     </style>
+
     <style name="Animations.GrowFromBottom">
-            <item name="@android:windowEnterAnimation">@anim/grow_from_bottom</item>
-            <item name="@android:windowExitAnimation">@anim/shrink_to_top</item>
+        <item name="@android:windowEnterAnimation">@anim/grow_from_bottom</item>
+        <item name="@android:windowExitAnimation">@anim/shrink_to_top</item>
     </style>
-    
+
     <style name="Animations.GrowFromTop">
-            <item name="@android:windowEnterAnimation">@anim/grow_from_top</item>
-            <item name="@android:windowExitAnimation">@anim/shrink_to_bottom</item>
+        <item name="@android:windowEnterAnimation">@anim/grow_from_top</item>
+        <item name="@android:windowExitAnimation">@anim/shrink_to_bottom</item>
     </style>
-    
+
     <style name="Animations.PopDownMenu">
-            <item name="@android:windowEnterAnimation">@anim/grow_from_topleft</item>
-            <item name="@android:windowExitAnimation">@anim/shrink_to_bottomright</item>
+        <item name="@android:windowEnterAnimation">@anim/grow_from_topleft</item>
+        <item name="@android:windowExitAnimation">@anim/shrink_to_bottomright</item>
     </style>
-    
+
     <style name="Animations.SlideUp">
         <item name="@android:windowEnterAnimation">@anim/slide_down_in</item>
         <item name="@android:windowExitAnimation">@anim/slide_up_out</item>
     </style>
-    
+
     <style name="Animations.PagerSlideRight">
         <item name="@android:windowEnterAnimation">@anim/slide_in_right</item>
         <item name="@android:windowExitAnimation">@anim/push_down_in</item>
     </style>
-    
+
     <style name="Animations.SlideFromLeft">
         <item name="@android:windowEnterAnimation">@anim/slide_in_right</item>
         <item name="@android:windowExitAnimation">@anim/slide_out_left</item>
     </style>
-    
+
     <style name="Dialog" parent="Theme.Sherlock" />
-    
+
     <style name="Widget.ProgressBar.Horizontal" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:minHeight">16dip</item>
     </style>
-    
+
 </resources>

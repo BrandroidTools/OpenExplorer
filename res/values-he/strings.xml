@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
+
     <string name="app_name">עכככם</string>
     <string name="s_photos" auto="1">תמונות</string>
     <string name="s_videos" auto="1">וידאו</string>
@@ -296,4 +297,5 @@
     <string name="s_alert_clipboard" auto="1">להעתיק את הלוח</string>
     <string name="s_alert_restart" auto="1">הפעלה מחדש. אנא המתן.</string>
     <string name="language" auto="1">שפה</string>
+
 </resources>

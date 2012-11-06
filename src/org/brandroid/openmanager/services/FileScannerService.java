@@ -1,3 +1,4 @@
+
 package org.brandroid.openmanager.services;
 
 import android.app.Service;
@@ -6,10 +7,10 @@ import android.os.IBinder;
 
 public class FileScannerService extends Service {
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public IBinder onBind(Intent intent) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

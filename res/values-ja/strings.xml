@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
     <string name="s_search">検索</string>
     <string name="s_photos">写真</string>
     <string name="s_videos">ビデオ</string>
@@ -336,10 +337,10 @@
     <string name="s_pref_text_wrap">テキストの自動改行表示</string>
     <string name="s_pref_thumbs_cache_clear">サムネイルのキャッシュを削除</string>
     <string name="s_msg_folder_none">フォルダを作成できませんでした</string>
-    
+
     <plurals name="num_selected">
         <item quantity="one">1個のファイルを選択</item>
         <item quantity="other"><xliff:g id="count">%d</xliff:g>個のファイルを選択</item>
     </plurals>
- 
+
 </resources>

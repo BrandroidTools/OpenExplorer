@@ -1,94 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent">
-	
-    
-	<HorizontalScrollView
-	    android:id="@+id/text_view_scroller_horizontal"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    >
-	</HorizontalScrollView>
-	<LinearLayout
-	    android:id="@+id/text_view_noscroll"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    >
-		<ListView
-		    android:id="@android:id/list"
-		    android:layout_width="match_parent"
-		    android:layout_height="match_parent" 
-		    android:scrollingCache="false"
-		    android:fastScrollEnabled="true"
-		    android:listSelector="@color/transparent"
-		    />
-	</LinearLayout>
-	
-	<ScrollView android:id="@+id/text_view_scroller"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:scrollbars="vertical"
-	    android:visibility="gone"
-	    >
-		<TableLayout
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:id="@+id/text_view_table"
-		    >
-	
-		    
-		</TableLayout>
-	</ScrollView>
-	
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <HorizontalScrollView
+        android:id="@+id/text_view_scroller_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+    </HorizontalScrollView>
+
+    <LinearLayout
+        android:id="@+id/text_view_noscroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fastScrollEnabled="true"
+            android:listSelector="@color/transparent"
+            android:scrollingCache="false" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/text_view_scroller"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:visibility="gone" >
+
+        <TableLayout
+            android:id="@+id/text_view_table"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </TableLayout>
+    </ScrollView>
+
     <EditText
-    	android:layout_width="fill_parent"
-    	android:layout_height="fill_parent"
-		android:id="@+id/text_edit"
-		android:layout_below="@+id/layout_info"
-		android:typeface="monospace"
-	    android:visibility="gone"
-		android:textSize="@dimen/text_size_small"
-		android:gravity="top|left"
-		android:bufferType="normal"
-		android:inputType="textNoSuggestions|textMultiLine"
-		android:layout_alignParentLeft="true">
+        android:id="@+id/text_edit"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/layout_info"
+        android:bufferType="normal"
+        android:gravity="top|left"
+        android:inputType="textNoSuggestions|textMultiLine"
+        android:textSize="@dimen/text_size_small"
+        android:typeface="monospace"
+        android:visibility="gone" >
     </EditText>
-    
 
-	<LinearLayout
-	    android:id="@+id/layout_info"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentLeft="true"
-	    android:layout_alignParentTop="true"
-	    android:gravity="center"
-	    android:orientation="vertical" >
+    <LinearLayout
+        android:id="@+id/layout_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:orientation="vertical" >
 
-	    <ProgressBar
-	        android:id="@android:id/progress"
-	        style="@style/Widget.ProgressBar.Horizontal"
-	        android:indeterminate="true"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:visibility="gone"
-	        android:layout_margin="4dp" />
-	    
-	    <TextView
-	        style="@style/Large"
-	        android:ellipsize="none"
-	        android:singleLine="false"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_margin="8dp"
-	        android:padding="8dp"
-	        android:background="@drawable/contextmenu_square"
-	        android:id="@+id/text_filename"
-	        android:text="@string/filename"
-	        />
-	    
-	</LinearLayout>
-	
+        <ProgressBar
+            android:id="@android:id/progress"
+            style="@style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/text_filename"
+            style="@style/Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:background="@drawable/contextmenu_square"
+            android:ellipsize="none"
+            android:padding="8dp"
+            android:singleLine="false"
+            android:text="@string/filename" />
+    </LinearLayout>
+
 </RelativeLayout>

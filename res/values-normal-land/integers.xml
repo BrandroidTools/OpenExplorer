@@ -12,10 +12,12 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 
 <resources>
-    <item type="integer" name="max_grid_columns">2</item>
-    <item type="bool" name="ignore_max_base_buttons">false</item>
-    <item type="integer" name="max_base_buttons">4</item>
+
+    <item name="max_grid_columns" type="integer">2</item>
+    <item name="ignore_max_base_buttons" type="bool">false</item>
+    <item name="max_base_buttons" type="integer">4</item>
+
 </resources>

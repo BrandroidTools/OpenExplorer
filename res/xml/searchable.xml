@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <searchable xmlns:android="http://schemas.android.com/apk/res/android"
     android:hint="@string/s_search_files"
+    android:includeInGlobalSearch="false"
     android:label="@string/app_name"
-    android:searchButtonText="@android:string/search_go"
-    android:includeInGlobalSearch="false">
+    android:searchButtonText="@android:string/search_go" >
 
 </searchable>

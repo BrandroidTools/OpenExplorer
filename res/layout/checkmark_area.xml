@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/checkmark_area"
-    android:layout_alignParentRight="true"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    >
-        
+    android:layout_alignParentRight="true" >
+
     <ImageView
         android:id="@+id/content_clipboard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="?attr/actionIconClipboardChecked"
         android:layout_centerInParent="true"
+        android:clickable="false"
         android:contentDescription="@string/clipboard"
-        android:clickable="false" 
-        android:visibility="gone"
-        />
+        android:src="?attr/actionIconClipboardChecked"
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/content_check"
@@ -23,10 +21,10 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_gravity="center"
-    	android:paddingTop="6dp"
-    	android:paddingRight="6dp"
+        android:clickable="false"
         android:contentDescription="@string/s_menu_multi"
-        android:src="?attr/checkboxButtonOff"
-        android:clickable="false" 
-        />
+        android:paddingRight="6dp"
+        android:paddingTop="6dp"
+        android:src="?attr/checkboxButtonOff" />
+
 </RelativeLayout>

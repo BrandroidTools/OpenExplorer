@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:checked="true"
-    android:textAppearance="@style/Large"
-    android:text="test"
     android:gravity="center_vertical"
     android:padding="4dip"
-/>
+    android:text="test"
+    android:textAppearance="@style/Large" />

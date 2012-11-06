@@ -1,45 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-	android:title="@string/s_pref_servers">
-	<ListPreference
-	    android:key="server_type"
-	    android:title="@string/s_pref_server_type"
-	    android:entries="@array/server_types"
-	    android:entryValues="@array/server_types_values"
-	    />
-	<EditTextPreference
-		android:key="server_host"
-		android:title="@string/s_pref_server_host"
-		android:summary="@string/s_pref_server_url_summary"
-		/>
-	<EditTextPreference
-	    android:key="server_dir"
-	    android:title="@string/s_pref_server_path"
-	    android:summary="@string/s_pref_server_path_summary"
-	    />
-	<EditTextPreference
-		android:key="server_user"
-		android:title="@string/s_pref_server_user"
-		android:summary="@string/s_pref_server_user_summary"
-		/>
-	<EditTextPreference
-		android:key="server_password"
-		android:title="@string/s_pref_server_password"
-		android:summary="@string/s_pref_server_password_summary"
-		android:password="true"
-		/>
-	<EditTextPreference
-	    android:key="server_name"
-	    android:title="@string/s_pref_server_name"
-	    android:summary="@string/s_pref_server_name_summary"
-	    />
-	<EditTextPreference
-	    android:key="server_port"
-	    android:title="@string/s_pref_server_port" 
-	    />
-	<PreferenceScreen
-	    android:key="server_update"
-	    android:title="@string/s_pref_server_update"
-	    />
-	<Preference android:key="server_delete" android:title="@string/s_menu_delete" />
+    android:title="@string/s_pref_servers" >
+
+    <ListPreference
+        android:entries="@array/server_types"
+        android:entryValues="@array/server_types_values"
+        android:key="server_type"
+        android:title="@string/s_pref_server_type" />
+
+    <EditTextPreference
+        android:key="server_host"
+        android:summary="@string/s_pref_server_url_summary"
+        android:title="@string/s_pref_server_host" />
+    <EditTextPreference
+        android:key="server_dir"
+        android:summary="@string/s_pref_server_path_summary"
+        android:title="@string/s_pref_server_path" />
+    <EditTextPreference
+        android:key="server_user"
+        android:summary="@string/s_pref_server_user_summary"
+        android:title="@string/s_pref_server_user" />
+    <EditTextPreference
+        android:key="server_password"
+        android:password="true"
+        android:summary="@string/s_pref_server_password_summary"
+        android:title="@string/s_pref_server_password" />
+    <EditTextPreference
+        android:key="server_name"
+        android:summary="@string/s_pref_server_name_summary"
+        android:title="@string/s_pref_server_name" />
+    <EditTextPreference
+        android:key="server_port"
+        android:title="@string/s_pref_server_port" />
+
+    <PreferenceScreen
+        android:key="server_update"
+        android:title="@string/s_pref_server_update" />
+
+    <Preference
+        android:key="server_delete"
+        android:title="@string/s_menu_delete" />
+
 </PreferenceScreen>

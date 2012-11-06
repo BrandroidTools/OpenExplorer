@@ -18,44 +18,39 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-public class RemoteImageView extends ImageView
-{
-	public RemoteImageView(Context context)
-	{
-		super(context);
-	}
-	public RemoteImageView(Context context, AttributeSet attrs)
-	{
-		this(context, attrs, 0);
-	}
+public class RemoteImageView extends ImageView {
+    public RemoteImageView(Context context) {
+        super(context);
+    }
+
+    public RemoteImageView(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
     public RemoteImageView(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-	}
+        super(context, attrs, defStyle);
+    }
 
-	private OurCallback fCallback;
+    private OurCallback fCallback;
 
-    private static class OurCallback implements Cache.Callback
-    {
+    private static class OurCallback implements Cache.Callback {
         private RemoteImageView pThis;
 
-        OurCallback(RemoteImageView r)
-        {
+        OurCallback(RemoteImageView r) {
             pThis = r;
         }
 
-        public void onImageLoaded(OpenPath url, Bitmap bitmap)
-        {
-        	if (pThis != null) {
+        public void onImageLoaded(OpenPath url, Bitmap bitmap) {
+            if (pThis != null) {
                 Drawable newPic = new BitmapDrawable(bitmap);
                 ImageUtils.fadeToDrawable(pThis, newPic);
                 pThis.invalidate();
                 pThis.fCallback = null; // our callback ended; remove reference
-            } //else Logger.LogWarning("Nothing to load into!");
+            } // else Logger.LogWarning("Nothing to load into!");
         }
 
-        public void onFailure(OpenPath path, Exception th)
-        {
-        	//Logger.LogError("pewp!", th);
+        public void onFailure(OpenPath path, Exception th) {
+            // Logger.LogError("pewp!", th);
             // Ignoring for now. Could display broken link image
             if (pThis != null) {
                 pThis.fCallback = null; // our callback ended; remove reference
@@ -64,16 +59,15 @@ public class RemoteImageView extends ImageView
 
         @Override
         public OpenApp getApp() {
-        	return ((OpenApp)pThis.getContext());
+            return ((OpenApp)pThis.getContext());
         }
     }
-    
-    public void setImageFromFile(OpenPath path, int mWidth, int mHeight)
-    {
-    	Logger.LogDebug("RemoteImageView.setImageFromFile(" + path.getPath() + ", " + mWidth + ", " + mHeight);
+
+    public void setImageFromFile(OpenPath path, int mWidth, int mHeight) {
+        Logger.LogDebug("RemoteImageView.setImageFromFile(" + path.getPath() + ", " + mWidth + ", "
+                + mHeight);
         fCallback = new OurCallback(this);
         Cache.get().getImage(path, mWidth, mHeight, fCallback).start();
     }
-
 
 }

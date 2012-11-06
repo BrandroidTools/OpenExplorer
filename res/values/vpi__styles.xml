@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2011 Jake Wharton
+<!--
+     Copyright (C) 2011 Jake Wharton
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,13 +16,14 @@
 -->
 
 <resources>
+
     <style name="Theme.PageIndicatorDefaults" parent="android:Theme">
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
         <item name="vpiTabPageIndicatorStyle">@style/Widget.TabPageIndicator</item>
         <item name="vpiTabTextStyle">@style/Widget.TabPageIndicator.Text</item>
     </style>
-    
+
     <style name="Widget"></style>
 
     <style name="Widget.CirclePageIndicator" parent="Widget">
@@ -51,7 +53,7 @@
         <item name="topPadding">@dimen/default_title_indicator_top_padding</item>
         <item name="android:ellipsize">end</item>
     </style>
-    
+
     <style name="Widget.TabPageIndicator" parent="Widget">
         <item name="android:gravity">center_horizontal|bottom</item>
         <item name="android:background">@drawable/vpi__tab_indicator</item>
@@ -60,6 +62,7 @@
         <item name="android:paddingTop">4dp</item>
         <item name="android:paddingBottom">4dp</item>
     </style>
+
     <style name="Widget.TabPageIndicator.Text" parent="Widget">
         <item name="android:textAppearance">@style/TextAppearance.TabPageIndicator</item>
         <item name="android:textColor">@color/vpi__dark_theme</item>
@@ -67,8 +70,7 @@
         <item name="android:textStyle">bold</item>
         <item name="android:maxLines">1</item>
     </style>
-    
-    <style name="TextAppearance.TabPageIndicator" parent="Widget">
-        
-    </style>
+
+    <style name="TextAppearance.TabPageIndicator" parent="Widget"></style>
+
 </resources>

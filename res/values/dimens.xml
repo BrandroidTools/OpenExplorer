@@ -11,10 +11,11 @@
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License.
-  -->
+  limitations under the License.
+-->
 
 <resources>
+
     <dimen name="actionbar_compat_height">48dp</dimen>
     <dimen name="actionbar_compat_button_width">48dp</dimen>
     <dimen name="actionbar_compat_button_home_width">72dip</dimen>
@@ -41,4 +42,5 @@
     <dimen name="text_size_medium">12dp</dimen>
     <dimen name="text_size_large">16dp</dimen>
     <dimen name="content_padding">8dp</dimen>
+
 </resources>

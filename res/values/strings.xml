@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
     <string name="app_name">Open Explorer Beta</string>
     <string name="app_title">OEβ</string>
     <string name="s_search">Search</string>
@@ -275,7 +276,7 @@
     <string name="lockscreen_password_wrong">Sorry, try again</string>
     <string name="whichApplication">Complete action using</string>
     <string name="noApplications">No applications can perform this action.</string>
-    <string name="report">Report</string> 
+    <string name="report">Report</string>
     <string name="sim_restart_button">Restart</string>
     <string name="extmedia_format_button_format">Format</string>
     <string name="ext_media_nofs_notification_message" product="nosdcard">USB storage blank or has unsupported filesystem.</string>
@@ -345,10 +346,10 @@
     <string name="s_pref_thumbs_cache_clear">Clear Thumbnail Cache</string>
     <string name="s_msg_folder_none">Folder unable to be created</string>
     <string name="s_menu_donate">Donate</string>
-    
+
     <plurals name="num_selected">
         <item quantity="one">One file selected</item>
         <item quantity="other"><xliff:g id="count">%d</xliff:g> files selected</item>
     </plurals>
-    
+
 </resources>

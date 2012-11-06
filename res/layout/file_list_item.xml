@@ -12,7 +12,7 @@
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
-     limitations under the License.
+     limitations under the License.
 -->
 
 <!--
@@ -20,129 +20,123 @@
     in normal mode. To be able to get the correct measurements, every source field should
     be populated with data here. E.g:
     - Text View should set text to a random long string (android:text="@string/long_string")
-    - Image View should set source to a specific asset
+    - Image View should set source to a specific asset
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical" >
+
     <LinearLayout
+        android:id="@+id/item_wrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-	    android:orientation="horizontal"
-	    android:layout_toLeftOf="@+id/content_right"
-	    android:id="@+id/item_wrapper"
-	    android:padding="4dp"
-	    android:paddingRight="0dp"
-	    android:baselineAligned="false" >
+        android:layout_toLeftOf="@+id/content_right"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        android:paddingRight="0dp" >
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        >
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" >
 
-        <org.brandroid.openmanager.views.RemoteImageView
-            android:id="@+id/content_icon"
-            style="@style/icon.small"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:paddingLeft="4dp"
-            android:paddingRight = "8dp" />
-    </RelativeLayout>
+            <org.brandroid.openmanager.views.RemoteImageView
+                android:id="@+id/content_icon"
+                style="@style/icon.small"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:paddingLeft="4dp"
+                android:paddingRight="8dp" />
+        </RelativeLayout>
 
-    <!--
+        <!--
          No top padding, since the color chips have no padding -
-         individual children should set their own top margins
-    -->
+         individual children should set their own top margins
+        -->
 
-    <RelativeLayout
-        android:layout_width="0dip"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_gravity="center_vertical">
-        
-        <View
-            android:id="@+id/color_chip"
-            android:layout_width="35dp"
-            android:layout_height="6dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true" />
-        
-        <FrameLayout
-            android:id="@+id/checkmark_area_wrapper"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignBottom="@+id/content_info"
-            >
-        	<include
-        	    android:layout_gravity="right|top"
-	    		layout="@layout/checkmark_area" />
-       	</FrameLayout>
-        
-        <TextView
-            android:id="@+id/content_text"
-            style="@style/Large"
-            android:layout_height="wrap_content"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_toLeftOf="@+id/checkmark_area_wrapper"
-            android:layout_toRightOf="@+id/content_icon"
-            android:layout_alignParentTop="true"
-            android:paddingTop="2dip"
-            android:paddingBottom="4dip"
-            android:text="@string/filename" />
+        <RelativeLayout
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/content_info"
-            style="@style/Small"
-            android:layout_width="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_below="@+id/content_text"
-            android:ellipsize="none"
-            android:gravity="left"
-            android:singleLine="true"
-            android:text="2 files | 0 B" />
-        
-        <TextView
-            android:id="@+id/content_date"
-            style="@style/Small"
-            android:layout_width="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/content_info"
-            android:layout_marginLeft="8dp"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_below="@+id/content_text"
-            android:ellipsize="none"
-            android:gravity="right"
-            android:singleLine="true"
-            android:text="6/14/2012" />
+            <View
+                android:id="@+id/color_chip"
+                android:layout_width="35dp"
+                android:layout_height="6dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true" />
 
-    </RelativeLayout>
+            <FrameLayout
+                android:id="@+id/checkmark_area_wrapper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/content_info"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true" >
 
+                <include
+                    android:layout_gravity="right|top"
+                    layout="@layout/checkmark_area" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/content_text"
+                style="@style/Large"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_toLeftOf="@+id/checkmark_area_wrapper"
+                android:layout_toRightOf="@+id/content_icon"
+                android:paddingBottom="4dip"
+                android:paddingTop="2dip"
+                android:text="@string/filename" />
+
+            <TextView
+                android:id="@+id/content_info"
+                style="@style/Small"
+                android:layout_width="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_below="@+id/content_text"
+                android:ellipsize="none"
+                android:gravity="left"
+                android:singleLine="true"
+                android:text="2 files | 0 B" />
+
+            <TextView
+                android:id="@+id/content_date"
+                style="@style/Small"
+                android:layout_width="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_below="@+id/content_text"
+                android:layout_marginLeft="8dp"
+                android:layout_toRightOf="@+id/content_info"
+                android:ellipsize="none"
+                android:gravity="right"
+                android:singleLine="true"
+                android:text="6/14/2012" />
+        </RelativeLayout>
     </LinearLayout>
-    
+
     <View
+        android:id="@+id/content_right"
         android:layout_width="1dp"
         android:layout_height="10dp"
-        android:layout_alignParentTop="true"
         android:layout_alignBottom="@+id/content_bottom"
-        android:id="@+id/content_right"
-        android:background="?attr/appDividerColor"
-        android:layout_marginLeft="3dp"
         android:layout_alignParentRight="true"
-        /> 
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="3dp"
+        android:background="?attr/appDividerColor" />
 
     <View
-        android:layout_width="match_parent"
         android:id="@+id/content_bottom"
+        android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/appDividerColor"
         android:layout_below="@+id/item_wrapper"
-        />
-    
-</RelativeLayout>
+        android:background="?attr/appDividerColor" />
 
+</RelativeLayout>

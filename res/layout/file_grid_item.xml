@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<!-- 
+<?xml version="1.0" encoding="utf-8"?>
+<!--
 	Open Explorer, an open source file explorer & text editor
     Copyright (C) 2011 Brandon Bowles <brandroid64@gmail.com>
 	
@@ -15,7 +15,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- -->
+-->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -26,21 +26,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-    	android:background="@drawable/card_tag"
-        >
+        android:background="@drawable/card_tag" >
 
         <LinearLayout
+            android:id="@+id/content_icon_frame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center" 
-            android:id="@+id/content_icon_frame"
-            >
+            android:gravity="center" >
 
-        <org.brandroid.openmanager.views.RemoteImageView
-            android:id="@+id/content_icon"
-            style="@style/icon.grid"
-            android:src="@drawable/lg_folder_full" />
-
+            <org.brandroid.openmanager.views.RemoteImageView
+                android:id="@+id/content_icon"
+                style="@style/icon.grid"
+                android:src="@drawable/lg_folder_full" />
         </LinearLayout>
 
         <View
@@ -51,34 +48,33 @@
             android:layout_alignParentTop="true" />
 
         <include
-            layout="@layout/checkmark_area"
-            android:layout_alignTop="@id/content_icon"
             android:layout_alignLeft="@id/content_icon"
-		/>
+            android:layout_alignTop="@id/content_icon"
+            layout="@layout/checkmark_area" />
 
         <TextView
             android:id="@+id/content_text"
             style="@style/Large.Dim"
-            android:layout_alignTop="@+id/content_icon_frame"
-			android:background="@color/translucent_gray"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/content_icon_frame"
+            android:background="@color/translucent_gray"
             android:gravity="center"
-			android:text="Filename" />
+            android:text="Filename" />
 
         <TextView
             android:id="@+id/content_info"
             style="@style/Small.Dim"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-			android:background="@color/translucent_gray"
             android:layout_alignBottom="@+id/content_icon_frame"
             android:layout_alignLeft="@+id/content_icon_frame"
-            android:ellipsize="end"
             android:layout_marginLeft="5dp"
+            android:background="@color/translucent_gray"
+            android:ellipsize="end"
+            android:gravity="left"
             android:paddingLeft="2dp"
             android:paddingRight="2dp"
-            android:gravity="left"
             android:singleLine="true"
             android:text="2 files | 0 B"
             android:typeface="monospace" />
@@ -88,18 +84,17 @@
             style="@style/Small.Dim"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-			android:background="@color/translucent_gray"
             android:layout_alignBottom="@+id/content_icon_frame"
             android:layout_alignRight="@+id/content_icon_frame"
             android:layout_marginRight="5dp"
-            android:paddingLeft="2dp"
-            android:paddingRight="2dp"
+            android:background="@color/translucent_gray"
             android:ellipsize="none"
             android:gravity="right"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp"
             android:singleLine="true"
             android:text="6/14/2012"
             android:typeface="monospace" />
-
     </RelativeLayout>
 
 </LinearLayout>

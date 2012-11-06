@@ -25,13 +25,13 @@ import android.view.View;
 import android.view.Window.Callback;
 
 /**
- * The model for a sub menu, which is an extension of the menu.  Most methods are proxied to
- * the parent menu.
+ * The model for a sub menu, which is an extension of the menu. Most methods are
+ * proxied to the parent menu.
  */
 public class SubMenuBuilderNew extends MenuBuilderNew implements SubMenu {
     private MenuBuilderNew mParentMenu;
     private MenuItemImplNew mItem;
-    
+
     public SubMenuBuilderNew(Context context, MenuBuilderNew parentMenu, MenuItemImplNew item) {
         super(context);
 
@@ -39,25 +39,25 @@ public class SubMenuBuilderNew extends MenuBuilderNew implements SubMenu {
         mItem = item;
     }
 
-    //@Override
+    // @Override
     public void setQwertyMode(boolean isQwerty) {
         mParentMenu.setQwertyMode(isQwerty);
     }
 
-    //@Override
+    // @Override
     public boolean isQwertyMode() {
         return mParentMenu.isQwertyMode();
     }
-    
-    //@Override
+
+    // @Override
     public void setShortcutsVisible(boolean shortcutsVisible) {
         // TODO mParentMenu.setShortcutsVisible(shortcutsVisible);
     }
 
-    //@Override
+    // @Override
     public boolean isShortcutsVisible() {
-    	// TODO return mParentMenu.isShortcutsVisible();
-    	return false;
+        // TODO return mParentMenu.isShortcutsVisible();
+        return false;
     }
 
     public Menu getParentMenu() {
@@ -68,21 +68,21 @@ public class SubMenuBuilderNew extends MenuBuilderNew implements SubMenu {
         return mItem;
     }
 
-    //@Override
+    // @Override
     public void setCallback(Callback callback) {
-    	// TODO mParentMenu.setCallback(callback);
+        // TODO mParentMenu.setCallback(callback);
     }
 
-    //@Override
+    // @Override
     public MenuBuilderNew getRootMenu() {
         return mParentMenu;
     }
 
-    //@Override
+    // @Override
     boolean dispatchMenuItemSelected(MenuBuilderNew menu, MenuItem item) {
-    	// TODO return super.dispatchMenuItemSelected(menu, item) ||
-                //mParentMenu.dispatchMenuItemSelected(menu, item);
-    	return false;
+        // TODO return super.dispatchMenuItemSelected(menu, item) ||
+        // mParentMenu.dispatchMenuItemSelected(menu, item);
+        return false;
     }
 
     public SubMenu setIcon(Drawable icon) {
@@ -96,46 +96,47 @@ public class SubMenuBuilderNew extends MenuBuilderNew implements SubMenu {
     }
 
     public SubMenu setHeaderIcon(Drawable icon) {
-    	return null; // TODO return (SubMenu)super.setHeaderIconInt(icon);
+        return null; // TODO return (SubMenu)super.setHeaderIconInt(icon);
     }
 
     public SubMenu setHeaderIcon(int iconRes) {
-    	return null; // TODO return (SubMenu) super.setHeaderIconInt(iconRes);
+        return null; // TODO return (SubMenu) super.setHeaderIconInt(iconRes);
     }
 
     public SubMenu setHeaderTitle(CharSequence title) {
-    	return null; // TODO return (SubMenu) super.setHeaderTitleInt(title);
+        return null; // TODO return (SubMenu) super.setHeaderTitleInt(title);
     }
 
     public SubMenu setHeaderTitle(int titleRes) {
-    	return null; // TODO return (SubMenu) super.setHeaderTitleInt(titleRes);
+        return null; // TODO return (SubMenu) super.setHeaderTitleInt(titleRes);
     }
 
     public SubMenu setHeaderView(View view) {
-    	return null; // TODO return (SubMenu) super.setHeaderViewInt(view);
+        return null; // TODO return (SubMenu) super.setHeaderViewInt(view);
     }
 
-    //@Override
+    // @Override
     public boolean expandItemActionView(MenuItemImplNew item) {
-    	return false; // TODO return mParentMenu.expandItemActionView(item);
+        return false; // TODO return mParentMenu.expandItemActionView(item);
     }
 
-    //@Override
+    // @Override
     public boolean collapseItemActionView(MenuItemImplNew item) {
-    	return false; // TODO return mParentMenu.collapseItemActionView(item);
+        return false; // TODO return mParentMenu.collapseItemActionView(item);
     }
 
-    //@Override
+    // @Override
     public String getActionViewStatesKey() {
         final int itemId = mItem != null ? mItem.getItemId() : 0;
         if (itemId == 0) {
             return null;
         }
-        return null; // TODO return super.getActionViewStatesKey() + ":" + itemId;
+        return null; // TODO return super.getActionViewStatesKey() + ":" +
+                     // itemId;
     }
 
-	public void clearHeader() {
-		// TODO Auto-generated method stub
-		
-	}
+    public void clearHeader() {
+        // TODO Auto-generated method stub
+
+    }
 }
