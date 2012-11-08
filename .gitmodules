@@ -1,4 +1,4 @@
 [submodule "ActionBarSherlock"]
 path = ActionBarSherlock
-url = https://github.com/JakeWharton/ActionBarSherlock
+url = git@github.com:BrandroidTools/ActionBarSherlock.git
 ignore = dirty

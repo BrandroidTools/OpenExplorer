@@ -128,7 +128,9 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
         if (DFInfo.LoadDF().containsKey(getPath()))
             return (long)(DFInfo.LoadDF().get(getPath()).getSize() - DFInfo.LoadDF().get(getPath())
                     .getFree());
-        return mFile.getUsableSpace();
+        else if(Build.VERSION.SDK_INT > 8)
+            return mFile.getUsableSpace();
+        else return 0;
     }
 
     public long getTotalSpace() {

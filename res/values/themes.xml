@@ -2,8 +2,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="AppTheme.Dark" parent="@style/Theme.Sherlock">
 		
-        <item name="absForceOverflow">true</item>
-
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
         <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
@@ -84,7 +82,6 @@
     
     <style name="AppTheme.Light" parent="@style/Theme.Sherlock.Light">
 		
-        <item name="absForceOverflow">true</item>
 
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
@@ -166,7 +163,6 @@
     
     <style name="AppTheme.LightAndDark" parent="Theme.Sherlock.Light.DarkActionBar">
         
-        <item name="absForceOverflow">true</item>
 
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
@@ -248,7 +244,6 @@
     
     <style name="AppTheme.Custom" parent="Theme.Sherlock.Light.DarkActionBar">
         
-        <item name="absForceOverflow">true</item>
 
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>

@@ -89,7 +89,7 @@ public class EventHandler {
     }
 
     public static boolean SHOW_NOTIFICATION_STATUS = !OpenExplorer.isBlackBerry()
-            && Build.VERSION.SDK_INT > 9;
+            && Build.VERSION.SDK_INT >= 8;
 
     private static NotificationManager mNotifier = null;
     private static int EventCount = 0;
@@ -776,7 +776,8 @@ public class EventHandler {
                 style.setBigContentTitle(getOperation() + " " + mCurrentPath.getName());
                 mBuilder.setStyle(style);
                 if (Build.VERSION.SDK_INT < 11) {
-                    RemoteViews noteView = mNote.contentView;
+                    RemoteViews noteView = new RemoteViews(mContext.getPackageName(),
+                            R.layout.notification);
                     noteView.setTextViewText(android.R.id.title, getTitle());
                     noteView.setTextViewText(android.R.id.text2, getSubtitle());
                     noteView.setTextViewText(android.R.id.text1, getLastRate());
