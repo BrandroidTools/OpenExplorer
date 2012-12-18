@@ -2,3 +2,7 @@
 path = ActionBarSherlock
 url = git@github.com:BrandroidTools/ActionBarSherlock.git
 ignore = dirty
+[submodule "SlidingMenu"]
+path = SlidingMenu
+url = git://github.com/BrandroidTools/SlidingMenu.git
+ignore = dirty

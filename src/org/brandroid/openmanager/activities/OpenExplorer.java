@@ -18,99 +18,7 @@
 
 package org.brandroid.openmanager.activities;
 
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.net.NetworkInfo.State;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.StatFs;
-import android.provider.MediaStore;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.SearchManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.DialogInterface.OnClickListener;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.content.res.XmlResourceParser;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteException;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentManager.BackStackEntry;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.support.v4.widget.SearchViewCompat;
-import android.support.v4.widget.SearchViewCompat.OnQueryTextListenerCompat;
-import android.text.InputType;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.method.PasswordTransformationMethod;
-import android.text.method.SingleLineTransformationMethod;
-import android.text.style.ForegroundColorSpan;
-import android.util.DisplayMetrics;
-import android.util.SparseArray;
-import android.view.ContextMenu;
-import android.view.Display;
-import android.view.Gravity;
-import android.view.InflateException;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.View.OnFocusChangeListener;
-import android.view.View.OnKeyListener;
-import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.ViewGroup.LayoutParams;
-import android.view.ViewStub;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.BaseAdapter;
-import android.widget.CheckBox;
-import android.widget.CheckedTextView;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.ExpandableListView;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.PopupMenu;
-import android.widget.PopupWindow.OnDismissListener;
-import android.widget.TextView;
-import android.widget.TextView.BufferType;
-import android.widget.Toast;
-
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -123,14 +31,14 @@ import java.util.concurrent.RejectedExecutionException;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.ArrayPagerAdapter;
+import org.brandroid.openmanager.adapters.ArrayPagerAdapter.OnPageTitleClickListener;
+import org.brandroid.openmanager.adapters.IconContextMenu;
+import org.brandroid.openmanager.adapters.IconContextMenu.IconContextItemSelectedListener;
+import org.brandroid.openmanager.adapters.IconContextMenuAdapter;
 import org.brandroid.openmanager.adapters.OpenBookmarks;
 import org.brandroid.openmanager.adapters.OpenClipboard;
-import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
-import org.brandroid.openmanager.adapters.ArrayPagerAdapter.OnPageTitleClickListener;
-import org.brandroid.openmanager.adapters.IconContextMenu.IconContextItemSelectedListener;
 import org.brandroid.openmanager.adapters.OpenClipboard.OnClipboardUpdateListener;
-import org.brandroid.openmanager.adapters.IconContextMenu;
-import org.brandroid.openmanager.adapters.IconContextMenuAdapter;
+import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
 import org.brandroid.openmanager.data.OpenCursor;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenMediaStore;
@@ -141,15 +49,15 @@ import org.brandroid.openmanager.data.OpenPathMerged;
 import org.brandroid.openmanager.data.OpenSFTP;
 import org.brandroid.openmanager.data.OpenSmartFolder;
 import org.brandroid.openmanager.data.OpenSmartFolder.SmartSearch;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.fragments.ContentFragment;
+import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.fragments.LogViewerFragment;
 import org.brandroid.openmanager.fragments.OpenFragment;
-import org.brandroid.openmanager.fragments.OperationsFragment;
 import org.brandroid.openmanager.fragments.OpenFragment.OnFragmentDPADListener;
 import org.brandroid.openmanager.fragments.OpenFragment.OnFragmentTitleLongClickListener;
 import org.brandroid.openmanager.fragments.OpenFragment.Poppable;
 import org.brandroid.openmanager.fragments.OpenPathFragmentInterface;
+import org.brandroid.openmanager.fragments.OperationsFragment;
 import org.brandroid.openmanager.fragments.SearchResultsFragment;
 import org.brandroid.openmanager.fragments.TextEditorFragment;
 import org.brandroid.openmanager.interfaces.OpenApp;
@@ -157,12 +65,11 @@ import org.brandroid.openmanager.util.BetterPopupWindow;
 import org.brandroid.openmanager.util.EventHandler;
 import org.brandroid.openmanager.util.EventHandler.EventType;
 import org.brandroid.openmanager.util.EventHandler.OnWorkerUpdateListener;
-import org.brandroid.openmanager.util.MimeTypes;
-import org.brandroid.openmanager.util.OpenInterfaces.OnBookMarkChangeListener;
-import org.brandroid.openmanager.util.MimeTypeParser;
-import org.brandroid.openmanager.util.OpenInterfaces;
-import org.brandroid.openmanager.util.RootManager;
 import org.brandroid.openmanager.util.FileManager;
+import org.brandroid.openmanager.util.MimeTypeParser;
+import org.brandroid.openmanager.util.MimeTypes;
+import org.brandroid.openmanager.util.OpenInterfaces;
+import org.brandroid.openmanager.util.OpenInterfaces.OnBookMarkChangeListener;
 import org.brandroid.openmanager.util.ShellSession;
 import org.brandroid.openmanager.util.SimpleHostKeyRepo;
 import org.brandroid.openmanager.util.SimpleUserInfo;
@@ -182,11 +89,105 @@ import org.brandroid.utils.Preferences;
 import org.brandroid.utils.SubmitStatsTask;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
+import org.xmlpull.v1.XmlPullParserException;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.SearchManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.content.res.XmlResourceParser;
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.StatFs;
+import android.provider.MediaStore;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager.BackStackEntry;
+import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.text.InputType;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.method.PasswordTransformationMethod;
+import android.text.method.SingleLineTransformationMethod;
+import android.text.style.ForegroundColorSpan;
+import android.util.DisplayMetrics;
+import android.util.SparseArray;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.InflateException;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnFocusChangeListener;
+import android.view.View.OnKeyListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.ViewStub;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.CheckedTextView;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
+import android.widget.ExpandableListView;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.PopupWindow.OnDismissListener;
+import android.widget.TextView;
+import android.widget.TextView.BufferType;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
-import com.actionbarsherlock.view.*;
+import com.actionbarsherlock.view.ActionMode;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
+import com.actionbarsherlock.view.SubMenu;
 import com.actionbarsherlock.widget.SearchView;
 import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
 import com.android.gallery3d.data.DataManager;
@@ -197,13 +198,12 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.jcraft.jsch.JSchException;
 import com.stericson.RootTools.RootTools;
 import com.viewpagerindicator.TabPageIndicator;
-import org.xmlpull.v1.XmlPullParserException;
 
 @SuppressLint("NewApi")
 public class OpenExplorer extends OpenFragmentActivity implements OnBackStackChangedListener,
-        OnClipboardUpdateListener, OnWorkerUpdateListener, OnPageTitleClickListener,
-        LoaderCallbacks<Cursor>, OnPageChangeListener, OpenApp, IconContextItemSelectedListener,
-        OnKeyListener, OnFragmentDPADListener, OnFocusChangeListener {
+OnClipboardUpdateListener, OnWorkerUpdateListener, OnPageTitleClickListener,
+LoaderCallbacks<Cursor>, OnPageChangeListener, OpenApp, IconContextItemSelectedListener,
+OnKeyListener, OnFragmentDPADListener, OnFocusChangeListener {
 
     // Action Bar Menu Variables
     private Menu mMainOptionsMenu;
@@ -297,10 +297,10 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
     private final static OpenCursor mPhotoParent = new OpenCursor("Photos",
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI), mVideoParent = new OpenCursor("Videos",
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI), mMusicParent = new OpenCursor("Music",
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI), mApkParent = new OpenCursor("Apps",
-            BEFORE_HONEYCOMB ? Uri.fromFile(OpenFile.getExternalMemoryDrive(true).getFile())
-                    : MediaStore.Files.getContentUri("/mnt"));
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI), mMusicParent = new OpenCursor("Music",
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI), mApkParent = new OpenCursor("Apps",
+                                    BEFORE_HONEYCOMB ? Uri.fromFile(OpenFile.getExternalMemoryDrive(true).getFile())
+                                            : MediaStore.Files.getContentUri("/mnt"));
     private final static OpenSmartFolder mVideoSearchParent = new OpenSmartFolder("Videos"),
             mPhotoSearchParent = new OpenSmartFolder("Photos"),
             mDownloadParent = new OpenSmartFolder("Downloads");
@@ -351,6 +351,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             final Context atc = getApplicationContext();
 
             queueToTracker(new Runnable() {
+                @Override
                 public void run() {
                     getAnalyticsTracker().startNewSession(ga, atc);
                 }
@@ -387,6 +388,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         onClipboardUpdate();
     }
 
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         if (IS_DEBUG_BUILD)
             Logger.LogVerbose("OpenExplorer.onCreate");
@@ -456,10 +458,10 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             } catch (InflateException e) {
                 Logger.LogWarning("Couldn't set up ActionBar custom view", e);
             }
-            if (mTwoRowTitle)
-                setTitle(R.string.app_name);
-        } else
+            if (mTwoRowTitle) setTitle(R.string.app_name);
+        } else {
             USE_ACTION_BAR = false;
+        }
 
         OpenFile.setTempFileRoot(new OpenFile(getFilesDir()).getChild("temp"));
         setupLoggingDb();
@@ -476,10 +478,10 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         try {
             upgradeViewSettings();
         } catch (Exception e) {
+            //TODO catch exception properly
         }
-        // try {
+
         showWarnings();
-        // } catch(Exception e) { }
 
         mEvHandler.setUpdateListener(this);
 
@@ -508,10 +510,10 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
         setViewVisibility(false, false, R.id.title_paste, R.id.title_ops, R.id.title_log);
         setOnClicks(R.id.title_ops, // R.id.menu_global_ops_icon,
-                                    // R.id.menu_global_ops_text,
+                // R.id.menu_global_ops_text,
                 R.id.title_log, R.id.title_icon_holder, R.id.title_paste_icon
-        // ,R.id.title_sort, R.id.title_view, R.id.title_up
-        );
+                // ,R.id.title_sort, R.id.title_view, R.id.title_up
+                );
         checkTitleSeparator();
         // IconContextMenu.clearInstances();
 
@@ -549,6 +551,41 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
         Logger.LogDebug("Pager inflated");
 
+        /*        // check if the content frame contains the menu frame
+        if (findViewById(R.id.menu_frame) == null) {
+            setBehindContentView(R.layout.menu_frame);
+            getSlidingMenu().setSlidingEnabled(true);
+            getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+            // show home as up so we can toggle
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        } else {
+            // add a dummy view
+            View v = new View(this);
+            setBehindContentView(v);
+            getSlidingMenu().setSlidingEnabled(false);
+            getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+        }
+
+        // set the Above View Fragment
+        if (savedInstanceState != null)
+            mContent = getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
+        if (mContent == null)
+            mContent = new BirdGridFragment(0);
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, mContent)
+        .commit();
+
+        // set the Behind View Fragment
+        getSupportFragmentManager().beginTransaction()
+        .replace(R.id.menu_frame, new BirdMenuFragment()).commit();
+
+        // customize the SlidingMenu
+        SlidingMenu sm = getSlidingMenu();
+        sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        sm.setShadowWidthRes(R.dimen.shadow_width);
+        sm.setShadowDrawable(R.drawable.shadow);
+        sm.setBehindScrollScale(0.25f);
+        sm.setFadeDegree(0.25f);*/
+
         if (fragmentManager == null) {
             fragmentManager = getSupportFragmentManager();
             fragmentManager.addOnBackStackChangedListener(this);
@@ -579,7 +616,6 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
         ft.commit();
 
-        // invalidateOptionsMenu();
         initBookmarkDropdown();
 
         // handleMediaReceiver();
@@ -622,7 +658,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         else
             Preferences.Is_Nook = false;
         Preferences.getPreferences("warn").edit().putBoolean("isNook", Preferences.Is_Nook)
-                .commit();
+        .commit();
         return Preferences.Is_Nook;
     }
 
@@ -631,23 +667,23 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             if (!getPreferences().getBoolean("warn", "nook_donate", false)) {
                 DialogHandler.showMultiButtonDialog(this, getString(R.string.msg_nook_donate),
                         "Hello Nook user!", new OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                switch (which) {
-                                    case R.string.s_no:
-                                        getPreferences().setSetting("warn", "nook_donate", true);
-                                        break;
-                                    case R.string.s_cancel:
-                                        break;
-                                    default:
-                                        getPreferences().setSetting("warn", "nook_donate", true);
-                                        launchDonation(OpenExplorer.this);
-                                        break;
-                                }
-                                if (dialog != null)
-                                    dialog.dismiss();
-                            }
-                        }, R.string.s_menu_donate, R.string.s_no, R.string.s_cancel);
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case R.string.s_no:
+                                getPreferences().setSetting("warn", "nook_donate", true);
+                                break;
+                            case R.string.s_cancel:
+                                break;
+                            default:
+                                getPreferences().setSetting("warn", "nook_donate", true);
+                                launchDonation(OpenExplorer.this);
+                                break;
+                        }
+                        if (dialog != null)
+                            dialog.dismiss();
+                    }
+                }, R.string.s_menu_donate, R.string.s_no, R.string.s_cancel);
             }
         }
     }
@@ -657,23 +693,23 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             if (!getPreferences().getBoolean("warn", "rim_donate", false)) {
                 DialogHandler.showMultiButtonDialog(getContext(),
                         getString(R.string.msg_bb_donate), Build.BRAND, new OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                switch (which) {
-                                    case R.string.s_no:
-                                        getPreferences().setSetting("warn", "rim_donate", true);
-                                        break;
-                                    case R.string.s_cancel:
-                                        break;
-                                    default:
-                                        getPreferences().setSetting("warn", "rim_donate", true);
-                                        launchDonation(OpenExplorer.this);
-                                        break;
-                                }
-                                if (dialog != null)
-                                    dialog.dismiss();
-                            }
-                        }, R.string.s_menu_donate, R.string.s_no, R.string.s_cancel);
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case R.string.s_no:
+                                getPreferences().setSetting("warn", "rim_donate", true);
+                                break;
+                            case R.string.s_cancel:
+                                break;
+                            default:
+                                getPreferences().setSetting("warn", "rim_donate", true);
+                                launchDonation(OpenExplorer.this);
+                                break;
+                        }
+                        if (dialog != null)
+                            dialog.dismiss();
+                    }
+                }, R.string.s_menu_donate, R.string.s_no, R.string.s_cancel);
             }
         }
     }
@@ -718,6 +754,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
     private void requestRoot() {
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 if (RootTools.isAccessGiven())
                     try {
@@ -732,6 +769,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
     private void exitRoot() {
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 try {
                     RootTools.closeAllShells();
@@ -748,6 +786,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         Preferences.Warn_Networking = getPreferences().getSetting("warn", "networking", false);
         SimpleUserInfo.setInteractionCallback(new UserInfoInteractionCallback() {
 
+            @Override
             public boolean promptPassword(String message) {
                 String mPassword = null;
                 View view = ((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE))
@@ -757,6 +796,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 final EditText text1 = ((EditText)view.findViewById(android.R.id.text1));
                 final CheckBox checkpw = (CheckBox)view.findViewById(android.R.id.checkbox);
                 checkpw.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+                    @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (isChecked) {
                             text1.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
@@ -769,22 +809,22 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 });
 
                 AlertDialog dlg = new AlertDialog.Builder(c)
-                        .setTitle(R.string.s_prompt_password)
-                        .setView(view)
-                        .setPositiveButton(android.R.string.yes,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        String mPassword = text1.getText().toString();
-                                        onPasswordEntered(mPassword);
-                                        onYesNoAnswered(true);
-                                    }
-                                }).setNegativeButton(android.R.string.no, new OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                onYesNoAnswered(false);
-                            }
-                        }).create();
+                .setTitle(R.string.s_prompt_password)
+                .setView(view)
+                .setPositiveButton(android.R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String mPassword = text1.getText().toString();
+                        onPasswordEntered(mPassword);
+                        onYesNoAnswered(true);
+                    }
+                }).setNegativeButton(android.R.string.no, new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        onYesNoAnswered(false);
+                    }
+                }).create();
                 dlg.show();
                 return true;
             }
@@ -865,6 +905,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         try {
             // if(!Thread.currentThread().equals(UiThread))
             mViewPager.post(new Runnable() {
+                @Override
                 public void run() {
                     if (mViewPager.getCurrentItem() != page)
                         mViewPager.setCurrentItem(page, smooth);
@@ -932,6 +973,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         if (from != null) {
             if (showIContextMenu(menu, from, fromTouch) == null) {
                 from.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                    @Override
                     public void onCreateContextMenu(ContextMenu cmenu, View v,
                             ContextMenuInfo menuInfo) {
                         // MenuUtils.transferMenu(menu, cmenu, false);
@@ -1070,7 +1112,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 setCurrentItem(mViewPagerAdapter.getCount() - 1, true);
             } else {
                 getSupportFragmentManager().beginTransaction().replace(R.id.content_frag, srf)
-                        .commit();
+                .commit();
             }
         } else if ((Intent.ACTION_VIEW.equals(intent.getAction()) || Intent.ACTION_EDIT
                 .equals(intent.getAction())) && intent.getData() != null) {
@@ -1237,8 +1279,8 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             if (IS_DEBUG_BUILD)
                 Logger.LogDebug("Setting up ViewPager");
             mViewPagerAdapter = // new PagerTabsAdapter(this, mViewPager,
-                                // indicator);
-            new ArrayPagerAdapter(this, mViewPager);
+                    // indicator);
+                    new ArrayPagerAdapter(this, mViewPager);
 
             mViewPagerAdapter.setOnPageTitleClickListener(this);
             setViewPageAdapter(mViewPagerAdapter, true);
@@ -1333,7 +1375,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             a.startActivity(intent);
         } else if (a.findViewById(R.id.frag_log) != null) {
             ((FragmentActivity)a).getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.frag_log, web).addToBackStack("trans").commit();
+            .replace(R.id.frag_log, web).addToBackStack("trans").commit();
             a.findViewById(R.id.frag_log).setVisibility(View.VISIBLE);
             LayoutParams lp = a.findViewById(R.id.frag_log).getLayoutParams();
             lp.width = a.getResources().getDimensionPixelSize(R.dimen.bookmarks_width) * 2;
@@ -1354,27 +1396,28 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             int msg = checkLanguage() == 1 ? R.string.alert_translate_google
                     : R.string.alert_translate_none;
             new AlertDialog.Builder(OpenExplorer.this)
-                    .setCancelable(true)
-                    .setMessage(getString(msg, Locale.getDefault().getDisplayLanguage()))
-                    .setNeutralButton("Use English", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            setLanguage(getContext(), "en");
-                            goHome();
-                        }
-                    })
-                    .setPositiveButton(R.string.button_translate,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    launchTranslator(OpenExplorer.this);
-                                }
-                            })
-                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            getPreferences().setSetting("warn", "translate", true);
-                        }
-                    }).create().show();
+            .setCancelable(true)
+            .setMessage(getString(msg, Locale.getDefault().getDisplayLanguage()))
+            .setNeutralButton("Use English", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    setLanguage(getContext(), "en");
+                    goHome();
+                }
+            })
+            .setPositiveButton(R.string.button_translate,
+                    new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    launchTranslator(OpenExplorer.this);
+                }
+            })
+            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    getPreferences().setSetting("warn", "translate", true);
+                }
+            }).create().show();
             // }});
         }
     }
@@ -1534,7 +1577,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         if (mStaticButtons == null && USE_ACTION_BAR && mBar != null
                 && mBar.getCustomView() != null)
             mStaticButtons = (ViewGroup)mBar.getCustomView()
-                    .findViewById(R.id.title_static_buttons);
+            .findViewById(R.id.title_static_buttons);
         if (mStaticButtons == null) {
             Logger.LogWarning("Unable to find Title Separator");
             return;
@@ -1545,12 +1588,13 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 R.id.title_paste, R.id.title_log, R.id.title_ops
         })
             if (mStaticButtons.findViewById(id) != null
-                    && mStaticButtons.findViewById(id).getVisibility() == View.VISIBLE)
+            && mStaticButtons.findViewById(id).getVisibility() == View.VISIBLE)
                 visible = true;
 
         ViewUtils.setViewsVisible(mStaticButtons, visible, R.id.title_divider);
     }
 
+    @Override
     public void sendToLogView(final String txt, final int color) {
         try {
 
@@ -1571,8 +1615,9 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                     Fragment fl = fragmentManager.findFragmentById(R.id.frag_log);
                     if (!(fl instanceof LogViewerFragment))
                         fragmentManager.beginTransaction().replace(R.id.frag_log, mLogFragment)
-                                .disallowAddToBackStack().commitAllowingStateLoss();
+                        .disallowAddToBackStack().commitAllowingStateLoss();
                     logview.post(new Runnable() {
+                        @Override
                         public void run() {
                             logview.setVisibility(View.VISIBLE);
                         }
@@ -1632,6 +1677,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         EventHandler.execute(new SubmitStatsTask(this), logs);
         // } else Logger.LogWarning("Logs not found.");
         queueToTracker(new Runnable() {
+            @Override
             public void run() {
                 getAnalyticsTracker().dispatch();
             }
@@ -1645,6 +1691,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         }
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
+            @Override
             public void run() {
                 Logger.LogDebug("Check " + retries + " for " + path);
                 try {
@@ -1663,8 +1710,8 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 } catch (Throwable e) {
                     Logger.LogWarning("Couldn't read " + path);
                     handleRefreshMedia(path, true, retries - 1); // retry again
-                                                                 // in 1/2
-                                                                 // second
+                    // in 1/2
+                    // second
                 }
             }
         }, 1000);
@@ -1706,7 +1753,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
+    public void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         if (IS_DEBUG_BUILD)
             Logger.LogDebug("OpenExplorer.onPostCreate");
@@ -1733,10 +1780,12 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             unregisterReceiver(storageReceiver);
     }
 
+    @Override
     public ActionMode getActionMode() {
         return mActionMode;
     }
 
+    @Override
     public void setActionMode(ActionMode mode) {
         mActionMode = mode;
         mViewPager.setLocked(mActionMode != null);
@@ -1746,6 +1795,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         mViewPager.setLocked(locked);
     }
 
+    @Override
     public OpenClipboard getClipboard() {
         if (mClipboard == null)
             mClipboard = new OpenClipboard(this);
@@ -1805,6 +1855,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 mVideosMerged.addParent(mVideoSearchParent);
                 getSupportLoaderManager().initLoader(0, null, this);
                 new Thread(new Runnable() {
+                    @Override
                     public void run() {
                         if (mHasExternal)
                             for (OpenPath kid : extDrive.list())
@@ -1853,6 +1904,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 mPhotosMerged.addParent(mPhotoSearchParent);
                 getSupportLoaderManager().initLoader(1, null, this);
                 new Thread(new Runnable() {
+                    @Override
                     public void run() {
                         if (mHasExternal)
                             for (OpenPath kid : extDrive.list())
@@ -1915,6 +1967,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         }
         if (!mDownloadParent.isLoaded()) {
             new Thread(new Runnable() {
+                @Override
                 public void run() {
                     if (mHasExternal)
                         for (OpenPath kid : extDrive.list())
@@ -1952,10 +2005,10 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     public void ensureCursorCache() {
         // findCursors();
         if (mRunningCursorEnsure
-        // || mLastCursorEnsure == 0
-        // || new Date().getTime() - mLastCursorEnsure < 10000 // at least 10
-        // seconds
-        ) {
+                // || mLastCursorEnsure == 0
+                // || new Date().getTime() - mLastCursorEnsure < 10000 // at least 10
+                // seconds
+                ) {
             if (IS_DEBUG_BUILD)
                 Logger.LogVerbose("Skipping ensureCursorCache");
             return;
@@ -2079,6 +2132,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     /**
      * Refresh list of bookmarks.
      */
+    @Override
     public void refreshBookmarks() {
         if (IS_DEBUG_BUILD)
             Logger.LogVerbose("refreshBookmarks()");
@@ -2212,6 +2266,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             if (frag instanceof TextEditorFragment)
                 ((TextEditorFragment)frag).setSalvagable(false);
             mViewPager.post(new Runnable() {
+                @Override
                 public void run() {
                     int cp = mViewPager.getCurrentItem();
                     mViewPagerAdapter.remove(frag);
@@ -2262,7 +2317,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             fragmentManager.beginTransaction().replace(R.id.content_frag, editor)
 
             // .addToBackStack(null)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
         // addTab(editor, path.getName(), true);
         return true;
     }
@@ -2388,42 +2443,43 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     private void handleSearchMenu(Menu menu) {
         final MenuItem mSearch = menu.findItem(R.id.menu_search) != null ? menu
                 .findItem(R.id.menu_search) : menu.add(Menu.FIRST, R.id.menu_search, Menu.NONE,
-                R.string.s_search).setIcon(
-                getContext().getResources().getDrawable(
-                        getThemedResourceId(R.styleable.AppTheme_actionIconSearch,
-                                R.drawable.ic_action_search)));
+                        R.string.s_search).setIcon(
+                                getContext().getResources().getDrawable(
+                                        getThemedResourceId(R.styleable.AppTheme_actionIconSearch,
+                                                R.drawable.ic_action_search)));
 
-        final SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
-        searchView.setQueryHint(getString(R.string.s_search_files));
-        searchView.setIconifiedByDefault(true);
-        searchView.setOnQueryTextListener(new OnQueryTextListener() {
+                final SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
+                searchView.setQueryHint(getString(R.string.s_search_files));
+                searchView.setIconifiedByDefault(true);
+                searchView.setOnQueryTextListener(new OnQueryTextListener() {
 
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                Logger.LogVerbose("QUERY: " + query);
-                searchView.clearFocus();
-                mSearch.collapseActionView();
-                searchView.setIconified(true);
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_SEARCH);
-                Bundle appData = new Bundle();
-                appData.putString("path", getDirContentFragment(false).getPath().getPath());
-                intent.putExtra(SearchManager.APP_DATA, appData);
-                intent.putExtra(SearchManager.QUERY, query);
-                handleIntent(intent);
-                return true;
-            }
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        Logger.LogVerbose("QUERY: " + query);
+                        searchView.clearFocus();
+                        mSearch.collapseActionView();
+                        searchView.setIconified(true);
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_SEARCH);
+                        Bundle appData = new Bundle();
+                        appData.putString("path", getDirContentFragment(false).getPath().getPath());
+                        intent.putExtra(SearchManager.APP_DATA, appData);
+                        intent.putExtra(SearchManager.QUERY, query);
+                        handleIntent(intent);
+                        return true;
+                    }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                // TODO Auto-generated method stub
-                return false;
-            }
-        });
-        mSearch.setActionView(searchView).setShowAsAction(
-                MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        // TODO Auto-generated method stub
+                        return false;
+                    }
+                });
+                mSearch.setActionView(searchView).setShowAsAction(
+                        MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
     }
 
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
         // MenuUtils.setMenuChecked(menu, USE_SPLIT_ACTION_BAR,
@@ -2445,14 +2501,14 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 int i = 0;
                 for (final OpenPath item : getClipboard().getAll()) {
                     sub.add(Menu.CATEGORY_CONTAINER, i++, i, item.getName()).setCheckable(true)
-                            .setChecked(true)
-                            .setOnMenuItemClickListener(new OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(MenuItem menuitem) {
-                                    getClipboard().remove(item);
-                                    return true;
-                                }
-                            }).setIcon(ThumbnailCreator.getDefaultResourceId(item, 32, 32));
+                    .setChecked(true)
+                    .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem menuitem) {
+                            getClipboard().remove(item);
+                            return true;
+                        }
+                    }).setIcon(ThumbnailCreator.getDefaultResourceId(item, 32, 32));
                 }
             }
         }
@@ -2464,6 +2520,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         return super.onPrepareOptionsMenu(menu);
     }
 
+    @Override
     @SuppressLint("ParserError")
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item == null)
@@ -2546,8 +2603,9 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                                 R.string.s_confirm_delete,
                                 getClipboard().getCount() + " "
                                         + getResources().getString(R.string.s_files)),
-                        getResources().getString(R.string.s_menu_delete_all),
-                        new DialogInterface.OnClickListener() { // yes
+                                        getResources().getString(R.string.s_menu_delete_all),
+                                        new DialogInterface.OnClickListener() { // yes
+                            @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 getEventHandler().deleteFile(getClipboard(), OpenExplorer.this,
                                         false);
@@ -2633,11 +2691,11 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         DialogHandler.showConfirmationDialog(this, getString(R.string.s_alert_exit),
                 getString(R.string.s_menu_exit), getPreferences(), "exit",
                 new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                });
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
     }
 
     @Override
@@ -2715,7 +2773,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             } else if (isVis) {
                 Logger.LogDebug("OpenExplorer.showLogFrag : Adding " + frag.getTitle());
                 fragmentManager.beginTransaction().replace(R.id.frag_log, frag)
-                        .disallowAddToBackStack().commitAllowingStateLoss();
+                .disallowAddToBackStack().commitAllowingStateLoss();
                 ViewUtils.setViewsVisible(frag_log, true);
             } else {
                 Logger.LogDebug("OpenExplorer.showLogFrag : Showing " + frag.getTitle());
@@ -2747,6 +2805,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         final ListView mListClipboard = (ListView)root.findViewById(R.id.multiselect_item_list);
         mListClipboard.setAdapter(getClipboard());
         mListClipboard.setOnItemClickListener(new OnItemClickListener() {
+            @Override
             public void onItemClick(AdapterView<?> list, View view, final int pos, long id) {
                 // OpenPath file = mClipboard.get(pos);
                 // if(file.getParent().equals(mLastPath))
@@ -2757,6 +2816,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 // anim.setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
                 view.startAnimation(anim);
                 new Handler().postDelayed(new Runnable() {
+                    @Override
                     public void run() {
                         getClipboard().remove(pos);
                         getClipboard().notifyDataSetChanged();
@@ -2774,6 +2834,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         cmdAdapter.setTextLayout(R.layout.context_item);
         mGridCommands.setAdapter(cmdAdapter);
         mGridCommands.setOnItemClickListener(new OnItemClickListener() {
+            @Override
             public void onItemClick(AdapterView<?> list, View view, int pos, long id) {
                 MenuItem item = menu.getItem(pos);
                 if (!onOptionsItemSelected(item))
@@ -2823,12 +2884,12 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 cf.onViewChanged(newView);
             invalidateOptionsMenu();
         } else if (oldView == VIEW_CAROUSEL && newView != VIEW_CAROUSEL && CAN_DO_CAROUSEL) { // if
-                                                                                              // we
-                                                                                              // need
-                                                                                              // to
-                                                                                              // transition
-                                                                                              // from
-                                                                                              // carousel
+            // we
+            // need
+            // to
+            // transition
+            // from
+            // carousel
             if (IS_DEBUG_BUILD)
                 Logger.LogDebug("Switching from carousel!");
             if (mViewPagerEnabled) {
@@ -2838,14 +2899,14 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 changePath(getCurrentPath(), false, true);
             } else {
                 fragmentManager
-                        .beginTransaction()
-                        .replace(
-                                R.id.content_frag,
-                                ContentFragment.getInstance(getCurrentPath(), mViewMode,
-                                        getSupportFragmentManager()))
-                        .setBreadCrumbTitle(getCurrentPath().getPath())
-                        // .addToBackStack(null)
-                        .commit();
+                .beginTransaction()
+                .replace(
+                        R.id.content_frag,
+                        ContentFragment.getInstance(getCurrentPath(), mViewMode,
+                                getSupportFragmentManager()))
+                                .setBreadCrumbTitle(getCurrentPath().getPath())
+                                // .addToBackStack(null)
+                                .commit();
                 updateTitle(getCurrentPath().getPath());
             }
 
@@ -2906,6 +2967,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         return super.onKeyUp(keyCode, event);
     }
 
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Logger.LogDebug("OpenExplorer.onActivityResult(" + requestCode + ", " + resultCode + ", "
                 + (data != null ? data.toString() : "null") + ")");
@@ -2982,6 +3044,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         super.onBackPressed();
     }
 
+    @Override
     public void onBackStackChanged() {
         int i = fragmentManager.getBackStackEntryCount();
         final Boolean isBack = i < mLastBackIndex;
@@ -3090,7 +3153,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 Logger.LogVerbose("First changePath to " + path.getPath());
             if (mStateReady && (last == null || !last.equalsIgnoreCase(path.getPath()))) {
                 fragmentManager.beginTransaction().setBreadCrumbTitle(path.getPath())
-                        .addToBackStack("path").commitAllowingStateLoss();
+                .addToBackStack("path").commitAllowingStateLoss();
             }
         }
         final OpenFragment cf = ContentFragment.getInstance(path, newView,
@@ -3138,7 +3201,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             }
 
             setViewPageAdapter(mViewPagerAdapter, false); // DONE: Sped up app
-                                                          // considerably!
+            // considerably!
 
             int index = vpaPaths.indexOf(path);
             if (index >= 0)
@@ -3221,6 +3284,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         }
     }
 
+    @Override
     public void onChangeLocation(OpenPath path) {
         changePath(path, true, false);
     }
@@ -3325,6 +3389,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         return sPath2;
     }
 
+    @Override
     public boolean onLongClick(View v) {
         switch (v.getId()) {
             case R.id.title_icon_holder:
@@ -3418,6 +3483,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             return null;
     }
 
+    @Override
     public void onClipboardUpdate() {
         if (getClipboard().size() == mLastClipSize)
             return;
@@ -3468,13 +3534,14 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 });
             if (parent == null)
                 parent = new OpenPathArray(new OpenPath[] {
-                    path
+                        path
                 });
             ArrayList<OpenPath> arr = new ArrayList<OpenPath>();
             for (OpenPath kid : parent.list())
                 if ((path.equals(kid) || kid.isDirectory()) && !kid.isHidden())
                     arr.add(kid);
             Collections.sort(arr, new Comparator<OpenPath>() {
+                @Override
                 public int compare(OpenPath a, OpenPath b) {
                     return a.getName().compareTo(b.getName());
                 }
@@ -3568,14 +3635,14 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                         MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                         // Uri.parse("content://media/external/video/media"),
                         bRetrieveExtraVideoDetails ? new String[] {
-                                "_id", "_display_name", "_data", "_size", "date_modified",
-                                MediaStore.Video.VideoColumns.RESOLUTION,
-                                MediaStore.Video.VideoColumns.DURATION
-                        } : new String[] {
-                                "_id", "_display_name", "_data", "_size", "date_modified"
-                        }, MediaStore.Video.Media.SIZE + " > 10000", null,
-                        MediaStore.Video.Media.BUCKET_DISPLAY_NAME + " ASC, "
-                                + MediaStore.Video.Media.DATE_MODIFIED + " DESC");
+                    "_id", "_display_name", "_data", "_size", "date_modified",
+                    MediaStore.Video.VideoColumns.RESOLUTION,
+                    MediaStore.Video.VideoColumns.DURATION
+                } : new String[] {
+                            "_id", "_display_name", "_data", "_size", "date_modified"
+                    }, MediaStore.Video.Media.SIZE + " > 10000", null,
+                    MediaStore.Video.Media.BUCKET_DISPLAY_NAME + " ASC, "
+                            + MediaStore.Video.Media.DATE_MODIFIED + " DESC");
                 if (bRetrieveExtraVideoDetails)
                     try {
                         loader.loadInBackground();
@@ -3589,16 +3656,16 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 loader = new CursorLoader(getApplicationContext(),
                         Uri.parse("content://media/external/images/media"),
                         bRetrieveDimensionsForPhotos ? // It seems that < 2.3.3
-                                                       // don't have width &
-                                                       // height
-                        new String[] {
-                                "_id", "_display_name", "_data", "_size", "date_modified", "width",
-                                "height"
-                        }
-                                : new String[] {
-                                        "_id", "_display_name", "_data", "_size", "date_modified"
-                                }, MediaStore.Images.Media.SIZE + " > 10000", null,
-                        MediaStore.Images.Media.DATE_ADDED + " DESC");
+                                // don't have width &
+                                // height
+                                new String[] {
+                    "_id", "_display_name", "_data", "_size", "date_modified", "width",
+                    "height"
+                }
+                : new String[] {
+                            "_id", "_display_name", "_data", "_size", "date_modified"
+                    }, MediaStore.Images.Media.SIZE + " > 10000", null,
+                    MediaStore.Images.Media.DATE_ADDED + " DESC");
                 if (bRetrieveDimensionsForPhotos) {
                     try {
                         loader.loadInBackground();
@@ -3612,18 +3679,18 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             case 2: // music
                 loader = new CursorLoader(getApplicationContext(),
                         Uri.parse("content://media/external/audio/media"), new String[] {
-                                "_id", "_display_name", "_data", "_size", "date_modified",
-                                MediaStore.Audio.AudioColumns.DURATION
-                        }, MediaStore.Audio.Media.SIZE + " > 10000", null,
-                        MediaStore.Audio.Media.DATE_ADDED + " DESC");
+                    "_id", "_display_name", "_data", "_size", "date_modified",
+                    MediaStore.Audio.AudioColumns.DURATION
+                }, MediaStore.Audio.Media.SIZE + " > 10000", null,
+                MediaStore.Audio.Media.DATE_ADDED + " DESC");
                 break;
             case 3: // apks
                 if (bRetrieveCursorFiles)
                     loader = new CursorLoader(getApplicationContext(),
                             MediaStore.Files.getContentUri(OpenFile.getExternalMemoryDrive(true)
                                     .getParent().getPath()), new String[] {
-                                    "_id", "_display_name", "_data", "_size", "date_modified"
-                            }, "_size > 10000 AND _data LIKE '%apk'", null, "date modified DESC");
+                        "_id", "_display_name", "_data", "_size", "date_modified"
+                    }, "_size > 10000 AND _data LIKE '%apk'", null, "date modified DESC");
                 break;
         }
 
@@ -3703,12 +3770,13 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 OpenPath path = ((OpenPathFragmentInterface)f).getPath();
                 ThumbnailCreator.setThumbnail(this, icon, path, 96, 96,
                         new OnUpdateImageListener() {
-                            public void updateImage(Bitmap b) {
-                                BitmapDrawable bd = new BitmapDrawable(getResources(), b);
-                                bd.setGravity(Gravity.CENTER);
-                                icon.setImageDrawable(bd);
-                            }
-                        });
+                    @Override
+                    public void updateImage(Bitmap b) {
+                        BitmapDrawable bd = new BitmapDrawable(getResources(), b);
+                        bd.setGravity(Gravity.CENTER);
+                        icon.setImageDrawable(bd);
+                    }
+                });
             }
             if (Build.VERSION.SDK_INT < 14)
                 icon.setImageDrawable(d);
@@ -3722,6 +3790,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
     public void notifyPager() {
         mViewPager.post(new Runnable() {
+            @Override
             public void run() {
                 mViewPager.notifyDataSetChanged();
             }
@@ -3767,6 +3836,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         return super.getContext();
     }
 
+    @Override
     public ShellSession getShellSession() {
         return getOpenApplication().getShellSession();
     }
@@ -3837,6 +3907,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         return false;
     }
 
+    @Override
     public boolean onFragmentDPAD(OpenFragment frag, boolean toRight) {
         int pos = mViewPagerAdapter.getItemPosition(frag);
         Logger.LogDebug("onFragmentDPAD(" + pos + "," + (toRight ? "RIGHT" : "LEFT") + ")");

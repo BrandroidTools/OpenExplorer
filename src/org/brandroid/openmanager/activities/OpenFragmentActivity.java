@@ -3,8 +3,6 @@ package org.brandroid.openmanager.activities;
 
 import java.net.URL;
 import java.util.Locale;
-import java.util.Properties;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import jcifs.smb.ServerMessageBlock;
 import jcifs.smb.SmbComReadAndX;
@@ -18,11 +16,6 @@ import org.brandroid.openmanager.interfaces.OpenContextProvider;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.LoggerDbAdapter;
 import org.brandroid.utils.Preferences;
-import com.actionbarsherlock.ActionBarSherlock;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuInflater;
-import com.jcraft.jsch.JSch;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -31,13 +24,17 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-public abstract class OpenFragmentActivity extends SherlockFragmentActivity implements
-        View.OnClickListener, View.OnLongClickListener, OpenContextProvider {
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuInflater;
+import com.jcraft.jsch.JSch;
+import com.slidingmenu.lib.app.SlidingSherlockFragmentActivity;
+
+public abstract class OpenFragmentActivity extends SlidingSherlockFragmentActivity implements
+View.OnClickListener, View.OnLongClickListener, OpenContextProvider {
     // public static boolean CONTENT_FRAGMENT_FREE = true;
     // public boolean isFragmentValid = true;
     public static Thread UiThread = Thread.currentThread();
@@ -58,6 +55,7 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
         Logger.LogDebug(getClassName() + ".onAttachToWindow()");
     }
 
+    @Override
     public void onClick(View v) {
         if (DEBUG)
             Logger.LogDebug(getClassName() + ".onClick(0x" + Integer.toHexString(v.getId())
@@ -73,6 +71,7 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
         return false;
     }
 
+    @Override
     public boolean onLongClick(View v) {
         if (DEBUG)
             Logger.LogDebug("View onLongClick(0x" + Integer.toHexString(v.getId()) + ") - "
@@ -144,47 +143,56 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
             return getWindowManager().getDefaultDisplay().getWidth();
     }
 
+    @Override
     public Preferences getPreferences() {
         if (mPreferences == null)
             mPreferences = new Preferences(getApplicationContext());
         return mPreferences;
     }
 
+    @Override
     public String getSetting(OpenPath file, String key, String defValue) {
         return getPreferences().getSetting(file == null ? "global" : "views",
                 key + (file != null ? "_" + file.getPath() : ""), defValue);
     }
 
+    @Override
     public Boolean getSetting(OpenPath file, String key, Boolean defValue) {
         return getPreferences().getSetting(file == null ? "global" : "views",
                 key + (file != null ? "_" + file.getPath() : ""), defValue);
     }
 
+    @Override
     public Integer getSetting(OpenPath file, String key, Integer defValue) {
         return getPreferences().getSetting(file == null ? "global" : "views",
                 key + (file != null ? "_" + file.getPath() : ""), defValue);
     }
 
+    @Override
     public Float getSetting(OpenPath file, String key, Float defValue) {
         return getPreferences().getSetting(file == null ? "global" : "views",
                 key + (file != null ? "_" + file.getPath() : ""), defValue);
     }
 
+    @Override
     public void setSetting(OpenPath file, String key, String value) {
         getPreferences().setSetting(file == null ? "global" : "views",
                 key + (file != null ? "_" + file.getPath() : ""), value);
     }
 
+    @Override
     public void setSetting(OpenPath file, String key, Boolean value) {
         getPreferences().setSetting(file == null ? "global" : "views",
                 key + (file != null ? "_" + file.getPath() : ""), value);
     }
 
+    @Override
     public void setSetting(OpenPath file, String key, Integer value) {
         getPreferences().setSetting(file == null ? "global" : "views",
                 key + (file != null ? "_" + file.getPath() : ""), value);
     }
 
+    @Override
     public void setSetting(OpenPath file, String key, Float value) {
         getPreferences().setSetting(file == null ? "global" : "views",
                 key + (file != null ? "_" + file.getPath() : ""), value);
@@ -202,6 +210,7 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
         setSetting("global", globalKey, value);
     }
 
+    @Override
     public void setSetting(String file, String key, Boolean value) {
         getPreferences().setSetting(file, key, value);
     }
@@ -231,6 +240,7 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
         showToast(message, Toast.LENGTH_LONG);
     }
 
+    @Override
     public void showToast(final int iStringResource) {
         showToast(getResources().getString(iStringResource));
     }
@@ -238,6 +248,7 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
     public void showToast(final CharSequence message, final int toastLength) {
         Logger.LogInfo("Made toast: " + message);
         runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 Toast.makeText(getBaseContext(), message, toastLength).show();
             }
@@ -286,8 +297,8 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
                 if (message.startsWith("PASS "))
                     message = "PASS " + message.substring(6).replaceAll(".", "*");
                 sendToLogView("Command: " + message.replace("\n", ""), Color.BLACK); // +
-                                                                                     // getFTPString(file),
-                                                                                     // Color.BLACK);
+                // getFTPString(file),
+                // Color.BLACK);
             }
 
             private String getFTPString(FTP file) {
