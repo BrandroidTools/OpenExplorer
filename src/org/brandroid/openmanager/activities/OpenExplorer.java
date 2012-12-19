@@ -438,7 +438,7 @@ OnKeyListener, OnFragmentDPADListener, OnFocusChangeListener {
 
         mBar = getSupportActionBar();
 
-        if (findViewById(R.id.content_pager_indicator_frame) != null) {
+        if (((Activity)this).findViewById(R.id.content_pager_indicator_frame) != null) {
             mTwoRowTitle = true;
             setTitle(R.string.app_name);
         }
@@ -571,6 +571,7 @@ OnKeyListener, OnFragmentDPADListener, OnFocusChangeListener {
 
         mLogFragment = new LogViewerFragment();
 
+        fragmentManager = getSupportFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
         // set the Above View Fragment
