@@ -49,6 +49,7 @@ import org.brandroid.openmanager.data.OpenPathMerged;
 import org.brandroid.openmanager.data.OpenSFTP;
 import org.brandroid.openmanager.data.OpenSmartFolder;
 import org.brandroid.openmanager.data.OpenSmartFolder.SmartSearch;
+import org.brandroid.openmanager.fragments.BookmarkFragment;
 import org.brandroid.openmanager.fragments.ContentFragment;
 import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.fragments.LogViewerFragment;
@@ -196,6 +197,7 @@ import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.jcraft.jsch.JSchException;
+import com.slidingmenu.lib.SlidingMenu;
 import com.stericson.RootTools.RootTools;
 import com.viewpagerindicator.TabPageIndicator;
 
@@ -266,8 +268,8 @@ OnKeyListener, OnFragmentDPADListener, OnFocusChangeListener {
     private int mLastClipSize = -1;
     private boolean mLastClipState = false;
     public static boolean DEBUG_TOGGLE = false;
-    // private ActionBarHelper mActionBarHelper = null;
 
+    private Fragment mContent;
     private static LogViewerFragment mLogFragment = null;
     private static OperationsFragment mOpsFragment = null;
     private static boolean mLogViewEnabled = true;
@@ -458,7 +460,8 @@ OnKeyListener, OnFragmentDPADListener, OnFocusChangeListener {
             } catch (InflateException e) {
                 Logger.LogWarning("Couldn't set up ActionBar custom view", e);
             }
-            if (mTwoRowTitle) setTitle(R.string.app_name);
+            if (mTwoRowTitle)
+                setTitle(R.string.app_name);
         } else {
             USE_ACTION_BAR = false;
         }
@@ -470,7 +473,7 @@ OnKeyListener, OnFragmentDPADListener, OnFocusChangeListener {
         setupFilesDb();
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_fragments);
+        setContentView(R.layout.responsive_content_frame); //changed from main_fragments
         if (Build.VERSION.SDK_INT < 11)
             getWindow().setBackgroundDrawableResource(
                     themeDark ? R.drawable.background_holo_dark : R.drawable.background_holo_light);
@@ -478,7 +481,7 @@ OnKeyListener, OnFragmentDPADListener, OnFocusChangeListener {
         try {
             upgradeViewSettings();
         } catch (Exception e) {
-            //TODO catch exception properly
+            // TODO catch exception properly
         }
 
         showWarnings();
@@ -551,7 +554,7 @@ OnKeyListener, OnFragmentDPADListener, OnFocusChangeListener {
 
         Logger.LogDebug("Pager inflated");
 
-        /*        // check if the content frame contains the menu frame
+        // check if the content frame contains the menu frame
         if (findViewById(R.id.menu_frame) == null) {
             setBehindContentView(R.layout.menu_frame);
             getSlidingMenu().setSlidingEnabled(true);
@@ -566,35 +569,17 @@ OnKeyListener, OnFragmentDPADListener, OnFocusChangeListener {
             getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
         }
 
-        // set the Above View Fragment
-        if (savedInstanceState != null)
-            mContent = getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
-        if (mContent == null)
-            mContent = new BirdGridFragment(0);
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, mContent)
-        .commit();
-
-        // set the Behind View Fragment
-        getSupportFragmentManager().beginTransaction()
-        .replace(R.id.menu_frame, new BirdMenuFragment()).commit();
-
-        // customize the SlidingMenu
-        SlidingMenu sm = getSlidingMenu();
-        sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-        sm.setShadowWidthRes(R.dimen.shadow_width);
-        sm.setShadowDrawable(R.drawable.shadow);
-        sm.setBehindScrollScale(0.25f);
-        sm.setFadeDegree(0.25f);*/
-
-        if (fragmentManager == null) {
-            fragmentManager = getSupportFragmentManager();
-            fragmentManager.addOnBackStackChangedListener(this);
-        }
-
         mLogFragment = new LogViewerFragment();
 
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
+        // set the Above View Fragment
+        //        if (savedInstanceState != null)
+        //            mContent = getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
+        //        if (mContent == null)
+        //            mContent = new BirdGridFragment(0);
+        //        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, mContent)
+        //        .commit();
         Logger.LogDebug("Creating with " + path.getPath());
         if (path instanceof OpenFile)
             EventHandler.execute(new PeekAtGrandKidsTask(), path);
@@ -613,6 +598,28 @@ OnKeyListener, OnFragmentDPADListener, OnFocusChangeListener {
             restoreOpenedEditors();
         } else
             Logger.LogWarning("Nothing to show?!");
+
+
+        // set the Behind View Fragment
+        getSupportFragmentManager().beginTransaction()
+        .replace(R.id.menu_frame, new BookmarkFragment()).commit();
+
+        // customize the SlidingMenu
+        SlidingMenu sm = getSlidingMenu();
+        sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        sm.setShadowWidthRes(R.dimen.shadow_width);
+        sm.setShadowDrawable(R.drawable.shadow);
+        sm.setBehindScrollScale(0.25f);
+        sm.setFadeDegree(0.25f);
+
+        //        if (fragmentManager == null) {
+        //            fragmentManager = getSupportFragmentManager();
+        //            fragmentManager.addOnBackStackChangedListener(this);
+        //        }
+
+
+
+
 
         ft.commit();
 

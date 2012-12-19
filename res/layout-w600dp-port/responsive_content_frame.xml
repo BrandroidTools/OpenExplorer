@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:baselineAligned="false" >
+
+    <FrameLayout
+        android:id="@+id/menu_frame"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="2" >
+
+        <FrameLayout
+            android:id="@+id/content_pager_indicator_frame"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:background="?attr/pagerBackground" >
+
+            <com.viewpagerindicator.TabPageIndicator
+                android:id="@+id/content_pager_indicator"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+
+        <RelativeLayout
+            android:id="@+id/list_frag_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/content_pager_indicator_frame" >
+
+            <FrameLayout
+                android:id="@+id/content_frag"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <ViewStub
+                android:id="@+id/content_pager_frame_stub"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout="@layout/viewpager" />
+        </RelativeLayout>
+    </RelativeLayout>
+</LinearLayout>
