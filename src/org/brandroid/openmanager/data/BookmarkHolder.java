@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.brandroid.openmanager.data;
 
@@ -31,133 +31,179 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class BookmarkHolder {
-	private RemoteImageView mIcon;
-	private ImageView mEject;
-	private TextView mMainText, mInfo, mPath, mSizeText;
-	private View mParentView;
-	private String sTitle;
-	private String sPath;
-	private OpenPath mFile;
-	//private ThumbnailTask mTask;
-	private int mode;
-	
-	public BookmarkHolder(String path, View view, int mode) {
-		this(new OpenFile(path), getTitleFromPath(path), view, mode);
-	}
-	public BookmarkHolder(OpenPath path, String title, final View view, int mode)
-	{
-		mParentView = view;
-		sPath = path.getPath();
-		mFile = path;
-		ensureViews();
-		this.mode = mode;
-		//mIndicate = (ImageView)view.findViewById(R.id.)
-		setTitle(title);
-	}
-	
-	public int getMode() { return mode; }
-	
-	private void ensureViews()
-	{
-		if(mIcon == null)
-			mIcon = (RemoteImageView)mParentView.findViewById(R.id.content_icon);
-		if(mMainText == null)
-			mMainText = (TextView)mParentView.findViewById(R.id.content_text);
-		if(mEject == null)
-			mEject = (ImageView)mParentView.findViewById(R.id.eject);
-		if(mInfo == null)
-			mInfo = (TextView)mParentView.findViewById(R.id.content_info);
-		if(mPath == null && mPath instanceof TextView)
-			mPath = (TextView)mParentView.findViewById(R.id.content_fullpath);
-		if(mSizeText == null)
-			mSizeText = (TextView)mParentView.findViewById(R.id.size_text);
-	}
-	
-	public void hideViews(View... views)
-	{
-		for(View v : views)
-			if(v != null)
-				v.setVisibility(View.GONE);
-	}
-	
-	public OpenPath getOpenPath() { return mFile; } 
-	
-	public RemoteImageView getIconView() { ensureViews(); return mIcon; }
-	public void setIconResource(int res) { ensureViews(); if(mIcon != null) mIcon.setImageDrawable(mParentView.getResources().getDrawable(res)); }
-	public void setIconDrawable(Drawable d) { mIcon.setImageDrawable(d); }
-	
-	public void setEjectClickListener(View.OnClickListener listener)
-	{
-		if(mEject != null)
-			mEject.setOnClickListener(listener);
-	}
-	public void setEjectable(Boolean eject) {
-		if(mEject != null)
-			mEject.setVisibility(eject ? View.VISIBLE : View.GONE);
-	}
-	public Boolean isEjectable() {
-		String path = mFile.getPath().toLowerCase();
-		if(path.startsWith("/storage/") && (path.endsWith("sdcard1") || path.contains("usb"))) return true;
-		if(path.indexOf("ext") == -1 || !path.startsWith("/removable/")) return false;
-		if(mFile.getDepth() > 2 + (path.startsWith("/mnt/") ? 1 : 0))
-			return false;
-		return true;
-	}
-	
-	public void setSelected(Boolean sel)
-	{
-	}
-	
-	public String getPath() { return sPath; }
-	public void setPath(String path)
-	{
-		sPath = path;
-		if(mPath != null)
-			mPath.setText(path.substring(0, path.lastIndexOf("/")));
-	}
-	public String getTitle() { return sTitle; }
-	public void setTitle(String title) { setTitle(title, true); }
-	public void setTitle(String title, boolean permanent) {
-		if(mMainText != null)
-			mMainText.setText(title);
-		if(permanent)
-			sTitle = title;
-	}
-	public void hideTitle() { if(mMainText != null) mMainText.setVisibility(View.GONE); }
-	public void showTitle() { if(mMainText != null) mMainText.setVisibility(View.VISIBLE); }
-	public View getView() { return mParentView; }
-	public String getInfo() { return mInfo != null ? mInfo.getText().toString() : null; }
-	public void setInfo(String info) { if(mInfo != null) mInfo.setText(info); }
-	public void setSizeText(String txt) { if(mSizeText != null) mSizeText.setText(txt); }
-	
-	private static String getTitleFromPath(String path)
-	{
-		if(path != "/")
-		{
-			if(path.endsWith("/"))
-				path = path.substring(0, path.length() - 1);
-			path = path.substring(path.lastIndexOf("/") + 1);
-		}
-		return path;
-	}
-	public void showPath(Boolean visible) {
-		if(mPath != null)
-			mPath.setVisibility(visible ? View.VISIBLE : View.GONE);
-	}
-	/*public void setTask(ThumbnailTask task) {
-		mTask = task;
-	}*/
-	//public void cancelTask() { if(mTask!=null) mTask.cancel(true); }
-	
-	public Drawable getIcon(OpenApp app) {
-		if(getIconView() != null && getIconView().getDrawable() != null)
-			return getIconView().getDrawable();
-		if(mIcon != null && getOpenPath() != null)
-		{
-			Bitmap bmp = ThumbnailCreator.getThumbnailCache(app, getOpenPath(), ContentFragment.mListImageSize, ContentFragment.mListImageSize);
-			if(bmp != null)
-				return new BitmapDrawable(bmp);
-		}
-		return null;
-	}
+    private RemoteImageView mIcon;
+    private ImageView mEject;
+    private TextView mMainText, mInfo, mPath, mSizeText;
+    private View mParentView;
+    private String sTitle;
+    private String sPath;
+    private OpenPath mFile;
+    // private ThumbnailTask mTask;
+    private int mode;
+
+    public BookmarkHolder(String path, View view, int mode) {
+        this(new OpenFile(path), getTitleFromPath(path), view, mode);
+    }
+
+    public BookmarkHolder(OpenPath path, String title, final View view, int mode) {
+        mParentView = view;
+        sPath = path.getPath();
+        mFile = path;
+        ensureViews();
+        this.mode = mode;
+        // mIndicate = (ImageView)view.findViewById(R.id.)
+        setTitle(title);
+    }
+
+    public int getMode() {
+        return mode;
+    }
+
+    private void ensureViews() {
+        if (mIcon == null)
+            mIcon = (RemoteImageView)mParentView.findViewById(R.id.content_icon);
+        if (mMainText == null)
+            mMainText = (TextView)mParentView.findViewById(R.id.content_text);
+        if (mEject == null)
+            mEject = (ImageView)mParentView.findViewById(R.id.eject);
+        if (mInfo == null)
+            mInfo = (TextView)mParentView.findViewById(R.id.content_info);
+        if (mPath == null && mPath instanceof TextView)
+            mPath = (TextView)mParentView.findViewById(R.id.content_fullpath);
+        if (mSizeText == null)
+            mSizeText = (TextView)mParentView.findViewById(R.id.size_text);
+    }
+
+    public void hideViews(View... views) {
+        for (View v : views)
+            if (v != null)
+                v.setVisibility(View.GONE);
+    }
+
+    public OpenPath getOpenPath() {
+        return mFile;
+    }
+
+    public RemoteImageView getIconView() {
+        ensureViews();
+        return mIcon;
+    }
+
+    public void setIconResource(int res) {
+        ensureViews();
+        if (mIcon != null)
+            mIcon.setImageDrawable(mParentView.getResources().getDrawable(res));
+    }
+
+    public void setIconDrawable(Drawable d) {
+        mIcon.setImageDrawable(d);
+    }
+
+    public void setEjectClickListener(View.OnClickListener listener) {
+        if (mEject != null)
+            mEject.setOnClickListener(listener);
+    }
+
+    public void setEjectable(Boolean eject) {
+        if (mEject != null)
+            mEject.setVisibility(eject ? View.VISIBLE : View.GONE);
+    }
+
+    public Boolean isEjectable() {
+        String path = mFile.getPath().toLowerCase();
+        if (path.startsWith("/storage/") && (path.endsWith("sdcard1") || path.contains("usb")))
+            return true;
+        if (path.indexOf("ext") == -1 || !path.startsWith("/removable/"))
+            return false;
+        if (mFile.getDepth() > 2 + (path.startsWith("/mnt/") ? 1 : 0))
+            return false;
+        return true;
+    }
+
+    public void setSelected(Boolean sel) {
+    }
+
+    public String getPath() {
+        return sPath;
+    }
+
+    public void setPath(String path) {
+        sPath = path;
+        if (mPath != null)
+            mPath.setText(path.substring(0, path.lastIndexOf("/")));
+    }
+
+    public String getTitle() {
+        return sTitle;
+    }
+
+    public void setTitle(String title) {
+        setTitle(title, true);
+    }
+
+    public void setTitle(String title, boolean permanent) {
+        if (mMainText != null)
+            mMainText.setText(title);
+        if (permanent)
+            sTitle = title;
+    }
+
+    public void hideTitle() {
+        if (mMainText != null)
+            mMainText.setVisibility(View.GONE);
+    }
+
+    public void showTitle() {
+        if (mMainText != null)
+            mMainText.setVisibility(View.VISIBLE);
+    }
+
+    public View getView() {
+        return mParentView;
+    }
+
+    public String getInfo() {
+        return mInfo != null ? mInfo.getText().toString() : null;
+    }
+
+    public void setInfo(String info) {
+        if (mInfo != null)
+            mInfo.setText(info);
+    }
+
+    public void setSizeText(String txt) {
+        if (mSizeText != null)
+            mSizeText.setText(txt);
+    }
+
+    private static String getTitleFromPath(String path) {
+        if (path != "/") {
+            if (path.endsWith("/"))
+                path = path.substring(0, path.length() - 1);
+            path = path.substring(path.lastIndexOf("/") + 1);
+        }
+        return path;
+    }
+
+    public void showPath(Boolean visible) {
+        if (mPath != null)
+            mPath.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    /*
+     * public void setTask(ThumbnailTask task) { mTask = task; }
+     */
+    // public void cancelTask() { if(mTask!=null) mTask.cancel(true); }
+
+    public Drawable getIcon(OpenApp app) {
+        if (getIconView() != null && getIconView().getDrawable() != null)
+            return getIconView().getDrawable();
+        if (mIcon != null && getOpenPath() != null) {
+            Bitmap bmp = ThumbnailCreator.getThumbnailCache(app, getOpenPath(),
+                    ContentFragment.mListImageSize, ContentFragment.mListImageSize);
+            if (bmp != null)
+                return new BitmapDrawable(bmp);
+        }
+        return null;
+    }
 }

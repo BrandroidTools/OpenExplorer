@@ -1,3 +1,4 @@
+
 package org.brandroid.openmanager.data;
 
 import java.io.IOException;
@@ -10,144 +11,147 @@ import org.brandroid.openmanager.util.ThumbnailCreator;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
-public class OpenCommand extends OpenPath
-{
-	public static final int COMMAND_ADD_SERVER = 0;
-	
-	private final String mText;
-	private final int mCommand;
-	private int mDrawableId = 0;
-	
-	public OpenCommand(String text, int command)
-	{
-		this(text,command,0);
-	}
-	public OpenCommand(String text, int command, int drawableId)
-	{
-		mText = text;
-		mCommand = command;
-		mDrawableId = drawableId;
-	}
-	
-	public int getCommand() { return mCommand; }
-	
-	@Override
-	public String getName() {
-		return mText;
-	}
+public class OpenCommand extends OpenPath {
+    public static final int COMMAND_ADD_SERVER = 0;
 
-	@Override
-	public String getPath() {
-		return mText;
-	}
+    private final String mText;
+    private final int mCommand;
+    private int mDrawableId = 0;
 
-	@Override
-	public String getAbsolutePath() {
-		return mText;
-	}
+    public OpenCommand(String text, int command) {
+        this(text, command, 0);
+    }
 
-	@Override
-	public void setPath(String path) {
-	}
+    public OpenCommand(String text, int command, int drawableId) {
+        mText = text;
+        mCommand = command;
+        mDrawableId = drawableId;
+    }
 
-	@Override
-	public long length() {
-		return 0;
-	}
+    public int getCommand() {
+        return mCommand;
+    }
 
-	@Override
-	public OpenPath getParent() {
-		return null;
-	}
+    @Override
+    public String getName() {
+        return mText;
+    }
 
-	@Override
-	public OpenPath getChild(String name) {
-		return null;
-	}
+    @Override
+    public String getPath() {
+        return mText;
+    }
 
-	@Override
-	public OpenPath[] list() throws IOException {
-		return new OpenPath[0];
-	}
+    @Override
+    public String getAbsolutePath() {
+        return mText;
+    }
 
-	@Override
-	public OpenPath[] listFiles() throws IOException {
-		return new OpenPath[0];
-	}
+    @Override
+    public void setPath(String path) {
+    }
 
-	@Override
-	public Boolean isDirectory() {
-		return false;
-	}
+    @Override
+    public long length() {
+        return 0;
+    }
 
-	@Override
-	public Boolean isFile() {
-		return false;
-	}
+    @Override
+    public OpenPath getParent() {
+        return null;
+    }
 
-	@Override
-	public Boolean isHidden() {
-		return false;
-	}
+    @Override
+    public OpenPath getChild(String name) {
+        return null;
+    }
 
-	@Override
-	public Uri getUri() {
-		return null;
-	}
+    @Override
+    public OpenPath[] list() throws IOException {
+        return new OpenPath[0];
+    }
 
-	@Override
-	public Long lastModified() {
-		return null;
-	}
+    @Override
+    public OpenPath[] listFiles() throws IOException {
+        return new OpenPath[0];
+    }
 
-	@Override
-	public Boolean canRead() {
-		return false;
-	}
+    @Override
+    public Boolean isDirectory() {
+        return false;
+    }
 
-	@Override
-	public Boolean canWrite() {
-		return false;
-	}
+    @Override
+    public Boolean isFile() {
+        return false;
+    }
 
-	@Override
-	public Boolean canExecute() {
-		return false;
-	}
+    @Override
+    public Boolean isHidden() {
+        return false;
+    }
 
-	@Override
-	public Boolean exists() {
-		return true;
-	}
+    @Override
+    public Uri getUri() {
+        return null;
+    }
 
-	@Override
-	public Boolean requiresThread() {
-		return false;
-	}
+    @Override
+    public Long lastModified() {
+        return null;
+    }
 
-	@Override
-	public Boolean delete() {
-		return false;
-	}
+    @Override
+    public Boolean canRead() {
+        return false;
+    }
 
-	@Override
-	public Boolean mkdir() {
-		return false;
-	}
+    @Override
+    public Boolean canWrite() {
+        return false;
+    }
 
-	@Override
-	public InputStream getInputStream() throws IOException {
-		return null;
-	}
+    @Override
+    public Boolean canExecute() {
+        return false;
+    }
 
-	@Override
-	public OutputStream getOutputStream() throws IOException {
-		return null;
-	}
+    @Override
+    public Boolean exists() {
+        return true;
+    }
 
-	public void setDrawableId(int id) { mDrawableId = id; }
-	public int getDrawableId() {
-		return mDrawableId;
-	}
+    @Override
+    public Boolean requiresThread() {
+        return false;
+    }
+
+    @Override
+    public Boolean delete() {
+        return false;
+    }
+
+    @Override
+    public Boolean mkdir() {
+        return false;
+    }
+
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return null;
+    }
+
+    @Override
+    public OutputStream getOutputStream() throws IOException {
+        return null;
+    }
+
+    public void setDrawableId(int id) {
+        mDrawableId = id;
+    }
+
+    public int getDrawableId() {
+        return mDrawableId;
+    }
 
 }

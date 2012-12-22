@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item type="bool" name="show_long_date">false</item>
-    <item type="bool" name="use_pager">true</item>
-    <item type="bool" name="allow_split_actionbar">true</item>
-    <item type="bool" name="add_bookmarks_to_pager">false</item>
-    <item type="bool" name="honeycomb">false</item>
-    <item type="bool" name="prehoneycomb">true</item>
-    <item type="bool" name="ignore_max_base_buttons">true</item>
-    <item type="bool" name="allow_fullscreen">true</item>
-    <item type="bool" name="large">false</item>
-    <item type="bool" name="large_land">false</item>
-    <item type="bool" name="land">false</item>
+
+    <item name="show_long_date" type="bool">false</item>
+    <item name="use_pager" type="bool">true</item>
+    <item name="allow_split_actionbar" type="bool">true</item>
+    <item name="add_bookmarks_to_pager" type="bool">false</item>
+    <item name="honeycomb" type="bool">false</item>
+    <item name="prehoneycomb" type="bool">true</item>
+    <item name="ignore_max_base_buttons" type="bool">true</item>
+    <item name="allow_fullscreen" type="bool">true</item>
+    <item name="large" type="bool">false</item>
+    <item name="large_land" type="bool">false</item>
+    <item name="land" type="bool">false</item>
+
 </resources>

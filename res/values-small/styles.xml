@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="icon.grid" parent="@android:style/Theme.Black">
-    	<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">wrap_content</item>
-		<item name="android:minHeight">72dp</item>
-		<item name="android:minWidth">72dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">72dp</item>
+        <item name="android:minWidth">72dp</item>
     </style>
+
 </resources>

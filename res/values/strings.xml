@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
     <string name="app_name">Open Explorer Beta</string>
     <string name="app_title">OEβ</string>
     <string name="s_search">Search</string>
@@ -275,7 +276,7 @@
     <string name="lockscreen_password_wrong">Sorry, try again</string>
     <string name="whichApplication">Complete action using</string>
     <string name="noApplications">No applications can perform this action.</string>
-    <string name="report">Report</string> 
+    <string name="report">Report</string>
     <string name="sim_restart_button">Restart</string>
     <string name="extmedia_format_button_format">Format</string>
     <string name="ext_media_nofs_notification_message" product="nosdcard">USB storage blank or has unsupported filesystem.</string>
@@ -326,8 +327,11 @@
     <string name="no_items">No items.</string>
     <string name="clipboard">Clipboard</string>
     <string name="theme">Theme</string>
-    <string name="theme_dark">Dark UI</string>
-    <string name="theme_light">Light UI</string>
+    <string name="s_pref_theme">Select Theme</string>
+    <string name="s_theme_dark">Dark</string>
+    <string name="s_theme_light">Light</string>
+    <string name="s_theme_lightdark">Light and Dark</string>
+    <string name="s_theme_custom">Pinstripes</string>
     <string name="chooser_remember">Remember my choice</string>
     <string name="use_system">Use System &gt;&gt;</string>
     <string name="activity_resolver_use_always">Always</string>
@@ -341,10 +345,19 @@
     <string name="s_pref_thumbs_crop">Crop/Center Thumbnails</string>
     <string name="s_pref_thumbs_cache_clear">Clear Thumbnail Cache</string>
     <string name="s_msg_folder_none">Folder unable to be created</string>
+    <string name="s_menu_donate">Donate</string>
+    <string name="msg_nook_donate">Hello Nook user! I hope you enjoy Open Explorer for Nook. I have tried my hardest to ensure high compatibility with Nook devices. However, it appears there are some differences that are difficult to handle without an actual Nook device. For this reason, I am trying to collect enough donations in order to buy a Nook device in order to improve compatibility for nook devices. If you find this app useful, please consider making a donation, by either selecting the button below, or by activating the "donate" menu option. Thank you, and happy exploring!</string>
+    <string name="msg_bb_donate">Hello BlackBerry user! I hope you enjoy Open Explorer. I have tried my hardest to ensure high compatibility with BlackBerry devices. However, it appears there are some differences that are difficult to handle without an actual BlackBerry device. For this reason, I am trying to collect enough donations in order to buy a BlackBerry 10 device in order to improve compatibility. If you find this app useful, please consider making a donation, by either selecting the button below, or by activating the "donate" menu option. Thank you, and happy exploring!</string>
+    <string name="msg_donate">Hello Android user! We hope you enjoy Open Explorer. We have tried our hardest to ensure high compatibility with all Android devices. However, given the bug reports received, we can only assume there are differences between different types causing specific issues. For this reason, We are trying to collect enough donations in order to buy some Nexus devices in order to improve compatibility. If you find this app useful, please consider making a donation, by either selecting the button below, or by activating the "donate" menu option. Thank you, and happy exploring!</string>
+    <string name="s_privacy">Privacy Policy</string>
     
+    <string name="s_menu_system_mount">Make /system Writable (Dangerous!)</string>
+    <string name="s_menu_system_mount_on">System is WRITABLE!</string>
+    <string name="s_menu_system_mount_off">System is Read-Only.</string>
+
     <plurals name="num_selected">
         <item quantity="one">One file selected</item>
         <item quantity="other"><xliff:g id="count">%d</xliff:g> files selected</item>
     </plurals>
-    
+
 </resources>

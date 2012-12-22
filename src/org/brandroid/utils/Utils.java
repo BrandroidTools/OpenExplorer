@@ -44,8 +44,8 @@ public class Utils {
 
     private static long[] sCrcTable = new long[256];
 
-    private static final boolean IS_DEBUG_BUILD =
-            Build.TYPE.equals("eng") || Build.TYPE.equals("userdebug");
+    private static final boolean IS_DEBUG_BUILD = Build.TYPE.equals("eng")
+            || Build.TYPE.equals("userdebug");
 
     private static final String MASK_STRING = "********************************";
 
@@ -55,26 +55,25 @@ public class Utils {
             throw new AssertionError();
         }
     }
-    
-	public static long getAverage(Long... longs)
-	{
-		long total = 0;
-		for(long l : longs)
-			total += l;
-		return total / longs.length;
-	}
+
+    public static long getAverage(Long... longs) {
+        long total = 0;
+        for (long l : longs)
+            total += l;
+        return total / longs.length;
+    }
 
     // Throws AssertionError if the input is false.
-    public static void assertTrue(boolean cond, String message, Object ... args) {
+    public static void assertTrue(boolean cond, String message, Object... args) {
         if (!cond) {
-            throw new AssertionError(
-                    args.length == 0 ? message : String.format(message, args));
+            throw new AssertionError(args.length == 0 ? message : String.format(message, args));
         }
     }
 
     // Throws NullPointerException if the input is null.
     public static <T> T checkNotNull(T object) {
-        if (object == null) throw new NullPointerException();
+        if (object == null)
+            throw new NullPointerException();
         return object;
     }
 
@@ -87,7 +86,8 @@ public class Utils {
     // Returns true if the input is power of 2.
     // Throws IllegalArgumentException if the input is <= 0.
     public static boolean isPowerOf2(int n) {
-        if (n <= 0) throw new IllegalArgumentException();
+        if (n <= 0)
+            throw new IllegalArgumentException();
         return (n & -n) == n;
     }
 
@@ -96,7 +96,8 @@ public class Utils {
     // Throws IllegalArgumentException if the input is <= 0 or
     // the answer overflows.
     public static int nextPowerOf2(int n) {
-        if (n <= 0 || n > (1 << 30)) throw new IllegalArgumentException();
+        if (n <= 0 || n > (1 << 30))
+            throw new IllegalArgumentException();
         n -= 1;
         n |= n >> 16;
         n |= n >> 8;
@@ -110,7 +111,8 @@ public class Utils {
     // Returns the input if it is already power of 2.
     // Throws IllegalArgumentException if the input is <= 0
     public static int prevPowerOf2(int n) {
-        if (n <= 0) throw new IllegalArgumentException();
+        if (n <= 0)
+            throw new IllegalArgumentException();
         return Integer.highestOneBit(n);
     }
 
@@ -118,27 +120,33 @@ public class Utils {
     public static float distance(float x, float y, float sx, float sy) {
         float dx = x - sx;
         float dy = y - sy;
-        return (float) Math.hypot(dx, dy);
+        return (float)Math.hypot(dx, dy);
     }
 
     // Returns the input value x clamped to the range [min, max].
     public static int clamp(int x, int min, int max) {
-        if (x > max) return max;
-        if (x < min) return min;
+        if (x > max)
+            return max;
+        if (x < min)
+            return min;
         return x;
     }
 
     // Returns the input value x clamped to the range [min, max].
     public static float clamp(float x, float min, float max) {
-        if (x > max) return max;
-        if (x < min) return min;
+        if (x > max)
+            return max;
+        if (x < min)
+            return min;
         return x;
     }
 
     // Returns the input value x clamped to the range [min, max].
     public static long clamp(long x, long min, long max) {
-        if (x > max) return max;
-        if (x < min) return min;
+        if (x > max)
+            return max;
+        if (x < min)
+            return min;
         return x;
     }
 
@@ -160,7 +168,7 @@ public class Utils {
 
     /**
      * A function thats returns a 64-bit crc for string
-     *
+     * 
      * @param in input string
      * @return a 64-bit crc value
      */
@@ -177,7 +185,7 @@ public class Utils {
         for (int i = 0; i < 256; i++) {
             part = i;
             for (int j = 0; j < 8; j++) {
-                long x = ((int) part & 1) != 0 ? POLY64REV : 0;
+                long x = ((int)part & 1) != 0 ? POLY64REV : 0;
                 part = (part >> 1) ^ x;
             }
             sCrcTable[i] = part;
@@ -187,7 +195,7 @@ public class Utils {
     public static final long crc64Long(byte[] buffer) {
         long crc = INITIALCRC;
         for (int k = 0, n = buffer.length; k < n; ++k) {
-            crc = sCrcTable[(((int) crc) ^ buffer[k]) & 0xff] ^ (crc >> 8);
+            crc = sCrcTable[(((int)crc) ^ buffer[k]) & 0xff] ^ (crc >> 8);
         }
         return crc;
     }
@@ -196,14 +204,15 @@ public class Utils {
         byte[] result = new byte[in.length() * 2];
         int output = 0;
         for (char ch : in.toCharArray()) {
-            result[output++] = (byte) (ch & 0xFF);
-            result[output++] = (byte) (ch >> 8);
+            result[output++] = (byte)(ch & 0xFF);
+            result[output++] = (byte)(ch >> 8);
         }
         return result;
     }
 
     public static void closeSilently(Closeable c) {
-        if (c == null) return;
+        if (c == null)
+            return;
         try {
             c.close();
         } catch (Throwable t) {
@@ -218,7 +227,8 @@ public class Utils {
     public static int ceilLog2(float value) {
         int i;
         for (i = 0; i < 31; i++) {
-            if ((1 << i) >= value) break;
+            if ((1 << i) >= value)
+                break;
         }
         return i;
     }
@@ -226,14 +236,16 @@ public class Utils {
     public static int floorLog2(float value) {
         int i;
         for (i = 0; i < 31; i++) {
-            if ((1 << i) > value) break;
+            if ((1 << i) > value)
+                break;
         }
         return i - 1;
     }
 
     public static void closeSilently(ParcelFileDescriptor fd) {
         try {
-            if (fd != null) fd.close();
+            if (fd != null)
+                fd.close();
         } catch (Throwable t) {
             Log.w(TAG, "fail to close", t);
         }
@@ -241,27 +253,28 @@ public class Utils {
 
     public static void closeSilently(Cursor cursor) {
         try {
-            if (cursor != null) cursor.close();
+            if (cursor != null)
+                cursor.close();
         } catch (Throwable t) {
             Log.w(TAG, "fail to close", t);
         }
     }
 
-    public static float interpolateAngle(
-            float source, float target, float progress) {
+    public static float interpolateAngle(float source, float target, float progress) {
         // interpolate the angle from source to target
         // We make the difference in the range of [-179, 180], this is the
         // shortest path to change source to target.
         float diff = target - source;
-        if (diff < 0) diff += 360f;
-        if (diff > 180) diff -= 360f;
+        if (diff < 0)
+            diff += 360f;
+        if (diff > 180)
+            diff -= 360f;
 
         float result = source + diff * progress;
         return result < 0 ? result + 360f : result;
     }
 
-    public static float interpolateScale(
-            float source, float target, float progress) {
+    public static float interpolateScale(float source, float target, float progress) {
         return source + progress * (target - source);
     }
 
@@ -270,7 +283,7 @@ public class Utils {
     }
 
     // Used for debugging. Should be removed before submitting.
-    public static void debug(String format, Object ... args) {
+    public static void debug(String format, Object... args) {
         if (args.length == 0) {
             Log.d(DEBUG_TAG, format);
         } else {
@@ -279,7 +292,8 @@ public class Utils {
     }
 
     public static float parseFloatSafely(String content, float defaultValue) {
-        if (content == null) return defaultValue;
+        if (content == null)
+            return defaultValue;
         try {
             return Float.parseFloat(content);
         } catch (NumberFormatException e) {
@@ -288,12 +302,31 @@ public class Utils {
     }
 
     public static int parseIntSafely(String content, int defaultValue) {
-        if (content == null) return defaultValue;
+        if (content == null)
+            return defaultValue;
         try {
             return Integer.parseInt(content);
         } catch (NumberFormatException e) {
             return defaultValue;
         }
+    }
+
+    public static long parseFileSize(String friendly) {
+        long ret = -1;
+        try {
+            ret = Long.parseLong(friendly.replaceAll("[^0-9]", ""));
+            String unit = friendly.replaceAll("[0-9]", "");
+            if(unit == null) return ret;
+            if(unit.equalsIgnoreCase("k") || unit.equalsIgnoreCase("kb"))
+                ret *= 1024;
+            else if(unit.equalsIgnoreCase("m") || unit.equalsIgnoreCase("mb"))
+                ret *= 1024 ^ 2;
+            else if(unit.equalsIgnoreCase("g") || unit.equalsIgnoreCase("gb"))
+                ret *= 1024 ^ 3;
+            else if(unit.equalsIgnoreCase("t") || unit.equalsIgnoreCase("tb"))
+                ret *= 1024 ^ 4;
+        } catch(Exception e) { }
+        return ret;
     }
 
     public static boolean isNullOrEmpty(String exifMake) {
@@ -309,7 +342,7 @@ public class Utils {
         String path = Environment.getExternalStorageDirectory().getPath();
         try {
             StatFs stat = new StatFs(path);
-            return stat.getAvailableBlocks() * (long) stat.getBlockSize() > size;
+            return stat.getAvailableBlocks() * (long)stat.getBlockSize() > size;
         } catch (Exception e) {
             Log.i(TAG, "Fail to access external storage", e);
         }
@@ -327,7 +360,8 @@ public class Utils {
     public static void shuffle(int array[], Random random) {
         for (int i = array.length; i > 0; --i) {
             int t = random.nextInt(i);
-            if (t == i - 1) continue;
+            if (t == i - 1)
+                continue;
             int tmp = array[i - 1];
             array[i - 1] = array[t];
             array[t] = tmp;
@@ -337,8 +371,7 @@ public class Utils {
     public static boolean handleInterrruptedException(Throwable e) {
         // A helper to deal with the interrupt exception
         // If an interrupt detected, we will setup the bit again.
-        if (e instanceof InterruptedIOException
-                || e instanceof InterruptedException) {
+        if (e instanceof InterruptedIOException || e instanceof InterruptedException) {
             Thread.currentThread().interrupt();
             return true;
         }
@@ -353,12 +386,23 @@ public class Utils {
         for (int i = 0, len = s.length(); i < len; ++i) {
             char c = s.charAt(i);
             switch (c) {
-                case '<':  sb.append("&lt;"); break;
-                case '>':  sb.append("&gt;"); break;
-                case '\"': sb.append("&quot;"); break;
-                case '\'': sb.append("&#039;"); break;
-                case '&':  sb.append("&amp;"); break;
-                default: sb.append(c);
+                case '<':
+                    sb.append("&lt;");
+                    break;
+                case '>':
+                    sb.append("&gt;");
+                    break;
+                case '\"':
+                    sb.append("&quot;");
+                    break;
+                case '\'':
+                    sb.append("&#039;");
+                    break;
+                case '&':
+                    sb.append("&amp;");
+                    break;
+                default:
+                    sb.append(c);
             }
         }
         return sb.toString();
@@ -371,16 +415,9 @@ public class Utils {
         } catch (NameNotFoundException e) {
             throw new IllegalStateException("getPackageInfo failed");
         }
-        return String.format("%s/%s; %s/%s/%s/%s; %s/%s/%s",
-                packageInfo.packageName,
-                packageInfo.versionName,
-                Build.BRAND,
-                Build.DEVICE,
-                Build.MODEL,
-                Build.ID,
-                Build.VERSION.SDK,
-                Build.VERSION.RELEASE,
-                Build.VERSION.INCREMENTAL);
+        return String.format("%s/%s; %s/%s/%s/%s; %s/%s/%s", packageInfo.packageName,
+                packageInfo.versionName, Build.BRAND, Build.DEVICE, Build.MODEL, Build.ID,
+                Build.VERSION.SDK, Build.VERSION.RELEASE, Build.VERSION.INCREMENTAL);
     }
 
     public static String[] copyOf(String[] source, int newSize) {
@@ -403,7 +440,8 @@ public class Utils {
         } catch (Exception e) {
             throw new IllegalArgumentException("error parsing PendingIntent");
         } finally {
-            if (parcel != null) parcel.recycle();
+            if (parcel != null)
+                parcel.recycle();
         }
     }
 
@@ -414,80 +452,83 @@ public class Utils {
             PendingIntent.writePendingIntentOrNullToParcel(pendingIntent, parcel);
             return parcel.marshall();
         } finally {
-            if (parcel != null) parcel.recycle();
+            if (parcel != null)
+                parcel.recycle();
         }
     }
 
-    // Mask information for debugging only. It returns <code>info.toString()</code> directly
-    // for debugging build (i.e., 'eng' and 'userdebug') and returns a mask ("****")
+    // Mask information for debugging only. It returns
+    // <code>info.toString()</code> directly
+    // for debugging build (i.e., 'eng' and 'userdebug') and returns a mask
+    // ("****")
     // in release build to protect the information (e.g. for privacy issue).
     public static String maskDebugInfo(Object info) {
-        if (info == null) return null;
+        if (info == null)
+            return null;
         String s = info.toString();
         int length = Math.min(s.length(), MASK_STRING.length());
         return IS_DEBUG_BUILD ? s : MASK_STRING.substring(0, length);
     }
 
-    public static String joinArray(int[] array)
-    {
-    	String ret = "[";
-    	for(int item : array)
-    		ret += Integer.toHexString(item) + ",";
-    	ret += "]";
-    	return ret;
+    public static String joinArray(int[] array) {
+        String ret = "[";
+        for (int item : array)
+            ret += Integer.toHexString(item) + ",";
+        ret += "]";
+        return ret;
     }
-    public static <T> String joinArray(T[] array, String separator)
-    {
-    	StringBuilder ret = new StringBuilder();
-    	for(T item : array)
-    		ret.append(item + separator);
-    	return ret.toString();
-    }
-	public static int getArrayIndex(int[] search, int value)
-	{
-		for(int i = 0; i < search.length; i++)
-			if(search[i] == value)
-				return i;
-		return -1;
-	}
-	public static int getArrayIndex(String[] search, int value)
-	{
-		for(int i = 0; i < search.length; i++)
-			if(search[i].equals("" + value))
-				return i;
-		return -1;
-	}
-	public static <T> int getArrayIndex(T[] search, T value)
-	{
-		for(int i = 0; i < search.length; i++)
-			if(value.equals(search[i]))
-				return i;
-		return -1;
-	}
-	
-	public static String md5(String s) {
-	    try {
-	        // Create MD5 Hash
-	        MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
-	        digest.update(s.getBytes());
-	        byte messageDigest[] = digest.digest();
-	        
-	        // Create Hex String
-	        StringBuffer hexString = new StringBuffer();
-	        for (int i=0; i<messageDigest.length; i++)
-	            hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
-	        return hexString.toString();
-	        
-	    } catch (NoSuchAlgorithmException e) {
-	        e.printStackTrace();
-	    }
-	    return "";
-	}
 
-	public static boolean inArray(String key, String... array) {
-		for(String item : array)
-			if(item.equals(key))
-				return true;
-		return false;
-	}
+    public static <T> String joinArray(T[] array, String separator) {
+        StringBuilder ret = new StringBuilder();
+        for (T item : array)
+            ret.append(item + separator);
+        return ret.toString();
+    }
+
+    public static int getArrayIndex(int[] search, int value) {
+        for (int i = 0; i < search.length; i++)
+            if (search[i] == value)
+                return i;
+        return -1;
+    }
+
+    public static int getArrayIndex(String[] search, int value) {
+        for (int i = 0; i < search.length; i++)
+            if (search[i].equals("" + value))
+                return i;
+        return -1;
+    }
+
+    public static <T> int getArrayIndex(T[] search, T value) {
+        for (int i = 0; i < search.length; i++)
+            if (value.equals(search[i]))
+                return i;
+        return -1;
+    }
+
+    public static String md5(String s) {
+        try {
+            // Create MD5 Hash
+            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            digest.update(s.getBytes());
+            byte messageDigest[] = digest.digest();
+
+            // Create Hex String
+            StringBuffer hexString = new StringBuffer();
+            for (int i = 0; i < messageDigest.length; i++)
+                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public static boolean inArray(String key, String... array) {
+        for (String item : array)
+            if (item.equals(key))
+                return true;
+        return false;
+    }
 }

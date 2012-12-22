@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
+
     <string name="s_menu_sort">Сортувати</string>
     <string name="s_menu_sort_name_asc">Сортувати за іменем А-Я</string>
     <string name="s_menu_sort_name_desc">Сортувати за іменем Я-А</string>
@@ -70,4 +71,5 @@
     <string name="storage_usb">USB накопичувач</string>
     <string name="extract_edit_menu_button">Редагувати</string>
     <string name="activity_chooser_view_see_all">Відкрити все</string>
+
 </resources>

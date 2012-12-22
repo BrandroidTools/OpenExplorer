@@ -1,3 +1,4 @@
+
 package org.brandroid.openmanager.util;
 
 import java.io.FileDescriptor;
@@ -25,13 +26,13 @@ import android.util.Log;
 public class ShellSession {
     private RootManager.UpdateCallback mNotify;
 
-	private int mProcId;
-	private FileDescriptor mFd;
-	private FileInputStream mInput;
-	private FileOutputStream mOutput;
-	private Thread mWatcherThread;
-	private Thread mPollingThread;
-	private ByteQueue mByteQueue;
+    private int mProcId;
+    private FileDescriptor mFd;
+    private FileInputStream mInput;
+    private FileOutputStream mOutput;
+    private Thread mWatcherThread;
+    private Thread mPollingThread;
+    private ByteQueue mByteQueue;
     private byte[] mReceiveBuffer;
 
     private CharBuffer mWriteCharBuffer;
@@ -49,6 +50,7 @@ public class ShellSession {
     public interface FinishCallback {
         void onSessionFinish(ShellSession session);
     }
+
     private FinishCallback mFinishCallback;
 
     private boolean mIsRunning = false;
@@ -61,98 +63,92 @@ public class ShellSession {
             if (msg.what == NEW_INPUT) {
                 readFromProcess();
             } else if (msg.what == PROCESS_EXITED) {
-                onProcessExit((Integer) msg.obj);
+                onProcessExit((Integer)msg.obj);
             }
         }
     };
-    
-	public void setUpdateCallback(RootManager.UpdateCallback listener)
-	{
-		mNotify = listener;
-	}
-	
-	public ShellSession()
-	{
+
+    public void setUpdateCallback(RootManager.UpdateCallback listener) {
+        mNotify = listener;
+    }
+
+    public ShellSession() {
         int[] processId = new int[1];
         mWatcherThread = new Thread() {
             @Override
             public void run() {
-               Logger.LogInfo("waiting for: " + mProcId);
-               int result = 0; //Exec.waitFor(mProcId);
-               Logger.LogInfo("Subprocess exited: " + result);
-               mMsgHandler.sendMessage(mMsgHandler.obtainMessage(PROCESS_EXITED, result));
+                Logger.LogVerbose("waiting for: " + mProcId);
+                int result = 0; // Exec.waitFor(mProcId);
+                Logger.LogVerbose("Subprocess exited: " + result);
+                mMsgHandler.sendMessage(mMsgHandler.obtainMessage(PROCESS_EXITED, result));
             }
-       };
-       mWatcherThread.setName("Process watcher");
+        };
+        mWatcherThread.setName("Process watcher");
 
-       mWriteCharBuffer = CharBuffer.allocate(2);
-       mWriteByteBuffer = ByteBuffer.allocate(4);
-       mUTF8Encoder = Charset.forName("UTF-8").newEncoder();
-       mUTF8Encoder.onMalformedInput(CodingErrorAction.REPLACE);
-       mUTF8Encoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
+        mWriteCharBuffer = CharBuffer.allocate(2);
+        mWriteByteBuffer = ByteBuffer.allocate(4);
+        mUTF8Encoder = Charset.forName("UTF-8").newEncoder();
+        mUTF8Encoder.onMalformedInput(CodingErrorAction.REPLACE);
+        mUTF8Encoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
 
-       mReceiveBuffer = new byte[4 * 1024];
-       mByteQueue = new ByteQueue(4 * 1024);
+        mReceiveBuffer = new byte[4 * 1024];
+        mByteQueue = new ByteQueue(4 * 1024);
 
-       mPollingThread = new Thread() {
-           private byte[] mBuffer = new byte[4096];
+        mPollingThread = new Thread() {
+            private byte[] mBuffer = new byte[4096];
 
-           @Override
-           public void run() {
-               try {
-                   while(true) {
-                       int read = mInput.read(mBuffer);
-                       if (read == -1) {
-                           // EOF -- process exited
-                           return;
-                       }
-                       mByteQueue.write(mBuffer, 0, read);
-                       mMsgHandler.sendMessage(
-                               mMsgHandler.obtainMessage(NEW_INPUT));
-                   }
-               } catch (IOException e) {
-               } catch (InterruptedException e) {
-               }
-           }
-       };
-       mPollingThread.setName("Input reader");
-	}
-	
-	public void setProcessExitMessage(String message) {
+            @Override
+            public void run() {
+                try {
+                    while (true) {
+                        int read = mInput.read(mBuffer);
+                        if (read == -1) {
+                            // EOF -- process exited
+                            return;
+                        }
+                        mByteQueue.write(mBuffer, 0, read);
+                        mMsgHandler.sendMessage(mMsgHandler.obtainMessage(NEW_INPUT));
+                    }
+                } catch (IOException e) {
+                } catch (InterruptedException e) {
+                }
+            }
+        };
+        mPollingThread.setName("Input reader");
+    }
+
+    public void setProcessExitMessage(String message) {
         mProcessExitMessage = message;
     }
 
     private void onProcessExit(int result) {
-        /*if (mSettings.closeWindowOnProcessExit()) {
-            if (mFinishCallback != null) {
-                mFinishCallback.onSessionFinish(this);
-            }
-            finish();
-        } else if (mProcessExitMessage != null) {
-        	*/
-            //try {
-                String sMsg = "\r\n[" + mProcessExitMessage + "]";
-               // mEmulator.append(msg, 0, msg.length);
-                //mNotify.onUpdate();
-                if(mNotify != null)
-                	mNotify.onReceiveMessage(sMsg);
-            //} catch (UnsupportedEncodingException e) {
-                // Never happens
-            //}
-        //}
+        /*
+         * if (mSettings.closeWindowOnProcessExit()) { if (mFinishCallback !=
+         * null) { mFinishCallback.onSessionFinish(this); } finish(); } else if
+         * (mProcessExitMessage != null) {
+         */
+        // try {
+        String sMsg = "\r\n[" + mProcessExitMessage + "]";
+        // mEmulator.append(msg, 0, msg.length);
+        // mNotify.onUpdate();
+        if (mNotify != null)
+            mNotify.onReceiveMessage(sMsg);
+        // } catch (UnsupportedEncodingException e) {
+        // Never happens
+        // }
+        // }
     }
-    
-    public void start()
-    {
-    	mIsRunning = true;
-    	mPollingThread.start();
+
+    public void start() {
+        mIsRunning = true;
+        mPollingThread.start();
     }
 
     public void finish() {
-        //Exec.hangupProcessGroup(mProcId);
-        //Exec.close(mFd);
+        // Exec.hangupProcessGroup(mProcId);
+        // Exec.close(mFd);
         mIsRunning = false;
-        //mTranscriptScreen.finish();
+        // mTranscriptScreen.finish();
     }
 
     /**
@@ -163,9 +159,9 @@ public class ShellSession {
         int bytesToRead = Math.min(bytesAvailable, mReceiveBuffer.length);
         try {
             int bytesRead = mByteQueue.read(mReceiveBuffer, 0, bytesToRead);
-            if(mNotify != null)
-            	mNotify.onReceiveMessage(new String(mReceiveBuffer));
-            //mEmulator.append(mReceiveBuffer, 0, bytesRead);
+            if (mNotify != null)
+                mNotify.onReceiveMessage(new String(mReceiveBuffer));
+            // mEmulator.append(mReceiveBuffer, 0, bytesRead);
         } catch (InterruptedException e) {
         }
 
@@ -184,17 +180,16 @@ public class ShellSession {
         String[] env = new String[1];
         env[0] = "TERM=" + termType;
 
-        //Environment
-        //mFd = Exec.createSubprocess(arg0, args, env, processId);
+        // Environment
+        // mFd = Exec.createSubprocess(arg0, args, env, processId);
     }
-    
 
     private ArrayList<String> parse(String cmd) {
         final int PLAIN = 0;
         final int WHITESPACE = 1;
         final int INQUOTE = 2;
         int state = WHITESPACE;
-        ArrayList<String> result =  new ArrayList<String>();
+        ArrayList<String> result = new ArrayList<String>();
         int cmdLen = cmd.length();
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < cmdLen; i++) {
@@ -202,7 +197,7 @@ public class ShellSession {
             if (state == PLAIN) {
                 if (Character.isWhitespace(c)) {
                     result.add(builder.toString());
-                    builder.delete(0,builder.length());
+                    builder.delete(0, builder.length());
                     state = WHITESPACE;
                 } else if (c == '"') {
                     state = INQUOTE;
@@ -236,7 +231,6 @@ public class ShellSession {
         }
         return result;
     }
-	
 
     public void write(String data) {
         try {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
+<!--
 	Open Explorer for Tablets, an open source file manager for the Android system
     Copyright (C) 2011 Brandon Bowles <brandroid64@gmail.com>
 
@@ -15,24 +15,22 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- -->
+-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/view_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-	
-	    <FrameLayout
-	    	android:id="@+id/content_frag"
-	    	android:layout_height="match_parent"
-	    	android:layout_width="match_parent"
-	    	/>
 
-	    <ViewStub
-	        android:id="@+id/content_pager_frame_stub"
-	        android:layout="@layout/viewpager"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        />
-	    
+    <FrameLayout
+        android:id="@+id/content_frag"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ViewStub
+        android:id="@+id/content_pager_frame_stub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout="@layout/viewpager" />
+
 </RelativeLayout>

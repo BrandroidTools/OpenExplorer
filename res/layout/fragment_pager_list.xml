@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2011 The Android Open Source Project
+<!--
+     Copyright (C) 2011 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,31 +15,34 @@
      limitations under the License.
 -->
 
-<RelativeLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:baselineAligned="false" >
-    
-    <!-- Here is the list. Since we are using a ListActivity, we
+    android:baselineAligned="false"
+    android:orientation="vertical" >
+
+    <!--
+         Here is the list. Since we are using a ListActivity, we
          have to call it "@android:id/list" so ListActivity will
-         find it -->
-    <ListView android:id="@android:id/list"
+         find it
+    -->
+
+    <ListView
+        android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:drawSelectorOnTop="false"
-        />
-    
+        android:drawSelectorOnTop="false" />
+
     <include layout="@layout/content_grid" />
 
     <!-- Here is the view to show if the list is emtpy -->
-    <TextView android:id="@android:id/empty"
+
+    <TextView
+        android:id="@android:id/empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:visibility="gone"
         android:text="@string/no_items"
-        />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:visibility="gone" />
 
 </RelativeLayout>

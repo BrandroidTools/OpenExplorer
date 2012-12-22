@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
+
     <string name="app_name" auto="1">오픈 탐색기</string>
     <string name="s_photos" auto="1">사진</string>
     <string name="s_videos" auto="1">동영상</string>
@@ -296,4 +297,5 @@
     <string name="s_alert_clipboard" auto="1">클립 보드에 복사</string>
     <string name="s_alert_restart" auto="1">다시 시작. 기다려주십시오.</string>
     <string name="language" auto="1">언어</string>
+
 </resources>

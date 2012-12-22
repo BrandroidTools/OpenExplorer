@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2008 The Android Open Source Project
+<!--
+     Copyright (C) 2008 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,50 +15,47 @@
      limitations under the License.
 -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <item android:id="@android:id/background">
         <shape>
             <corners android:radius="5dip" />
+
             <gradient
-                    android:startColor="#ff9d9e9d"
-                    android:centerColor="#ff5a5d5a"
-                    android:centerY="0.75"
-                    android:endColor="#ff747674"
-                    android:angle="270"
-            />
+                android:angle="270"
+                android:centerColor="#ff5a5d5a"
+                android:centerY="0.75"
+                android:endColor="#ff747674"
+                android:startColor="#ff9d9e9d" />
         </shape>
     </item>
-    
     <item android:id="@android:id/secondaryProgress">
         <clip>
             <shape>
                 <corners android:radius="5dip" />
+
                 <gradient
-                        android:startColor="#80CCA800"
-                        android:centerColor="#80AE7E00"
-                        android:centerY="0.75"
-                        android:endColor="#a0CAA200"
-                        android:angle="270"
-                />
+                    android:angle="270"
+                    android:centerColor="#80AE7E00"
+                    android:centerY="0.75"
+                    android:endColor="#a0CAA200"
+                    android:startColor="#80CCA800" />
             </shape>
         </clip>
     </item>
-    
     <item android:id="@android:id/progress">
         <clip>
             <shape>
                 <corners android:radius="5dip" />
+
                 <gradient
-                        android:startColor="#ffCCA800"
-                        android:centerColor="#ffAE7E00"
-                        android:centerY="0.75"
-                        android:endColor="#ffCAA200"
-                        android:angle="270"
-                />
+                    android:angle="270"
+                    android:centerColor="#ffAE7E00"
+                    android:centerY="0.75"
+                    android:endColor="#ffCAA200"
+                    android:startColor="#ffCCA800" />
             </shape>
         </clip>
     </item>
-    
-</layer-list>
 
+</layer-list>

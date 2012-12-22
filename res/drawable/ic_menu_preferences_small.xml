@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<scale xmlns:android="http://schemas.android.com/apk/res/android" android:drawable="@android:drawable/ic_menu_add"
-            android:scaleWidth="50%"
-            android:scaleHeight="50%"
-            android:scaleGravity="center"
-            />
+<scale xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@android:drawable/ic_menu_add"
+    android:scaleGravity="center"
+    android:scaleHeight="50%"
+    android:scaleWidth="50%" />

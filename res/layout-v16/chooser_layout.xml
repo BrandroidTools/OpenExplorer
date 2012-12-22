@@ -3,18 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorBlack"
+    android:background="?attr/dialogBackgroundColorPrimary"
     android:orientation="vertical" >
-
+
     <GridView
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:columnWidth="150dp"
-        android:numColumns="auto_fit"
         android:focusable="true"
         android:focusableInTouchMode="true"
+        android:numColumns="auto_fit"
         android:padding="10dp"
         android:stretchMode="spacingWidthUniform" />
 
@@ -44,7 +44,7 @@
 
         <Button
             android:id="@+id/chooser_system"
-            style="@style/Small"
+            style="@style/Text.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/use_system" />

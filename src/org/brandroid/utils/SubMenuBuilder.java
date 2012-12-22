@@ -1,3 +1,4 @@
+
 package org.brandroid.utils;
 
 import android.content.Context;
@@ -8,13 +9,13 @@ import android.view.SubMenu;
 import android.view.View;
 
 /**
- * The model for a sub menu, which is an extension of the menu.  Most methods are proxied to
- * the parent menu.
+ * The model for a sub menu, which is an extension of the menu. Most methods are
+ * proxied to the parent menu.
  */
 public class SubMenuBuilder extends MenuBuilder2 implements SubMenu {
     private MenuBuilder2 mParentMenu;
     private MenuItemImpl mItem;
-    
+
     public SubMenuBuilder(Context context, MenuBuilder2 parentMenu, MenuItemImpl item) {
         super(context);
 
@@ -31,7 +32,7 @@ public class SubMenuBuilder extends MenuBuilder2 implements SubMenu {
     public boolean isQwertyMode() {
         return mParentMenu.isQwertyMode();
     }
-    
+
     @Override
     public void setShortcutsVisible(boolean shortcutsVisible) {
         mParentMenu.setShortcutsVisible(shortcutsVisible);
@@ -62,8 +63,8 @@ public class SubMenuBuilder extends MenuBuilder2 implements SubMenu {
 
     @Override
     boolean dispatchMenuItemSelected(MenuBuilder2 menu, MenuItem item) {
-        return super.dispatchMenuItemSelected(menu, item) ||
-                mParentMenu.dispatchMenuItemSelected(menu, item);
+        return super.dispatchMenuItemSelected(menu, item)
+                || mParentMenu.dispatchMenuItemSelected(menu, item);
     }
 
     public SubMenu setIcon(Drawable icon) {
@@ -77,23 +78,23 @@ public class SubMenuBuilder extends MenuBuilder2 implements SubMenu {
     }
 
     public SubMenu setHeaderIcon(Drawable icon) {
-        return (SubMenu) super.setHeaderIconInt(icon);
+        return (SubMenu)super.setHeaderIconInt(icon);
     }
 
     public SubMenu setHeaderIcon(int iconRes) {
-        return (SubMenu) super.setHeaderIconInt(iconRes);
+        return (SubMenu)super.setHeaderIconInt(iconRes);
     }
 
     public SubMenu setHeaderTitle(CharSequence title) {
-        return (SubMenu) super.setHeaderTitleInt(title);
+        return (SubMenu)super.setHeaderTitleInt(title);
     }
 
     public SubMenu setHeaderTitle(int titleRes) {
-        return (SubMenu) super.setHeaderTitleInt(titleRes);
+        return (SubMenu)super.setHeaderTitleInt(titleRes);
     }
 
     public SubMenu setHeaderView(View view) {
-        return (SubMenu) super.setHeaderViewInt(view);
+        return (SubMenu)super.setHeaderViewInt(view);
     }
 
     @Override

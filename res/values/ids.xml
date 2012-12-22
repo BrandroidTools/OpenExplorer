@@ -12,14 +12,16 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 
 <resources>
-    <item type="id" name="actionbar_compat" />
-    <item type="id" name="actionbar_compat_title" />
-    <item type="id" name="actionbar_compat_item_refresh_progress" />
-    <item type="id" name="actionbar_compat_item_refresh" />
-    <item type="id" name="menu_refresh" />
-    <item type="id" name="fake_content_id" />
-    <item type="id" name="content_pager" />
+
+    <item name="actionbar_compat" type="id"/>
+    <item name="actionbar_compat_title" type="id"/>
+    <item name="actionbar_compat_item_refresh_progress" type="id"/>
+    <item name="actionbar_compat_item_refresh" type="id"/>
+    <item name="menu_refresh" type="id"/>
+    <item name="fake_content_id" type="id"/>
+    <item name="content_pager" type="id"/>
+
 </resources>

@@ -1,164 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-  
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <item
         android:id="@+id/menu_search"
         android:icon="?attr/actionIconSearch"
         android:showAsAction="ifRoom|collapseActionView"
-        android:title="@android:string/search_go" 
-        />
-  	
+        android:actionViewClass="com.actionbarsherlock.widget.SearchView"
+        android:title="@android:string/search_go"/>
     <item
         android:id="@+id/menu_context_share"
         android:icon="?attr/actionIconShare"
         android:showAsAction="always"
         android:title="@string/s_menu_share"
-        android:visible="false"
-        />
-    
-	<item
-		android:id="@+id/menu_sort"
-		android:icon="?attr/actionIconSort"
-		android:showAsAction="ifRoom"
-		android:alphabeticShortcut="1"
-		android:title="@string/s_menu_sort">
-		<menu>
-			<group android:checkableBehavior="single">
-				<item
-					android:id="@+id/menu_sort_name_asc"
-					android:title="@string/s_menu_sort_name_asc"
-					android:alphabeticShortcut="n"
-					android:showAsAction="withText" />
-				<item
-					android:id="@+id/menu_sort_name_desc"
-					android:title="@string/s_menu_sort_name_desc"
-					android:alphabeticShortcut="m"
-					android:showAsAction="withText" />
-				<item
-					android:id="@+id/menu_sort_date_asc"
-					android:title="@string/s_menu_sort_date_asc"
-					android:alphabeticShortcut="d"
-					android:showAsAction="withText" />
-				<item
-					android:id="@+id/menu_sort_date_desc"
-					android:title="@string/s_menu_sort_date_desc"
-					android:alphabeticShortcut="e"
-					android:showAsAction="withText" />
-				<item
-					android:id="@+id/menu_sort_size_asc"
-					android:title="@string/s_menu_sort_size_asc"
-					android:alphabeticShortcut="s"
-					android:showAsAction="withText" />
-				<item
-					android:id="@+id/menu_sort_size_desc"
-					android:title="@string/s_menu_sort_size_desc"
-					android:alphabeticShortcut="z"
-					android:showAsAction="withText" />
-				<item
-					android:id="@+id/menu_sort_type"
-					android:title="@string/s_menu_sort_type"
-					android:alphabeticShortcut="t"
-					android:showAsAction="withText" />
-			</group>
-		    <item
-			    android:id="@+id/menu_sort_folders_first"
-			    android:title="@string/s_menu_sort_folders"
-			    android:checkable="true"
-				android:alphabeticShortcut="f"
-			    />
-		</menu>
-	</item>
-	<item
-		android:id="@+id/menu_view"
-		android:icon="?attr/actionIconView"
-		android:alphabeticShortcut="2"
-		android:showAsAction="ifRoom"
-		android:title="@string/s_view">
-		<menu>
-			<group android:checkableBehavior="single">
-				<item
-					android:id="@+id/menu_view_grid"
-					android:alphabeticShortcut="g"
-					android:icon="?attr/actionIconViewGrid"
-					android:title="@string/s_menu_grid" />
-				<item
-					android:id="@+id/menu_view_list"
-					android:alphabeticShortcut="l"
-					android:icon="?attr/actionIconViewList"
-					android:title="@string/s_menu_list" />
-			</group>
-	 		<item
-				android:id="@+id/menu_view_hidden"
-				android:checkable="true"
-				android:title="@string/s_menu_hidden" /> 
-			<item
-				android:id="@+id/menu_view_thumbs"
-				android:checkable="true"
-				android:title="@string/s_menu_thumbs" />
-		</menu>
-	</item>
-    <item android:id="@+id/menu_content_ops"
-        android:title="@string/s_title_operations"
-		android:alphabeticShortcut="3"
+        android:visible="false"/>
+    <item
+        android:id="@+id/menu_sort"
+        android:alphabeticShortcut="1"
+        android:icon="?attr/actionIconSort"
+        android:showAsAction="ifRoom"
+        android:title="@string/s_menu_sort">
+        <menu>
+            <group android:checkableBehavior="single" >
+                <item
+                    android:id="@+id/menu_sort_name_asc"
+                    android:alphabeticShortcut="n"
+                    android:showAsAction="withText"
+                    android:title="@string/s_menu_sort_name_asc"/>
+                <item
+                    android:id="@+id/menu_sort_name_desc"
+                    android:alphabeticShortcut="m"
+                    android:showAsAction="withText"
+                    android:title="@string/s_menu_sort_name_desc"/>
+                <item
+                    android:id="@+id/menu_sort_date_asc"
+                    android:alphabeticShortcut="d"
+                    android:showAsAction="withText"
+                    android:title="@string/s_menu_sort_date_asc"/>
+                <item
+                    android:id="@+id/menu_sort_date_desc"
+                    android:alphabeticShortcut="e"
+                    android:showAsAction="withText"
+                    android:title="@string/s_menu_sort_date_desc"/>
+                <item
+                    android:id="@+id/menu_sort_size_asc"
+                    android:alphabeticShortcut="s"
+                    android:showAsAction="withText"
+                    android:title="@string/s_menu_sort_size_asc"/>
+                <item
+                    android:id="@+id/menu_sort_size_desc"
+                    android:alphabeticShortcut="z"
+                    android:showAsAction="withText"
+                    android:title="@string/s_menu_sort_size_desc"/>
+                <item
+                    android:id="@+id/menu_sort_type"
+                    android:alphabeticShortcut="t"
+                    android:showAsAction="withText"
+                    android:title="@string/s_menu_sort_type"/>
+            </group>
+
+            <item
+                android:id="@+id/menu_sort_folders_first"
+                android:alphabeticShortcut="f"
+                android:checkable="true"
+                android:title="@string/s_menu_sort_folders"/>
+        </menu>
+    </item>
+    <item
+        android:id="@+id/menu_view"
+        android:alphabeticShortcut="2"
+        android:icon="?attr/actionIconView"
+        android:showAsAction="ifRoom"
+        android:title="@string/s_view">
+        <menu>
+            <group android:checkableBehavior="single" >
+                <item
+                    android:id="@+id/menu_view_grid"
+                    android:alphabeticShortcut="g"
+                    android:icon="?attr/actionIconViewGrid"
+                    android:title="@string/s_menu_grid"/>
+                <item
+                    android:id="@+id/menu_view_list"
+                    android:alphabeticShortcut="l"
+                    android:icon="?attr/actionIconViewList"
+                    android:title="@string/s_menu_list"/>
+            </group>
+
+            <item
+                android:id="@+id/menu_view_hidden"
+                android:checkable="true"
+                android:title="@string/s_menu_hidden"/>
+            <item
+                android:id="@+id/menu_view_thumbs"
+                android:checkable="true"
+                android:title="@string/s_menu_thumbs"/>
+        </menu>
+    </item>
+    <item
+        android:id="@+id/menu_content_ops"
+        android:alphabeticShortcut="3"
         android:icon="?attr/actionIconOperations"
-        android:showAsAction="always">
-    	<menu>
-			<item
-				android:id="@+id/menu_new_folder"
-				android:icon="@drawable/ic_menu_new_folder"
-				android:alphabeticShortcut="c"
-				android:title="@string/s_menu_new_folder"
-				/>
-			<item
-			    android:id="@+id/menu_new_file"
-			    android:icon="@drawable/ic_menu_new_file"
-				android:alphabeticShortcut="v"
-			    android:title="@string/s_menu_new_file"
-				/>
-		    <item
-				android:id="@+id/menu_context_info"
-				android:title="@string/s_menu_info"
-		    	android:showAsAction="ifRoom"
-				android:alphabeticShortcut="i"
-				android:icon="@drawable/ic_menu_info_details"
-				/>
-		    <item
-		        android:id="@+id/menu_context_heatmap"
-		        android:title="@string/s_menu_heatmap"
-        		android:icon="@drawable/ic_menu_heatmap"
-		        android:showAsAction="ifRoom"
-		        />
-		    <item
-		    	android:id="@+id/menu_context_bookmark"
-				android:title="@string/s_menu_bookmark"
-				android:icon="@drawable/ic_menu_star"
-				android:alphabeticShortcut="k"
-				android:showAsAction="always|withText"
-		    	/>
-		    <item
-		        android:id="@+id/menu_context_selectall"
-		        android:title="@android:string/selectAll"
-				android:alphabeticShortcut="a"
-		        android:showAsAction="ifRoom"
-		        android:icon="?attr/actionIconSelectAll" />
-			<item
-			    android:id="@+id/content_paste"
-			    android:title="@android:string/paste"
-			    android:showAsAction="always"
-			    android:icon="@drawable/ic_menu_paste" />
-<!-- 			<item
+        android:showAsAction="always"
+        android:title="@string/s_title_operations">
+        <menu>
+            <item
+                android:id="@+id/menu_new_folder"
+                android:alphabeticShortcut="c"
+                android:icon="@drawable/ic_menu_new_folder"
+                android:title="@string/s_menu_new_folder"/>
+            <item
+                android:id="@+id/menu_new_file"
+                android:alphabeticShortcut="v"
+                android:icon="@drawable/ic_menu_new_file"
+                android:title="@string/s_menu_new_file"/>
+            <item
+                android:id="@+id/menu_context_info"
+                android:alphabeticShortcut="i"
+                android:icon="@drawable/ic_menu_info_details"
+                android:showAsAction="ifRoom"
+                android:title="@string/s_menu_info"/>
+            <item
+                android:id="@+id/menu_context_heatmap"
+                android:icon="@drawable/ic_menu_heatmap"
+                android:showAsAction="ifRoom"
+                android:title="@string/s_menu_heatmap"/>
+            <item
+                android:id="@+id/menu_context_bookmark"
+                android:alphabeticShortcut="k"
+                android:icon="@drawable/ic_menu_star"
+                android:showAsAction="always|withText"
+                android:title="@string/s_menu_bookmark"/>
+            <item
+                android:id="@+id/menu_context_selectall"
+                android:alphabeticShortcut="a"
+                android:icon="?attr/actionIconSelectAll"
+                android:showAsAction="ifRoom"
+                android:title="@android:string/selectAll"/>
+            <item
+                android:id="@+id/content_paste"
+                android:icon="@drawable/ic_menu_paste"
+                android:showAsAction="always"
+                android:title="@android:string/paste"/>
+            <!--
+     			<item
 			    android:id="@+id/menu_refresh"
 			    android:title="@string/s_menu_refresh"
 			    android:icon="@drawable/ic_menu_refresh"
-			    /> -->
-    	</menu>
+			    />
+            -->
+        </menu>
     </item>
-	<item
-	    android:id="@+id/menu_refresh"
-	    android:icon="?attr/actionIconRefresh"
-		android:alphabeticShortcut="r"
-	    android:showAsAction="ifRoom"
-	    android:title="@string/s_menu_refresh"
-	    />
+    <item
+        android:id="@+id/menu_refresh"
+        android:alphabeticShortcut="r"
+        android:icon="?attr/actionIconRefresh"
+        android:showAsAction="ifRoom"
+        android:title="@string/s_menu_refresh"/>
+
 </menu>

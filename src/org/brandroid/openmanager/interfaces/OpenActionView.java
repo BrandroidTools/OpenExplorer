@@ -24,19 +24,18 @@ import android.content.Context;
 import android.view.MenuItem;
 import android.view.View;
 
-
 /**
- * When a View implements this interface it will receive callbacks
- * when expanded or collapsed as an action view alongside the optional,
- * app-specified callbacks to OpenActionExpandListener.
+ * When a View implements this interface it will receive callbacks when expanded
+ * or collapsed as an action view alongside the optional, app-specified
+ * callbacks to OpenActionExpandListener.
  */
 public interface OpenActionView extends CollapsibleActionView {
-    
+
     /**
      * Called when ActionBar should not be used as container for ActionView.
+     * 
      * @param anchor Popup anchor.
      * @return BetterPopupWindow instance containing ActionView.
      */
     public BetterPopupWindow getPopup(Context context, View anchor);
 }
-

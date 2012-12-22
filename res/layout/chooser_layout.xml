@@ -2,44 +2,42 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorBlack"
+    android:background="?attr/dialogBackgroundColorPrimary"
     android:orientation="vertical" >
-    
-    <GridView android:id="@android:id/list"
+
+    <GridView
+        android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-   		android:padding="10dp"
-   		android:columnWidth="150dp"
-   		android:numColumns="auto_fit"
-        android:stretchMode="spacingWidth"
-        />
-    
+        android:columnWidth="150dp"
+        android:numColumns="auto_fit"
+        android:padding="10dp"
+        android:stretchMode="spacingWidth" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:background="?attr/dialogBackgroundColorPrimary"
         android:gravity="center_vertical"
-        android:background="?attr/colorDarkGray"
-        >
-	    <CheckBox 
-	        android:id="@+id/chooser_default"
-	        android:checked="false"
-	        android:paddingLeft="40dp"
-	        android:textAppearance="@style/Large"
-	        android:textColor="?attr/colorWhite"
-	        android:layout_width="0dp"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-	        android:text="@string/chooser_remember"
-	        />
-	    <Button
-	        android:id="@+id/chooser_system"
-	        android:text="@string/use_system"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        />
-    
+        android:orientation="horizontal" >
+
+        <CheckBox
+            android:id="@+id/chooser_default"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="false"
+            android:paddingLeft="40dp"
+            android:text="@string/chooser_remember"
+            android:textAppearance="@style/Text.Large"
+            android:textColor="?attr/dialogTextColorPrimary" />
+
+        <Button
+            android:id="@+id/chooser_system"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/use_system" />
     </LinearLayout>
 
 </LinearLayout>

@@ -3,73 +3,63 @@
 
     <item
         android:id="@+id/menu_context_copy"
-		android:title="@string/s_menu_copy"
         android:icon="?attr/actionIconCopy"
-    	android:showAsAction="ifRoom"
-    	android:orderInCategory="2"
-        />
+        android:orderInCategory="2"
+        android:showAsAction="ifRoom"
+        android:title="@string/s_menu_copy"/>
     <item
-		android:id="@+id/menu_context_delete"
-		android:title="@string/s_menu_delete"
-		android:icon="?attr/actionIconDelete"
-    	android:showAsAction="ifRoom"
-    	android:orderInCategory="4"
-		/>
+        android:id="@+id/menu_context_delete"
+        android:icon="?attr/actionIconDelete"
+        android:orderInCategory="4"
+        android:showAsAction="ifRoom"
+        android:title="@string/s_menu_delete"/>
     <item
-		android:id="@+id/menu_context_share"
-		android:title="@string/s_menu_share"
-    	android:icon="?attr/actionIconShare"
-    	android:showAsAction="ifRoom"
-    	android:orderInCategory="6"
-    	android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider"
-		/>
+        android:id="@+id/menu_context_share"
+        android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider"
+        android:icon="?attr/actionIconShare"
+        android:orderInCategory="6"
+        android:showAsAction="ifRoom"
+        android:title="@string/s_menu_share"/>
     <item
         android:id="@+id/menu_context_info"
-        android:title="@string/s_menu_info"
         android:icon="?attr/actionIconInfo"
-    	android:showAsAction="ifRoom"
-    	android:orderInCategory="8"
-        />
+        android:orderInCategory="8"
+        android:showAsAction="ifRoom"
+        android:title="@string/s_menu_info"/>
     <item
-    	android:id="@+id/menu_context_bookmark"
-		android:title="@string/s_menu_bookmark"
-		android:icon="@drawable/ic_menu_star"
-		android:showAsAction="ifRoom"
-    	/>
+        android:id="@+id/menu_context_bookmark"
+        android:icon="@drawable/ic_menu_star"
+        android:showAsAction="ifRoom"
+        android:title="@string/s_menu_bookmark"/>
     <item
         android:id="@+id/menu_context_heatmap"
-        android:title="@string/s_menu_heatmap"
         android:icon="@drawable/ic_menu_heatmap"
-        android:showAsAction="ifRoom"
         android:orderInCategory="10"
-        />
+        android:showAsAction="ifRoom"
+        android:title="@string/s_menu_heatmap"/>
     <item
         android:id="@+id/menu_context_rename"
-        android:title="@string/s_menu_rename"
-        android:icon="?attr/actionIconRename" 
-    	android:showAsAction="ifRoom"
-    	android:orderInCategory="12"
-        />
+        android:icon="?attr/actionIconRename"
+        android:orderInCategory="12"
+        android:showAsAction="ifRoom"
+        android:title="@string/s_menu_rename"/>
     <item
-		android:id="@+id/menu_context_selectall"
-		android:title="@android:string/selectAll"
+        android:id="@+id/menu_context_selectall"
         android:icon="?attr/actionIconSelectAll"
-    	android:showAsAction="ifRoom"
-    	android:orderInCategory="14"
-        />
+        android:orderInCategory="14"
+        android:showAsAction="ifRoom"
+        android:title="@android:string/selectAll"/>
     <item
         android:id="@+id/menu_context_download"
-        android:title="@string/s_menu_download"
-        android:showAsAction="never|withText"
         android:icon="@drawable/ic_menu_down"
-        android:visible="false"
-        />
+        android:showAsAction="never|withText"
+        android:title="@string/s_menu_download"
+        android:visible="false"/>
     <item
-		android:id="@+id/menu_context_zip"
-		android:icon="?attr/actionIconZip"
-		android:title="@string/s_menu_zip"
-    	android:showAsAction="ifRoom"
-    	android:orderInCategory="16"
-		/>
+        android:id="@+id/menu_context_zip"
+        android:icon="?attr/actionIconZip"
+        android:orderInCategory="16"
+        android:showAsAction="ifRoom"
+        android:title="@string/s_menu_zip"/>
 
 </menu>

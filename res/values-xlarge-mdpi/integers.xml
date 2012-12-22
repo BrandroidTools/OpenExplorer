@@ -12,8 +12,10 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 
 <resources>
-    <item type="integer" name="max_base_buttons">5</item>
+
+    <item name="max_base_buttons" type="integer">5</item>
+
 </resources>

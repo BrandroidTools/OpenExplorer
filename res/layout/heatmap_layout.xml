@@ -2,43 +2,40 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
-    android:background="?attr/colorBlack"
-    android:orientation="vertical" >
+    android:background="?attr/dialogBackgroundColorPrimary"
+    android:orientation="vertical"
+    android:padding="10dp" >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:orientation="horizontal"
-        >
-	    <TextView
-	        android:id="@+id/heatmap_total"
-	        android:layout_width="0dp"
-	        android:layout_weight="1"
-	        android:layout_height="wrap_content"
-	        style="@android:style/TextAppearance.Medium"
-	        android:textColor="?attr/colorWhite"
-	        android:text="@string/s_size"
-	        />
-	    <Button
-	        android:id="@+id/heatmap_refresh"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/s_menu_refresh"
-	        />
-	</LinearLayout>
-	
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/heatmap_total"
+            style="@android:style/TextAppearance.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/s_size"
+            android:textColor="?attr/dialogTextColorPrimary" />
+
+        <Button
+            android:id="@+id/heatmap_refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/s_menu_refresh" />
+    </LinearLayout>
+
     <LinearLayout
-        android:layout_height="1dp"
         android:layout_width="match_parent"
-        android:background="?attr/colorWhite"
-        />
-    
+        android:layout_height="1dp"
+        android:background="?attr/dialogAccentColorPrimary" />
+
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        />
+        android:layout_weight="1" />
 
 </LinearLayout>

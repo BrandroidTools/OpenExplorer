@@ -47,16 +47,18 @@ public class MenuInflater2 {
 
     /** Menu tag name in XML. */
     private static final String XML_MENU = "menu";
-    
+
     /** Group tag name in XML. */
     private static final String XML_GROUP = "group";
-    
+
     /** Item tag name in XML. */
     private static final String XML_ITEM = "item";
 
     private static final int NO_ID = 0;
-    
-    private static final Class<?>[] ACTION_VIEW_CONSTRUCTOR_SIGNATURE = new Class[] {Context.class};
+
+    private static final Class<?>[] ACTION_VIEW_CONSTRUCTOR_SIGNATURE = new Class[] {
+        Context.class
+    };
 
     private static final Class<?>[] ACTION_PROVIDER_CONSTRUCTOR_SIGNATURE = ACTION_VIEW_CONSTRUCTOR_SIGNATURE;
 
@@ -73,7 +75,9 @@ public class MenuInflater2 {
      */
     public MenuInflater2(Context context) {
         mContext = context;
-        mActionViewConstructorArguments = new Object[] {context};
+        mActionViewConstructorArguments = new Object[] {
+            context
+        };
         mActionProviderConstructorArguments = mActionViewConstructorArguments;
     }
 
@@ -91,14 +95,15 @@ public class MenuInflater2 {
         try {
             parser = mContext.getResources().getLayout(menuRes);
             AttributeSet attrs = Xml.asAttributeSet(parser);
-            
+
             parseMenu(parser, attrs, menu);
         } catch (XmlPullParserException e) {
             throw new InflateException("Error inflating menu XML", e);
         } catch (IOException e) {
             throw new InflateException("Error inflating menu XML", e);
         } finally {
-            if (parser != null) parser.close();
+            if (parser != null)
+                parser.close();
         }
     }
 
@@ -124,12 +129,12 @@ public class MenuInflater2 {
                     eventType = parser.next();
                     break;
                 }
-                
+
                 throw new RuntimeException("Expecting menu, got " + tagName);
             }
             eventType = parser.next();
         } while (eventType != XmlPullParser.END_DOCUMENT);
-        
+
         boolean reachedEndOfMenu = false;
         while (!reachedEndOfMenu) {
             switch (eventType) {
@@ -137,7 +142,7 @@ public class MenuInflater2 {
                     if (lookingForEndOfUnknownTag) {
                         break;
                     }
-                    
+
                     tagName = parser.getName();
                     if (tagName.equals(XML_GROUP)) {
                         menuState.readGroup(attrs);
@@ -154,7 +159,7 @@ public class MenuInflater2 {
                         unknownTagName = tagName;
                     }
                     break;
-                    
+
                 case XmlPullParser.END_TAG:
                     tagName = parser.getName();
                     if (lookingForEndOfUnknownTag && tagName.equals(unknownTagName)) {
@@ -166,8 +171,8 @@ public class MenuInflater2 {
                         // Add the item if it hasn't been added (if the item was
                         // a submenu, it would have been added already)
                         if (!menuState.hasAddedItem()) {
-                            if (menuState.itemActionProvider != null &&
-                                    menuState.itemActionProvider.hasSubMenu()) {
+                            if (menuState.itemActionProvider != null
+                                    && menuState.itemActionProvider.hasSubMenu()) {
                                 menuState.addSubMenuItem();
                             } else {
                                 menuState.addItem();
@@ -177,22 +182,24 @@ public class MenuInflater2 {
                         reachedEndOfMenu = true;
                     }
                     break;
-                    
+
                 case XmlPullParser.END_DOCUMENT:
                     throw new RuntimeException("Unexpected end of document");
             }
-            
+
             eventType = parser.next();
         }
     }
-    
-    private static class InflatedOnMenuItemClickListener
-            implements MenuItem.OnMenuItemClickListener {
-        private static final Class<?>[] PARAM_TYPES = new Class[] { MenuItem.class };
-        
+
+    private static class InflatedOnMenuItemClickListener implements
+            MenuItem.OnMenuItemClickListener {
+        private static final Class<?>[] PARAM_TYPES = new Class[] {
+            MenuItem.class
+        };
+
         private Context mContext;
         private Method mMethod;
-        
+
         public InflatedOnMenuItemClickListener(Context context, String methodName) {
             mContext = context;
             Class<?> c = context.getClass();
@@ -200,17 +207,17 @@ public class MenuInflater2 {
                 mMethod = c.getMethod(methodName, PARAM_TYPES);
             } catch (Exception e) {
                 InflateException ex = new InflateException(
-                        "Couldn't resolve menu item onClick handler " + methodName +
-                        " in class " + c.getName());
+                        "Couldn't resolve menu item onClick handler " + methodName + " in class "
+                                + c.getName());
                 ex.initCause(e);
                 throw ex;
             }
         }
-        
+
         public boolean onMenuItemClick(MenuItem item) {
             try {
                 if (mMethod.getReturnType() == Boolean.TYPE) {
-                    return (Boolean) mMethod.invoke(mContext, item);
+                    return (Boolean)mMethod.invoke(mContext, item);
                 } else {
                     mMethod.invoke(mContext, item);
                     return true;
@@ -220,7 +227,7 @@ public class MenuInflater2 {
             }
         }
     }
-    
+
     /**
      * State for the current menu.
      * <p>
@@ -232,7 +239,8 @@ public class MenuInflater2 {
 
         /*
          * Group state is set on items as they are added, allowing an item to
-         * override its group state. (As opposed to set on items at the group end tag.)
+         * override its group state. (As opposed to set on items at the group
+         * end tag.)
          */
         private int groupId;
         private int groupCategory;
@@ -250,22 +258,16 @@ public class MenuInflater2 {
         private char itemAlphabeticShortcut;
         private char itemNumericShortcut;
         /**
-         * Sync to attrs.xml enum:
-         * - 0: none
-         * - 1: all
-         * - 2: exclusive
+         * Sync to attrs.xml enum: - 0: none - 1: all - 2: exclusive
          */
         private int itemCheckable;
         private boolean itemChecked;
         private boolean itemVisible;
         private boolean itemEnabled;
-        
+
         /**
-         * Sync to attrs.xml enum, values in MenuItem:
-         * - 0: never
-         * - 1: ifRoom
-         * - 2: always
-         * - -1: Safe sentinel for "no value".
+         * Sync to attrs.xml enum, values in MenuItem: - 0: never - 1: ifRoom -
+         * 2: always - -1: Safe sentinel for "no value".
          */
         private int itemShowAsAction;
 
@@ -274,7 +276,7 @@ public class MenuInflater2 {
         private String itemActionProviderClassName;
 
         private String itemListenerMethodName;
-        
+
         private ActionProvider itemActionProvider;
 
         private static final int defaultGroupId = NO_ID;
@@ -285,13 +287,13 @@ public class MenuInflater2 {
         private static final boolean defaultItemChecked = false;
         private static final boolean defaultItemVisible = true;
         private static final boolean defaultItemEnabled = true;
-        
+
         public MenuState(final Menu menu) {
             this.menu = menu;
-            
+
             resetGroup();
         }
-        
+
         public void resetGroup() {
             groupId = defaultGroupId;
             groupCategory = defaultItemCategory;
@@ -306,85 +308,100 @@ public class MenuInflater2 {
          */
         public void readGroup(AttributeSet attrs) {
             /*
-            TypedArray a = mContext.obtainStyledAttributes(attrs,
-                    new int[]{android.R.attr.id,android.R.attr.menuCategory,android.R.attr.orderInCategory,
-            		android.R.attr.checkableBehavior,android.R.attr.visible,android.R.attr.enabled});
-            
-            groupId = a.getResourceId(android.R.attr.id, defaultGroupId);
-            groupCategory = a.getInt(android.R.attr.menuCategory, defaultItemCategory);
-            groupOrder = a.getInt(android.R.attr.orderInCategory, defaultItemOrder);
-            groupCheckable = a.getInt(android.R.attr.checkableBehavior, defaultItemCheckable);
-            groupVisible = a.getBoolean(android.R.attr.visible, defaultItemVisible);
-            groupEnabled = a.getBoolean(android.R.attr.enabled, defaultItemEnabled);
-
-            a.recycle();
-            */
-        	groupId = attrs.getAttributeIntValue("android", "groupId", defaultGroupId);
-        	groupCategory = attrs.getAttributeIntValue("android", "menuCategory", defaultItemCategory);
-        	groupVisible = defaultItemVisible;
-        	groupEnabled = defaultItemEnabled;
+             * TypedArray a = mContext.obtainStyledAttributes(attrs, new
+             * int[]{android
+             * .R.attr.id,android.R.attr.menuCategory,android.R.attr
+             * .orderInCategory,
+             * android.R.attr.checkableBehavior,android.R.attr.
+             * visible,android.R.attr.enabled}); groupId =
+             * a.getResourceId(android.R.attr.id, defaultGroupId); groupCategory
+             * = a.getInt(android.R.attr.menuCategory, defaultItemCategory);
+             * groupOrder = a.getInt(android.R.attr.orderInCategory,
+             * defaultItemOrder); groupCheckable =
+             * a.getInt(android.R.attr.checkableBehavior, defaultItemCheckable);
+             * groupVisible = a.getBoolean(android.R.attr.visible,
+             * defaultItemVisible); groupEnabled =
+             * a.getBoolean(android.R.attr.enabled, defaultItemEnabled);
+             * a.recycle();
+             */
+            groupId = attrs.getAttributeIntValue("android", "groupId", defaultGroupId);
+            groupCategory = attrs.getAttributeIntValue("android", "menuCategory",
+                    defaultItemCategory);
+            groupVisible = defaultItemVisible;
+            groupEnabled = defaultItemEnabled;
         }
-        
+
         /**
          * Called when the parser is pointing to an item tag.
          */
         public void readItem(AttributeSet attrs) {
-        	itemId = attrs.getAttributeResourceValue("android", "id", defaultItemId);
-        	final int category = attrs.getAttributeIntValue("android", "menuCategory", defaultItemCategory);
-        	final int order = attrs.getAttributeIntValue("android", "orderInCategory", groupOrder);
-        	//itemTitle = mContext.getText(attrs.getAttributeResourceValue("android", "title", 0));
-        	itemTitleCondensed = attrs.getAttributeValue("android", "titleCondensed");
-        	//itemIconResId = attrs.getAttributeResourceValue("android", "icon", 0);
-        	
-            
-        	TypedArray a = mContext.obtainStyledAttributes(attrs,
-                    new int[]{
-            		android.R.attr.id,android.R.attr.menuCategory,android.R.attr.orderInCategory,
-            		android.R.attr.title,android.R.attr.titleCondensed,android.R.attr.icon,
-            		android.R.attr.alphabeticShortcut,android.R.attr.numericShortcut,android.R.attr.checkable,
-            		android.R.attr.checked,android.R.attr.visible,android.R.attr.enabled,
-            		android.R.attr.showAsAction,android.R.attr.onClick,android.R.attr.actionLayout,
-            		android.R.attr.actionViewClass,android.R.attr.actionProviderClass
-            		});
-        	
+            itemId = attrs.getAttributeResourceValue("android", "id", defaultItemId);
+            final int category = attrs.getAttributeIntValue("android", "menuCategory",
+                    defaultItemCategory);
+            final int order = attrs.getAttributeIntValue("android", "orderInCategory", groupOrder);
+            // itemTitle =
+            // mContext.getText(attrs.getAttributeResourceValue("android",
+            // "title", 0));
+            itemTitleCondensed = attrs.getAttributeValue("android", "titleCondensed");
+            // itemIconResId = attrs.getAttributeResourceValue("android",
+            // "icon", 0);
+
+            TypedArray a = mContext.obtainStyledAttributes(attrs, new int[] {
+                    android.R.attr.id, android.R.attr.menuCategory, android.R.attr.orderInCategory,
+                    android.R.attr.title, android.R.attr.titleCondensed, android.R.attr.icon,
+                    android.R.attr.alphabeticShortcut, android.R.attr.numericShortcut,
+                    android.R.attr.checkable, android.R.attr.checked, android.R.attr.visible,
+                    android.R.attr.enabled, android.R.attr.showAsAction, android.R.attr.onClick,
+                    android.R.attr.actionLayout, android.R.attr.actionViewClass,
+                    android.R.attr.actionProviderClass
+            });
+
             // Inherit attributes from the group as default value
             itemId = a.getResourceId(findAttribute(attrs, "id"), defaultItemId);
-            //final int category = a.getInt(android.R.attr.menuCategory, groupCategory);
-            //final int order = a.getInt(android.R.attr.orderInCategory, groupOrder);
-            //itemCategoryOrder = (category & 0x0000ffff) | (order & 0x0000ffff);
+            // final int category = a.getInt(android.R.attr.menuCategory,
+            // groupCategory);
+            // final int order = a.getInt(android.R.attr.orderInCategory,
+            // groupOrder);
+            // itemCategoryOrder = (category & 0x0000ffff) | (order &
+            // 0x0000ffff);
             itemTitle = a.getText(findAttribute(attrs, "title"));
-            //itemTitleCondensed = a.getText(android.R.attr.titleCondensed);
+            // itemTitleCondensed = a.getText(android.R.attr.titleCondensed);
             itemIconResId = a.getResourceId(findAttribute(attrs, "icon"), 0);
-            //itemAlphabeticShortcut = getShortcut(a.getString(android.R.attr.alphabeticShortcut));
-            //itemNumericShortcut = getShortcut(a.getString(android.R.attr.numericShortcut));
-        	itemCheckable = attrs.getAttributeBooleanValue("android", "checkable", false) ? 1 : 0;
-            /*if (a.hasValue(android.R.attr.checkable)) {
-                // Item has attribute checkable, use it
-                itemCheckable = a.getBoolean(android.R.attr.checkable, false) ? 1 : 0;
-            } else {
-                // Item does not have attribute, use the group's (group can have one more state
-                // for checkable that represents the exclusive checkable)
-                itemCheckable = groupCheckable;
-            }*/
-        	itemChecked = attrs.getAttributeBooleanValue("android", "checked", false);
-        	itemVisible = attrs.getAttributeBooleanValue("android", "visible", true);
-        	itemEnabled = attrs.getAttributeBooleanValue("android", "enabled", true);
-        	itemShowAsAction = attrs.getAttributeIntValue("android", "showAsAction", -1);
-        	/*
-            //itemChecked = a.getBoolean(android.R.attr.checked, defaultItemChecked);
-            itemVisible = a.getBoolean(android.R.attr.visible, groupVisible);
-            itemEnabled = a.getBoolean(android.R.attr.enabled, groupEnabled);
-            itemShowAsAction = a.getInt(android.R.attr.showAsAction, -1);
-            itemListenerMethodName = a.getString(android.R.attr.onClick);
-            itemActionViewLayout = a.getResourceId(android.R.attr.actionLayout, 0);
-            itemActionViewClassName = a.getString(android.R.attr.actionViewClass);
-            itemActionProviderClassName = a.getString(android.R.attr.actionProviderClass);
-        	 */
+            // itemAlphabeticShortcut =
+            // getShortcut(a.getString(android.R.attr.alphabeticShortcut));
+            // itemNumericShortcut =
+            // getShortcut(a.getString(android.R.attr.numericShortcut));
+            itemCheckable = attrs.getAttributeBooleanValue("android", "checkable", false) ? 1 : 0;
+            /*
+             * if (a.hasValue(android.R.attr.checkable)) { // Item has attribute
+             * checkable, use it itemCheckable =
+             * a.getBoolean(android.R.attr.checkable, false) ? 1 : 0; } else {
+             * // Item does not have attribute, use the group's (group can have
+             * one more state // for checkable that represents the exclusive
+             * checkable) itemCheckable = groupCheckable; }
+             */
+            itemChecked = attrs.getAttributeBooleanValue("android", "checked", false);
+            itemVisible = attrs.getAttributeBooleanValue("android", "visible", true);
+            itemEnabled = attrs.getAttributeBooleanValue("android", "enabled", true);
+            itemShowAsAction = attrs.getAttributeIntValue("android", "showAsAction", -1);
+            /*
+             * //itemChecked = a.getBoolean(android.R.attr.checked,
+             * defaultItemChecked); itemVisible =
+             * a.getBoolean(android.R.attr.visible, groupVisible); itemEnabled =
+             * a.getBoolean(android.R.attr.enabled, groupEnabled);
+             * itemShowAsAction = a.getInt(android.R.attr.showAsAction, -1);
+             * itemListenerMethodName = a.getString(android.R.attr.onClick);
+             * itemActionViewLayout =
+             * a.getResourceId(android.R.attr.actionLayout, 0);
+             * itemActionViewClassName =
+             * a.getString(android.R.attr.actionViewClass);
+             * itemActionProviderClassName =
+             * a.getString(android.R.attr.actionProviderClass);
+             */
             final boolean hasActionProvider = itemActionProviderClassName != null;
             if (hasActionProvider && itemActionViewLayout == 0 && itemActionViewClassName == null) {
                 itemActionProvider = newInstance(itemActionProviderClassName,
-                            ACTION_PROVIDER_CONSTRUCTOR_SIGNATURE,
-                            mActionProviderConstructorArguments);
+                        ACTION_PROVIDER_CONSTRUCTOR_SIGNATURE, mActionProviderConstructorArguments);
             } else {
                 if (hasActionProvider) {
                     Log.w(LOG_TAG, "Ignoring attribute 'actionProviderClass'."
@@ -397,14 +414,14 @@ public class MenuInflater2 {
 
             itemAdded = false;
         }
-        
-        private int findAttribute(AttributeSet attrs, String name)
-        {
-        	for(int i=0;i<attrs.getAttributeCount();i++)
-        		if(attrs.getAttributeName(i).equalsIgnoreCase(name))
-        			return i;
-        		//else Logger.LogVerbose(attrs.getAttributeName(i) + "=" + attrs.getAttributeValue(i));
-        	return 0;
+
+        private int findAttribute(AttributeSet attrs, String name) {
+            for (int i = 0; i < attrs.getAttributeCount(); i++)
+                if (attrs.getAttributeName(i).equalsIgnoreCase(name))
+                    return i;
+            // else Logger.LogVerbose(attrs.getAttributeName(i) + "=" +
+            // attrs.getAttributeValue(i));
+            return 0;
         }
 
         private char getShortcut(String shortcutString) {
@@ -414,32 +431,28 @@ public class MenuInflater2 {
                 return shortcutString.charAt(0);
             }
         }
-        
+
         private void setItem(MenuItem item) {
-            item.setChecked(itemChecked)
-                .setVisible(itemVisible)
-                .setEnabled(itemEnabled)
-                .setCheckable(itemCheckable >= 1)
-                .setTitleCondensed(itemTitleCondensed)
-                .setIcon(itemIconResId)
-                .setAlphabeticShortcut(itemAlphabeticShortcut)
-                .setNumericShortcut(itemNumericShortcut);
-            
+            item.setChecked(itemChecked).setVisible(itemVisible).setEnabled(itemEnabled)
+                    .setCheckable(itemCheckable >= 1).setTitleCondensed(itemTitleCondensed)
+                    .setIcon(itemIconResId).setAlphabeticShortcut(itemAlphabeticShortcut)
+                    .setNumericShortcut(itemNumericShortcut);
+
             if (itemShowAsAction >= 0) {
                 item.setShowAsAction(itemShowAsAction);
             }
-            
+
             if (itemListenerMethodName != null) {
                 if (mContext.isRestricted()) {
                     throw new IllegalStateException("The android:onClick attribute cannot "
                             + "be used within a restricted context");
                 }
-                item.setOnMenuItemClickListener(
-                        new InflatedOnMenuItemClickListener(mContext, itemListenerMethodName));
+                item.setOnMenuItemClickListener(new InflatedOnMenuItemClickListener(mContext,
+                        itemListenerMethodName));
             }
 
             if (item instanceof MenuItemImpl) {
-                MenuItemImpl impl = (MenuItemImpl) item;
+                MenuItemImpl impl = (MenuItemImpl)item;
                 if (itemCheckable >= 2) {
                     impl.setExclusiveCheckable(true);
                 }
@@ -447,7 +460,7 @@ public class MenuInflater2 {
 
             boolean actionViewSpecified = false;
             if (itemActionViewClassName != null) {
-                View actionView = (View) newInstance(itemActionViewClassName,
+                View actionView = (View)newInstance(itemActionViewClassName,
                         ACTION_VIEW_CONSTRUCTOR_SIGNATURE, mActionViewConstructorArguments);
                 item.setActionView(actionView);
                 actionViewSpecified = true;
@@ -470,14 +483,14 @@ public class MenuInflater2 {
             itemAdded = true;
             setItem(menu.add(groupId, itemId, itemCategoryOrder, itemTitle));
         }
-        
+
         public SubMenu addSubMenuItem() {
             itemAdded = true;
             SubMenu subMenu = menu.addSubMenu(groupId, itemId, itemCategoryOrder, itemTitle);
             setItem(subMenu.getItem());
             return subMenu;
         }
-        
+
         public boolean hasAddedItem() {
             return itemAdded;
         }
@@ -488,7 +501,7 @@ public class MenuInflater2 {
             try {
                 Class<?> clazz = mContext.getClassLoader().loadClass(className);
                 Constructor<?> constructor = clazz.getConstructor(constructorSignature);
-                return (T) constructor.newInstance(arguments);
+                return (T)constructor.newInstance(arguments);
             } catch (Exception e) {
                 Log.w(LOG_TAG, "Cannot instantiate class: " + className, e);
             }

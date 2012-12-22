@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
+<!--
  * Copyright (C) 2007-2008 OpenIntents.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,55 +13,129 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- -->
+-->
 <MimeTypes>
-	<!-- Image types -->
-	<type extension=".png" mimetype="image/png" />
-	<type extension=".gif" mimetype="image/gif" />
-	<type extension=".jpg" mimetype="image/jpeg" />
-	<type extension=".jpeg" mimetype="image/jpeg" />
-	<type extension=".bmp" mimetype="image/bmp" />
-	    
-	<!-- Audio types -->
-	<type extension=".mp3" mimetype="audio/mpeg" />
-	<type extension=".wav" mimetype="audio/x-wav" />
-	<type extension=".ogg" mimetype="application/ogg" />
-	<type extension=".mid" mimetype="audio/midi" />
-	<type extension=".midi" mimetype="audio/midi" />
-	<type extension=".amr" mimetype="audio/amr" />
-	<type extension=".aac" mimetype="audio/x-aac"/> <!-- NOT IN WEBKIT -->
-	
-	<!-- Video types -->
-	<type extension=".mpeg" mimetype="video/mpeg" />
-	<type extension=".3gp" mimetype="video/3gpp" />
-	<type extension=".mpg" mimetype="video/mpeg" />
-	<type extension=".avi" mimetype="video/avi" />
-	
-	<!-- Package types -->
-	<type extension=".jar" mimetype="application/java-archive" />
-	<type extension=".gzip" mimetype="application/gzip" />
-	<type extension=".7z" mimetype="application/x-7z-compressed" />
-	<type extension=".tar" mimetype="application/tar" />
-	<type extension=".zip" mimetype="application/zip" />
-	<type extension=".rar" mimetype="application/rar" />
-	<type extension=".gz" mimetype="application/gzip" /> <!-- NOT IN WEBKIT -->
-	
-	<!-- Web browser types -->
-	<type extension=".htm" mimetype="text/html" />
-	<type extension=".html" mimetype="text/html" />
-	<type extension=".aspx" mimetype="text/html" />
-	<type extension=".ascx" mimetype="text/html" />
-	<type extension=".php" mimetype="text/php " /> <!-- NOT IN WEBKIT -->
-	
-	<!-- Text types -->
-	<type extension=".txt" mimetype="text/plain" />
-	<type extension=".cs" mimetype="text/plain" />
-	<type extension=".csv" mimetype="text/comma-separated-values" />
-	<type extension=".xml" mimetype="text/xml" />
-	<type extension=".json" mimetype="text/javascript" />
-	<type extension=".js" mimetype="text/javascript" />
-	
-	<!-- Android specific -->
-	<type extension=".apk" mimetype="application/vnd.android.package-archive" />
-	
+
+    <!-- Image types -->
+    <type
+        extension=".png"
+        mimetype="image/png" />
+    <type
+        extension=".gif"
+        mimetype="image/gif" />
+    <type
+        extension=".jpg"
+        mimetype="image/jpeg" />
+    <type
+        extension=".jpeg"
+        mimetype="image/jpeg" />
+    <type
+        extension=".bmp"
+        mimetype="image/bmp" />
+
+    <!-- Audio types -->
+    <type
+        extension=".mp3"
+        mimetype="audio/mpeg" />
+    <type
+        extension=".wav"
+        mimetype="audio/x-wav" />
+    <type
+        extension=".ogg"
+        mimetype="application/ogg" />
+    <type
+        extension=".mid"
+        mimetype="audio/midi" />
+    <type
+        extension=".midi"
+        mimetype="audio/midi" />
+    <type
+        extension=".amr"
+        mimetype="audio/amr" />
+    <type
+        extension=".aac"
+        mimetype="audio/x-aac" /> <!-- NOT IN WEBKIT -->
+
+
+    <!-- Video types -->
+    <type
+        extension=".mpeg"
+        mimetype="video/mpeg" />
+    <type
+        extension=".3gp"
+        mimetype="video/3gpp" />
+    <type
+        extension=".mpg"
+        mimetype="video/mpeg" />
+    <type
+        extension=".avi"
+        mimetype="video/avi" />
+
+    <!-- Package types -->
+    <type
+        extension=".jar"
+        mimetype="application/java-archive" />
+    <type
+        extension=".gzip"
+        mimetype="application/gzip" />
+    <type
+        extension=".7z"
+        mimetype="application/x-7z-compressed" />
+    <type
+        extension=".tar"
+        mimetype="application/tar" />
+    <type
+        extension=".zip"
+        mimetype="application/zip" />
+    <type
+        extension=".rar"
+        mimetype="application/rar" />
+    <type
+        extension=".gz"
+        mimetype="application/gzip" /> <!-- NOT IN WEBKIT -->
+
+
+    <!-- Web browser types -->
+    <type
+        extension=".htm"
+        mimetype="text/html" />
+    <type
+        extension=".html"
+        mimetype="text/html" />
+    <type
+        extension=".aspx"
+        mimetype="text/html" />
+    <type
+        extension=".ascx"
+        mimetype="text/html" />
+    <type
+        extension=".php"
+        mimetype="text/php " /> <!-- NOT IN WEBKIT -->
+
+
+    <!-- Text types -->
+    <type
+        extension=".txt"
+        mimetype="text/plain" />
+    <type
+        extension=".cs"
+        mimetype="text/plain" />
+    <type
+        extension=".csv"
+        mimetype="text/comma-separated-values" />
+    <type
+        extension=".xml"
+        mimetype="text/xml" />
+    <type
+        extension=".json"
+        mimetype="text/javascript" />
+    <type
+        extension=".js"
+        mimetype="text/javascript" />
+
+    <!-- Android specific -->
+    <type
+        extension=".apk"
+        mimetype="application/vnd.android.package-archive" />
+
 </MimeTypes>

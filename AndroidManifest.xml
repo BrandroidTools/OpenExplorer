@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<!-- 
+<!--
 	OpenExplorer, an open source file manager for the Android system
     Copyright (C) 2011, 2012  Brandon Bowles <brandroid64@gmail.com>
 
@@ -16,141 +15,168 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- -->
+
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.brandroid.openmanager"
-	android:versionName="0.194"
-	android:versionCode="194"
-	android:installLocation="auto">
+    android:installLocation="auto"
+    android:versionCode="200"
+    android:versionName="0.200" >
 
-	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16" />
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="16" />
 
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.BLUETOOTH" />
 	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
-	
+
 	<!--  Disable for BB: -->
 	<uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
-	<!-- 
-	<uses-permission android:name="android.permission.READ_LOGS" /> -->
-	<!-- Not using donations for now:
+<!-- 	<uses-permission android:name="android.permission.READ_LOGS" /> -->
+    <!--
+    Not using donations for now:
 	<uses-permission android:name="com.android.vending.BILLING" />
+
 	-->
 
-	<uses-feature android:name="com.google.android.tv" android:required="false"/>  
-	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
-	<uses-feature android:name="android.hardware.bluetooth" android:required="false" />
-	<uses-feature android:name="android.hardware.faketouch" android:required="false" />
-	<uses-feature android:name="android.hardware.usb.accessory" android:required="false" />
+    <uses-feature
+        android:name="com.google.android.tv"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.bluetooth"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.faketouch"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.usb.accessory"
+        android:required="false" />
 
-	<application android:icon="@drawable/icon_flat" android:label="@string/app_name"
+    <application
 	    android:name=".activities.OpenApplication"
-	    android:theme="@style/AppTheme.Dark"
-	    android:uiOptions="splitActionBarWhenNarrow">
-
-		<activity android:name=".activities.OpenExplorer"
+        android:icon="@drawable/icon_flat"
 		    android:label="@string/app_name"
 		    android:theme="@style/AppTheme.Dark"
+        android:uiOptions="splitActionBarWhenNarrow" >
+        <activity
+            android:name=".activities.OpenExplorer"
 		    android:configChanges="screenSize|keyboard|keyboardHidden"
+            android:label="@string/app_name"
 		    android:launchMode="singleTop"
-		    >
+            android:theme="@style/AppTheme.Dark" >
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
+
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 			<intent-filter>
 			    <action android:name="android.intent.action.SEARCH" />
 			</intent-filter>
-			<meta-data android:name="android.app.searchable"
+
+            <meta-data
+                android:name="android.app.searchable"
 			    android:resource="@xml/searchable" />
+
 		    <intent-filter>
 		        <action android:name="android.intent.action.VIEW" />
+
 				<category android:name="android.intent.category.DEFAULT" />
+
 				<data android:mimeType="application/zip" />
 		    </intent-filter>
 		    <intent-filter>
 		        <action android:name="android.intent.action.VIEW" />
+
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.ALTERNATIVE" />
-				<!--<data android:scheme="content" />
-				<data android:scheme="file" />-->
+                <!--
+                <data android:scheme="content" />
+				<data android:scheme="file" />
+                -->
 				<data android:mimeType="text/*" />
 		    </intent-filter>
 		    <intent-filter>
 		        <action android:name="android.intent.action.EDIT" />
+
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.ALTERNATIVE" />
-				<!--data android:scheme="content" /-->
+                <!-- data android:scheme="content" / -->
 				<data android:scheme="file" />
 				<data android:mimeType="text/*" />
 		    </intent-filter>
 		</activity>
-		
-		<activity android:name=".activities.ServerSetupActivity"
-		    android:theme="@style/Dialog"
+        <activity
+            android:name=".activities.ServerSetupActivity"
 		    android:configChanges="screenSize|keyboard|keyboardHidden"
-		    ></activity>
-		
-		<activity android:name=".activities.FolderPickerActivity"
+            android:theme="@style/Dialog" >
+        </activity>
+        <activity
+            android:name=".activities.FolderPickerActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden"
 		    android:label="@string/s_title_picker"
-		    android:theme="@style/Dialog"
-		    android:configChanges="screenSize|keyboard|keyboardHidden"
-		    >
+            android:theme="@style/Dialog" >
 		    <intent-filter>
 		        <action android:name="android.intent.action.PICK" />
+
 		        <category android:name="android.intent.category.DEFAULT" />
+
 				<data android:scheme="file" />
                 <data android:mimeType="*/*" />
 		    </intent-filter>
             <intent-filter>
                 <action android:name="org.openintents.action.PICK_FILE" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:scheme="file" />
                 <data android:mimeType="*/*" />
             </intent-filter>
 		</activity>
-		
+
 	    <meta-data
 	        android:name="android.app.default_searchable"
-	        android:value=".activities.OpenExplorer"
-	        />
-	    
+            android:value=".activities.OpenExplorer" />
+
 	    <activity
 	        android:name=".activities.Authenticator"
-	        android:label="Authenticator"
-	        />
-	    
+            android:label="Authenticator" />
 	    <activity
 	        android:name=".activities.SearchableActivity"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop" >
 	    </activity>
-	    
-	    <service
-	        android:name=".services.FileScannerService">
+
+        <service android:name=".services.FileScannerService" >
 	    </service>
-	    
+
+        <activity android:name=".activities.FileScannerProgress" >
+        </activity>
 	    <activity
-	        android:name=".activities.FileScannerProgress">
-	    </activity>
-	    
-		<activity android:name=".activities.UsbActivity" android:label="@string/app_name" android:launchMode="singleInstance">
+            android:name=".activities.UsbActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleInstance" >
 			<intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
             </intent-filter>
-            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
 		</activity>
-		
-		<activity android:name=".activities.IncomingMessageInterstitial"
+        <activity
+            android:name=".activities.IncomingMessageInterstitial"
+            android:excludeFromRecents="true"
 		    android:label="File Operations Complete"
-		    android:launchMode="singleInstance"
-		    android:excludeFromRecents="true"
-		    >
+            android:launchMode="singleInstance" >
 		</activity>
-		
-		<!-- activity android:name=".APKDecompiler" android:label="Decompile APK" android:icon="@drawable/apk">
+
+        <!--
+        activity android:name=".APKDecompiler" android:label="Decompile APK" android:icon="@drawable/apk">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -158,23 +184,25 @@
 				<data android:scheme="file" />
 				<data android:mimeType="application/vnd.android.package-archive" />
 			</intent-filter>
-		</activity -->
-		
-		<activity android:name=".activities.WTFSenderActivity" android:theme="@style/Dialog" />
+		</activity
+        -->
 
 		<activity
+            android:name=".activities.WTFSenderActivity"
+            android:theme="@style/Dialog" />
+        <activity
 		    android:name=".activities.SettingsActivity"
-		    android:label="@string/s_menu_prefs_global" 
-	    	android:theme="@style/AppTheme.Dark"
-	    	/>
-		
-		<activity android:name=".activities.BluetoothActivity" android:label="Bluetooth"
+            android:label="@string/s_menu_prefs_global"
+            android:theme="@style/AppTheme.Dark" />
+        <activity
+            android:name=".activities.BluetoothActivity"
+            android:label="Bluetooth"
 			android:theme="@style/Dialog" />
-		
-		<activity android:name=".activities.SplashActivity"
+        <activity
+            android:name=".activities.SplashActivity"
 		    android:theme="@style/Dialog" />
-		
-		<!-- 
+
+        <!--
 		<service android:name="org.brandroid.billing.BillingService" />
 
 		<receiver android:name="org.brandroid.billing.BillingReceiver">
@@ -184,19 +212,20 @@
 			    <action android:name="com.android.vending.billing.PURCHASE_STATE_CHANGED" />
 			</intent-filter>
 		</receiver>
+
 		-->
-		
+
 		<meta-data
 		    android:name="ga_code"
-		    android:value="UA-20719255-4" 
-		    />
-		
-		<receiver android:name="com.google.android.apps.analytics.AnalyticsReceiver"
-			android:exported="true">
+            android:value="UA-20719255-4" />
+
+        <receiver
+            android:name="com.google.android.apps.analytics.AnalyticsReceiver"
+            android:exported="true" >
 			<intent-filter>
 				<action android:name="com.android.vending.INSTALL_REFERRER" />
 			</intent-filter>
 		</receiver>
+    </application>
 
-	</application>
 </manifest>

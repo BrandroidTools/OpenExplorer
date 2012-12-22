@@ -1,48 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
-        
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
     <TextView
-        android:text="@string/s_pref_logview"
-        style="@style/Large"
-        android:padding="6dp"
+        style="@style/Text.Large"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" 
-        />
-        
+        android:layout_height="wrap_content"
+        android:padding="6dp"
+        android:text="@string/s_pref_logview" />
+
     <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content" >
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-        	android:orientation="horizontal">
-	        <Button
-	            android:id="@+id/log_copy"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@android:string/copy"
-	            />
-	        <Button
-	            android:id="@+id/log_clear"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/s_clear"
-	            />
-	    </LinearLayout>
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/log_copy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@android:string/copy" />
+
+            <Button
+                android:id="@+id/log_clear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/s_clear" />
+        </LinearLayout>
     </HorizontalScrollView>
 
-	<ListView 
-	    android:id="@+id/log_list"
-	    android:layout_width="wrap_content"
-	    android:layout_height="match_parent"
-	    android:focusable="true"
-	    android:layout_weight="1"
-	    >
-	</ListView>
-	
+    <ListView
+        android:id="@+id/log_list"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:focusable="true" >
+    </ListView>
+
 </LinearLayout>
-	

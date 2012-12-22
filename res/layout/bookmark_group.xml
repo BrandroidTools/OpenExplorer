@@ -2,19 +2,22 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
+
     <TextView
-	    style="?android:attr/listSeparatorTextViewStyle"
-	    android:id="@android:id/title"
-	    android:textColor="@color/section_title"
-	    android:text="@string/s_pref_servers"
-	/>
-    <Button
-        android:id="@android:id/button1"
-        android:layout_width="wrap_content"
+        android:id="@android:id/title"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignBottom="@android:id/title"
-        android:padding="0dp"
-        android:text=" + " 
-        />
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/sd__category_background"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:paddingLeft="4dp"
+        android:singleLine="true"
+        android:text="@string/s_pref_servers"
+        android:textAllCaps="true"
+        android:textColor="?attr/drawerTextColorPrimary"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
 </RelativeLayout>

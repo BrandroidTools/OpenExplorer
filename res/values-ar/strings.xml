@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
+
     <string name="app_name">مستعرض الملفات</string>
     <string name="s_photos">الصور</string>
     <string name="s_videos">الفيديو</string>
@@ -316,4 +317,5 @@
     <string name="s_alert_clipboard">تم النسخ للذاكرة المؤقتة</string>
     <string name="s_alert_restart">إعادة التشغيل. الرجاء الإنتظار</string>
     <string name="language">اللغة</string>
+
 </resources>

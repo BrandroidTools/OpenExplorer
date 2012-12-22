@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item type="bool" name="allow_split_actionbar">false</item>
-    <item type="bool" name="land">true</item>
+
+    <item name="allow_split_actionbar" type="bool">false</item>
+    <item name="land" type="bool">true</item>
+
 </resources>

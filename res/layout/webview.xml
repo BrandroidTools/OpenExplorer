@@ -1,38 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content" android:layout_height="match_parent">
-    
-    <TextView android:id="@android:id/title"
-        android:textAppearance="@style/Large"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@android:id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@android:id/button1"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
         android:layout_toLeftOf="@android:id/button1"
         android:gravity="left|center_vertical"
         android:paddingLeft="4dp"
         android:text="@string/button_translate"
-        />
-    
-    <ImageButton android:id="@android:id/button1"
-    	android:background="@drawable/list_selector_background"
-        android:contentDescription="@string/s_clear"
-        android:layout_alignParentRight="true"
+        android:textAppearance="@style/Text.Large" />
+
+    <ImageButton
+        android:id="@android:id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_menu_close_clear_cancel"
-        />
-    
-	<ScrollView
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:layout_below="@android:id/button1"
-	    >
-		<WebView
-		    android:id="@+id/webview"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    />
-	</ScrollView>
+        android:layout_alignParentRight="true"
+        android:background="@drawable/list_selector_background"
+        android:contentDescription="@string/s_clear"
+        android:src="@drawable/ic_menu_close_clear_cancel" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@android:id/button1" >
+
+        <WebView
+            android:id="@+id/webview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+
 </RelativeLayout>

@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical"
-	android:layout_alignParentTop="true" >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_alignParentTop="true"
+    android:orientation="vertical" >
 
-    <GridView android:id="@+id/multiselect_command_grid"
+    <GridView
+        android:id="@+id/multiselect_command_grid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:columnWidth="@dimen/multi_command_width"
-        android:numColumns="auto_fit"
-        />
+        android:numColumns="auto_fit" />
+
     <View
         android:id="@+id/multiselect_separator"
-        android:layout_below="@+id/multiselect_command_grid"
-        android:background="@color/darkGray"
+        android:layout_width="match_parent"
         android:layout_height="5dp"
-        android:layout_width="match_parent" 
-        />
+        android:layout_below="@+id/multiselect_command_grid"
+        android:background="@color/darkGray" />
+
     <ListView
-        android:layout_below="@+id/multiselect_separator"
-	    android:id="@+id/multiselect_item_list"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    />
+        android:id="@+id/multiselect_item_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/multiselect_separator" />
+
 </RelativeLayout>

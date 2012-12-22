@@ -1,132 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string-array name="sorting">
-		<item>@string/s_none</item>
-		<item>@string/s_menu_sort_name_asc</item>
-		<item>@string/s_menu_sort_name_desc</item>
-		<item>@string/s_menu_sort_date_asc</item>
-		<item>@string/s_menu_sort_date_desc</item>
-		<item>@string/s_menu_sort_size_asc</item>
-		<item>@string/s_menu_sort_size_desc</item>
-		<item>@string/s_menu_sort_type</item>
-	</string-array>
-	<string-array name="sorting_value">
-		<item>none</item>
-		<item>alpha</item>
-		<item>alpha_desc</item>
-		<item>date</item>
-		<item>date_desc</item>
-		<item>size</item>
-		<item>size_desc</item>
-		<item>type</item>
-	</string-array>
-	
-	<string-array name="view">
-		<item>@string/s_menu_grid</item>
-		<item>@string/s_menu_list</item>
-	</string-array>
-	<string-array name="view_value">
-		<item>grid</item>
-		<item>list</item>
-	</string-array>
-	
-	<string-array name="server_types">
-	    <item>@string/s_server_ftp</item>
-	    <item>@string/s_server_sftp</item>
-	    <item>@string/s_server_smb</item>
-	</string-array>
-	<string-array name="server_types_values">
-	    <item>ftp</item>
-	    <item>sftp</item>
-	    <item>smb</item>
-	</string-array>
-	
-	<string-array name="bookmark_groups">
-	    <item>@string/s_bookmark_drives</item>
-	    <item>@string/s_bookmark_smart</item>
-	    <item>@string/s_bookmark_favorites</item>
-	    <item>@string/s_bookmark_servers</item>
-	</string-array>
-	
-	<string-array name="bookmark_groups_values">
-	    <item>Drives</item>
-	    <item>Smart Folders</item>
-	    <item>Favorites</item>
-	    <item>Servers</item>
-	    <item>Cache</item>
-	</string-array>
-	
-	<string-array name="basebar_split">
-	    <item>@string/s_split_auto</item>
-	    <item>@string/s_split_top</item>
-	    <item>@string/s_split_top_single</item>
-	    <item>@string/s_split_bottom</item>
-	    <item>@string/s_split_none</item>
-	</string-array>
-	<string-array name="basebar_split_values">
-	    <item>Auto</item>
-	    <item>Top</item>
-	    <item>Single</item>
-	    <item>Bottom</item>
-	    <item>None</item>
-	</string-array>
-	<string-array name="languages">
-	    <item>English</item>
-	    <item>Español</item>
-	    <item>Français</item>
-	    <item>русский</item>
-	    <item>Deutsch</item>
-	    <item>العربية</item>
-	    <item>català</item>
-	    <item>Ελληνικά</item>
-	    <item>עברית</item>
-	    <item>magyar</item>
-	    <item>Italiano</item>
-	    <item>日本語</item>
-	    <item>Georgian</item>
-	    <item>한국의</item>
-	    <item>Nederlands</item>
-	    <item>polski</item>
-	    <item>português</item>
-	    <item>slovenčina</item>
-	    <item>svenska</item>
-	    <item>Türkçe</item>
-	</string-array>
-	<string-array name="languages_values">
-	    <item>en</item>
-	    <item>es</item>
-	    <item>fr</item>
-	    <item>ru</item>
-	    <item>de</item>
-	    <item>ar</item>
-	    <item>ca</item>
-	    <item>el</item>
-	    <item>he</item>
-	    <item>hu</item>
-	    <item>it</item>
-	    <item>ja</item>
-	    <item>ka</item>
-	    <item>ko</item>
-	    <item>nl</item>
-	    <item>pl</item>
-	    <item>pt</item>
-	    <item>sk</item>
-	    <item>sv</item>
-	    <item>tr</item>
-	</string-array>
-	
-	<string-array name="text_max_size">
-	    <item>50kb</item>
-	    <item>500kb</item>
-	    <item>5mb</item>
-	    <item>20mb</item>
-	    <item>2gb</item>
-	</string-array>
-	<string-array name="text_max_size_values">
-	    <item>50000</item>
-	    <item>500000</item>
-	    <item>5000000</item>
-	    <item>20000000</item>
-	    <item>2000000000</item>
-	</string-array>
+
+    <string-array name="themes">
+        <item>@string/s_theme_dark</item>
+        <item>@string/s_theme_light</item>
+        <item>@string/s_theme_lightdark</item>
+        <item>@string/s_theme_custom</item>
+    </string-array>
+    <string-array name="theme_values">
+        <item>dark</item>
+        <item>light</item>
+        <item>lightdark</item>
+        <item>custom</item>
+    </string-array>
+    <string-array name="sorting">
+        <item>@string/s_none</item>
+        <item>@string/s_menu_sort_name_asc</item>
+        <item>@string/s_menu_sort_name_desc</item>
+        <item>@string/s_menu_sort_date_asc</item>
+        <item>@string/s_menu_sort_date_desc</item>
+        <item>@string/s_menu_sort_size_asc</item>
+        <item>@string/s_menu_sort_size_desc</item>
+        <item>@string/s_menu_sort_type</item>
+    </string-array>
+    <string-array name="sorting_value">
+        <item>none</item>
+        <item>alpha</item>
+        <item>alpha_desc</item>
+        <item>date</item>
+        <item>date_desc</item>
+        <item>size</item>
+        <item>size_desc</item>
+        <item>type</item>
+    </string-array>
+    <string-array name="view">
+        <item>@string/s_menu_grid</item>
+        <item>@string/s_menu_list</item>
+    </string-array>
+    <string-array name="view_value">
+        <item>grid</item>
+        <item>list</item>
+    </string-array>
+    <string-array name="server_types">
+        <item>@string/s_server_ftp</item>
+        <item>@string/s_server_sftp</item>
+        <item>@string/s_server_smb</item>
+    </string-array>
+    <string-array name="server_types_values">
+        <item>ftp</item>
+        <item>sftp</item>
+        <item>smb</item>
+    </string-array>
+    <string-array name="bookmark_groups">
+        <item>@string/s_bookmark_drives</item>
+        <item>@string/s_bookmark_smart</item>
+        <item>@string/s_bookmark_favorites</item>
+        <item>@string/s_bookmark_servers</item>
+    </string-array>
+    <string-array name="bookmark_groups_values">
+        <item>Drives</item>
+        <item>Smart Folders</item>
+        <item>Favorites</item>
+        <item>Servers</item>
+        <item>Cache</item>
+    </string-array>
+    <string-array name="basebar_split">
+        <item>@string/s_split_auto</item>
+        <item>@string/s_split_top</item>
+        <item>@string/s_split_top_single</item>
+        <item>@string/s_split_bottom</item>
+        <item>@string/s_split_none</item>
+    </string-array>
+    <string-array name="basebar_split_values">
+        <item>Auto</item>
+        <item>Top</item>
+        <item>Single</item>
+        <item>Bottom</item>
+        <item>None</item>
+    </string-array>
+    <string-array name="languages">
+        <item>English</item>
+        <item>Español</item>
+        <item>Français</item>
+        <item>русский</item>
+        <item>Deutsch</item>
+        <item>العربية</item>
+        <item>català</item>
+        <item>Ελληνικά</item>
+        <item>עברית</item>
+        <item>magyar</item>
+        <item>Italiano</item>
+        <item>日本語</item>
+        <item>Georgian</item>
+        <item>한국의</item>
+        <item>Nederlands</item>
+        <item>polski</item>
+        <item>português</item>
+        <item>slovenčina</item>
+        <item>svenska</item>
+        <item>Türkçe</item>
+    </string-array>
+    <string-array name="languages_values">
+        <item>en</item>
+        <item>es</item>
+        <item>fr</item>
+        <item>ru</item>
+        <item>de</item>
+        <item>ar</item>
+        <item>ca</item>
+        <item>el</item>
+        <item>he</item>
+        <item>hu</item>
+        <item>it</item>
+        <item>ja</item>
+        <item>ka</item>
+        <item>ko</item>
+        <item>nl</item>
+        <item>pl</item>
+        <item>pt</item>
+        <item>sk</item>
+        <item>sv</item>
+        <item>tr</item>
+    </string-array>
+    <string-array name="text_max_size">
+        <item>50kb</item>
+        <item>500kb</item>
+        <item>5mb</item>
+        <item>20mb</item>
+        <item>2gb</item>
+    </string-array>
+    <string-array name="text_max_size_values">
+        <item>50000</item>
+        <item>500000</item>
+        <item>5000000</item>
+        <item>20000000</item>
+        <item>2000000000</item>
+    </string-array>
+
 </resources>

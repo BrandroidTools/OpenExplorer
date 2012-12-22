@@ -8,9 +8,9 @@
         android:id="@+id/RelativeLayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
         android:background="@android:drawable/title_bar"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:padding="4dp" >
 
         <ProgressBar
             android:id="@android:id/progress"
@@ -22,16 +22,16 @@
 
         <TextView
             android:id="@+id/search_summary"
+            style="@style/Text.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignWithParentIfMissing="true"
-            android:layout_toRightOf="@android:id/progress"
+            android:layout_marginLeft="4dp"
             android:layout_toLeftOf="@+id/search_cancel"
-            style="@style/Large"
-            android:singleLine="false"
+            android:layout_toRightOf="@android:id/progress"
             android:maxLines="3"
-            android:layout_marginLeft="4dp" />
+            android:singleLine="false" />
 
         <Button
             android:id="@+id/search_cancel"
@@ -40,7 +40,6 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:text="@android:string/cancel" />
-
     </RelativeLayout>
 
     <include layout="@layout/content_layout" />

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item type="bool" name="allow_fullscreen">false</item>
+
+    <item name="allow_fullscreen" type="bool">false</item>
+
 </resources>

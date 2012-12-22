@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item type="bool" name="ignore_max_base_buttons">false</item>
-    <item type="bool" name="large_land">true</item>
+
+    <item name="ignore_max_base_buttons" type="bool">false</item>
+    <item name="large_land" type="bool">true</item>
+
 </resources>

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
-	android:src="@android:drawable/ic_menu_search"
+    style="@style/ActionBarCompatItem"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@android:drawable/list_selector_background"
     android:clickable="true"
     android:contentDescription="@string/app_name"
-    style="@style/ActionBarCompatItem"
-	android:layout_width="wrap_content"
-	android:layout_height="match_parent"
-	android:minWidth="@dimen/actionbar_compat_button_width"
-	android:padding="@dimen/actionbar_compat_button_padding"
-	android:background="@android:drawable/list_selector_background"
-	android:scaleType="center"
-    />
+    android:minWidth="@dimen/actionbar_compat_button_width"
+    android:padding="@dimen/actionbar_compat_button_padding"
+    android:scaleType="center"
+    android:src="@android:drawable/ic_menu_search" />

@@ -2,13 +2,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <ListPreference
-		android:key="server_choice"
-		android:title="Server"
-		android:summary="Choose Server"
-		/>
-	<PreferenceScreen
-		android:title="Settings"
-		android:key="server_prefs"
-		android:fragment="org.brandroid.openmanager.fragments.PreferenceFragmentV11$ServerSettings" />
+        android:key="server_choice"
+        android:summary="Choose Server"
+        android:title="Server" />
+
+    <PreferenceScreen
+        android:fragment="org.brandroid.openmanager.fragments.PreferenceFragmentV11$ServerSettings"
+        android:key="server_prefs"
+        android:title="Settings" />
 
 </PreferenceScreen>

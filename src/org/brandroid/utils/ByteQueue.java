@@ -17,8 +17,8 @@
 package org.brandroid.utils;
 
 /**
- * A multi-thread-safe produce-consumer byte array.
- * Only allows one producer and one consumer.
+ * A multi-thread-safe produce-consumer byte array. Only allows one producer and
+ * one consumer.
  */
 
 public class ByteQueue {
@@ -27,26 +27,23 @@ public class ByteQueue {
     }
 
     public int getBytesAvailable() {
-        synchronized(this) {
+        synchronized (this) {
             return mStoredBytes;
         }
     }
 
-    public int read(byte[] buffer, int offset, int length)
-        throws InterruptedException {
+    public int read(byte[] buffer, int offset, int length) throws InterruptedException {
         if (length + offset > buffer.length) {
-            throw
-                new IllegalArgumentException("length + offset > buffer.length");
+            throw new IllegalArgumentException("length + offset > buffer.length");
         }
         if (length < 0) {
-            throw
-            new IllegalArgumentException("length < 0");
+            throw new IllegalArgumentException("length < 0");
 
         }
         if (length == 0) {
             return 0;
         }
-        synchronized(this) {
+        synchronized (this) {
             while (mStoredBytes == 0) {
                 wait();
             }
@@ -73,25 +70,22 @@ public class ByteQueue {
         }
     }
 
-    public void write(byte[] buffer, int offset, int length)
-    throws InterruptedException {
+    public void write(byte[] buffer, int offset, int length) throws InterruptedException {
         if (length + offset > buffer.length) {
-            throw
-                new IllegalArgumentException("length + offset > buffer.length");
+            throw new IllegalArgumentException("length + offset > buffer.length");
         }
         if (length < 0) {
-            throw
-            new IllegalArgumentException("length < 0");
+            throw new IllegalArgumentException("length < 0");
 
         }
         if (length == 0) {
             return;
         }
-        synchronized(this) {
+        synchronized (this) {
             int bufferLength = mBuffer.length;
             boolean wasEmpty = mStoredBytes == 0;
             while (length > 0) {
-                while(bufferLength == mStoredBytes) {
+                while (bufferLength == mStoredBytes) {
                     wait();
                 }
                 int tail = mHead + mStoredBytes;

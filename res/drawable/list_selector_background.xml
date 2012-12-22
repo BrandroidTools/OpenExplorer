@@ -1,14 +1,12 @@
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-	
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <item>
-        <solid 
-        android:color="@color/transparent" 
-   		 />
+        <solid android:color="@color/transparent" />
     </item>
     <item>
         <bitmap
-            android:src="@drawable/divider_horizontal_bright"
             android:gravity="bottom"
-        />
+            android:src="@drawable/divider_horizontal_bright" />
     </item>
+
 </layer-list>

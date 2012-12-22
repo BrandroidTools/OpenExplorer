@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
+
     <string name="s_photos">ფოტოები</string>
     <string name="s_videos">ვიდეო</string>
     <string name="s_music">მუსიკა</string>
@@ -25,4 +26,5 @@
     <string name="s_menu_exit">გასვლა</string>
     <string name="s_yes">კი</string>
     <string name="s_no">არა</string>
+
 </resources>

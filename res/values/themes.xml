@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <style name="AppTheme.Dark" parent="@style/Theme.Sherlock">
-		
-        <item name="absForceOverflow">true</item>
 
+    <style name="AppTheme.Dark" parent="@style/Theme.Sherlock">
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
         <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
         <item name="vpiTabTextStyle">@style/MyTabPageIndicator.Text</item>
-        
         <item name="vpiTabTextColor">@color/vpi__dark_theme</item>
-        
+
         <!-- for programmatic instantiation -->
         <item name="actionbarCompatTitleStyle">@style/ActionBarCompatTitle</item>
         <item name="actionbarCompatItemStyle">@style/ActionBarCompatItem</item>
         <item name="actionbarCompatItemHomeStyle">@style/ActionBarCompatHomeItem</item>
         <item name="actionbarCompatProgressIndicatorStyle">@style/ActionBarCompatProgressIndicator</item>
         <item name="actionbarCompatItemHomeAsUpStyle">@style/ActionBarCompatHomeAsUp</item>
-           
+
         <!-- Action Bar icons -->
         <item name="actionIconSort">@drawable/ic_action_sort_holo_dark</item>
         <item name="actionIconView">@drawable/ic_menu_view</item>
@@ -39,46 +36,57 @@
         <item name="actionIconInfo">@drawable/ic_action_info_holo_dark</item>
         <item name="actionIconSelectAll">@drawable/ic_action_select_all_holo_dark</item>
         <item name="actionIconZip">@drawable/ic_action_zip_holo_dark</item>
-        
+
         <!-- Misc. UI elements -->
         <item name="checkboxButtonOn">@drawable/btn_check_on_holo_dark</item>
         <item name="checkboxButtonOff">@drawable/btn_check_off_holo_dark</item>
-        
         <item name="popupBackground">@drawable/contextmenu_square</item>
         <item name="popupArrow">@drawable/contextmenu_arrow</item>
         <item name="pagerBackground">@drawable/ab_stacked_solid_inverse_holo</item>
-        
         <item name="listDivider">@drawable/divider_horizontal_dark</item>
         <item name="listBackground">@drawable/list_background_dark</item>
         <item name="listColumnBackground">@drawable/list_column_background_dark</item>
-        
-        <!-- Colors -->
-        <item name="colorWhite">@color/white</item>
-        <item name="colorOffWhite">@color/offWhite</item>
-        <item name="colorDarkGray">@color/darkGray</item>
-        <item name="colorBlack">@color/black</item>
-        <item name="colorHilite">@color/lightBlue</item>
-        <item name="colorWhiteDim">@color/dark_dim</item>
-    </style>
-    
-    <style name="AppTheme.Light" parent="@style/Theme.Sherlock.Light">
-		
-        <item name="absForceOverflow">true</item>
 
+        <!-- Colors -->
+        <item name="actionBarTextColorPrimary">@color/white</item>
+        <item name="actionBarTextColorSecondary">@color/offWhite</item>
+        <item name="actionBarTextColorHighlight">@color/lightBlue</item>
+        <item name="actionBarTextColorInverse">@color/black</item>
+        <item name="appTextColorPrimary">@color/white</item>
+        <item name="appTextColorSecondary">@color/offWhite</item>
+        <item name="appTextColorHighlight">@color/lightBlue</item>
+        <item name="appTextColorInverse">@color/black</item>
+        <item name="appBackgroundColorPrimary">@color/darkGray</item>
+        <item name="appDividerColor">@color/darkGray</item>
+        <item name="dialogTextColorPrimary">@color/white</item>
+        <item name="dialogTextColorSecondary">@color/offWhite</item>
+        <item name="dialogTextColorHighlight">@color/lightBlue</item>
+        <item name="dialogTextColorInverse">@color/black</item>
+        <item name="dialogAccentColorPrimary">@color/white</item>
+        <item name="dialogBackgroundColorPrimary">@color/black</item>
+
+        <!-- Sliding Drawer -->
+        <item name="drawerTextColorPrimary">@color/white</item>
+        <item name="drawerTextColorSecondary">@color/offWhite</item>
+        <item name="drawerListCategorySelector">@drawable/sd__list_category_selector_holo_dark</item>
+        <item name="drawerListSelector">@drawable/sd__list_selector_holo_dark</item>
+        <item name="drawerBackgroundColor">@color/sd__defaultBackground</item>
+    </style>
+
+    <style name="AppTheme.Light" parent="@style/Theme.Sherlock.Light">
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
         <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
         <item name="vpiTabTextStyle">@style/MyTabPageIndicator.Text</item>
-        
         <item name="vpiTabTextColor">@color/vpi__light_theme</item>
-        
+
         <!-- for programmatic instantiation -->
         <item name="actionbarCompatTitleStyle">@style/ActionBarCompatTitle</item>
         <item name="actionbarCompatItemStyle">@style/ActionBarCompatItem</item>
         <item name="actionbarCompatItemHomeStyle">@style/ActionBarCompatHomeItem</item>
         <item name="actionbarCompatProgressIndicatorStyle">@style/ActionBarCompatProgressIndicator</item>
         <item name="actionbarCompatItemHomeAsUpStyle">@style/ActionBarCompatHomeAsUp</item>
-           
+
         <!-- Action Bar icons -->
         <item name="actionIconClipboard">@drawable/ic_menu_clipboard_light</item>
         <item name="actionIconClipboardChecked">@drawable/ic_menu_clipboard_checked_light</item>
@@ -100,24 +108,187 @@
         <item name="actionIconInfo">@drawable/ic_action_info_holo_light</item>
         <item name="actionIconSelectAll">@drawable/ic_action_select_all_holo_light</item>
         <item name="actionIconZip">@drawable/ic_action_zip_holo_light</item>
-        
+
         <!-- Misc. UI elements -->
         <item name="checkboxButtonOn">@drawable/btn_check_on_holo_light</item>
         <item name="checkboxButtonOff">@drawable/btn_check_off_holo_light</item>
-        
         <item name="popupBackground">@drawable/contextmenu_square_gray</item>
         <item name="popupArrow">@drawable/contextmenu_arrow_gray</item>
         <item name="pagerBackground">@drawable/ab_stacked_solid_light_holo</item>
         <item name="listDivider">@drawable/divider_horizontal_bright</item>
         <item name="listBackground">@drawable/list_background_light</item>
         <item name="listColumnBackground">@drawable/list_column_background_light</item>
-        
+
         <!-- Colors -->
-        <item name="colorWhite">@color/black</item>
-        <item name="colorOffWhite">@color/darkGray</item>
-        <item name="colorDarkGray">@color/offWhite</item>
-        <item name="colorBlack">@color/white</item>
-        <item name="colorHilite">@color/darkBlue</item>
-        <item name="colorWhiteDim">@color/light_dim</item>
+        <item name="actionBarTextColorPrimary">@color/black</item>
+        <item name="actionBarTextColorSecondary">@color/darkGray</item>
+        <item name="actionBarTextColorHighlight">@color/darkBlue</item>
+        <item name="actionBarTextColorInverse">@color/white</item>
+        <item name="appTextColorPrimary">@color/black</item>
+        <item name="appTextColorSecondary">@color/darkGray</item>
+        <item name="appTextColorHighlight">@color/darkBlue</item>
+        <item name="appTextColorInverse">@color/white</item>
+        <item name="appBackgroundColorPrimary">@color/offWhite</item>
+        <item name="appDividerColor">@color/offWhite</item>
+        <item name="dialogTextColorPrimary">@color/black</item>
+        <item name="dialogTextColorSecondary">@color/darkGray</item>
+        <item name="dialogTextColorHighlight">@color/darkBlue</item>
+        <item name="dialogTextColorInverse">@color/white</item>
+        <item name="dialogAccentColorPrimary">@color/black</item>
+        <item name="dialogBackgroundColorPrimary">@color/offWhite</item>
+
+        <!-- Sliding Drawer -->
+        <item name="drawerTextColorPrimary">@color/white</item>
+        <item name="drawerTextColorSecondary">@color/offWhite</item>
+        <item name="drawerListCategorySelector">@drawable/sd__list_category_selector_holo_dark</item>
+        <item name="drawerListSelector">@drawable/sd__list_selector_holo_dark</item>
+        <item name="drawerBackgroundColor">@color/sd__defaultBackground</item>
     </style>
+
+    <style name="AppTheme.LightAndDark" parent="Theme.Sherlock.Light.DarkActionBar">
+        <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
+        <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
+        <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
+        <item name="vpiTabTextStyle">@style/MyTabPageIndicator.Text</item>
+        <item name="vpiTabTextColor">@color/vpi__dark_theme</item>
+
+        <!-- for programmatic instantiation -->
+        <item name="actionbarCompatTitleStyle">@style/ActionBarCompatTitle</item>
+        <item name="actionbarCompatItemStyle">@style/ActionBarCompatItem</item>
+        <item name="actionbarCompatItemHomeStyle">@style/ActionBarCompatHomeItem</item>
+        <item name="actionbarCompatProgressIndicatorStyle">@style/ActionBarCompatProgressIndicator</item>
+        <item name="actionbarCompatItemHomeAsUpStyle">@style/ActionBarCompatHomeAsUp</item>
+
+        <!-- Action Bar icons -->
+        <item name="actionIconSort">@drawable/ic_action_sort_holo_dark</item>
+        <item name="actionIconView">@drawable/ic_menu_view</item>
+        <item name="actionIconViewGrid">@drawable/ic_action_grid_view_holo_dark</item>
+        <item name="actionIconViewList">@drawable/ic_action_list_view_holo_dark</item>
+        <item name="actionIconOperations">@drawable/ic_action_folder_holo_dark</item>
+        <item name="actionIconRefresh">@drawable/ic_action_refresh_holo_dark</item>
+        <item name="actionIconSearch">@drawable/ic_action_search_holo_dark</item>
+
+        <!-- Action Mode icons -->
+        <item name="actionIconClipboard">@drawable/ic_menu_clipboard</item>
+        <item name="actionIconClipboardChecked">@drawable/ic_menu_clipboard_checked</item>
+        <item name="actionIconHomeUp">@drawable/ic_ab_back_holo_dark</item>
+        <item name="actionIconRename">@drawable/ic_rename</item>
+        <item name="actionIconPaste">@drawable/ic_action_paste_holo_dark</item>
+        <item name="actionIconCopy">@drawable/ic_action_copy_holo_dark</item>
+        <item name="actionIconDelete">@drawable/ic_action_delete_holo_dark</item>
+        <item name="actionIconShare">@drawable/ic_action_share_holo_dark</item>
+        <item name="actionIconInfo">@drawable/ic_action_info_holo_dark</item>
+        <item name="actionIconSelectAll">@drawable/ic_action_select_all_holo_dark</item>
+        <item name="actionIconZip">@drawable/ic_action_zip_holo_dark</item>
+
+        <!-- Misc. UI elements -->
+        <item name="checkboxButtonOn">@drawable/btn_check_on_holo_light</item>
+        <item name="checkboxButtonOff">@drawable/btn_check_off_holo_light</item>
+        <item name="popupBackground">@drawable/contextmenu_square_gray</item>
+        <item name="popupArrow">@drawable/contextmenu_arrow_gray</item>
+        <item name="pagerBackground">@drawable/ab_stacked_solid_light_holo</item>
+        <item name="listDivider">@drawable/divider_horizontal_bright</item>
+        <item name="listBackground">@drawable/list_background_light</item>
+        <item name="listColumnBackground">@drawable/list_column_background_light</item>
+
+        <!-- Colors -->
+        <item name="actionBarTextColorPrimary">@color/white</item>
+        <item name="actionBarTextColorSecondary">@color/offWhite</item>
+        <item name="actionBarTextColorHighlight">@color/lightBlue</item>
+        <item name="actionBarTextColorInverse">@color/black</item>
+        <item name="appTextColorPrimary">@color/black</item>
+        <item name="appTextColorSecondary">@color/darkGray</item>
+        <item name="appTextColorHighlight">@color/darkBlue</item>
+        <item name="appTextColorInverse">@color/white</item>
+        <item name="appBackgroundColorPrimary">@color/offWhite</item>
+        <item name="appDividerColor">@color/offWhite</item>
+        <item name="dialogTextColorPrimary">@color/white</item>
+        <item name="dialogTextColorSecondary">@color/offWhite</item>
+        <item name="dialogTextColorHighlight">@color/lightBlue</item>
+        <item name="dialogTextColorInverse">@color/black</item>
+        <item name="dialogAccentColorPrimary">@color/white</item>
+        <item name="dialogBackgroundColorPrimary">@color/black</item>
+
+        <!-- Sliding Drawer -->
+        <item name="drawerTextColorPrimary">@color/white</item>
+        <item name="drawerTextColorSecondary">@color/offWhite</item>
+        <item name="drawerListCategorySelector">@drawable/sd__list_category_selector_holo_dark</item>
+        <item name="drawerListSelector">@drawable/sd__list_selector_holo_dark</item>
+        <item name="drawerBackgroundColor">@color/sd__defaultBackground</item>
+    </style>
+
+    <style name="AppTheme.Custom" parent="Theme.Sherlock.Light.DarkActionBar">
+        <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
+        <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
+        <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
+        <item name="vpiTabTextStyle">@style/MyTabPageIndicator.Text</item>
+        <item name="vpiTabTextColor">@color/vpi__dark_theme</item>
+        <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
+        <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
+
+        <!-- for programmatic instantiation -->
+        <item name="actionbarCompatTitleStyle">@style/ActionBarCompatTitle</item>
+        <item name="actionbarCompatItemStyle">@style/ActionBarCompatItem</item>
+        <item name="actionbarCompatItemHomeStyle">@style/ActionBarCompatHomeItem</item>
+        <item name="actionbarCompatProgressIndicatorStyle">@style/ActionBarCompatProgressIndicator</item>
+        <item name="actionbarCompatItemHomeAsUpStyle">@style/ActionBarCompatHomeAsUp</item>
+
+        <!-- Action Bar icons -->
+        <item name="actionIconSort">@drawable/ic_action_sort_holo_dark</item>
+        <item name="actionIconView">@drawable/ic_menu_view</item>
+        <item name="actionIconViewGrid">@drawable/ic_action_grid_view_holo_dark</item>
+        <item name="actionIconViewList">@drawable/ic_action_list_view_holo_dark</item>
+        <item name="actionIconOperations">@drawable/ic_action_folder_holo_dark</item>
+        <item name="actionIconRefresh">@drawable/ic_action_refresh_holo_dark</item>
+        <item name="actionIconSearch">@drawable/ic_action_search_holo_dark</item>
+
+        <!-- Action Mode icons -->
+        <item name="actionIconClipboard">@drawable/ic_menu_clipboard_light</item>
+        <item name="actionIconClipboardChecked">@drawable/ic_menu_clipboard_checked_light</item>
+        <item name="actionIconHomeUp">@drawable/ic_ab_back_holo_dark</item>
+        <item name="actionIconRename">@drawable/ic_rename</item>
+        <item name="actionIconPaste">@drawable/ic_action_paste_holo_dark</item>
+        <item name="actionIconCopy">@drawable/ic_action_copy_holo_dark</item>
+        <item name="actionIconDelete">@drawable/ic_action_delete_holo_dark</item>
+        <item name="actionIconShare">@drawable/ic_action_share_holo_dark</item>
+        <item name="actionIconInfo">@drawable/ic_action_info_holo_dark</item>
+        <item name="actionIconSelectAll">@drawable/ic_action_select_all_holo_dark</item>
+        <item name="actionIconZip">@drawable/ic_action_zip_holo_dark</item>
+
+        <!-- Misc. UI elements -->
+        <item name="checkboxButtonOn">@drawable/btn_check_on_holo_light</item>
+        <item name="checkboxButtonOff">@drawable/btn_check_off_holo_light</item>
+        <item name="popupBackground">@drawable/contextmenu_square_gray</item>
+        <item name="popupArrow">@drawable/contextmenu_arrow_gray</item>
+        <item name="pagerBackground">@drawable/ab_stacked_solid_light_holo</item>
+        <item name="listDivider">@drawable/divider_horizontal_bright</item>
+        <item name="listBackground">@drawable/list_background_light</item>
+        <item name="listColumnBackground">@drawable/list_column_background_light</item>
+
+        <!-- Colors -->
+        <item name="actionBarTextColorPrimary">@color/white</item>
+        <item name="actionBarTextColorSecondary">@color/offWhite</item>
+        <item name="actionBarTextColorHighlight">@color/lightBlue</item>
+        <item name="actionBarTextColorInverse">@color/black</item>
+        <item name="appTextColorPrimary">@color/black</item>
+        <item name="appTextColorSecondary">@color/darkGray</item>
+        <item name="appTextColorHighlight">@color/darkBlue</item>
+        <item name="appTextColorInverse">@color/white</item>
+        <item name="appBackgroundColorPrimary">@color/offWhite</item>
+        <item name="appDividerColor">@color/offWhite</item>
+        <item name="dialogTextColorPrimary">@color/white</item>
+        <item name="dialogTextColorSecondary">@color/offWhite</item>
+        <item name="dialogTextColorHighlight">@color/lightBlue</item>
+        <item name="dialogTextColorInverse">@color/black</item>
+        <item name="dialogAccentColorPrimary">@color/white</item>
+        <item name="dialogBackgroundColorPrimary">@color/black</item>
+
+        <!-- Sliding Drawer -->
+        <item name="drawerTextColorPrimary">@color/white</item>
+        <item name="drawerTextColorSecondary">@color/offWhite</item>
+        <item name="drawerListCategorySelector">@drawable/sd__list_category_selector_holo_dark</item>
+        <item name="drawerListSelector">@drawable/sd__list_selector_holo_dark</item>
+        <item name="drawerBackgroundColor">@color/sd__defaultBackground</item>
+    </style>
+
 </resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- ...and the "dial_background_texture" tiled on top. -->
+
+    <item>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android" >
+            <solid android:color="@color/icsblue" />
+        </shape>
+    </item>
+    <!-- An opaque black layer underneath. -->
+    <item
+        android:bottom="2dp"
+        android:drawable="@color/actionbarstripedbackground"
+        android:left="0dp"
+        android:right="0dp"
+        android:top="0dp"/>
+    <item
+        android:bottom="2dp"
+        android:left="0dp"
+        android:right="0dp"
+        android:top="0dp">
+        <bitmap
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:src="@drawable/dial_background_texture"
+            android:tileMode="repeat" />
+    </item>
+
+</layer-list>

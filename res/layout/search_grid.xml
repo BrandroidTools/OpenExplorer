@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8" ?>
-
-<!-- 
+<?xml version="1.0" encoding="utf-8"?>
+<!--
 	Open Manager For Tablets, an open source file manager for the Android system
     Copyright (C) 2011  Joe Berria <nexesdevelopment@gmail.com>
 
@@ -15,42 +14,46 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- -->
- 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent">
-	<ListView
-		android:id="@+id/search_listview"
-		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		android:layout_weight="1"
-		android:gravity="center"/>
-	<LinearLayout
-		android:id="@+id/search_button_view"
-		android:orientation="vertical"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:visibility="gone">
-		
-		<include 
-			layout="@layout/info_layout"
-			android:id="@+id/search_file_info" 
-			android:layout_width="match_parent" 
-			android:layout_height="match_parent" />
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
 
-		<Button
-			android:id="@+id/search_button_open"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:visibility="invisible"
-			android:text="Launch this file"/>
-		<Button
-			android:id="@+id/search_button_go"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="Go to this file"/>
-	</LinearLayout>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ListView
+        android:id="@+id/search_listview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center" />
+
+    <LinearLayout
+        android:id="@+id/search_button_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <include
+            android:id="@+id/search_file_info"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/info_layout" />
+
+        <Button
+            android:id="@+id/search_button_open"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Launch this file"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/search_button_go"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Go to this file" />
+    </LinearLayout>
+
 </LinearLayout>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
+<!--
 	OpenExplorer, an open source file manager for the Android system
     Copyright (C) 2011  Brandon Bowles <brandroid64@gmail.com>
 
@@ -15,93 +15,101 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- -->
+    
+-->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="40dp"
-	android:gravity="center|left"
-	android:layout_gravity="top|left"
-	android:paddingLeft="4dp"
-	android:paddingRight="4dp"
-	android:id="@+id/layout"
-	>
-	<ProgressBar
-	    style="@android:style/Widget.ProgressBar.Horizontal"
-        android:progressDrawable="@drawable/progress_horizontal"
+    android:id="@+id/layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top|left"
+    android:background="?attr/drawerListSelector"
+    android:gravity="center|left"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" >
+
+    <ProgressBar
+        android:id="@+id/size_bar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/bookmark_icon"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="2dp"
+        android:layout_toRightOf="@+id/bookmark_icon"
+        android:alpha="0.5"
         android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
         android:max="100"
         android:progress="50"
-        android:alpha="0.5"
-        android:visibility="gone"
-	    android:id="@+id/size_bar"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentRight="true"
-	    android:layout_alignBottom="@+id/bookmark_icon"
-	    android:layout_toRightOf="@+id/bookmark_icon"
-	    android:layout_marginBottom="2dp"
-	    />
-	<ImageView
-		style="@style/icon.small"
-		android:layout_marginRight="5dp"
-		android:layout_centerVertical="true"
-		android:id="@+id/bookmark_icon"
-		android:src="@drawable/icon"
-		/>
-	<TextView
-		android:id="@+id/content_text"
-		android:layout_alignWithParentIfMissing="true"
-		android:layout_toRightOf="@+id/bookmark_icon"
-		android:layout_alignTop="@+id/bookmark_icon"
-		android:layout_marginTop="4dp"
-		android:layout_marginLeft="5dp"
-		android:text="@string/s_bookmarks"
-		style="@style/Large"
-		android:layout_width="wrap_content"
-		/>
-	<TextView
-	    android:id="@+id/content_count"
-	    android:layout_toRightOf="@+id/content_text"
-		android:layout_alignBaseline="@+id/content_text"
-		android:layout_marginLeft="2dp"
-		style="@style/Small"
-		android:textColor="?attr/colorOffWhite"
-		android:lines="1"
-		android:singleLine="true"
-		android:maxLines="1"
-		android:ellipsize="none"
-		android:text="(0)"
-		android:layout_width="wrap_content"
-		/>
-	<ImageView
-		android:id="@+id/eject"
-		android:src="@drawable/eject"
-		android:layout_width="32dp"
-		android:layout_height="32dp"
-		android:layout_alignParentTop="true"
-		android:layout_alignWithParentIfMissing="true"
-		android:layout_centerVertical="true"
-		android:contentDescription="@string/s_eject"
-		android:visibility="gone"
-		/>
+        android:progressDrawable="@drawable/progress_horizontal"
+        android:visibility="gone" />
 
-	<RelativeLayout
-	    android:id="@+id/size_layout"
-	    android:layout_width="fill_parent"
-	    android:layout_height="20dp"
-		android:layout_below="@+id/content_text"
-		android:layout_alignLeft="@+id/content_text"
-		android:layout_alignParentRight="true"
-		android:visibility="gone"
-		android:gravity="right"
-	    >
-		<TextView
-		    android:id="@+id/size_text"
-			style="@style/Small"
-			android:layout_alignParentRight="true"
-			android:layout_marginRight="4dp"
-		    android:visibility="gone"
-			android:text="@string/s_size" />
-		</RelativeLayout>
-	</RelativeLayout>
+    <ImageView
+        android:id="@+id/bookmark_icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="8dp"
+        android:src="@drawable/icon" />
+
+    <TextView
+        android:id="@+id/content_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_toRightOf="@+id/bookmark_icon"
+        android:drawablePadding="16dp"
+        android:gravity="center_vertical"
+        android:paddingBottom="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="8dp"
+        android:text="@string/s_bookmarks"
+        android:textAppearance="?android:attr/textAppearance"
+        android:textColor="?attr/drawerTextColorPrimary"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/content_count"
+        style="@style/Text.Small.Dialog"
+        android:layout_width="wrap_content"
+        android:layout_alignBaseline="@+id/content_text"
+        android:layout_marginLeft="2dp"
+        android:layout_toRightOf="@+id/content_text"
+        android:ellipsize="none"
+        android:lines="1"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:text="(0)" />
+
+    <ImageView
+        android:id="@+id/eject"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
+        android:contentDescription="@string/s_eject"
+        android:src="@drawable/eject"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/size_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="20dp"
+        android:layout_alignLeft="@+id/content_text"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/content_text"
+        android:gravity="right"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/size_text"
+            style="@style/Text.Small.Dialog"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="4dp"
+            android:text="@string/s_size"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+</RelativeLayout>

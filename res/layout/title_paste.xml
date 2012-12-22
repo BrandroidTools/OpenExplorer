@@ -11,15 +11,15 @@
         style="@style/ActionBarCompatHomeItem"
         android:layout_width="@dimen/actionbar_compat_button_width"
         android:layout_height="match_parent"
-        android:scaleType="center"
         android:layout_alignParentTop="true"
         android:clickable="true"
         android:longClickable="true"
+        android:scaleType="center"
         android:src="?attr/actionIconClipboard" />
 
     <TextView
         android:id="@+id/title_paste_text"
-        style="@style/Small"
+        style="@style/Text.Small"
         android:layout_width="@dimen/actionbar_compat_button_width"
         android:layout_height="@dimen/actionbar_compat_height"
         android:layout_alignBottom="@+id/title_paste_icon"
@@ -27,6 +27,6 @@
         android:clickable="false"
         android:gravity="center"
         android:text="1"
-        android:textColor="?attr/colorBlack" />
+        android:textColor="?attr/actionBarTextColorPrimary" />
 
 </RelativeLayout>

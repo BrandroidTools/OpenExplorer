@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/icon_menu_scroller"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/icon_menu_scroller"
     android:orientation="vertical" >
-    
+
     <LinearLayout
-        android:orientation="vertical" 
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        
-        <FrameLayout android:id="@+id/icon_menu_top"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <FrameLayout
+            android:id="@+id/icon_menu_top"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-    
-	    <TableLayout
-	        android:id="@+id/icon_menu_table"
-	        android:layout_width="match_parent" android:layout_height="wrap_content">
-	    </TableLayout>
-	    
-        <FrameLayout android:id="@+id/icon_menu_bottom"
+            android:layout_height="wrap_content" />
+
+        <TableLayout
+            android:id="@+id/icon_menu_table"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-        
-	</LinearLayout>
+            android:layout_height="wrap_content" >
+        </TableLayout>
+
+        <FrameLayout
+            android:id="@+id/icon_menu_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
 </ScrollView>

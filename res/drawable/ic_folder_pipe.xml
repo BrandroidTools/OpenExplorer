@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:drawable="@drawable/ic_menu_folder" />
-	<item android:top="-4dp">
-	    <bitmap
-	        android:src="@drawable/ic_pipe"
-	        android:gravity="top" />
-	</item>
+
+    <item android:drawable="@drawable/ic_menu_folder"/>
+    <item android:top="-4dp">
+        <bitmap
+            android:gravity="top"
+            android:src="@drawable/ic_pipe" />
+    </item>
+
 </layer-list>

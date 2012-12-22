@@ -1,257 +1,251 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-		android:title="@string/s_menu_prefs_global">
-        
-	<PreferenceScreen
-	    android:key="display"
-	    android:icon="@drawable/ic_menu_view"
-	    android:title="@string/s_pref_display">
-	    <PreferenceCategory
-	        android:title="@string/s_pref_view_folders">
-		<CheckBoxPreference
-			android:key="pref_show"
-			android:title="@string/s_pref_hidden"
-			android:summary="@string/s_pref_hidden_summary"/>
-		<ListPreference
-			android:key="pref_view"
-			android:title="@string/s_pref_view"
-			android:summary="@string/s_pref_view_summary"
-			android:entries="@array/view"
-			android:entryValues="@array/view_value"
-			android:dialogTitle="@string/s_pref_view" />
-		<ListPreference
-			android:key="pref_sorting"
-			android:title="@string/s_pref_sort"
-			android:summary="@string/s_pref_sort_summary"
-			android:entries="@array/sorting"
-			android:entryValues="@array/sorting_value"
-			android:dialogTitle="@string/s_pref_sort" />
-	    <CheckBoxPreference
-	        android:key="pref_sorting_folders"
-	        android:title="@string/s_menu_sort_folders"
-	        android:defaultValue="true" 
-	        />
-		<CheckBoxPreference
-			android:key="pref_thumbs"
-			android:title="@string/s_pref_thumbs"
-			android:defaultValue="true"
-			android:summary="@string/s_pref_thumbs_summary"/>
-		<CheckBoxPreference
-		    android:key="pref_thumbs_crop"
-		    android:title="@string/s_pref_thumbs_crop"
-		    android:dependency="pref_thumbs"
-		    android:defaultValue="true" />
-		<PreferenceScreen
-		    android:key="pref_thumbs_cache_clear"
-		    android:title="@string/s_pref_thumbs_cache_clear"
-		    android:dependency="pref_thumbs" />
-        <!-- <PreferenceScreen
+    android:title="@string/s_menu_prefs_global" >
+
+    <PreferenceScreen
+        android:icon="@drawable/ic_menu_view"
+        android:key="display"
+        android:title="@string/s_pref_display" >
+        <PreferenceCategory android:title="@string/s_pref_view_general" >
+            <ListPreference
+                android:dialogTitle="@string/s_pref_theme"
+                android:entries="@array/themes"
+                android:entryValues="@array/theme_values"
+                android:key="pref_themes"
+                android:title="@string/s_pref_theme" />
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:enabled="@bool/allow_fullscreen"
+                android:key="pref_fullscreen"
+                android:summaryOff="@string/s_pref_fullscreen_summary_off"
+                android:summaryOn="@string/s_pref_fullscreen_summary_on"
+                android:title="@string/s_pref_fullscreen" />
+
+            <PreferenceScreen
+                android:dialogTitle="@string/s_pref_start"
+                android:key="pref_start"
+                android:summary="@string/s_pref_start_summary"
+                android:title="@string/s_pref_start" />
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_showup"
+                android:title="@string/s_pref_showup" />
+
+            <ListPreference
+                android:entries="@array/languages"
+                android:entryValues="@array/languages_values"
+                android:key="pref_language"
+                android:summary="@string/s_default"
+                android:title="@string/language" />
+
+            <Preference
+                android:key="pref_translate"
+                android:title="@string/button_translate" />
+        </PreferenceCategory>
+        <PreferenceCategory android:title="@string/s_pref_view_folders" >
+            <CheckBoxPreference
+                android:key="pref_show"
+                android:summary="@string/s_pref_hidden_summary"
+                android:title="@string/s_pref_hidden" />
+
+            <ListPreference
+                android:dialogTitle="@string/s_pref_view"
+                android:entries="@array/view"
+                android:entryValues="@array/view_value"
+                android:key="pref_view"
+                android:summary="@string/s_pref_view_summary"
+                android:title="@string/s_pref_view" />
+            <ListPreference
+                android:dialogTitle="@string/s_pref_sort"
+                android:entries="@array/sorting"
+                android:entryValues="@array/sorting_value"
+                android:key="pref_sorting"
+                android:summary="@string/s_pref_sort_summary"
+                android:title="@string/s_pref_sort" />
+
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="pref_sorting_folders"
+                android:title="@string/s_menu_sort_folders" />
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="pref_thumbs"
+                android:summary="@string/s_pref_thumbs_summary"
+                android:title="@string/s_pref_thumbs" />
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:dependency="pref_thumbs"
+                android:key="pref_thumbs_crop"
+                android:title="@string/s_pref_thumbs_crop" />
+
+            <PreferenceScreen
+                android:dependency="pref_thumbs"
+                android:key="pref_thumbs_cache_clear"
+                android:title="@string/s_pref_thumbs_cache_clear" />
+            <!--
+             <PreferenceScreen
             android:key="pref_reset_views"
             android:title="@string/s_pref_reset" 
             android:summary="@string/s_pref_reset_summary"
-            />-->
+            />
+            -->
         </PreferenceCategory>
-        <PreferenceCategory android:title="@string/s_pref_view_general">
-		<CheckBoxPreference
-	        android:key="pref_theme"
-	        android:title="@string/theme"
-	        android:summaryOn="@string/theme_dark"
-	        android:summaryOff="@string/theme_light"
-	        android:defaultValue="true"
-	        />
-	    <CheckBoxPreference
-		    android:key="pref_fullscreen"
-		    android:title="@string/s_pref_fullscreen"
-		    android:summaryOn="@string/s_pref_fullscreen_summary_on"
-		    android:summaryOff="@string/s_pref_fullscreen_summary_off"
-		    android:enabled="@bool/allow_fullscreen"
-		    android:defaultValue="false"
-		    />
-		<PreferenceScreen
-		    android:key="pref_start"
-		    android:title="@string/s_pref_start"
-		    android:summary="@string/s_pref_start_summary"
-		    android:dialogTitle="@string/s_pref_start" />
-		<CheckBoxPreference
-		    android:key="pref_showup"
-		    android:title="@string/s_pref_showup"
-		    android:defaultValue="false" />
-	    <ListPreference
-	        android:key="pref_language"
-	        android:title="@string/language"
-	        android:summary="@string/s_default"
-	        android:entries="@array/languages"
-	        android:entryValues="@array/languages_values"
-	        />
-		<Preference
-		    android:key="pref_translate"
-		    android:title="@string/button_translate"
-		    />
-	    </PreferenceCategory>
-		<!-- <ListPreference
+        <!--
+             <ListPreference
 		    android:key="pref_basebar_split"
 		    android:title="@string/s_pref_basebar"
 		    android:entries="@array/basebar_split"
 		    android:entryValues="@array/basebar_split_values"
 		    android:enabled="@bool/prehoneycomb"
-		    /> -->
-	</PreferenceScreen>
-	
-	<PreferenceScreen
-	    android:key="text_editor"
-	    android:icon="@drawable/ic_paper"
-	    android:title="@string/s_text_editor_title">
-	    <PreferenceScreen
-	        android:key="text_size"
-	        android:title="@string/s_view_font_size"
-	        android:summary="10"
-	        />
-	    <CheckBoxPreference
-	        android:key="text_lines"
-	        android:title="@string/s_menu_view_line_numbers"
-	        android:defaultValue="true" 
-	        />
-	    <CheckBoxPreference
-	        android:key="text_wrap"
-	        android:title="@string/s_pref_text_wrap"
-	        android:defaultValue="true" 
-	        />
-	    <ListPreference
-	        android:key="text_max"
-	        android:title="@string/s_pref_text_max_size"
-	        android:entries="@array/text_max_size"
-	        android:entryValues="@array/text_max_size_values"
-	        />
-	</PreferenceScreen>
-	
-	<PreferenceScreen
-		android:key="bookmarks"
-	    android:icon="@drawable/ic_menu_star"
-		android:title="@string/s_pref_view_category">
-		<CheckBoxPreference
-		    android:key="pref_show_bookmarks"
-		    android:title="@string/s_bookmarks"
-		    android:summary="@string/s_pref_bookmarks_summary"
-		    android:enabled="@bool/large"
-		    android:defaultValue="@bool/large"/>
-		<PreferenceCategory
-		    android:title="@string/s_bookmark_drives">
-        <CheckBoxPreference
-            android:key="pref_show_root"
-            android:title="@string/s_pref_show_root"
-            android:defaultValue="false"
-            />
-        <CheckBoxPreference
-            android:key="pref_show_internal"
-            android:title="@string/s_pref_show_internal"
-            android:defaultValue="true"
-            />
-        <EditTextPreference
-            android:key="pref_location_int"
-            android:title="@string/s_menu_location_int"
-            android:defaultValue="/mnt/sdcard" 
-            />
-        <CheckBoxPreference
-            android:key="pref_show_external"
-            android:title="@string/s_pref_show_external"
-            android:defaultValue="true"
-            />
-        <EditTextPreference
-            android:key="pref_location_ext"
-            android:title="@string/s_menu_location_ext"
-            android:defaultValue="/mnt/sdcard-ext" 
-            />
-        </PreferenceCategory>
-        <PreferenceCategory
-            android:title="@string/s_bookmark_smart">
-        <CheckBoxPreference
-            android:key="pref_show_videos"
-            android:title="@string/s_pref_show_videos"
-            android:defaultValue="true" 
-            />
-        <CheckBoxPreference
-            android:key="pref_show_photos"
-            android:title="@string/s_pref_show_photos"
-            android:defaultValue="true" 
-            />
-        <CheckBoxPreference
-            android:key="pref_show_music"
-            android:title="@string/s_pref_show_music"
-            android:defaultValue="true" 
-            />
-        <CheckBoxPreference
-            android:key="pref_show_downloads"
-            android:title="@string/s_pref_show_downloads"
-            android:defaultValue="true" 
-            />
-        </PreferenceCategory>
-        <PreferenceCategory
-            android:title="@string/s_bookmark_favorites"
-            android:key="pref_bookmarks_favorites"
-            >
-        	<Preference
-        	    android:key="pref_bookmarks_favorites_add"
-        	    android:title="@string/s_add" 
-        	    />
-        </PreferenceCategory>
-	</PreferenceScreen>
-	
+		    />
+        -->
+    </PreferenceScreen>
     <PreferenceScreen
+        android:icon="@drawable/ic_paper"
+        android:key="text_editor"
+        android:title="@string/s_text_editor_title" >
+        <PreferenceScreen
+            android:key="text_size"
+            android:summary="10"
+            android:title="@string/s_view_font_size" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="text_lines"
+            android:title="@string/s_menu_view_line_numbers" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="text_wrap"
+            android:title="@string/s_pref_text_wrap" />
+
+        <ListPreference
+            android:entries="@array/text_max_size"
+            android:entryValues="@array/text_max_size_values"
+            android:key="text_max"
+            android:title="@string/s_pref_text_max_size" />
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:icon="@drawable/ic_menu_star"
+        android:key="bookmarks"
+        android:title="@string/s_pref_view_category" >
+        <CheckBoxPreference
+            android:defaultValue="@bool/large"
+            android:enabled="@bool/large"
+            android:key="pref_show_bookmarks"
+            android:summary="@string/s_pref_bookmarks_summary"
+            android:title="@string/s_bookmarks" />
+
+        <PreferenceCategory android:title="@string/s_bookmark_drives" >
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_show_root"
+                android:title="@string/s_pref_show_root" />
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="pref_show_internal"
+                android:title="@string/s_pref_show_internal" />
+
+            <EditTextPreference
+                android:defaultValue="/mnt/sdcard"
+                android:key="pref_location_int"
+                android:title="@string/s_menu_location_int" />
+
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="pref_show_external"
+                android:title="@string/s_pref_show_external" />
+
+            <EditTextPreference
+                android:defaultValue="/mnt/sdcard-ext"
+                android:key="pref_location_ext"
+                android:title="@string/s_menu_location_ext" />
+        </PreferenceCategory>
+        <PreferenceCategory android:title="@string/s_bookmark_smart" >
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="pref_show_videos"
+                android:title="@string/s_pref_show_videos" />
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="pref_show_photos"
+                android:title="@string/s_pref_show_photos" />
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="pref_show_music"
+                android:title="@string/s_pref_show_music" />
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="pref_show_downloads"
+                android:title="@string/s_pref_show_downloads" />
+        </PreferenceCategory>
+        <PreferenceCategory
+            android:key="pref_bookmarks_favorites"
+            android:title="@string/s_bookmark_favorites" >
+            <Preference
+                android:key="pref_bookmarks_favorites_add"
+                android:title="@string/s_add" />
+        </PreferenceCategory>
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:icon="@drawable/ic_menu_preferences"
         android:key="advanced"
-    	android:icon="@drawable/ic_menu_preferences"
-    	android:title="@string/s_pref_advanced">
+        android:title="@string/s_pref_advanced" >
         <CheckBoxPreference
+            android:defaultValue="false"
             android:key="pref_root"
-            android:title="@string/s_menu_root"
+            android:title="@string/s_menu_root" />
+        <CheckBoxPreference
             android:defaultValue="false"
+            android:key="pref_system_mount"
+            android:title="@string/s_menu_system_mount"
+            android:summaryOn="@string/s_menu_system_mount_on"
+            android:summaryOff="@string/s_menu_system_mount_off"
             />
         <CheckBoxPreference
+            android:defaultValue="true"
             android:key="pref_intent_internal"
-            android:title="@string/s_pref_intent_internal"
-            android:summaryOn="@string/s_pref_intent_internal_on"
             android:summaryOff="@string/s_pref_intent_internal_off"
-            android:defaultValue="true" 
-            />
+            android:summaryOn="@string/s_pref_intent_internal_on"
+            android:title="@string/s_pref_intent_internal" />
         <CheckBoxPreference
+            android:defaultValue="true"
             android:key="pref_zip_internal"
-            android:title="@string/s_pref_zip_internal"
-            android:summaryOn="@string/s_pref_zip_internal_on"
             android:summaryOff="@string/s_pref_zip_internal_off"
-            android:defaultValue="true"
-            />
+            android:summaryOn="@string/s_pref_zip_internal_on"
+            android:title="@string/s_pref_zip_internal" />
         <CheckBoxPreference
+            android:defaultValue="true"
             android:key="pref_text_internal"
-            android:title="@string/s_pref_text_internal"
-            android:defaultValue="true" 
+            android:title="@string/s_pref_text_internal" />
+        <PreferenceScreen
+            android:key="pref_privacy"
+            android:title="@string/s_privacy"
             />
         <CheckBoxPreference
-            android:key="pref_stats"
-            android:title="@string/s_pref_stats_title"
-            android:summary="@string/s_pref_stats_summary"
             android:defaultValue="true"
-            />
+            android:key="pref_stats"
+            android:summary="@string/s_pref_stats_summary"
+            android:title="@string/s_pref_stats_title" />
         <CheckBoxPreference
-            android:key="pref_autowtf"
-            android:title="@string/s_pref_autowtf"
-            android:summary="@string/s_pref_autowtf_summary"
-            android:defaultValue="false" 
-            />
-        <CheckBoxPreference
-            android:key="pref_hardware_accel"
-            android:title="@string/s_pref_hardware_accel"
-	    	android:enabled="@bool/honeycomb"
             android:defaultValue="false"
-            />
+            android:key="pref_autowtf"
+            android:summary="@string/s_pref_autowtf_summary"
+            android:title="@string/s_pref_autowtf" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:enabled="@bool/honeycomb"
+            android:key="pref_hardware_accel"
+            android:title="@string/s_pref_hardware_accel" />
     </PreferenceScreen>
-    
-	
-	<PreferenceScreen
-		android:key="servers"
-		android:icon="@drawable/ic_folder_pipe"
-        android:title="@string/s_pref_servers">
-    	<PreferenceScreen android:key="server_add"
-    		android:title="@string/s_pref_server_add"
-    	/>
+    <PreferenceScreen
+        android:icon="@drawable/ic_folder_pipe"
+        android:key="servers"
+        android:title="@string/s_pref_servers" >
+        <PreferenceScreen
+            android:key="server_add"
+            android:title="@string/s_pref_server_add" />
     </PreferenceScreen>
-		
+
 </PreferenceScreen>

@@ -12,8 +12,10 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 
 <resources>
-	<dimen name="list_width">300dp</dimen>
+
+    <dimen name="list_width">300dp</dimen>
+
 </resources>
