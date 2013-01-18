@@ -8,7 +8,7 @@
         <item name="android:backgroundSplit">@drawable/actionbar_striped_bg_split</item>
         <!--
         <item name="backgroundSplit">@drawable/bg_striped_split</item>
-        <item name="android:backgroundSplit">@drawable/bg_striped_split</item>
+        <item name="android:backgroundSplit">@drawable/bg_striped_split</item>
         -->
     </style>
 
@@ -21,6 +21,7 @@
 
     <style name="Text.Small.Dialog" parent="@style/Text.Small">
         <item name="android:textColor">?attr/dialogTextColorSecondary</item>
+        <item name="android:textSize">14dp</item>
     </style>
 
     <style name="Text.Small.Highlight" parent="@style/Text.Small">
@@ -43,6 +44,7 @@
 
     <style name="Text.Mid.Dialog" parent="@style/Text.Mid">
         <item name="android:textColor">?attr/dialogTextColorPrimary</item>
+        <item name="android:textSize">18dp</item>
     </style>
 
     <style name="Text.Mid.Highlight" parent="@style/Text.Mid">
@@ -64,7 +66,11 @@
     </style>
 
     <style name="Text.Large.Dialog" parent="@style/Text.Large">
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">?attr/dialogTextColorPrimary</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:ellipsize">none</item>
     </style>
 
     <style name="Text.Large.Drawer" parent="@style/Text.Large">
@@ -123,8 +129,10 @@
     </style>
 
     <style name="icon.small">
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">@dimen/list_icon_size</item>
-        <item name="android:layout_height">@dimen/list_icon_size</item>
+        <item name="android:maxWidth">@dimen/list_icon_size</item>
+        <item name="android:maxHeight">@dimen/list_icon_size</item>
     </style>
 
     <style name="MyTabPageIndicator" parent="Widget">
@@ -159,7 +167,9 @@
     </style>
 
     <style name="ActionBarCompatItemBase">
-        <!-- layout_width/height must be set in code -->        <item name="android:scaleType">center</item>
+
+        <!-- layout_width/height must be set in code -->
+        <item name="android:scaleType">center</item>
         <item name="android:background">@drawable/list_selector_background</item>
     </style>
 
@@ -169,7 +179,8 @@
 
     <style name="ActionBarCompatTitleBase">
         <item name="android:id">@id/actionbar_compat_title</item>
-        <!-- layout_width/height/weight must be set in code -->        <item name="android:gravity">center_vertical</item>
+        <!-- layout_width/height/weight must be set in code -->
+        <item name="android:gravity">center_vertical</item>
         <item name="android:textSize">18sp</item>
         <item name="android:paddingLeft">6dp</item>
         <item name="android:paddingRight">6dp</item>

@@ -21,7 +21,9 @@ import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.util.SimpleUserInfo;
 import org.brandroid.utils.Logger;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
+import android.os.Build;
 
 public class FTPManager {
     public final static Hashtable<String, FTPManager> instances = new Hashtable<String, FTPManager>();
@@ -100,6 +102,7 @@ public class FTPManager {
         return getClient(mHost, mPort, mUser, mPassword, mBasePath, ensureConnect);
     }
 
+    @SuppressLint("NewApi")
     public static FTPClient getClient(String mHost, int mPort, String mUser, String mPassword,
             String mBasePath, boolean ensureConnect) throws IOException {
         if (!ftpClients.containsKey(mHost)) {
@@ -108,13 +111,14 @@ public class FTPManager {
                 try {
                     client.connect(mHost, mPort);
                     if (!client.login(mUser, mPassword))
-                        throw new IOException("Unable to log in to FTP. Invalid credentials?",
-                                new Throwable());
+                        throw new IOException("Unable to log in to FTP. Invalid credentials?");
                     if (mBasePath.endsWith("/"))
                         mBasePath = mBasePath.substring(0, mBasePath.length() - 1);
                     client.cwd(mBasePath);
                 } catch (Throwable e) {
-                    throw new IOException("Error connecting to FTP.", e);
+                    if(Build.VERSION.SDK_INT > 8)
+                        throw new IOException("Error connecting to FTP.", e);
+                    else throw new IOException("Error connecting to FTP.");
                 }
             }
             ftpClients.put(mHost, client);
@@ -128,8 +132,7 @@ public class FTPManager {
                 Logger.LogDebug("FTP Client " + mHost + " found (disconnected).");
                 client.connect(mHost, mPort);
                 if (!client.login(mUser, mPassword))
-                    throw new IOException("Unable to log in to FTP. Invalid credentials?",
-                            new Throwable());
+                    throw new IOException("Unable to log in to FTP. Invalid credentials?");
             } else
                 Logger.LogDebug("Client found " + mHost);
             if (mBasePath.endsWith("/"))
@@ -208,13 +211,16 @@ public class FTPManager {
         mBasePath = path;
     }
 
+    @SuppressLint("NewApi")
     public FTPFile[] listFiles() throws IOException {
         if (connect()) {
             FTPFile[] ret = getClient(false).listFiles();
             return ret;
-        } else
-            throw new IOException("Unable to list files due to invalid connecction.",
+        } else if(Build.VERSION.SDK_INT > 8)
+            throw new IOException("Unable to list files due to invalid connection.",
                     new Throwable());
+        else
+            throw new IOException("Unable to list files due to invalid connection.");
     }
 
     public InputStream getInputStream() throws IOException {

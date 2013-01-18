@@ -250,6 +250,7 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
                         Logger.LogVerbose("Finished updating OpenPath DB Cache" + "(-" + dels
                                 + ",+" + adds + ") in " + ((new Date().getTime() - start) / 1000)
                                 + " seconds for " + params[0].getPath());
+                        OpenPath.closeDb();
                     }
                 }).start();
             mListener.updateData(result);

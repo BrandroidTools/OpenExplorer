@@ -31,6 +31,7 @@ import android.util.Log;
 
 import java.io.Closeable;
 import java.io.InterruptedIOException;
+import java.lang.reflect.Field;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
@@ -61,6 +62,23 @@ public class Utils {
         for (long l : longs)
             total += l;
         return total / longs.length;
+    }
+
+    public static int getResId(String variableName, Context context, Class<?> c) {
+
+        try {
+            Field idField = c.getDeclaredField(variableName);
+            return idField.getInt(idField);
+        } catch (Exception e) {
+            try {
+                String packageName = "org.brandroid.openmanager";
+                int resId = context.getResources().getIdentifier(variableName, c.getName(), packageName);
+                return resId;
+            } catch(Exception e2) {
+                e2.printStackTrace();
+                return -1;
+            }
+        }
     }
 
     // Throws AssertionError if the input is false.
@@ -316,16 +334,18 @@ public class Utils {
         try {
             ret = Long.parseLong(friendly.replaceAll("[^0-9]", ""));
             String unit = friendly.replaceAll("[0-9]", "");
-            if(unit == null) return ret;
-            if(unit.equalsIgnoreCase("k") || unit.equalsIgnoreCase("kb"))
+            if (unit == null)
+                return ret;
+            if (unit.equalsIgnoreCase("k") || unit.equalsIgnoreCase("kb"))
                 ret *= 1024;
-            else if(unit.equalsIgnoreCase("m") || unit.equalsIgnoreCase("mb"))
+            else if (unit.equalsIgnoreCase("m") || unit.equalsIgnoreCase("mb"))
                 ret *= 1024 ^ 2;
-            else if(unit.equalsIgnoreCase("g") || unit.equalsIgnoreCase("gb"))
+            else if (unit.equalsIgnoreCase("g") || unit.equalsIgnoreCase("gb"))
                 ret *= 1024 ^ 3;
-            else if(unit.equalsIgnoreCase("t") || unit.equalsIgnoreCase("tb"))
+            else if (unit.equalsIgnoreCase("t") || unit.equalsIgnoreCase("tb"))
                 ret *= 1024 ^ 4;
-        } catch(Exception e) { }
+        } catch (Exception e) {
+        }
         return ret;
     }
 

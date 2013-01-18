@@ -78,7 +78,6 @@ import android.widget.Toast;
 public class OpenBookmarks implements OnBookMarkChangeListener, OnGroupClickListener,
         OnChildClickListener, OnItemLongClickListener {
     private Map<Integer, ArrayList<OpenPath>> mBookmarksArray;
-    private Hashtable<String, String> mTitles = new Hashtable<String, String>();
     // private ImageView mLastIndicater = null;
     private BookmarkAdapter mBookmarkAdapter;
     private String mBookmarkString;
@@ -417,6 +416,12 @@ public class OpenBookmarks implements OnBookMarkChangeListener, OnGroupClickList
             return file.getName();
         String path = file.getPath().toLowerCase();
         String name = file.getName().toLowerCase();
+        if (OpenExplorer.isNook()) {
+            if (path.equals("/mnt/media"))
+                return mApp.getResources().getString(R.string.s_internal);
+            else if (name.indexOf("sdcard") > -1)
+                return mApp.getResources().getString(R.string.s_external);
+        }
         if (path.equals("/"))
             return "/";
         else if (name.indexOf("ext") > -1 || name.equals("sdcard1"))
@@ -941,12 +946,12 @@ public class OpenBookmarks implements OnBookMarkChangeListener, OnGroupClickList
             Logger.LogWarning("No tag set on long click in OpenBookmarks.");
             return false;
         }
-        Logger.LogInfo("Long click detected in OpenBookmarks");
         return onLongClick((BookmarkHolder)v.getTag());
     }
 
     public boolean onLongClick(BookmarkHolder h) {
         OpenPath path = h.getOpenPath();
+        Logger.LogInfo("BookMark.onLongClick(" + path + ")");
         if (path instanceof OpenCommand)
             handleCommand(((OpenCommand)path).getCommand());
         else if (path instanceof OpenNetworkPath)

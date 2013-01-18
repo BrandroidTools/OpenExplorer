@@ -547,16 +547,6 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
                 .getPath() : null;
         if (DEBUG)
             Logger.LogDebug("}-- onAttach :: " + getClassName() + " @ " + path);
-        queueToTracker(new Runnable() {
-            public void run() {
-                GoogleAnalyticsTracker tracker = getAnalyticsTracker();
-                if (tracker != null)
-                    tracker.trackPageView("/"
-                            + getClassName()
-                            + (path != null ? (!path.getPath().startsWith("/") ? "/" : "") + path
-                                    : ""));
-            }
-        });
     }
 
     @Override

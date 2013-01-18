@@ -7,23 +7,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
-import org.brandroid.openmanager.R;
-import org.brandroid.openmanager.activities.OpenExplorer;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.ActivityNotFoundException;
+import com.jcraft.jsch.jce.MD5;
+
 import android.content.Context;
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.widget.Toast;
 
 public class SubmitStatsTask extends AsyncTask<String, Void, Void> {
     private final Context mContext;
@@ -36,22 +33,62 @@ public class SubmitStatsTask extends AsyncTask<String, Void, Void> {
     protected Void doInBackground(String... params) {
         HttpURLConnection uc = null;
         try {
-            uc = (HttpURLConnection)new URL("http://brandroid.org/stats.php").openConnection();
+            String url = "http://stats.brandroid.org/stats.php";
+            if (params.length > 1 && params[1].startsWith("http"))
+                url = params[1];
+            uc = (HttpURLConnection)new URL(url).openConnection();
             uc.setReadTimeout(2000);
+            // if(params.length > 1)
+            // uc.addRequestProperty("Set-Cookie", params[1]);
             PackageManager pm = mContext.getPackageManager();
             PackageInfo pi = pm.getPackageInfo(mContext.getPackageName(), 0);
+            StringBuilder sb = new StringBuilder();
+            sb.append("{\"Version\":" + pi.versionCode);
+            sb.append(",\"UID\":\"" + Preferences.UID + "\"");
+            sb.append(",\"Runs\":" + Preferences.Run_Count);
             JSONObject device = getDeviceInfo();
-            if (device == null)
-                device = new JSONObject();
-            String data = "{\"Version\":" + pi.versionCode + ",\"DeviceInfo\":" + device.toString()
-                    + ",\"Logs\":" + params[0] + ",\"App\":\"" + mContext.getPackageName() + "\"}";
+            if (device != null)
+                sb.append(",\"DeviceInfo\":" + device.toString());
+            String pref_json = "";
+            Boolean stats_changed = false;
+            for (String pref : "global,views,bookmarks".split(",")) {
+                SharedPreferences sp = Preferences.getPreferences(pref);
+                if (sp == null || sp.getAll() == null)
+                    continue;
+                JSONObject j = new JSONObject(sp.getAll());
+                if (j != null)
+                    pref_json += ",\"" + pref + "\":" + j.toString();
+            }
+            String pjmd5 = Utils.md5(pref_json);
+            if (pref_json != "") {
+                if (!Preferences.getPreferences("stats").getString("pref_json", "")
+                        .equalsIgnoreCase(pjmd5)) {
+                    sb.append(pref_json);
+                    stats_changed = true;
+                    Logger.LogVerbose("Prefs unchanged. Not sending.");
+                }
+            } else
+                Logger.LogVerbose("Prefs updated. Sending.");
+            if (params[0].length() > 2) {
+                sb.append(",\"Logs\":");
+                sb.append(params[0]);
+                stats_changed = true;
+            } else
+                Logger.LogVerbose("Logs empty. Not sending.");
+            if (!stats_changed) {
+                Logger.LogVerbose("Stats unchanged. Not sending.");
+                return null;
+            }
+            sb.append(",\"App\":\"");
+            sb.append(mContext.getPackageName());
+            sb.append("\"}");
             // uc.addRequestProperty("Accept-Encoding", "gzip, deflate");
             uc.addRequestProperty("App", mContext.getPackageName());
             uc.addRequestProperty("Version", "" + pi.versionCode);
             uc.setDoOutput(true);
-            Logger.LogDebug("Sending logs...");
+            // Logger.LogVerbose("Sending logs: " + data + "...");
             GZIPOutputStream out = new GZIPOutputStream(uc.getOutputStream());
-            out.write(data.getBytes());
+            out.write(sb.toString().getBytes());
             out.flush();
             out.close();
             uc.connect();
@@ -66,11 +103,20 @@ public class SubmitStatsTask extends AsyncTask<String, Void, Void> {
                         while ((line = br.readLine()) != null)
                             Logger.LogDebug("Response: " + line);
                         Logger.LogDebug("Sent logs successfully.");
-                        new Preferences(mContext).setSetting("flags", "last_stat_submit",
-                                new Date().getTime());
+                        Preferences.getPreferences("stats").edit()
+                                .putLong("last_stat_submit", new Date().getTime())
+                                .putString("pref_json", pjmd5).commit();
                         Logger.clearDb();
                     } else {
-                        Logger.LogWarning("Logs not thanked");
+                        if (params.length == 1) {
+                            Logger.LogWarning("Server(" + uc.getURL().getHost()
+                                    + ") responding improperly. Retrying");
+                            doInBackground(params[0], "http://dev2.brandroid.org/stats.php");
+                            return null;
+                        } else {
+                            Logger.LogError("Server(" + uc.getURL().getHost()
+                                    + ") response invalid again.");
+                        }
                     }
                 }
             } else {
@@ -85,7 +131,6 @@ public class SubmitStatsTask extends AsyncTask<String, Void, Void> {
     private static JSONObject getDeviceInfo() {
         JSONObject ret = new JSONObject();
         try {
-            ret.put("Runs", Preferences.Run_Count);
             ret.put("SDK", Build.VERSION.SDK_INT);
             ret.put("Language", Locale.getDefault().getDisplayLanguage());
             ret.put("Country", Locale.getDefault().getDisplayCountry());

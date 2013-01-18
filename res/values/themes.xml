@@ -2,6 +2,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="AppTheme.Dark" parent="@style/Theme.Sherlock">
+        <item name="absForceOverflow">true</item>
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
         <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
@@ -46,6 +47,7 @@
         <item name="listDivider">@drawable/divider_horizontal_dark</item>
         <item name="listBackground">@drawable/list_background_dark</item>
         <item name="listColumnBackground">@drawable/list_column_background_dark</item>
+        <item name="listIconBackground">@color/transparent</item>
 
         <!-- Colors -->
         <item name="actionBarTextColorPrimary">@color/white</item>
@@ -74,6 +76,7 @@
     </style>
 
     <style name="AppTheme.Light" parent="@style/Theme.Sherlock.Light">
+        <item name="absForceOverflow">true</item>
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
         <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
@@ -118,6 +121,7 @@
         <item name="listDivider">@drawable/divider_horizontal_bright</item>
         <item name="listBackground">@drawable/list_background_light</item>
         <item name="listColumnBackground">@drawable/list_column_background_light</item>
+        <item name="listIconBackground">@color/transparent</item>
 
         <!-- Colors -->
         <item name="actionBarTextColorPrimary">@color/black</item>
@@ -146,6 +150,7 @@
     </style>
 
     <style name="AppTheme.LightAndDark" parent="Theme.Sherlock.Light.DarkActionBar">
+        <item name="absForceOverflow">true</item>
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
         <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
@@ -190,6 +195,7 @@
         <item name="listDivider">@drawable/divider_horizontal_bright</item>
         <item name="listBackground">@drawable/list_background_light</item>
         <item name="listColumnBackground">@drawable/list_column_background_light</item>
+        <item name="listIconBackground">@color/translucent_darkGray</item>
 
         <!-- Colors -->
         <item name="actionBarTextColorPrimary">@color/white</item>
@@ -218,6 +224,7 @@
     </style>
 
     <style name="AppTheme.Custom" parent="Theme.Sherlock.Light.DarkActionBar">
+        <item name="absForceOverflow">true</item>
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
         <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
@@ -264,6 +271,7 @@
         <item name="listDivider">@drawable/divider_horizontal_bright</item>
         <item name="listBackground">@drawable/list_background_light</item>
         <item name="listColumnBackground">@drawable/list_column_background_light</item>
+        <item name="listIconBackground">@color/translucent_gray</item>
 
         <!-- Colors -->
         <item name="actionBarTextColorPrimary">@color/white</item>

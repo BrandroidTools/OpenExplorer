@@ -39,6 +39,7 @@ public class Preferences {
     public static boolean Pref_Root = false;
     public static Boolean Is_Nook = null;
     public static int Run_Count = 0;
+    public static String UID = null;
 
     public interface OnPreferenceInteraction {
         public void setSetting(String key, String value);

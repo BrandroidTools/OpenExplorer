@@ -223,7 +223,7 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter implements Titl
         }
         if (frag instanceof ContentFragment
                 && checkForContentFragmentWithPath(((ContentFragment)frag).getPath())) {
-            Logger.LogInfo("ArrayPagerAdapter already contains Path "
+            Logger.LogVerbose("ArrayPagerAdapter already contains Path "
                     + ((ContentFragment)frag).getPath().getPath());
             return;
         }

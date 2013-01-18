@@ -11,6 +11,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.Date;
+
+import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
 import org.brandroid.openmanager.data.OpenPath.OpenPathCopyable;
 import org.brandroid.openmanager.util.DFInfo;
@@ -18,12 +20,14 @@ import org.brandroid.openmanager.util.SortType;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 
+@SuppressLint("NewApi")
 public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.OpenPathByteIO {
     private static final long serialVersionUID = 6436156952322586833L;
     private File mFile;
@@ -216,7 +220,7 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
             mChildren[c.getPosition()] = new OpenFile(folder + "/" + name);
             c.moveToNext();
         }
-        Logger.LogInfo("listFromDb found " + mChildren.length + " children");
+        Logger.LogVerbose("listFromDb found " + mChildren.length + " children");
         c.close();
         return true;
     }
@@ -243,13 +247,16 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
         for (OpenFile kid : getInternalMemoryDrive().getParent().listFiles())
             if ((kid.getName().toLowerCase().indexOf("ext") > -1 || kid.getName().toLowerCase()
                     .indexOf("sdcard1") > -1)
-                    && kid.canRead() && kid.canWrite()) {
+                    && !kid.getPath().equals(getInternalMemoryDrive().getPath())
+                    && kid.canRead()
+                    && kid.canWrite()) {
                 mExternalDrive = kid;
                 return kid;
             }
         if (new File("/Removable").exists())
             for (File kid : new File("/Removable").listFiles())
                 if (kid.getName().toLowerCase().indexOf("ext") > -1 && kid.canRead()
+                        && !kid.getPath().equals(getInternalMemoryDrive().getPath())
                         && kid.list().length > 0) {
                     mExternalDrive = new OpenFile(kid);
                     return mExternalDrive;
@@ -266,19 +273,23 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
 
     public static OpenFile getInternalMemoryDrive() // internal
     {
+        OpenFile ret = null;
+        if (OpenExplorer.isNook()) {
+            ret = new OpenFile("/mnt/media");
+            if (ret != null && ret.canWrite())
+                return mInternalDrive = ret;
+        }
         if (mInternalDrive != null)
             return mInternalDrive;
-        OpenFile ret = new OpenFile(Environment.getExternalStorageDirectory());
+        ret = new OpenFile(Environment.getExternalStorageDirectory());
         Logger.LogVerbose("Internal Storage: " + ret);
         if (ret == null || !ret.exists()) {
             OpenFile mnt = new OpenFile("/mnt");
             if (mnt != null && mnt.exists())
                 for (OpenFile kid : mnt.listFiles())
                     if (kid.getName().toLowerCase().indexOf("sd") > -1)
-                        if (kid.canWrite()) {
-                            mInternalDrive = kid;
-                            return kid;
-                        }
+                        if (kid.canWrite())
+                            return mInternalDrive = kid;
         } else if (ret.getName().endsWith("1")) {
             OpenFile sdcard0 = new OpenFile(ret.getPath().substring(0, ret.getPath().length() - 1)
                     + "0");
@@ -316,10 +327,11 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
             if (kid.getName().toLowerCase().contains("usb") && kid.exists() && kid.canRead()
                     && kid.list().length > 0)
                 return (mUsbDrive = kid);
-        for (OpenFile kid : getInternalMemoryDrive().listFiles())
-            if (kid.getName().toLowerCase().contains("usb") && kid.exists() && kid.canRead()
-                    && kid.list().length > 0)
-                return (mUsbDrive = kid);
+        if (Build.VERSION.SDK_INT > 15)
+            for (OpenFile kid : getInternalMemoryDrive().listFiles())
+                if (kid.getName().toLowerCase().contains("usb") && kid.exists() && kid.canRead()
+                        && kid.list().length > 0)
+                    return (mUsbDrive = kid);
         return null;
     }
 

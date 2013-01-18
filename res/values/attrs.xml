@@ -55,6 +55,7 @@
         <attr name="listDivider" format="reference" />
         <attr name="listBackground" format="reference" />
         <attr name="listColumnBackground" format="reference" />
+        <attr name="listIconBackground" format="reference" />
 
         <!-- Style Colors -->
         <attr name="actionBarTextColorPrimary" format="color" />

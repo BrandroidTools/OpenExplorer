@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
@@ -37,6 +38,7 @@ import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenPath.OpenContentUpdater;
 import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateListener;
 import org.brandroid.openmanager.data.OpenPathArray;
+import org.brandroid.openmanager.data.OpenPathMerged;
 import org.brandroid.openmanager.data.OpenZip;
 import org.brandroid.openmanager.util.EventHandler;
 import org.brandroid.openmanager.util.EventHandler.EventType;
@@ -237,7 +239,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
 
     protected ContentAdapter getContentAdapter() {
         if (mContentAdapter == null) {
-            mContentAdapter = new ContentAdapter(getExplorer(), this, mViewMode, mPath);
+            mContentAdapter = new ContentAdapter(getExplorer(), this, getViewMode(), mPath);
             mContentAdapter.setShowHiddenFiles(getViewSetting(getPath(), "show",
                     getViewSetting(null, "pref_show", false)));
             SortType sort = new SortType(getViewSetting(getPath(), "sort",
@@ -258,6 +260,8 @@ OnTaskUpdateListener, ContentAdapter.Callback {
     }
 
     public int getGlobalViewMode() {
+        if (mPath instanceof OpenPathMerged)
+            return OpenExplorer.VIEW_GRID;
         String pref = getSetting(null, "pref_view", "list");
         if (pref.equals("list"))
             return OpenExplorer.VIEW_LIST;
@@ -1060,7 +1064,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
             parent = OpenFile.getExternalMemoryDrive(true);
         final OpenPath folder = parent;
         String name = file != null ? file.getName() : null;
-        ArrayList<OpenPath> selection = mContentAdapter.getSelectedSet();
+        CopyOnWriteArrayList<OpenPath> selection = mContentAdapter.getSelectedSet();
 
         final boolean fromPasteMenu = file.equals(mPath);
 
@@ -1627,7 +1631,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
         mTopIndex = mGrid.getFirstVisiblePosition();
         if (mContentAdapter != null && mTopIndex > -1 && mTopIndex < mContentAdapter.getCount()) {
             mTopPath = mContentAdapter.getItem(mTopIndex);
-            Logger.LogInfo("Top Path saved to " + mTopIndex
+            Logger.LogVerbose("Top Path saved to " + mTopIndex
                     + (mTopPath != null ? " :: " + mTopPath.getName() : ""));
         }
     }
@@ -1647,7 +1651,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
     }
 
     private Boolean restoreTopPath(int index) {
-        Logger.LogInfo("Top Path restored to " + index);
+        Logger.LogVerbose("Top Path restored to " + index);
         mGrid.setSelection(index);
         mTopIndex = 0;
         mTopPath = null;
@@ -2022,7 +2026,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
         @SuppressLint("NewApi")
         @Override
         public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
-            final ArrayList<OpenPath> selections = mContentAdapter.getSelectedSet();
+            final CopyOnWriteArrayList<OpenPath> selections = mContentAdapter.getSelectedSet();
             final OpenPath last = selections.get(selections.size() - 1);
             switch (item.getItemId()) {
                 case R.id.menu_context_selectall:

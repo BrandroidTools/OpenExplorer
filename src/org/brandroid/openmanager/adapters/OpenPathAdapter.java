@@ -77,10 +77,10 @@ public class OpenPathAdapter extends BaseAdapter {
                 : R.layout.list_content_layout;
 
         if (view == null
-                // || view.getTag() == null
-                // || !BookmarkHolder.class.equals(view.getTag())
-                // || ((BookmarkHolder)view.getTag()).getMode() != mode
-                ) {
+        // || view.getTag() == null
+        // || !BookmarkHolder.class.equals(view.getTag())
+        // || ((BookmarkHolder)view.getTag()).getMode() != mode
+        ) {
             LayoutInflater in = (LayoutInflater)mApp.getContext().getSystemService(
                     Context.LAYOUT_INFLATER_SERVICE);
 
@@ -99,18 +99,11 @@ public class OpenPathAdapter extends BaseAdapter {
         // view.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         // mHolder.setInfo(getFileDetails(file, false));
         TextView mInfo = (TextView)view.findViewById(R.id.content_info);
-        if (mInfo != null)
+        if (mInfo != null) {
             mInfo.setText(getFileDetails(file, false));
 
-        TextView mPathView = (TextView)view.findViewById(R.id.content_fullpath);
-        if (mPathView != null) {
-            if (file instanceof OpenMediaStore) {
-                mPathView.setText(file.getPath());
-                mPathView.setVisibility(View.VISIBLE);
-                // mHolder.setPath(file.getPath());
-                // mHolder.showPath(true);
-            } else
-                mPathView.setVisibility(View.GONE);
+            if (file.showChildPath())
+                mInfo.setText(mInfo.getText() + " : " + file.getPath());
             // mHolder.showPath(false);
         }
 
@@ -126,9 +119,9 @@ public class OpenPathAdapter extends BaseAdapter {
             mNameView.setTextAppearance(mContext, R.style.Text_Large);
 
         if (file.isHidden())
-            ViewUtils.setAlpha(0.5f, mNameView, mPathView, mInfo);
+            ViewUtils.setAlpha(0.5f, mNameView, mInfo);
         else
-            ViewUtils.setAlpha(1.0f, mNameView, mPathView, mInfo);
+            ViewUtils.setAlpha(1.0f, mNameView, mInfo);
 
         // if(!mHolder.getTitle().equals(mName))
         // mHolder.setTitle(mName);
