@@ -110,8 +110,8 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 @SuppressLint("NewApi")
 public class ContentFragment extends OpenFragment implements OnItemLongClickListener,
-OnItemClickListener, OnWorkerUpdateListener, OpenPathFragmentInterface,
-OnTaskUpdateListener, ContentAdapter.Callback {
+        OnItemClickListener, OnWorkerUpdateListener, OpenPathFragmentInterface,
+        OnTaskUpdateListener, ContentAdapter.Callback {
 
     // private static MultiSelectHandler mMultiSelect;
     // private LinearLayout mPathView;
@@ -135,14 +135,14 @@ OnTaskUpdateListener, ContentAdapter.Callback {
     protected int mMenuContextItemIndex = -1;
     private boolean mRefreshReady = true;
     public static final SortType.Type[] sortTypes = new SortType.Type[] {
-        SortType.Type.ALPHA, SortType.Type.ALPHA_DESC, SortType.Type.SIZE,
-        SortType.Type.SIZE_DESC, SortType.Type.DATE, SortType.Type.DATE_DESC,
-        SortType.Type.TYPE
+            SortType.Type.ALPHA, SortType.Type.ALPHA_DESC, SortType.Type.SIZE,
+            SortType.Type.SIZE_DESC, SortType.Type.DATE, SortType.Type.DATE_DESC,
+            SortType.Type.TYPE
     };
     public static final int[] sortMenuOpts = new int[] {
-        R.id.menu_sort_name_asc, R.id.menu_sort_name_desc, R.id.menu_sort_size_asc,
-        R.id.menu_sort_size_desc, R.id.menu_sort_date_asc, R.id.menu_sort_date_desc,
-        R.id.menu_sort_type
+            R.id.menu_sort_name_asc, R.id.menu_sort_name_desc, R.id.menu_sort_size_asc,
+            R.id.menu_sort_size_desc, R.id.menu_sort_date_asc, R.id.menu_sort_date_desc,
+            R.id.menu_sort_type
     };
 
     private Bundle mBundle;
@@ -298,7 +298,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
                         getView(),
                         getResources().getString(
                                 !mPath.isLoaded() ? R.string.s_status_loading : R.string.no_items),
-                                android.R.id.empty);
+                        android.R.id.empty);
                 ViewUtils.setViewsVisible(getView(), true, android.R.id.empty);
             } else
                 ViewUtils.setViewsVisible(getView(), false, android.R.id.empty);
@@ -487,7 +487,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
                         .startsWith(OpenFile.getExternalMemoryDrive(true).getParent().getPath()))
                         || sPath.startsWith("/mnt/shell")
                         || (sPath.indexOf("/emulated/") > -1 && sPath.indexOf("/emulated/0") == -1) || sPath
-                        .startsWith("/system")))
+                            .startsWith("/system")))
             path = new OpenFileRoot(path);
 
         mPath = path;
@@ -531,11 +531,11 @@ OnTaskUpdateListener, ContentAdapter.Callback {
 
         if (getActivity() != null && getActivity().getWindow() != null)
             mShowLongDate = getResources().getBoolean(R.bool.show_long_date) // getActivity().getWindow().getWindowManager().getDefaultDisplay().getRotation()
-            // %
-            // 180
-            // !=
-            // 0
-            && mPath != null;
+                    // %
+                    // 180
+                    // !=
+                    // 0
+                    && mPath != null;
 
         if (path instanceof OpenFileRoot) {
             runUpdateTask();
@@ -1345,7 +1345,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
         super.onPrepareOptionsMenu(menu);
 
         MenuUtils
-        .setMenuVisible(menu, mPath instanceof OpenNetworkPath, R.id.menu_context_download);
+                .setMenuVisible(menu, mPath instanceof OpenNetworkPath, R.id.menu_context_download);
         MenuUtils.setMenuVisible(menu, !(mPath instanceof OpenNetworkPath), R.id.menu_context_edit,
                 R.id.menu_context_view);
 
@@ -1631,7 +1631,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
         mTopIndex = mGrid.getFirstVisiblePosition();
         if (mContentAdapter != null && mTopIndex > -1 && mTopIndex < mContentAdapter.getCount()) {
             mTopPath = mContentAdapter.getItem(mTopIndex);
-            Logger.LogInfo("Top Path saved to " + mTopIndex
+            Logger.LogVerbose("Top Path saved to " + mTopIndex
                     + (mTopPath != null ? " :: " + mTopPath.getName() : ""));
         }
     }
@@ -1651,7 +1651,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
     }
 
     private Boolean restoreTopPath(int index) {
-        Logger.LogInfo("Top Path restored to " + index);
+        Logger.LogVerbose("Top Path restored to " + index);
         mGrid.setSelection(index);
         mTopIndex = 0;
         mTopPath = null;
@@ -1932,7 +1932,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
                     }
                     mShareActionProvider.setShareIntent(shareIntent);
                     mShareActionProvider
-                    .setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
+                            .setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
                 }
             }
 
@@ -1986,8 +1986,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
                                     getActivity().startActivity(theIntent);
                                     return true;
                                 }
-                            })
-                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                            }).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 }
             }
 
@@ -2044,8 +2043,8 @@ OnTaskUpdateListener, ContentAdapter.Callback {
                     boolean doAnimation = false;
 
                     if (clipboard != null && doAnimation) // &&
-                        // Build.VERSION.SDK_INT
-                        // > 11)
+                    // Build.VERSION.SDK_INT
+                    // > 11)
                     {
                         Rect rect = new Rect();
                         clipboard.getGlobalVisibleRect(rect);
@@ -2113,10 +2112,10 @@ OnTaskUpdateListener, ContentAdapter.Callback {
                     final String def = zname;
 
                     final InputDialog dZip = new InputDialog(getExplorer())
-                    .setIcon(R.drawable.sm_zip).setTitle(R.string.s_menu_zip)
-                    .setMessageTop(R.string.s_prompt_path)
-                    .setDefaultTop(intoPath.getPath()).setMessage(R.string.s_prompt_zip)
-                    .setCancelable(true);
+                            .setIcon(R.drawable.sm_zip).setTitle(R.string.s_menu_zip)
+                            .setMessageTop(R.string.s_prompt_path)
+                            .setDefaultTop(intoPath.getPath()).setMessage(R.string.s_prompt_zip)
+                            .setCancelable(true);
                     dZip.setPositiveButton(android.R.string.ok, new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -2209,10 +2208,10 @@ OnTaskUpdateListener, ContentAdapter.Callback {
         boolean empty = mContentAdapter == null || mContentAdapter.getCount() == 0;
         if (empty)
             ViewUtils
-            .setText(
-                    getView(),
-                    getString(!mPath.isLoaded() ? R.string.s_status_loading
-                            : R.string.no_items, ""), android.R.id.empty);
+                    .setText(
+                            getView(),
+                            getString(!mPath.isLoaded() ? R.string.s_status_loading
+                                    : R.string.no_items, ""), android.R.id.empty);
         ViewUtils.setViewsVisibleNow(getView(), empty, android.R.id.empty);
 
         // TODO check to see if this is the source of inefficiency

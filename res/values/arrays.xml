@@ -99,6 +99,8 @@
         <item>slovenčina</item>
         <item>svenska</item>
         <item>Türkçe</item>
+        <item>Український</item>
+        <item>中國的</item>
     </string-array>
     <string-array name="languages_values">
         <item>en</item>
@@ -121,6 +123,8 @@
         <item>sk</item>
         <item>sv</item>
         <item>tr</item>
+        <item>uk</item>
+        <item>zh</item>
     </string-array>
     <string-array name="text_max_size">
         <item>50kb</item>

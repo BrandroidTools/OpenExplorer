@@ -224,6 +224,12 @@
             android:title="@string/s_privacy"
             />
         <CheckBoxPreference
+            android:key="servers_private"
+            android:title="@string/s_pref_servers_private"
+            android:summary="@string/s_pref_servers_private_summary"
+            android:defaultValue="false" 
+            />
+        <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_stats"
             android:summary="@string/s_pref_stats_summary"

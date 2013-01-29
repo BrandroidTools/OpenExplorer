@@ -21,7 +21,6 @@ import android.view.ContextMenu;
 import android.view.KeyEvent;
 
 public class MenuUtils {
-    public static final boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
 
     public static void transferMenu(Menu from, Menu to) {
         transferMenu(from, to, true);
@@ -223,9 +222,6 @@ public class MenuUtils {
                 sc = KeyEvent.KEYCODE_DEL;
             // KeyEvent.KEYCODE_A = 27, Ascii for 'a' is 97, so add 80 to map to
             // ascii
-            if (DEBUG)
-                Logger.LogDebug("Menu Shortcut (" + item.getAlphabeticShortcut() + ":" + sc
-                        + ") = " + item);
             OpenExplorer.mMenuShortcuts.put(sc, item);
         }
     }

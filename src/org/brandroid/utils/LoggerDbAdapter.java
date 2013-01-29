@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class LoggerDbAdapter {
     public static final String KEY_ID = "_id";
@@ -127,11 +128,15 @@ public class LoggerDbAdapter {
     }
 
     public Cursor fetchAllItems() {
+        return fetchAllItems(true);
+    }
+
+    public Cursor fetchAllItems(boolean unsentOnly) {
         open();
         try {
             return mDb.query(DATABASE_TABLE, new String[] {
                     KEY_ID, KEY_MESSAGE, KEY_LEVEL, KEY_STACK, KEY_STAMP
-            }, "sent = 0", null, null, null, null);
+            }, unsentOnly ? "sent = 0" : "", null, null, null, null);
         } catch (Exception e) {
             return null;
         }
@@ -171,19 +176,21 @@ public class LoggerDbAdapter {
         c.moveToFirst();
         // sb.append("{errors:[");
         while (!c.isAfterLast()) {
-            int id = c.getInt(0);
-            String msg = c.getString(1);
             int lvl = c.getInt(2);
-            String stack = c.getString(3);
-            int stamp = c.getInt(4);
-            // if(!c.isFirst()) sb.append(",");
-            JSONArray row = new JSONArray();
-            row.put(id);
-            row.put(stamp);
-            row.put(lvl);
-            row.put(msg);
-            row.put(stack);
-            items.put(row);
+            if (lvl == Log.INFO || lvl == Log.ERROR || lvl == Log.ASSERT) {
+                int id = c.getInt(0);
+                String msg = c.getString(1);
+                String stack = c.getString(3);
+                int stamp = c.getInt(4);
+                // if(!c.isFirst()) sb.append(",");
+                JSONArray row = new JSONArray();
+                row.put(id);
+                row.put(stamp);
+                row.put(lvl);
+                row.put(msg);
+                row.put(stack);
+                items.put(row);
+            }
             // sb.append("[" + id + "," + stamp + "," + lvl + ",\"" +
             // msg.replace("\"", "\\\"") + "\"," + ",\"" + stack.replace("\"",
             // "\\\""));
@@ -198,5 +205,24 @@ public class LoggerDbAdapter {
 
     public String getAllItems() {
         return getAllItemsJSON().toString();
+    }
+
+    public String getLogText() {
+        Cursor c = fetchAllItems(false);
+        if (c == null)
+            return "";
+        StringBuilder sb = new StringBuilder();
+        c.moveToFirst();
+        while (!c.isAfterLast()) {
+            int id = c.getInt(0);
+            String msg = c.getString(1).replace("\n", "\\n").replace("\t", "    ");
+            int lvl = c.getInt(2);
+            String stack = c.getString(3).replace("\n", "\\n").replace("\t", "    ");
+            int stamp = c.getInt(4);
+            sb.append(id + "\t" + lvl + "\t" + msg + "\t" + stamp + "\t" + stack + "\n");
+            c.moveToNext();
+        }
+        c.close();
+        return sb.toString();
     }
 }

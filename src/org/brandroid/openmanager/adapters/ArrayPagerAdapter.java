@@ -2,9 +2,10 @@
 package org.brandroid.openmanager.adapters;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.fragments.ContentFragment;
 import org.brandroid.openmanager.fragments.OpenFragment;
@@ -29,7 +30,8 @@ import android.view.View.OnLongClickListener;
 public class ArrayPagerAdapter extends FragmentStatePagerAdapter implements TitleProvider {
     // private static Hashtable<OpenPath, Fragment> mPathMap = new
     // Hashtable<OpenPath, Fragment>();
-    private ArrayList<OpenFragment> mFrags = new ArrayList<OpenFragment>();
+    private CopyOnWriteArrayList<OpenFragment> mFrags = new CopyOnWriteArrayList<OpenFragment>();
+    //private ArrayList<OpenFragment> mFrags = new ArrayList<OpenFragment>();
     private OnPageTitleClickListener mListener = null;
 
     public ArrayPagerAdapter(FragmentActivity activity, ViewPager pager) {
@@ -68,13 +70,11 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter implements Titl
      * getItem(position).getClassName(), new Bundle()); }
      */
 
-    public synchronized void sort() {
-        Collections.sort(mFrags, new Comparator<OpenFragment>() {
-            @Override
-            public int compare(OpenFragment a, OpenFragment b) {
-                return a.compareTo(b);
-            }
-        });
+    public void sort() {
+        OpenFragment[] arr = mFrags.toArray(new OpenFragment[0]);
+        Arrays.sort(arr);
+        mFrags.clear();
+        mFrags.addAll(Arrays.asList(arr));
     }
 
     @Override
@@ -223,7 +223,7 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter implements Titl
         }
         if (frag instanceof ContentFragment
                 && checkForContentFragmentWithPath(((ContentFragment)frag).getPath())) {
-            Logger.LogInfo("ArrayPagerAdapter already contains Path "
+            Logger.LogVerbose("ArrayPagerAdapter already contains Path "
                     + ((ContentFragment)frag).getPath().getPath());
             return;
         }

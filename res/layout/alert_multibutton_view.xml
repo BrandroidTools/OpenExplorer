@@ -5,41 +5,54 @@
     android:background="?attr/popupBackground" >
 
     <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="4dp" >
 
-    <TextView
-        android:id="@+id/confirm_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:paddingBottom="8dp"
+        <TextView
+            android:id="@+id/confirm_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingBottom="8dp"
             android:text="@string/s_alert_exit"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
             android:background="@color/darkGray" />
-    <LinearLayout
+
+        <LinearLayout
             android:id="@+id/buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
             android:paddingTop="8dp" >
-	</LinearLayout>
 
-    <CheckBox
-        android:id="@+id/confirm_remember"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:checked="false"
-        android:text="@string/s_wtf_remember" />
-	</LinearLayout>
+            <Button
+                android:id="@+id/alert_button1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/s_yes" />
+
+            <Button
+                android:id="@+id/alert_button2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/s_no" />
+        </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/confirm_remember"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:checked="false"
+            android:text="@string/s_wtf_remember" />
+    </LinearLayout>
 
 </ScrollView>

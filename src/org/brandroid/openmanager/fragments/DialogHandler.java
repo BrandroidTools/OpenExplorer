@@ -36,7 +36,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable.Orientation;
+import android.text.Html;
+import android.text.util.Linkify;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Gravity;
@@ -44,6 +45,9 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.ViewParent;
 import android.view.WindowManager;
 import android.view.WindowManager.BadTokenException;
 import android.webkit.WebView;
@@ -57,7 +61,6 @@ import android.widget.FrameLayout;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -67,11 +70,13 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -97,19 +102,19 @@ import org.brandroid.openmanager.data.OpenSMB;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.interfaces.OpenApp;
-import org.brandroid.openmanager.interfaces.OpenContextProvider;
-import org.brandroid.openmanager.util.BetterPopupWindow;
-import org.brandroid.openmanager.util.EventHandler;
+import org.brandroid.openmanager.util.HelpStringHelper;
 import org.brandroid.openmanager.util.OpenChromeClient;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.MenuUtils;
 import org.brandroid.utils.Preferences;
+import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
 
 import com.actionbarsherlock.view.MenuItem;
 
 public class DialogHandler {
+
     public static View createFileInfoDialog(OpenApp app, LayoutInflater inflater, OpenPath mPath) {
         View v = inflater.inflate(R.layout.info_layout, null);
         /*
@@ -496,14 +501,13 @@ public class DialogHandler {
     public static void showConfirmationDialog(Context context, String text, String title,
             final Preferences preferences, final String pref_key,
             final DialogInterface.OnClickListener onYes) {
-        final View layout = ((LayoutInflater)context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.confirm_view,
-                null);
-
-        final AlertDialog dialog = new AlertDialog.Builder(context).setTitle(title).setView(layout)
-                .create();
 
         if (!preferences.getBoolean("warn", pref_key, false)) {
+            final View layout = inflate(context, R.layout.confirm_view);
+
+            final AlertDialog dialog = new AlertDialog.Builder(context).setTitle(title)
+                    .setView(layout).create();
+
             ViewUtils.setText(layout, text, R.id.confirm_message);
 
             ViewUtils.setOnClicks(layout, new OnClickListener() {
@@ -522,16 +526,60 @@ public class DialogHandler {
                 }
             }, R.id.confirm_remember, R.id.confirm_yes, R.id.confirm_no);
 
-            dialog.show();
+            if (context != null)
+                dialog.show();
         } else
-            onYes.onClick(dialog, DialogInterface.BUTTON_POSITIVE);
+            onYes.onClick(null, DialogInterface.BUTTON_POSITIVE);
+    }
+
+    public static View inflate(Context context, int layoutId) {
+        return ((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
+                layoutId, null);
+    }
+
+    public static boolean showHelpDialog(Context context, String msgCode) {
+        int msg = -1, title = -1;
+        msg = Utils.getResId("help_" + msgCode, context, R.string.class);
+        if (msg <= 0)
+            return false;
+        title = Utils.getResId("help_" + msgCode + "_title", context, R.id.class);
+        return showHelpDialog(context, msg, title);
+    }
+
+    public static boolean showHelpDialog(final Context context, int msg, int title) {
+        try {
+            final View layout = inflate(context, R.layout.alert_help_view);
+            final AlertDialog dialog = new AlertDialog.Builder(context).setView(layout).create();
+            TextView tvMessage = (TextView)layout.findViewById(R.id.help_message);
+            if (tvMessage != null) {
+                ViewUtils.setText(layout, msg, R.id.help_message);
+                String allHelps = Arrays.toString(HelpStringHelper.getHelpSuffs().toArray())
+                        .replace(", ", "|");
+                allHelps = "(" + allHelps.substring(1, allHelps.length() - 2) + ")";
+                Pattern p = Pattern.compile(allHelps);
+                Linkify.addLinks(tvMessage, p, "content://org.brandroid.openmanager/help/");
+            }
+            if (title > 0)
+                dialog.setTitle(context.getText(title));
+            ViewUtils.setOnClicks(layout, new OnClickListener() {
+                public void onClick(View v) {
+                    if (v.getId() == R.id.help_skip) {
+                        boolean skip = ((CheckBox)v).isChecked();
+                        new Preferences(context).setSetting("warn", "help_skip", skip);
+                    }
+                }
+            }, R.id.help_skip);
+            dialog.show();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public static void showMultiButtonDialog(Context context, String message, String title,
             final DialogInterface.OnClickListener listener, int... buttonStringIds) {
-        final View layout = ((LayoutInflater)context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
-                R.layout.alert_multibutton_view, null);
+        final View layout = inflate(context, R.layout.alert_multibutton_view);
 
         ViewUtils.setViewsVisible(layout, false, R.id.confirm_remember);
 
@@ -542,15 +590,21 @@ public class DialogHandler {
         if (title != null)
             dialog.setTitle(title);
 
-        final LinearLayout buttons = (LinearLayout)layout.findViewById(R.id.buttons);
+        final ViewGroup buttons = (ViewGroup)layout.findViewById(R.id.buttons);
+        buttons.removeAllViews();
 
         for (final int id : buttonStringIds) {
             Button btn = new Button(context);
             btn.setText(id);
             btn.setId(id);
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams)btn.getLayoutParams();
-            if (lp != null)
+            if (lp == null)
+                lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
+                        LayoutParams.WRAP_CONTENT);
+            if (lp != null) {
                 lp.weight = 1;
+                btn.setLayoutParams(lp);
+            }
             btn.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -615,7 +669,8 @@ public class DialogHandler {
         return new AlertDialog.Builder(context).setTitle(title).setView(view).show();
     }
 
-    public static void showAboutDialog(final Context mContext) {
+    public static void showAboutDialog(final OpenApp mApp) {
+        final Context mContext = mApp.getContext();
         LayoutInflater li = (LayoutInflater)mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = li.inflate(R.layout.about, null);
@@ -659,7 +714,7 @@ public class DialogHandler {
         final String sSubject = "Feedback for OpenExplorer " + sVersionInfo;
         OnClickListener email = new OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_SEND);
+                Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
                 intent.setType("text/plain");
                 // intent.addCategory(Intent.CATEGORY_APP_EMAIL);
                 intent.putExtra(android.content.Intent.EXTRA_TEXT, "\n" + getDeviceInfo());
@@ -667,6 +722,16 @@ public class DialogHandler {
                     "brandroid64@gmail.com"
                 });
                 intent.putExtra(android.content.Intent.EXTRA_SUBJECT, sSubject);
+                try {
+                    OpenFile fAttach = SettingsActivity.GetDefaultServerFile(mContext).getParent()
+                            .getChild("oe_logs.txt");
+                    ArrayList<Uri> uris = new ArrayList<Uri>();
+                    uris.add(fAttach.getUri());
+                    fAttach.write(Logger.getLogText());
+                    intent.putExtra(android.content.Intent.EXTRA_STREAM, uris);
+                } catch (Exception e) {
+                    Logger.LogWarning("Unable to attach logs to contact email.", e);
+                }
                 mContext.startActivity(Intent.createChooser(intent,
                         mContext.getString(R.string.s_chooser_email)));
             }
@@ -704,7 +769,7 @@ public class DialogHandler {
         else
             ((TableRow)view.findViewById(R.id.row_buildtime)).setVisibility(View.GONE);
 
-        fillShortcutsTable((TableLayout)view.findViewById(R.id.shortcuts_table));
+        // fillShortcutsTable((TableLayout)view.findViewById(R.id.shortcuts_table));
 
         final View tab1 = view.findViewById(R.id.tab1);
         final View tab2 = view.findViewById(R.id.tab2);
@@ -939,7 +1004,8 @@ public class DialogHandler {
         LayoutInflater inflater = (LayoutInflater)context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View v = inflater.inflate(R.layout.server, null);
-        OpenServer.setupServerDialog(server, iServersIndex, v);
+        if (!OpenServer.setupServerDialog(server, iServersIndex, v))
+            return false;
         int addStrId = iServersIndex >= 0 ? R.string.s_update : R.string.s_add;
         final AlertDialog dialog = new AlertDialog.Builder(context)
                 .setView(v)

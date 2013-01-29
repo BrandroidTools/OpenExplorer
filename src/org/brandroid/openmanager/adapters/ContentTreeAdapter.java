@@ -98,12 +98,10 @@ public class ContentTreeAdapter extends BaseAdapter {
                 0, 0, 0);
 
         TextView mInfo = (TextView)view.findViewById(R.id.content_info);
-        TextView mPathView = (TextView)view.findViewById(R.id.content_fullpath);
         TextView mNameView = (TextView)view.findViewById(R.id.content_text);
         final ImageView mIcon = (ImageView)view.findViewById(R.id.content_icon);
 
         mInfo.setVisibility(View.GONE);
-        mPathView.setVisibility(View.GONE);
 
         String name = file.getName();
         if (!name.endsWith("/"))

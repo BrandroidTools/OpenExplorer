@@ -1,8 +1,6 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <item>
-        <solid android:color="@color/transparent" />
-    </item>
+    <item/>
     <item>
         <bitmap
             android:gravity="bottom"

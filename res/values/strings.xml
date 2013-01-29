@@ -346,18 +346,47 @@
     <string name="s_pref_thumbs_cache_clear">Clear Thumbnail Cache</string>
     <string name="s_msg_folder_none">Folder unable to be created</string>
     <string name="s_menu_donate">Donate</string>
-    <string name="msg_nook_donate">Hello Nook user! I hope you enjoy Open Explorer for Nook. I have tried my hardest to ensure high compatibility with Nook devices. However, it appears there are some differences that are difficult to handle without an actual Nook device. For this reason, I am trying to collect enough donations in order to buy a Nook device in order to improve compatibility for nook devices. If you find this app useful, please consider making a donation, by either selecting the button below, or by activating the "donate" menu option. Thank you, and happy exploring!</string>
+    <string name="msg_nook_donate2">Hello Nook user! I hope you enjoy Open Explorer for Nook. I have tried my hardest to ensure high compatibility with Nook devices. Thanks to recent donations, I was able to purchase a Nook Color! Thank you to all who have donated!\n\n Next, I would like to be able to purchase a newer generation Nook HD device.\n\n If you find this app useful, please consider making a donation, by either selecting the button below, or by activating the "donate" menu option. Thank you, and happy exploring!</string>
     <string name="msg_bb_donate">Hello BlackBerry user! I hope you enjoy Open Explorer. I have tried my hardest to ensure high compatibility with BlackBerry devices. However, it appears there are some differences that are difficult to handle without an actual BlackBerry device. For this reason, I am trying to collect enough donations in order to buy a BlackBerry 10 device in order to improve compatibility. If you find this app useful, please consider making a donation, by either selecting the button below, or by activating the "donate" menu option. Thank you, and happy exploring!</string>
     <string name="msg_donate">Hello Android user! We hope you enjoy Open Explorer. We have tried our hardest to ensure high compatibility with all Android devices. However, given the bug reports received, we can only assume there are differences between different types causing specific issues. For this reason, We are trying to collect enough donations in order to buy some Nexus devices in order to improve compatibility. If you find this app useful, please consider making a donation, by either selecting the button below, or by activating the "donate" menu option. Thank you, and happy exploring!</string>
     <string name="s_privacy">Privacy Policy</string>
-    
     <string name="s_menu_system_mount">Make /system Writable (Dangerous!)</string>
     <string name="s_menu_system_mount_on">System is WRITABLE!</string>
     <string name="s_menu_system_mount_off">System is Read-Only.</string>
+    <string name="s_pref_servers_private">Keep Servers Private</string>
+    <string name="s_pref_servers_private_summary">Store server settings in private storage area. This will cause server settings to be removed if the application is uninstalled. If you re-install in the future, leaving this unchecked will prevent that.</string>
 
     <plurals name="num_selected">
         <item quantity="one">One file selected</item>
         <item quantity="other"><xliff:g id="count">%d</xliff:g> files selected</item>
     </plurals>
+
+    <string name="s_skip_help">Do not show help dialogs</string>
+    <string name="help_pager">Open Explorer\'s UI is built upon a "page-based" interface. This allows you to keep a set of tabs open representing different locations.</string>
+    <string name="help_bookmark">One of the main functions you will probably use in Open Explorer is the Bookmarks menu. To activate, simply tap the contextual folder icon, in the upper-left corner, from any folder. This will slide out the menu of drives, smart folders, favorites, and networking servers.</string>
+    <string name="help_drives">Open Explorer lists all drives attached to your system. This includes your internal memory, external memory (if applicable), and any USB drives (if available). You can also enable showing the root folder (/) via the Global Preferences menu.</string>
+    <string name="help_favorite">Open Explorer allows you to designate specific folders as your "favorite", adding them to the favorites section of the bookmark menu.</string>
+    <string name="help_smart">Open Explorer has a useful feature that allows you to find your common content quickly: Smart Folders. Each smart folder is designed to dynamically locate different types of files among all of your drives/networks. The ability to add new custom smart folders is coming soon!</string>
+    <string name="help_network"></string>
+    <string name="help_multiselect">Open Explorer allows you to select multiple files from the same directory at once. You may then perform File Operations on the single files, or copy to the Clipboard for further selections from other directories. To initiate multi-select, either tap the small checkbox on the right side of the list, or long-press the item. To de-activate multi-select without performing any operations, simply tap "back" or the checkmark in the action bar.</string>
+    <string name="help_multiselect_title">Multi-select</string>
+    <string name="help_clipboard">The clipboard in Open Explorer works a bit differently than you might expect. You copy multiple items to the clipboard either by using multi-select or copying them one at a time. This allows you to copy items from multiple locations, and paste them into a single destination at one time.\n\n After you copy any desired items, in order to operate on the clipboard, first tap the clipboard icon in the action/title bar. You can then either paste them, move them (deleting the original), delete them, or zip them. You can also clear the entire list. Selecting any individual items from the clipboad will remove them individually.</string>
+    <string name="help_clipboard_title">Clipboard</string>
+    <string name="help_operations">Open Explorer allows you to perform all necessary operations on any files/folders, along with some extras: copy, delete, share, rename, favorite, zip, heatmap.</string>
+    <string name="help_operations_title">File Operations</string>
+    <string name="help_search">Open Explorer allows you to search through any folder for files with names that include your query. Once a search is initiated, a separate "page" is added to persist your search results.</string>
+    <string name="help_heatmap">Open Explorer has a unique feature that assists you in determining the location of your largest folders/files. When you select File Operations : Heatmap from any folder (or select a single folder and tap "Heatmap" in the action bar), you can see a list of the sub-items from that folder sorted descendingly according to total filesize. The filesize is determined dynamically, so it may take a few seconds to calculate the totals.</string>
+    <string name="help_heatmap_title">Heatmap</string>
+    <string name="help_zip"></string>
+    <string name="help_share"></string>
+    <string name="help_view"></string>
+    <string name="help_sort"></string>
+    <string name="help_editor"></string>
+    <string name="help_root">Open Explorer allows users who are using rooted Android devices to navigate directories that are "protected": /system (read-only by default), /data (read-write). Please note this can be dangerous and is not recommended unless you are an advanced user.</string>
+    <string name="help_root_title">Root Operations</string>
+    <string name="help_systemroot">Mounting your system as writeable can be dangerous and is not recommended for anybody but advanced users. You can easily damage/brick your device by making incorrect modifications. Please continue with highest caution.</string>
+    <string name="help_systemroot_title">Rooted System Mount</string>
+    
+    <string name="s_menu_rate">Rate App</string>
 
 </resources>
