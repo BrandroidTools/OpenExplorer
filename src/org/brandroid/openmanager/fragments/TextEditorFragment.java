@@ -106,6 +106,7 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
     private float mTextSize = 10f;
     private boolean mSalvage = true;
     private boolean mWrap = true;
+    private boolean mUseFontSizeDialog = false;
 
     private final static boolean USE_SEEK_ACTIONVIEW = true;
 
@@ -191,7 +192,12 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
             if (mViewList != null)
                 mViewList.setOnTouchListener(this);
         mViewListAdapter = new LinesAdapter(activity, new String[] {});
-        createFontSizeBar(activity);
+        try {
+            createFontSizeBar(activity);
+        } catch (Exception e) {
+            Logger.LogWarning("Unable to initialize Font Size Action View");
+            mUseFontSizeDialog = true;
+        }
         if (!Preferences.Warn_TextEditor && !getSetting("warn", "text_editor", false)) {
             Preferences.Warn_TextEditor = true;
             DialogHandler.showWarning(getActivity(), R.string.warn_text_editor, 10,
@@ -289,14 +295,26 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
         MenuItem mFontSize = menu.findItem(R.id.menu_view_font_size);
         // Class clz =
         // Class.forName("org.brandroid.openmanagerviews.SeekBarActionView");
+        mUseFontSizeDialog = false;
         boolean isTop = false;
         if (getActivity() != null && getResources() != null
                 && !getResources().getBoolean(R.bool.allow_split_actionbar))
             isTop = true;
-        if (mFontSizeBar == null)
-            createFontSizeBar(getContext());
+        if (mFontSizeBar == null) {
+            try {
+                createFontSizeBar(getContext());
+            } catch (Exception e) {
+                Logger.LogWarning("Unable to initialize Font Size Action View.");
+                mUseFontSizeDialog = true;
+            }
+        }
         if (mFontSize != null && mFontSizeBar != null && USE_SEEK_ACTIONVIEW) {
-            mFontSize.setActionView(mFontSizeBar);
+            try {
+                mFontSize.setActionView(mFontSizeBar);
+                mUseFontSizeDialog = true;
+            } catch (IllegalStateException e) {
+                Logger.LogWarning("Parent already set for Font Size Action View.");
+            }
             mFontSize.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
                     | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         }
@@ -468,7 +486,7 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
         if (!isAdded())
             try {
                 super.setInitialSavedState(state);
-                Logger.LogInfo("setInitialSavedState @ TextEditor (" + mPath + ")");
+                Logger.LogVerbose("setInitialSavedState @ TextEditor (" + mPath + ")");
             } catch (Exception e) {
                 Logger.LogWarning("Unable to set Initial State for text editor (" + mPath + ")", e);
             }
@@ -481,7 +499,7 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
             return;
         if (mPath == null)
             return;
-        Logger.LogInfo("saveInstanceState @ TextEditor (" + mPath.getPath() + ")");
+        Logger.LogVerbose("saveInstanceState @ TextEditor (" + mPath.getPath() + ")");
         outState.putParcelable("edit_path", mPath);
         if (mData != null && mData.length() < Preferences.Pref_Text_Max_Size)
             outState.putString("edit_data", mData);
@@ -553,7 +571,11 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
                 return true;
 
             case R.id.menu_view_font_size:
-                mFontSizeBar.onActionViewExpanded();
+                if (mUseFontSizeDialog && mFontSizeBar.isShown())
+                    mFontSizeBar.onActionViewExpanded();
+                else
+                    DialogHandler.showSeekBarDialog(c, getString(R.string.s_view_font_size),
+                            (int)mTextSize, 60, this);
                 return true;
 
             case R.id.menu_view_keyboard_toggle:
@@ -675,8 +697,7 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
                 byte[] bytes = data.getBytes();
                 // if(mPath instanceof OpenPath.OpenPathByteIO)
                 // ((OpenPath.OpenPathByteIO)mPath).writeBytes(data.getBytes());
-                if (mPath instanceof NeedsTempFile)
-                {
+                if (mPath instanceof NeedsTempFile) {
                     ((NeedsTempFile)mPath).getTempFile().write(data);
                     ((NeedsTempFile)mPath).tempUpload(this);
                 } else {
@@ -689,8 +710,10 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
                 mData = data;
                 return bytes.length;
             } catch (Exception e) {
-                if(mPath instanceof NeedsTempFile)
-                    Logger.LogError("Couldn't save temp file (" + ((NeedsTempFile)mPath).getTempFile() + ").", e);
+                if (mPath instanceof NeedsTempFile)
+                    Logger.LogError(
+                            "Couldn't save temp file (" + ((NeedsTempFile)mPath).getTempFile()
+                                    + ").", e);
                 else
                     Logger.LogError("Couldn't save file (" + mPath + ").", e);
             }
@@ -709,8 +732,7 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
             super.onPostExecute(result);
             setProgressVisibility(false);
             Context c = TextEditorFragment.this.getActivity();
-            if(result < 0)
-            {
+            if (result < 0) {
                 Toast.makeText(c, R.string.httpErrorIO, Toast.LENGTH_LONG).show();
                 return;
             }

@@ -217,18 +217,12 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
     public static boolean isNook() {
         if (Preferences.Is_Nook != null)
             return Preferences.Is_Nook;
-        if (Preferences.getPreferences("warn").contains("isNook"))
-            return (Preferences.Is_Nook = Preferences.getPreferences("warn").getBoolean("isNook",
-                    false));
         if (Build.DISPLAY.toLowerCase().contains("acclaim")
                 || Build.BRAND.toLowerCase().contains("nook")
                 || Build.PRODUCT.toLowerCase().contains("nook"))
-            Preferences.Is_Nook = true;
+            return Preferences.Is_Nook = true;
         else
-            Preferences.Is_Nook = false;
-        Preferences.getPreferences("warn").edit().putBoolean("isNook", Preferences.Is_Nook)
-                .commit();
-        return Preferences.Is_Nook;
+            return Preferences.Is_Nook = false;
     }
 
     public static boolean isBlackBerry() {
@@ -253,7 +247,7 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
     }
 
     public void showToast(final CharSequence message, final int toastLength) {
-        Logger.LogInfo("Made toast: " + message);
+        Logger.LogVerbose("Made toast: " + message);
         runOnUiThread(new Runnable() {
             public void run() {
                 Toast.makeText(getBaseContext(), message, toastLength).show();

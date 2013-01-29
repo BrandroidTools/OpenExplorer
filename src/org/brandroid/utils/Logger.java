@@ -13,7 +13,9 @@ import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.util.FileManager;
 import org.json.JSONArray;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 public class Logger {
@@ -24,7 +26,6 @@ public class Logger {
             0, 0, 0, 0, 0
     };
     private final static Boolean DO_LOG = true; // global static
-    private final static Boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD;
     private static Boolean bLoggingEnabled = true; // this can be set view
                                                    // preferences
     public final static Integer MIN_DB_LEVEL = Log.INFO;
@@ -46,9 +47,16 @@ public class Logger {
         bLoggingEnabled = enable;
     }
 
+    /**
+     * Checks the last call to logger for specified level. This is to prevent
+     * duplicate log calls.
+     * 
+     * @param msg
+     * @param level
+     * @return True to indicate the last request was the same and should not
+     *         repeat, False otherwise
+     */
     private static boolean CheckLastLog(String msg, int level) {
-        if (DEBUG)
-            return false;
         if (!isLoggingEnabled())
             return true;
         level -= 2;
@@ -136,6 +144,12 @@ public class Logger {
         return ret;
     }
 
+    public static String getLogText() {
+        if (dbLog == null)
+            return "";
+        return dbLog.getLogText();
+    }
+
     public static int countLevel(int level) {
         if (dbLog == null)
             return 0;
@@ -189,16 +203,17 @@ public class Logger {
         return countLevel(Log.ASSERT) > 0;
     }
 
+    @SuppressLint("NewApi")
     public static OpenFile getCrashFile() {
         OpenFile ext = OpenFile.getExternalMemoryDrive(true);
         if (ext != null) {
             ext = (OpenFile)ext.getChild(".oe_crash.txt");
-            if (ext.exists() && !ext.canWrite())
+            if (ext.exists() && !ext.canWrite() && Build.VERSION.SDK_INT > 8)
                 ext.getFile().setWritable(true);
             return ext;
         }
         ext = new OpenFile("/mnt/sdcard/.oe_crash.txt");
-        if (ext.exists() && !ext.canWrite())
+        if (ext.exists() && !ext.canWrite() && Build.VERSION.SDK_INT > 8)
             ext.getFile().setWritable(true);
         if (ext.canWrite())
             return ext;

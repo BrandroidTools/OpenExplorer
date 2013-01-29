@@ -170,13 +170,18 @@ public class ThumbnailCreator {
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        SoftReference<Bitmap> gen = generateThumb(app, file,
-                                                mWidth, mHeight, mContext);
-                                        if (gen != null && gen.get() != null)
-                                            mListener.updateImage(gen.get());
-                                        else
-                                            Logger.LogWarning("Couldn't generate thumb for "
-                                                    + file.getPath());
+                                        try {
+                                            SoftReference<Bitmap> gen = generateThumb(app, file,
+                                                    mWidth, mHeight, mContext);
+                                            if (gen != null && gen.get() != null)
+                                                mListener.updateImage(gen.get());
+                                            else
+                                                Logger.LogWarning("Couldn't generate thumb for "
+                                                        + file.getPath());
+                                        } catch (OutOfMemoryError e) {
+                                            showThumbPreviews = false;
+                                            Logger.LogWarning("No more memory for thumbs!");
+                                        }
                                     }
                                 }).start();
                             else
@@ -548,13 +553,17 @@ public class ThumbnailCreator {
                 && (bmp = getThumbnailCache(app, path, mWidth, mHeight)) != null)
             return new SoftReference<Bitmap>(bmp);
 
-        String mCacheFilename = getCacheFilename(path, mWidth, mHeight);
+        final String mCacheFilename = getCacheFilename(path, mWidth, mHeight);
 
         // we already loaded this thumbnail, just return it.
         if (app.getMemoryCache().get(mCacheFilename) != null)
             return new SoftReference<Bitmap>(app.getMemoryCache().get(mCacheFilename));
         if (readCache && bmp == null)
             bmp = loadThumbnail(mContext, mCacheFilename);
+
+        float density = mContext.getResources().getDisplayMetrics().density;
+        mWidth *= density;
+        mHeight *= density;
 
         if (bmp == null && !useGeneric && !OpenExplorer.LOW_MEMORY) {
             Boolean valid = false;

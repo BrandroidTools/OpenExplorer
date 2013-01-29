@@ -874,6 +874,16 @@ public abstract class OpenPath implements Serializable, Parcelable, Comparable<O
             return mDb;
         return null;
     }
+    
+    /**
+     * Explicitly close the cache Database adapter.
+     */
+    public static void closeDb() {
+        try {
+            if(mDb != null)
+                mDb.close();
+        } catch(Exception e) { }
+    }
 
     /**
      * Set static Database adapter used for cache.

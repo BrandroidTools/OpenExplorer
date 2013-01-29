@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="?attr/dialogBackgroundColorPrimary" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,13 +12,13 @@
 
         <TextView
             android:id="@+id/confirm_message"
+            style="@style/Text.Large.Dialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
             android:paddingBottom="8dp"
-            android:text="@string/s_alert_exit"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:text="@string/s_alert_exit" />
 
         <View
             android:layout_width="match_parent"
@@ -47,6 +48,7 @@
 
         <CheckBox
             android:id="@+id/confirm_remember"
+            style="@style/Text.Small.Dialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

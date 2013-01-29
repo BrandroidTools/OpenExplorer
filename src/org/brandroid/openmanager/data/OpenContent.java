@@ -10,10 +10,12 @@ import java.nio.channels.FileChannel;
 import org.brandroid.openmanager.data.OpenPath.NeedsTempFile;
 import org.brandroid.utils.Logger;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.provider.MediaStore;
 
 public class OpenContent extends OpenPath implements NeedsTempFile {
@@ -171,12 +173,16 @@ public class OpenContent extends OpenPath implements NeedsTempFile {
         return false;
     }
 
+    @SuppressLint("NewApi")
     @Override
     public InputStream getInputStream() throws IOException {
         try {
             return mContext.getContentResolver().openInputStream(uri);
         } catch (SecurityException sex) {
-            throw new IOException("Unable to get input Stream from ContentResolver", sex);
+            if(Build.VERSION.SDK_INT > 8)
+                throw new IOException("Unable to get input Stream from ContentResolver", sex);
+            else
+                throw new IOException("Unable to get input stream from ContentResolver");
         }
     }
 

@@ -44,22 +44,7 @@
         android:layout_toRightOf="@+id/content_icon"
         android:background="@android:color/transparent"
         android:text="Filename" />
-
-    <TextView
-        android:id="@+id/content_fullpath"
-        style="@style/Text.Small"
-        android:layout_width="wrap_content"
-        android:layout_alignLeft="@+id/content_text"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_below="@+id/content_text"
-        android:layout_toLeftOf="@+id/content_info"
-        android:layout_weight="1"
-        android:ellipsize="start"
-        android:gravity="left"
-        android:singleLine="true"
-        android:text="/mnt/sdcard/fullpath/fullfilename"
-        android:visibility="gone" />
-
+    
     <TextView
         android:id="@+id/content_info"
         style="@style/Text.Small"

@@ -214,8 +214,11 @@ public class OpenServer {
         return mData.optString(key);
     }
 
-    public static void setupServerDialog(final OpenServer server, final int iServersIndex,
+    public static boolean setupServerDialog(final OpenServer server, final int iServersIndex,
             final View parentView) {
+        View v = parentView.findViewById(R.id.text_server);
+        if (!(v instanceof EditText))
+            return false;
         final EditText mHost = (EditText)parentView.findViewById(R.id.text_server);
         final EditText mUser = (EditText)parentView.findViewById(R.id.text_user);
         final EditText mPassword = (EditText)parentView.findViewById(R.id.text_password);
@@ -376,6 +379,7 @@ public class OpenServer {
                 }
             });
         }
+        return true;
     }
 
     public int getPort() {

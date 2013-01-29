@@ -190,9 +190,9 @@ public class OpenClipboard extends BaseAdapter implements Set<OpenPath> {
 
         View ret = convertView;
         if (ret == null) {
-            ret = LayoutInflater.from(mContext).inflate(R.layout.list_content_layout, null);
+            ret = LayoutInflater.from(mContext).inflate(R.layout.file_list_item, null);
         }
-        int w = mContext.getResources().getDimensionPixelSize(R.dimen.list_icon_size);
+        int w = 32;
         // ret.setLayoutParams(new Gallery.LayoutParams(w, w));
         // double sz = (double)w * 0.7;
 
@@ -218,7 +218,6 @@ public class OpenClipboard extends BaseAdapter implements Set<OpenPath> {
 
         if (text != null) {
             RemoteImageView image = (RemoteImageView)ret.findViewById(R.id.content_icon);
-            TextView pathView = (TextView)ret.findViewById(R.id.content_fullpath);
             TextView info = (TextView)ret.findViewById(R.id.content_info);
             ImageView check = (ImageView)ret.findViewById(R.id.content_check);
             if (check != null) {
@@ -246,9 +245,9 @@ public class OpenClipboard extends BaseAdapter implements Set<OpenPath> {
                 if (file.getName() != null)
                     text.setText(file.getName());
                 if (file.getPath() != null)
-                    pathView.setText(file.getParent().getPath());
+                    info.setText(info.getText() + " : " + file.getParent().getPath());
                 image.setImageDrawable(d);
-                ViewUtils.setAlpha(alpha, image, pathView, text);
+                ViewUtils.setAlpha(alpha, image, info, text);
                 // ThumbnailCreator.setThumbnail(image, file, w, w); //(int)(w *
                 // (3f/4f)), (int)(w * (3f/4f)));
             }
@@ -392,6 +391,14 @@ public class OpenClipboard extends BaseAdapter implements Set<OpenPath> {
 
     public void setOnClickListener(OnClickListener listen) {
         mOnClickListener = listen;
+    }
+
+    public long getTotalSize() {
+        long ret = 0;
+        for(OpenPath p : list)
+            if(p.length() > 0)
+                ret += p.length();
+        return ret;
     }
 
 }

@@ -211,8 +211,8 @@
     <string name="s_pref_fancy_menus">新奇選單</string>
     <string name="s_pref_fancy_context">新奇關聯性選單</string>
     <string name="s_search_files">於檔案系統中搜尋</string>
-    <string name="search_summary" formatted="false">Searching for \" %s1 \" within \" %s2 \" (%d)... ==> 於 \"%s2\" (%d) 中搜尋 \"%s1\"...</string>
-    <string name="search_results" formatted="false">Found %d results for \" %s1 \" within \" %s2 \" ==> 於 \"%s2\" 中找到 %d 個 \"%s1\"</string>
+    <string name="search_summary" formatted="false">Searching for &quot;%s&quot; within &quot;%s&quot; (%d)... ==> 於 &quot;%s&quot; (%d) 中搜尋 &quot;%s&quot;...</string>
+    <string name="search_results" formatted="false">Found %d results for &quot;%s&quot; within &quot;%s&quot; ==> 於 &quot;%s2&quot; 中找到 %d 個 &quot;%s&quot;</string>
     <string name="s_menu_exit">離開</string>
     <string name="s_warn_wtf_message">糟糕！似乎發生了一個無法處理之錯誤！如同大多數測試版APP一樣無可避免產發生問題，但唯一能幫忙改善問題之方式就是能收到來自各種不同設備之錯誤報告，例如您的設備。所以方便允許我們向您蒐集錯誤報告 (不含您個人資料) 提交至開發者嗎？</string>
     <string name="s_warn_wtf_ps">*** 請注意：本程式尚在測試階段。懇請不要因為一些程式之錯誤便留下壞評價，您如果覺得本程式實在無趣，煩請移除它，感謝！</string>

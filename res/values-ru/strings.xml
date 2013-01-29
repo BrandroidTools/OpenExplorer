@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
-
     <string name="app_name">Open Explorer</string>
     <string name="s_photos">Фотографии</string>
     <string name="s_videos">Видео</string>
@@ -12,14 +11,14 @@
     <string name="s_bookmarks">Закладки</string>
     <string name="s_menu_favorites">Закладки</string>
     <string name="s_menu_sort">Сортировка</string>
-    <string name="s_menu_sort_name_asc">Сортировать по имени ↓</string>
-    <string name="s_menu_sort_name_desc">Сортировать по имени ↑</string>
-    <string name="s_menu_sort_date_asc">Сортаровать по дате ↓</string>
-    <string name="s_menu_sort_date_desc">Сортаровать по дате ↑</string>
+    <string name="s_menu_sort_name_asc">Сортировать по названию ↓</string>
+    <string name="s_menu_sort_name_desc">Сортировать по названию ↑</string>
+    <string name="s_menu_sort_date_asc">Сортировать по дате ↓</string>
+    <string name="s_menu_sort_date_desc">Сортировать по дате ↑</string>
     <string name="s_menu_sort_size_asc">Сортировать по размеру ↓</string>
     <string name="s_menu_sort_size_desc">Сортировать по размеру ↑</string>
     <string name="s_menu_sort_type">Сортировать по типу</string>
-    <string name="s_menu_multi">Выбрать несколько</string>
+    <string name="s_menu_multi">Выбрать несколько файлов</string>
     <string name="s_menu_grid">Сетка</string>
     <string name="s_menu_list">Список</string>
     <string name="s_menu_carousel">Карусель</string>
@@ -28,15 +27,15 @@
     <string name="s_menu_new_folder">Новая папка</string>
     <string name="s_menu_other">Прочие настройки</string>
     <string name="s_menu_flush">Сохранить кэш</string>
-    <string name="s_menu_root">Root ж</string>
+    <string name="s_menu_root">Root</string>
     <string name="s_menu_prefs_folder">Настройки папки</string>
-    <string name="s_menu_prefs_global">Настройки приложения</string>
-    <string name="s_menu_info">Информация</string>
+    <string name="s_menu_prefs_global">Общие настройки</string>
+    <string name="s_menu_info">Информаци</string>
     <string name="s_menu_copy">Копировать</string>
     <string name="s_menu_cut">Вырезать</string>
     <string name="s_menu_paste">Вставить</string>
     <string name="s_menu_delete">Удалить</string>
-    <string name="s_menu_share">Поделиться...</string>
+    <string name="s_menu_share">Отправить</string>
     <string name="s_menu_zip">Сжать файл(ы)...</string>
     <string name="s_menu_unzip">Распаковать</string>
     <string name="s_menu_rename">Переименовать</string>
@@ -66,7 +65,7 @@
     <string name="s_pref_server_user">Пользователь</string>
     <string name="s_pref_server_user_summary">Логин</string>
     <string name="s_pref_server_password">Пароль</string>
-    <string name="s_pref_server_password_summary">Login Password</string>
+    <string name="s_pref_server_password_summary">Ввести Пароль</string>
     <string name="s_pref_server_path">Подпапка</string>
     <string name="s_pref_server_path_summary">русский</string>
     <string name="s_pref_server_extras">Дополнительные настройки</string>
@@ -117,27 +116,27 @@
     <string name="s_menu_open" auto="1">Открыть с помощью ...</string>
     <string name="s_menu_edit">Изменить с помощью...</string>
     <string name="s_pref_stats_title" auto="1">Помогите улучшить OpenExplorer</string>
-    <string name="s_pref_stats_summary" auto="1">Отправлять анонимную статистику использования. Это не относится к какой-либо информации, которая может быть использована для идентификации пользователя.</string>
+    <string name="s_pref_stats_summary">Отправлять анонимную статистику. Это  информация, не может быть,использована для идентификации пользователя.</string>
     <string name="s_error_no_intents">Ни одно из установленных приложений не может открыть этот файл</string>
     <string name="s_menu_root_disabled">Root отключен</string>
     <string name="s_pref_start">Начальная Папка</string>
-    <string name="s_pref_start_summary" auto="1">Показывает, в какой папке OpenExplorer начинается в</string>
+    <string name="s_pref_start_summary">Показывает, в какой папке открыть OpenExplorer при запуске</string>
     <string name="s_custom">Пользовательский ...</string>
     <string name="s_text_intro_top" auto="1">Добро пожаловать в OpenExplorer!</string>
-    <string name="s_text_intro_body">Цель OpenExplorer, чтобы сделать вашу работу более продуктивной в пределах файловой системы Android и в облаке. Если вам нужно управлять видео или фотографиями из нескольких мест или управлять удаленно через веб-сервер FTP, OpenExplorer может удовлетворить ваши потребности \n \nВыберите папку, которая будет открываться при запуске программы:</string>
+    <string name="s_text_intro_body">Цель OpenExplorer сделать вашу работу более продуктивной в пределах файловой системы Android и в облачных сервисах. Для работы с видео или фотографиями, находящихся в разных местах или управлении ими удаленно через FTP, OpenExplorer -  то, что вам нужно.\n \nВыберите папку, которая будет открываться при запуске программы:</string>
     <string name="s_info_num_folders" auto="1">Количество папок:</string>
     <string name="s_info_num_files" auto="1">Количество файлов:</string>
     <string name="s_info_last_modified" auto="1">Последнее изменение:</string>
     <string name="s_info_permissions" auto="1">Права доступа к файлам:</string>
-    <string name="s_info_permission_read" auto="1">Читайте:</string>
+    <string name="s_info_permission_read">Чтение:</string>
     <string name="s_info_permission_write" auto="1">Запись:</string>
-    <string name="s_info_permission_execute" auto="1">Выполните команду:</string>
-    <string name="s_toggle_keyboard" auto="1">клавиатура</string>
+    <string name="s_info_permission_execute">Выполнить:</string>
+    <string name="s_toggle_keyboard">Клавиатураa</string>
     <string name="s_show_password" auto="1">Показать пароль</string>
-    <string name="s_error_ftp" auto="1">Ошибка при подключении к FTP-</string>
-    <string name="s_prompt_zip" auto="1">Введите имя файла для нового файла Zip:</string>
-    <string name="app_edit" auto="1">Изменить с OpenExplorer</string>
-    <string name="s_menu_more" auto="1">Дополнительные параметры ...</string>
+    <string name="s_error_ftp">Ошибка при подключении к Сети</string>
+    <string name="s_prompt_zip">Введите имя файла для нового Zip файла:</string>
+    <string name="app_edit">Изменить с помощью OpenExplorer</string>
+    <string name="s_menu_more"> Дополнительные опции ...</string>
     <string name="s_msg_low_memory" auto="1">Недостаточно памяти!</string>
     <string name="s_clear" auto="1">Очистить</string>
     <string name="s_menu_delete_all" auto="1">Удалить все</string>
@@ -150,98 +149,98 @@
     <string name="s_pref_fullscreen_summary_on" auto="1">Скрыть панель уведомлений</string>
     <string name="s_pref_fullscreen_summary_off" auto="1">Показать панель уведомлений</string>
     <string name="s_pref_pagers">Просмотр страниц</string>
-    <string name="s_pref_pagers_summary_on" auto="1">Горизонтальная считывания = Directory навигации</string>
-    <string name="s_pref_pagers_summary_off" auto="1">Горизонтальная считывания инвалидов</string>
-    <string name="s_alert_new_media" auto="1">New Media Извините!</string>
-    <string name="s_warn_pager_title" auto="1">Новая функция: View пейджеры</string>
-    <string name="s_warn_pager" auto="1">Размах слева направо, чтобы подняться каталог и справа налево, чтобы вернуться. Это должно сделать легче ориентироваться. Попробуйте его (на внешних носителях)!</string>
+    <string name="s_pref_pagers_summary_on">Горизонтальная прокрутка = Directory навигации</string>
+    <string name="s_pref_pagers_summary_off">Жесты по горизонтали отл</string>
+    <string name="s_alert_new_media">Установлен новый носитель</string>
+    <string name="s_warn_pager_title">Новое свойство: вид страниц</string>
+    <string name="s_warn_pager">Провести жест слева направо, чтобы перейти в родительский каталог и справа налево, чтобы вернуться. Эта функция облегчает навигацию.</string>
     <string name="s_warn_confirm" auto="1">Вы понимаете?</string>
     <string name="s_warn_disable" auto="1">Отключить</string>
-    <string name="s_pref_intent_internal" auto="1">Внутренние намерениях</string>
-    <string name="s_pref_intent_internal_on" auto="1">Используйте OpenExplorer намерениях менеджера</string>
-    <string name="s_pref_intent_internal_off" auto="1">Используйте диспетчер намерениях</string>
-    <string name="s_pref_text_internal" auto="1">Используйте встроенный редактор текста</string>
+    <string name="s_pref_intent_internal">Внутренние намерения</string>
+    <string name="s_pref_intent_internal_on">Используйте OpenExplorer Intent Manager</string>
+    <string name="s_pref_intent_internal_off">Используйте System Intent Manager</string>
+    <string name="s_pref_text_internal">Использовать встроенный редактор</string>
     <string name="s_text_editor_title" auto="1">Текстовый редактор</string>
     <string name="s_pref_show_root" auto="1">Показать корневую файловую систему (/)</string>
     <string name="s_pref_show_internal">Показать внутренние накопители</string>
     <string name="s_pref_show_external">Показать внешние накопители</string>
-    <string name="s_error_no_media" auto="1">Похоже, что нет вставлен носитель информации. Пожалуйста, отключите USB обмена или повторной вставки информации.</string>
+    <string name="s_error_no_media">Похоже, что нет вставленого носителя информации. Пожалуйста, отключите USB обмен или повторно вставте носитель информации.</string>
     <string name="s_prompt_password" auto="1">Введите пароль</string>
     <string name="s_add">Добавить</string>
     <string name="s_server_ftp" auto="1">FTP</string>
     <string name="s_server_sftp" auto="1">SFTP</string>
-    <string name="s_pref_server_port" auto="1">порт</string>
+    <string name="s_pref_server_port">Порт</string>
     <string name="s_about_buildtime" auto="1">Дата сборки</string>
-    <string name="s_default" auto="1">умолчание</string>
+    <string name="s_default">Умолчание</string>
     <string name="s_pref_timeout" auto="1">Тайм-аут</string>
     <string name="s_pref_timeout_summary" auto="1">Тайм-аут в секундах</string>
     <string name="s_menu_up">Вверх</string>
-    <string name="s_prompt_unzip" auto="1">Введите путь для распаковки в:</string>
+    <string name="s_prompt_unzip">Укажите путь для распаковки:</string>
     <string name="s_pref_hardware_accel" auto="1">Включить аппаратное ускорение</string>
-    <string name="s_pref_honeyplus" auto="1">Android 3.0 + Настройка</string>
-    <string name="s_pref_actionmode" auto="1">Действие режима</string>
-    <string name="s_pref_actionmode_enabled" auto="1">Использование режима работы</string>
-    <string name="s_pref_actionmode_disabled" auto="1">Используйте стандартные контекстные меню</string>
+    <string name="s_pref_honeyplus">Настройки Android 3.0+</string>
+    <string name="s_pref_actionmode">Режим действия</string>
+    <string name="s_pref_actionmode_enabled">Использовать режим действий</string>
+    <string name="s_pref_actionmode_disabled">Использовать стандартные контекстные меню</string>
     <string name="s_server_smb" auto="1">SMB / Windows</string>
-    <string name="s_bookmark_drives" auto="1">диски</string>
-    <string name="s_bookmark_smart" auto="1">Умные папки</string>
-    <string name="s_bookmark_favorites" auto="1">Избранные</string>
+    <string name="s_bookmark_drives">Диски</string>
+    <string name="s_bookmark_smart">Умные папки</string>
+    <string name="s_bookmark_favorites">Избранное</string>
     <string name="s_bookmark_servers" auto="1">Серверы</string>
-    <string name="s_bookmark_cache" auto="1">кэш</string>
+    <string name="s_bookmark_cache">Кэш</string>
     <string name="s_info_totalspace">Общий объем диска:</string>
-    <string name="s_info_freespace" auto="1">Свободного места на диске:</string>
+    <string name="s_info_freespace">Свободное место на диске:</string>
     <string name="s_status_rate" auto="1">Рейтинг:</string>
     <string name="s_about_hardware" auto="1">Аппаратные средства</string>
-    <string name="s_menu_refresh" auto="1">Обновить папку</string>
+    <string name="s_menu_refresh">файлы</string>
     <string name="s_pref_reset" auto="1">Сброс Просмотров</string>
     <string name="s_toast_complete" auto="1">Операция завершена!</string>
-    <string name="s_pref_reset_summary" auto="1">Нажмите здесь, чтобы удалить все папки специфические параметры зрения возвращаются в состояние по умолчанию.</string>
+    <string name="s_pref_reset_summary">Нажмите здесь, чтобы удалить все папко-специфические параметры просмотра возвращая состояние по умолчанию.</string>
     <string name="s_prompt_path" auto="1">Введите путь:</string>
     <string name="s_prompt_search" auto="1">Искать:</string>
     <string name="s_prompt_search_within" auto="1">Искать в:</string>
-    <string name="s_pref_view_category" auto="1">Закладка Вид предпочтения</string>
+    <string name="s_pref_view_category">Предпочтения внешнего вида закладок</string>
     <string name="s_pref_show_videos" auto="1">Показать видео</string>
     <string name="s_pref_show_photos" auto="1">Показать фотографии</string>
-    <string name="s_pref_show_music" auto="1">Показать музыки</string>
-    <string name="s_pref_show_downloads" auto="1">Показать загружаемые файлы</string>
-    <string name="s_hide" auto="1">Скрывать</string>
-    <string name="s_show" auto="1">Показывать</string>
+    <string name="s_pref_show_music">Показывать музыку</string>
+    <string name="s_pref_show_downloads">Показывать загрузки</string>
+    <string name="s_hide">Скрыть</string>
+    <string name="s_show">Показать</string>
     <string name="s_msg_event_cancelled" auto="1">Событие отменено.</string>
-    <string name="s_alert_newfolder_folder" auto="1">Создайте новую папку:</string>
-    <string name="s_pref_fancy_category" auto="1">Необычные настройки экрана</string>
+    <string name="s_alert_newfolder_folder">Создать новую папку в:</string>
+    <string name="s_pref_fancy_category">Необычные настройки экрана</string>
     <string name="s_pref_fancy_menus">Необычное меню</string>
     <string name="s_pref_fancy_context">Необычные контекстные меню:</string>
     <string name="s_search_files" auto="1">Поиск файловой системы</string>
-    <string name="search_summary" auto="1" formatted="false">Поиск " %s " \n в " %s " (%г) ...</string>
-    <string name="search_results" auto="1" formatted="false">Найдено%D результатов для " %s " \n в " %s "</string>
+    <string name="search_summary" formatted="false" auto="1">Поиск " %s " \n в " %s " (%d) ...</string>
+    <string name="search_results" formatted="false" auto="1">Найдено %D результатов для " %s " \n в " %s "</string>
     <string name="s_menu_exit" auto="1">Выход</string>
     <string name="s_warn_wtf_message">Ой-ой-ой.Кажется возникла ошибка в программе.Такое часто случается с программами, которые находятся в тестовом состоянии.Единственный способ устранения таких ошибок, это сбор информации с различных устройств, таких как ваше например. Можем ли мы отсылать анонимные отчеты об ошибках в программе разработчикам?</string>
-    <string name="s_warn_wtf_ps">Пожалуйста, обратите внимание на то, что данное приложение находится в состоянии Beta. Просьба не ставить плохие рейтинги из за возможных ошибок и вылетов из программы. Просто удалите ее, если она вам не нравится. Большое спасибо!</string>
+    <string name="s_warn_wtf_ps">Пожалуйста, обратите внимание на то, что данное приложение находится в состоянии Beta. Просьба не ставить плохую оценку из-за возможных ошибок и вылетов из программы. Просто удалите ее, если она вам не нравится. Большое спасибо!</string>
     <string name="s_yes" auto="1">Да</string>
     <string name="s_no" auto="1">Нет</string>
-    <string name="s_wtf_preview" auto="1">Данные предварительного просмотра отчета</string>
+    <string name="s_wtf_preview"> Данные отчета предварительного просмотра</string>
     <string name="s_wtf_remember" auto="1">Больше не спрашивать</string>
-    <string name="s_pref_basebar" auto="1">Сплит Action Bar</string>
-    <string name="s_pref_basebar_on" auto="1">Действие кнопки в нижней части экрана в портретный режим</string>
-    <string name="s_pref_basebar_off" auto="1">Действие кнопки в верхней части экрана (при наличии)</string>
-    <string name="s_pref_autowtf" auto="1">Автоматический отправить отчеты о сбоях</string>
+    <string name="s_pref_basebar">Слить панель действий</string>
+    <string name="s_pref_basebar_on">Действие кнопки в нижней части экрана в портретном режиме</string>
+    <string name="s_pref_basebar_off">Действие кнопок в верхней части экрана (при наличии)</string>
+    <string name="s_pref_autowtf">Автоматически отправлять отчеты о сбоях</string>
     <string name="s_pref_autowtf_summary">Отравлять отчеты автоматически,в случае неожиданных ошибках и вылетов из программы</string>
     <string name="s_split_auto">Автоматически</string>
-    <string name="s_split_top" auto="1">Группы кнопок к началу</string>
-    <string name="s_split_top_single" auto="1">Силы одной кнопки к началу</string>
-    <string name="s_split_bottom" auto="1">Группа кнопок в нижней</string>
-    <string name="s_split_none" auto="1">Поместите все кнопки в меню системы</string>
-    <string name="s_about_screensize" auto="1">Размер экрана</string>
+    <string name="s_split_top">располагать кнопки сверху </string>
+    <string name="s_split_top_single">располагать одну кнопку сверху </string>
+    <string name="s_split_bottom">Переместить кнопки вверх</string>
+    <string name="s_split_none">Поместить все кнопки в системное меню</string>
+    <string name="s_about_screensize">размер экрана</string>
     <string name="s_about_density" auto="1">Плотность</string>
-    <string name="s_menu_location_int">Путь к временной памяти</string>
+    <string name="s_menu_location_int">Путь к внутенней памяти</string>
     <string name="s_menu_location_ext">Путь к внешней памяти</string>
-    <string name="s_wtf_context" auto="1">Пожалуйста, опишите контекст аварии:</string>
+    <string name="s_wtf_context">Пожалуйста, опишите, как произошел сбой:</string>
     <string name="thanks" auto="1">Спасибо!</string>
     <string name="menu_view_font_small">Малый размер шрифта</string>
     <string name="menu_view_font_medium">Средний размер шрифта</string>
     <string name="menu_view_font_large">Большой размер шрифта</string>
-    <string name="app_description">OpenExplorer - универсальное приложение для всех устройств (планшеты, телефоны, телевизоры Google)\n- Управление файлами\n- поддержка USB и других внешних носителей\n- Возможность подключения к FTP серверам\n- Текстовый редактор\n- Умные папки, содержат файлы определённых типов: видео, фото, музыка, загрузки\n- Текстовый редактор с вкладками\n\nСкоро будет реализовано:\n- Больше возможностей сети (Dropbox, Box.net, Sky диск, Samba, WiFi)\n- Автономный кэш файловой системы (хранение списка файлов и директорий без необходимости подключения к удаленному серверу)\n- Анализатор используемого места на носителях\n\n    ПРИМЕЧАНИЕ: Это приложение находится в бета-версии. Есть еще много ошибок. Если Вы не хотите сталкиваться с возможными ошибками, пожалуйста, не загружайте это приложение. Если Вы хотите, чтобы помочь найти эти ошибки, пожалуйста, напишите мне.\n</string>
-    <string name="alert_translate_google" formatted="false">Здравствуйте, данный перевод сделан с помощью переводчика Google. Если вы достаточно хорошо владеете английским и %s,а так же хотите помочь сделать перевод, то нажмите сюда:</string>
+    <string name="app_description">OpenExplorer - универсальное приложение для всех устройств (планшеты, телефоны, телевизоры Google)\n- Управление файлами\n- поддержка USB и других внешних носителей\n- Возможность подключения к FTP серверам\n- Текстовый редактор\n- Умные папки, содержат файлы определённых типов: видео, фото, музыка, загрузки\n- Текстовый редактор с вкладками\n\nСкоро будет реализовано:\n- Больше возможностей сети (Dropbox, Box.net, Sky диск, Samba, WiFi)\n- Автономный кэш файловой системы (хранение списка файлов и директорий без необходимости подключения к удаленному серверу)\n- Анализатор используемого места на носителях\n\n    ПРИМЕЧАНИЕ: Это приложение находится в бета-версии. Здесь еще много ошибок. Если Вы не хотите сталкиваться с возможными ошибками, пожалуйста, не загружайте это приложение. Если Вы хотите помочь найти эти ошибки, пожалуйста, напишите мне.\n</string>
+    <string name="alert_translate_google" formatted="false">Здравствуйте, данный перевод сделан с помощью переводчика Google. Если вы достаточно хорошо владеете английским и %s, а так же хотите помочь перевести, то нажмите сюда:</string>
     <string name="alert_translate_none">Здравствуйте, вы используете не поддерживаемый язык.если у вас есть знания английского языка,а так же хотите помочь сделать перевод, то нажмите сюда:</string>
     <string name="button_translate">Перевести</string>
     <string name="httpError">Произошла сетевая ошибка.</string>
@@ -285,11 +284,11 @@
     <string name="activity_chooser_view_see_all">Изменить...</string>
     <string name="s_title_picker" auto="1">Пожалуйста, выберите каталог</string>
     <string name="selected_path" auto="1">Выбранный путь:</string>
-    <string name="filename" auto="1">имя файла</string>
-    <string name="s_msg_saved" auto="1">сохранены</string>
+    <string name="filename">Имя файла</string>
+    <string name="s_msg_saved">сохранено</string>
     <string name="s_menu_view_line_numbers" auto="1">номера строк</string>
-    <string name="warn_text_editor">Добро пожаловать в текстовой редактор. Пожалуйста, нажмите длинный текст в режим редактирования.</string>
-    <string name="warn_networking">Добро пожаловать в сеть. Пожалуйста, обратите внимание, что эта функция находится в стадии разработки и может содержать ошибки. Пожалуйста, не ставьте низкую оценку,гесли вы обнаружите какие-либо ошибки.</string>
+    <string name="warn_text_editor">Добро пожаловать в текстовой редактор. Длинное нажатие на текст для редактирования.</string>
+    <string name="warn_networking">Добро пожаловать в сеть. Пожалуйста, обратите внимание, что эта функция находится в стадии разработки и может содержать ошибки. Пожалуйста, не ставьте низкую оценку, если вы обнаружите какие-либо ошибки.</string>
     <string name="s_menu_new_file" auto="1">Новый текстовый файл</string>
     <string name="s_msg_created" auto="1">созданный</string>
     <string name="s_title_newfile" auto="1">Новый файл</string>
@@ -298,6 +297,38 @@
     <string name="s_alert_exit" auto="1">Вы уверены, что хотите выйти?</string>
     <string name="s_alert_clipboard" auto="1">Скопировать в буфер обмена</string>
     <string name="s_alert_restart" auto="1">Перезагрузка. Пожалуйста, подождите.</string>
-    <string name="language" auto="1">язык</string>
-
+    <string name="language">русский</string>
+    <string name="s_menu_download">Загрузка</string>
+    <string name="scan">Сканирование</string>
+    <string name="test">Тест</string>
+    <string name="test_success">Сеть установленна!</string>
+    <string name="no_items">Нету объекта</string>
+    <string name="clipboard">Буфер обмена</string>
+    <string name="theme">Тема</string>
+    <string name="theme_dark">Темный интерфейс</string>
+    <string name="theme_light">Светлый интерфейс</string>
+    <string name="chooser_remember">Запомнить мой выбор</string>
+    <string name="use_system">Использовать Системный>></string>
+    <string name="activity_resolver_use_always">Всегда</string>
+    <string name="activity_resolver_use_once">Только один раз</string>
+    <string name="s_pref_bookmarks_summary">Показать заклалки</string>
+    <string name="s_menu_heatmap">ясность</string>
+    <string name="apply_to_all">Вы хотите выбрать все папки?</string>
+    <string name="s_pref_view_folders">Настройки папок</string>
+    <string name="s_pref_view_general">Основные настройки</string>
+    <string name="s_pref_text_wrap">Перенести текст</string>
+    <string name="s_pref_thumbs_crop">Обрезать/Центрировать миниатюру</string>
+    <string name="s_pref_thumbs_cache_clear">Очистить кэш миниатюр</string>
+    <string name="s_msg_folder_none">Папку невозможно создать</string>
+    <string name="msg_nook_donate2" auto="1">Здравствуйте Nook пользователя! Надеюсь, вам понравится Откройте Explorer для Nook. Я старался изо всех сил, чтобы обеспечить высокую совместимость с устройствами Nook. Благодаря последним пожертвования, я был в состоянии купить Нук цвета! Спасибо всем, кто пожертвовал! \n\n Далее, я хотел бы иметь возможность приобрести новое поколение Nook HD устройств. \n\n Если вы найдете это приложение полезным, пожалуйста, рассмотреть вопрос о внесении пожертвований, либо выбрав кнопка ниже, или путем активации "пожертвовать" меню. Спасибо и счастливого изучать!</string>
+    <string name="msg_bb_donate" auto="1">Здравствуйте BlackBerry пользователь! Надеюсь, вам понравится Открытое Explorer. Я старался изо всех сил, чтобы обеспечить высокую совместимость с устройствами BlackBerry. Однако, похоже, есть некоторые различия, которые трудно справиться без фактического устройства BlackBerry. По этой причине, я пытаюсь собрать достаточно пожертвований, чтобы купить BlackBerry 10 устройств для того, чтобы улучшить совместимость. Если вы найдете это приложение полезным, пожалуйста, рассмотреть вопрос о внесении пожертвований, либо выбрав кнопку ниже, или путем активации "пожертвовать" меню. Спасибо и счастливого изучать!</string>
+    <string name="msg_donate" auto="1">Hello Android пользователей! Мы надеемся, вам понравится Открытое Explorer. Мы постарались наши трудное для обеспечения высокой совместимости со всеми устройствами Android. Однако, учитывая сообщения об ошибке получили, мы можем только предположить, что существуют различия между различными типами вызывают конкретные вопросы. По этой причине, мы пытаемся собрать достаточно пожертвований для того, чтобы купить Nexus устройств для того, чтобы улучшить совместимость. Если вы найдете это приложение полезным, пожалуйста, рассмотреть вопрос о внесении пожертвований, либо выбрав кнопку ниже, или путем активации "пожертвовать" меню. Спасибо и счастливого изучать!</string>
+    <string name="s_privacy" auto="1">Политика конфиденциальности</string>
+    <string name="s_menu_system_mount" auto="1">Производитель / системы Записываемые - Опасные</string>
+    <string name="s_menu_system_mount_on" auto="1">Система записи!</string>
+    <string name="s_menu_system_mount_off" auto="1">Система доступна только для чтения.</string>
+    <string name="s_pref_servers_private" auto="1">Держите Серверы частные</string>
+    <string name="s_pref_servers_private_summary" auto="1">Хранить настройки сервера в частном хранилище. Это может привести настройки сервера должны быть удалены, если приложение не будет удалено. Если вы повторно установить в будущее, оставляя это будет снят предотвратить это.</string>
+    <string name="s_theme_lightdark" auto="1">Свет и Тьма</string>
+    <string name="s_theme_custom" auto="1">завитки</string>
 </resources>

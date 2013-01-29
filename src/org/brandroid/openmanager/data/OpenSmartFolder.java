@@ -145,8 +145,9 @@ public class OpenSmartFolder extends OpenPath {
         switch (search.mType) {
             case All:
                 for (OpenPath p : search.mParent.listFiles())
-                    if (!mChildren.contains(p))
-                        mChildren.add(p);
+                    if (!p.isDirectory() || p.getChildCount(false) > 0)
+                        if (!mChildren.contains(p))
+                            mChildren.add(p);
                 break;
             case TypeIn:
                 ArrayList<String> types = new ArrayList<String>();
