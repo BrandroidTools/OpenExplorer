@@ -38,12 +38,12 @@ import android.graphics.BitmapFactory;
 import android.widget.ProgressBar;
 import android.widget.RemoteViews;
 import android.widget.Toast;
-import android.widget.RemoteViews.RemoteView;
 import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.concurrent.Executor;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.io.BufferedInputStream;
@@ -68,6 +68,9 @@ import org.brandroid.utils.Logger;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
 
+@SuppressWarnings({
+        "unchecked", "rawtypes"
+})
 @SuppressLint("NewApi")
 public class EventHandler {
     public static final EventType SEARCH_TYPE = EventType.SEARCH;
@@ -82,7 +85,7 @@ public class EventHandler {
     public static final EventType TOUCH_TYPE = EventType.TOUCH;
     public static final EventType ERROR_TYPE = EventType.ERROR;
     public static final int BACKGROUND_NOTIFICATION_ID = 123;
-    private static boolean ENABLE_MULTITHREADS = !OpenExplorer.BEFORE_HONEYCOMB;
+    private static final boolean ENABLE_MULTITHREADS = false; //!OpenExplorer.BEFORE_HONEYCOMB;
 
     public enum EventType {
         SEARCH, COPY, CUT, DELETE, RENAME, MKDIR, TOUCH, UNZIP, UNZIPTO, ZIP, ERROR
@@ -401,49 +404,57 @@ public class EventHandler {
     }
 
     public void copyFile(Collection<OpenPath> files, OpenPath newPath, Context mContext) {
-        for (OpenPath file : files)
-            copyFile(file, newPath.getChild(file.getName()), mContext);
+        //for (OpenPath file : files)
+        //    copyFile(file, newPath.getChild(file.getName()), mContext);
+        execute(new BackgroundWork(COPY_TYPE, mContext, newPath, files.size() + " "
+                + mContext.getString(R.string.s_files)), files.toArray(new OpenPath[files.size()]));
     }
 
-    @SuppressWarnings("unchecked")
     public static AsyncTask execute(AsyncTask job) {
-        if (OpenExplorer.BEFORE_HONEYCOMB || !ENABLE_MULTITHREADS)
+        if (OpenExplorer.BEFORE_HONEYCOMB)
             job.execute();
         else
-            job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            job.executeOnExecutor(getExecutor());
         return job;
     }
 
+    private static Executor getExecutor() {
+        if (ENABLE_MULTITHREADS)
+            return AsyncTask.THREAD_POOL_EXECUTOR;
+        else
+            return AsyncTask.SERIAL_EXECUTOR;
+    }
+
     public static AsyncTask execute(AsyncTask job, OpenFile... params) {
-        if (OpenExplorer.BEFORE_HONEYCOMB || !ENABLE_MULTITHREADS)
+        if (OpenExplorer.BEFORE_HONEYCOMB)
             job.execute(params);
         else
-            job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+            job.executeOnExecutor(getExecutor(), params);
         return job;
     }
 
     public static AsyncTask<OpenPath, Integer, Integer> execute(
             AsyncTask<OpenPath, Integer, Integer> job, OpenPath... params) {
-        if (OpenExplorer.BEFORE_HONEYCOMB || !ENABLE_MULTITHREADS)
+        if (OpenExplorer.BEFORE_HONEYCOMB)
             job.execute(params);
         else
-            job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+            job.executeOnExecutor(getExecutor(), params);
         return job;
     }
 
     public static NetworkIOTask executeNetwork(NetworkIOTask job, OpenPath... params) {
-        if (OpenExplorer.BEFORE_HONEYCOMB || !ENABLE_MULTITHREADS)
+        if (OpenExplorer.BEFORE_HONEYCOMB)
             job.execute(params);
         else
-            job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+            job.executeOnExecutor(getExecutor(), params);
         return job;
     }
 
     public static AsyncTask execute(AsyncTask job, String... params) {
-        if (OpenExplorer.BEFORE_HONEYCOMB || !ENABLE_MULTITHREADS)
+        if (OpenExplorer.BEFORE_HONEYCOMB)
             job.execute(params);
         else
-            job.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+            job.executeOnExecutor(getExecutor(), params);
         return job;
     }
 
@@ -1202,8 +1213,7 @@ public class EventHandler {
                             ProgressBar pb = (ProgressBar)view.findViewById(android.R.id.progress);
                             if (getStatus() == Status.PENDING || mLastRate == 0)
                                 pb.setIndeterminate(true);
-                            else
-                            {
+                            else {
                                 pb.setIndeterminate(false);
                                 pb.setMax(1000);
                                 pb.setProgress(progA);

@@ -5,13 +5,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.utils.Logger;
 
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -83,12 +86,55 @@ public class OpenSearch extends OpenPath {
 
         if (DEBUG)
             Logger.LogDebug("OpenSearch started!");
+        SearchDB(mBasePath);
         SearchWithin(mBasePath);
+        sortResults();
         mFinished = true;
         mListener.onUpdate();
         mListener.onFinish();
         if (DEBUG)
             Logger.LogDebug("OpenSearch finished!");
+    }
+
+    private void sortResults() {
+        Collections.sort(mResultsArray);
+    }
+
+    private void SearchDB(OpenPath dir) {
+        try {
+            if (DEBUG)
+                Logger.LogVerbose("Searching DB...");
+            Cursor c = getDb().fetchSearch(getQuery(), dir != null ? dir.getPath() : null);
+            c.moveToFirst();
+            while (!c.isAfterLast()) {
+                String folder = c.getString(OpenPathDbAdapter
+                        .getKeyIndex(OpenPathDbAdapter.KEY_FOLDER));
+                String name = c
+                        .getString(OpenPathDbAdapter.getKeyIndex(OpenPathDbAdapter.KEY_NAME));
+                if (!folder.endsWith("/"))
+                    folder += "/";
+                OpenPath kid = FileManager.getOpenCache(folder + name);
+                addToResults(kid);
+                c.moveToNext();
+            }
+        } catch (Exception e) {
+            Logger.LogError("Unable to search DB.", e);
+        }
+    }
+
+    private void addToResults(OpenPath kid) {
+        if (!mResultsArray.contains(kid))
+            mResultsArray.add(kid);
+        if (new Date().getTime() - mLastUpdate > 500) {
+            publishProgress();
+            try {
+                // It appears that no matter which thread this is run on,
+                // we need to explicitly sleep in order to not block the UI
+                // thread
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
     private void SearchWithin(OpenPath dir) {
@@ -109,18 +155,8 @@ public class OpenSearch extends OpenPath {
             if (kid.getName() == null)
                 continue;
             if (isMatch(kid.getName().toLowerCase(), getQuery().toLowerCase()))
-                if (!mResultsArray.contains(kid))
-                    mResultsArray.add(kid);
-            if (new Date().getTime() - mLastUpdate > 500) {
-                publishProgress();
-                try {
-                    // It appears that no matter which thread this is run on,
-                    // we need to explicitly sleep in order to not block the UI
-                    // thread
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                }
-            }
+                addToResults(kid);
+
             if (kid.isDirectory() && !mCancelled)
                 SearchWithin(kid);
         }

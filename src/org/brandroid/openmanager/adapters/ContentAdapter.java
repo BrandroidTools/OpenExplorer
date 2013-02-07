@@ -11,10 +11,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.BookmarkHolder;
+import org.brandroid.openmanager.data.OpenFileRoot;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateListener;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.SortType;
+import org.brandroid.openmanager.util.SortType.Type;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.openmanager.util.ThumbnailCreator.OnUpdateImageListener;
 import org.brandroid.openmanager.views.OpenPathView;
@@ -27,6 +29,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.text.Html;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -207,7 +210,8 @@ public class ContentAdapter extends BaseAdapter {
 
     public void sort(SortType sort) {
         OpenPath.Sorting = sort;
-        Collections.sort(mData2);
+        if (mData2 != null && mData2.size() > 1)
+            Collections.sort(mData2);
     }
 
     private OpenPath[] getList() {
@@ -217,10 +221,12 @@ public class ContentAdapter extends BaseAdapter {
                 return new OpenPath[0];
             if (mParent.requiresThread() && Thread.currentThread().equals(OpenExplorer.UiThread))
                 return mParent.list();
+            else if(!mParent.canRead())
+                return new OpenFileRoot(mParent).listFiles();
             else
                 return mParent.listFiles();
         } catch (Exception e) {
-            Logger.LogError("Couldn't getList in ContentAdapter");
+            Logger.LogError("Couldn't getList in ContentAdapter", e);
             return new OpenPath[0];
         }
     }
@@ -304,20 +310,23 @@ public class ContentAdapter extends BaseAdapter {
         // mHolder.setInfo(getFileDetails(file, false));
 
         if (mInfo != null) {
+            String sInfo = String.format(file.getDetails(getShowHiddenFiles()), getResources()
+                    .getString(R.string.s_files));
+            if (OpenPath.Sorting.getType() == Type.SIZE
+                    || OpenPath.Sorting.getType() == Type.SIZE_DESC)
+                sInfo = "<b>" + sInfo + "</b>";
             if (mShowDetails && mParent.showChildPath()) {
-                String s = file.getPath().replace(file.getName(), "");
-                mInfo.setVisibility(View.VISIBLE);
-                mInfo.setText(s);
+                sInfo += " :: " + file.getPath().replace(file.getName(), "");
                 showLongDate = false;
-            } else if (mShowDetails)
-                mInfo.setText(String.format(file.getDetails(getShowHiddenFiles()), getResources()
-                        .getString(R.string.s_files)));
-            else
-                mInfo.setText("");
+            } else if (!mShowDetails)
+                sInfo = "";
+
             if (mDate != null)
                 mDate.setText(file.getFormattedDate(showLongDate));
             else
-                mInfo.append(" | " + file.getFormattedDate(showLongDate));
+                sInfo += (sInfo.equals("") ? "" : " | ") + file.getFormattedDate(showLongDate);
+
+            mInfo.setText(Html.fromHtml(sInfo));
         }
 
         if (mNameView != null)
@@ -415,24 +424,24 @@ public class ContentAdapter extends BaseAdapter {
             case DATE:
             case DATE_DESC:
                 mDate.setTextAppearance(getContext(), R.style.Text_Small_Highlight);
-                mInfo.setTextAppearance(getContext(), R.style.Text_Small);
+                //mInfo.setTextAppearance(getContext(), R.style.Text_Small);
                 mNameView.setTextAppearance(getContext(), R.style.Text_Large_Dim);
                 break;
             case SIZE:
             case SIZE_DESC:
-                mInfo.setTextAppearance(getContext(), R.style.Text_Small_Highlight);
+                //mInfo.setTextAppearance(getContext(), R.style.Text_Small_Highlight);
                 mDate.setTextAppearance(getContext(), R.style.Text_Small);
                 mNameView.setTextAppearance(getContext(), R.style.Text_Large_Dim);
                 break;
             case ALPHA:
             case ALPHA_DESC:
                 mNameView.setTextAppearance(getContext(), R.style.Text_Large);
-                mInfo.setTextAppearance(getContext(), R.style.Text_Small);
+                //mInfo.setTextAppearance(getContext(), R.style.Text_Small);
                 mDate.setTextAppearance(getContext(), R.style.Text_Small);
                 break;
             default:
                 mNameView.setTextAppearance(getContext(), R.style.Text_Large_Dim);
-                mInfo.setTextAppearance(getContext(), R.style.Text_Small);
+                //mInfo.setTextAppearance(getContext(), R.style.Text_Small);
                 mDate.setTextAppearance(getContext(), R.style.Text_Small);
                 break;
         }
