@@ -242,7 +242,7 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
 
     public static OpenFile getExternalMemoryDrive(boolean fallbackToInternal) // sd
     {
-        if (mExternalDrive != null)
+        if (mExternalDrive != null && mExternalDrive.exists())
             return mExternalDrive;
         for (OpenFile kid : getInternalMemoryDrive().getParent().listFiles())
             if ((kid.getName().toLowerCase().indexOf("ext") > -1 || kid.getName().toLowerCase()
@@ -250,16 +250,14 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
                     && !kid.getPath().equals(getInternalMemoryDrive().getPath())
                     && kid.canRead()
                     && kid.canWrite()) {
-                mExternalDrive = kid;
-                return kid;
+                return mExternalDrive = kid;
             }
         if (new File("/Removable").exists())
-            for (File kid : new File("/Removable").listFiles())
+            for (OpenFile kid : new OpenFile("/Removable").listFiles())
                 if (kid.getName().toLowerCase().indexOf("ext") > -1 && kid.canRead()
                         && !kid.getPath().equals(getInternalMemoryDrive().getPath())
                         && kid.list().length > 0) {
-                    mExternalDrive = new OpenFile(kid);
-                    return mExternalDrive;
+                    return mExternalDrive = kid;
                 }
         if (!fallbackToInternal)
             return null;
@@ -306,10 +304,13 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
 
     public static OpenFile getUsbDrive() {
         if (mUsbDrive != null && mUsbDrive.exists()
-                && mUsbDrive.getTotalSpace() != getInternalMemoryDrive().getTotalSpace())
+                && mUsbDrive.getTotalSpace() != getExternalMemoryDrive(true).getTotalSpace())
             return mUsbDrive;
         OpenFile parent = getExternalMemoryDrive(true).getParent();
         if (Build.VERSION.SDK_INT > 15) {
+            parent = new OpenFile("/storage/usbStorage/");
+            if(parent.exists() && parent.length() > 0)
+                return (mUsbDrive = parent);
             parent = new OpenFile("/mnt/sdcard/usbStorage/");
             if (parent.exists())
                 if (parent.list().length == 1 && parent.getChild(0).exists())
@@ -334,7 +335,11 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
             for (OpenFile kid : parent.listFiles())
                 if (kid.getName().toLowerCase().contains("usb") && kid.exists() && kid.canRead()
                         && kid.list().length > 0 && kid.getTotalSpace() != parent.getTotalSpace())
+                {
+                    if(kid.length() == 1 && kid.getChild(0).getName().startsWith("sda"))
+                        kid = (OpenFile)kid.getChild(0);
                     return (mUsbDrive = kid);
+                }
         }
         return null;
     }
@@ -675,6 +680,11 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
             return true;
         if (getPath().toLowerCase().startsWith("usb"))
             return true;
+        return false;
+    }
+    
+    @Override
+    public boolean showChildPath() {
         return false;
     }
 }

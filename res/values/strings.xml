@@ -388,5 +388,8 @@
     <string name="help_systemroot_title">Rooted System Mount</string>
     
     <string name="s_menu_rate">Rate App</string>
+    <string name="s_alert_destination_exists">Destination already exists. What would you like to do?</string>
+    <string name="s_overwrite">Overwrite</string>
+    <string name="s_skip">Skip</string>
 
 </resources>
