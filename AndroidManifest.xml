@@ -20,8 +20,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.brandroid.openmanager"
     android:installLocation="auto"
-    android:versionCode="210"
-    android:versionName="0.210" >
+    android:versionCode="212"
+    android:versionName="0.212" >
 
     <uses-sdk
         android:minSdkVersion="8"

@@ -105,6 +105,7 @@ import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -238,7 +239,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     public static final boolean SHOW_FILE_DETAILS = false;
     public static boolean USE_PRETTY_CONTEXT_MENUS = true;
     public static boolean IS_FULL_SCREEN = false;
-    public static boolean IS_KEYBOARD_AVAILABLE = false;
+    public static final boolean IS_KEYBOARD_AVAILABLE = false;
 
     // private final static boolean DEBUG = IS_DEBUG_BUILD && true;
 
@@ -417,13 +418,14 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             IS_FULL_SCREEN = false;
         }
 
-        IS_KEYBOARD_AVAILABLE = getContext().getResources().getConfiguration().keyboard == Configuration.KEYBOARD_QWERTY;
+        //IS_KEYBOARD_AVAILABLE = getContext().getResources().getConfiguration().keyboard == Configuration.KEYBOARD_QWERTY;
 
         loadPreferences();
         checkRoot();
 
         int theme = getThemeId();
-        boolean themeDark = R.style.AppTheme_Dark == theme;
+        boolean themeDark = R.style.AppTheme_Dark == theme ||
+                R.style.AppTheme_LightAndDark == theme;
 
         getApplicationContext().setTheme(theme);
         setTheme(theme);
@@ -657,12 +659,25 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         if (isNook()) {
             Intent iRate = new Intent("com.bn.sdk.shop.details");
             iRate.putExtra("product_details_ean", "2940043894236");
-            startActivity(iRate);
-        } else if (isBlackBerry())
+            if (IntentManager.getResolveInfo(iRate, this) != null)
+                try {
+                    startActivity(iRate);
+                    return;
+                } catch (Exception e) {
+                    Logger.LogWarning("Unable to launch Nook reviews!");
+                }
+            launchUri(
+                    this,
+                    Uri.parse("http://www.barnesandnoble.com/reviews/OpenExplorer%2Fbrandroidorg/1111331126"));
+            return;
+        }
+        else if (isBlackBerry())
             launchUri(this,
                     Uri.parse("http://appworld.blackberry.com/webstore/content/reviews/85146/"));
         else
-            launchUri(this, Uri.parse("market://details?id=org.brandroid.openmanager&reviewId=0"));
+            launchUri(
+                    this,
+                    Uri.parse("https://play.google.com/store/apps/details?id=org.brandroid.openmanager&reviewId=0"));
     }
 
     private void checkWelcome() {
@@ -1086,6 +1101,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             onRestoreInstanceState(state);
         } else if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
             Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+            Logger.LogInfo("BEAM Received: " + rawMsgs.length);
             for (Parcelable p : rawMsgs) {
                 NdefMessage msg = (NdefMessage)p;
                 NdefRecord[] recs = msg.getRecords();
@@ -1697,6 +1713,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                             }
                         }
                         if (fileUri.size() > 0) {
+                            Logger.LogInfo("BEAM: " + fileUri.size() + " items");
                             return fileUri.toArray(new Uri[fileUri.size()]);
                         }
                     }
@@ -1720,8 +1737,10 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                                     of.readBytes());
                             recs.add(rec);
                         }
-                        if (recs.size() > 0)
+                        if (recs.size() > 0) {
+                            Logger.LogInfo("BEAM: " + recs.size() + " items");
                             return new NdefMessage(recs.toArray(new NdefRecord[recs.size()]));
+                        }
                     }
                     return null;
                 }
@@ -2031,7 +2050,8 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
     public void ensureCursorCache() {
         // findCursors();
-        if(!Preferences.Pref_ShowThumbs) return;
+        if (!Preferences.Pref_ShowThumbs)
+            return;
         if (mRunningCursorEnsure
         // || mLastCursorEnsure == 0
         // || new Date().getTime() - mLastCursorEnsure < 10000 // at least 10
