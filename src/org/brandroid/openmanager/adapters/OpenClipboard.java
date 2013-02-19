@@ -190,7 +190,7 @@ public class OpenClipboard extends BaseAdapter implements Set<OpenPath> {
 
         View ret = convertView;
         if (ret == null) {
-            ret = LayoutInflater.from(mContext).inflate(R.layout.list_content_layout, null);
+            ret = LayoutInflater.from(mContext).inflate(R.layout.file_list_item, null);
         }
         int w = 32;
         // ret.setLayoutParams(new Gallery.LayoutParams(w, w));
@@ -391,6 +391,14 @@ public class OpenClipboard extends BaseAdapter implements Set<OpenPath> {
 
     public void setOnClickListener(OnClickListener listen) {
         mOnClickListener = listen;
+    }
+
+    public long getTotalSize() {
+        long ret = 0;
+        for(OpenPath p : list)
+            if(p.length() > 0)
+                ret += p.length();
+        return ret;
     }
 
 }
