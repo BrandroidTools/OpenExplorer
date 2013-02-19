@@ -31,6 +31,7 @@ public class Preferences {
      */
     public static boolean Pref_Zip_Internal = true;
     public static boolean Pref_ShowUp = false;
+    public static boolean Pref_ShowThumbs = true;
     public static boolean Warn_TextEditor = false;
     public static boolean Warn_Networking = false;
     public static int Pref_Text_Max_Size = 500000;

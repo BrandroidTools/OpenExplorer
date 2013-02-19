@@ -108,8 +108,8 @@ import com.actionbarsherlock.widget.ShareActionProvider;
 
 @SuppressLint("NewApi")
 public class ContentFragment extends OpenFragment implements OnItemLongClickListener,
-OnItemClickListener, OnWorkerUpdateListener, OpenPathFragmentInterface,
-OnTaskUpdateListener, ContentAdapter.Callback {
+        OnItemClickListener, OnWorkerUpdateListener, OpenPathFragmentInterface,
+        OnTaskUpdateListener, ContentAdapter.Callback {
 
     // private static MultiSelectHandler mMultiSelect;
     // private LinearLayout mPathView;
@@ -175,14 +175,14 @@ OnTaskUpdateListener, ContentAdapter.Callback {
 		}
 	}
 
-    private ContentFragment(OpenPath path) {
-		mPath = path;
-	}
-
-    private ContentFragment(OpenPath path, int view) {
-		mPath = path;
-		mViewMode = view;
-	}
+//    private ContentFragment(OpenPath path) {
+//        mPath = path;
+//    }
+//
+//    private ContentFragment(OpenPath path, int view) {
+//        mPath = path;
+//        mViewMode = view;
+//    }
 
     public static ContentFragment getInstance(OpenPath path, int mode) {
 		return getInstance(path, mode, null);
@@ -196,7 +196,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
             } catch (NullPointerException e) {
             }
         if (ret == null)
-			ret = new ContentFragment(path, mode);
+            ret = new ContentFragment();
         // if(path instanceof OpenFile) return ret;
 		Bundle args = ret.getArguments();
         if (args == null)
@@ -217,7 +217,9 @@ OnTaskUpdateListener, ContentAdapter.Callback {
 	}
 
     public static ContentFragment getInstance(OpenPath path, Bundle args) {
-		ContentFragment ret = new ContentFragment(path);
+        ContentFragment ret = new ContentFragment();
+        if(args == null)
+            args = new Bundle();
 		args.putParcelable("path", path);
 			ret.setArguments(args);
         // Logger.LogVerbose("ContentFragment.getInstance(" + path.getPath() +
@@ -441,6 +443,9 @@ OnTaskUpdateListener, ContentAdapter.Callback {
 			Logger.LogWarning("ContentFragment.refreshData warning: path is null!");
 			return;
 		}
+        
+        if(path instanceof OpenFile && !path.canRead())
+            path = new OpenFileRoot(path);
 
         if (DEBUG)
 			Logger.LogDebug("refreshData running...");
@@ -462,6 +467,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
 				path = OpenExplorer.getDownloadParent();
 		}
 
+        /*
         if (path instanceof OpenFile
                 && (((path.getName().equalsIgnoreCase("data") || sPath.indexOf("/data") > -1) && !sPath
                         .startsWith(OpenFile.getExternalMemoryDrive(true).getParent().getPath()))
@@ -469,6 +475,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
                         || (sPath.indexOf("/emulated/") > -1 && sPath.indexOf("/emulated/0") == -1) || sPath
                             .startsWith("/system")))
 			path = new OpenFileRoot(path);
+        */
 
 		mPath = path;
 
@@ -510,12 +517,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
 		//	mShowThumbnails = true;
 
         if (getActivity() != null && getActivity().getWindow() != null)
-            mShowLongDate = getResources().getBoolean(R.bool.show_long_date) // getActivity().getWindow().getWindowManager().getDefaultDisplay().getRotation()
-                                                                             // %
-                                                                             // 180
-                                                                             // !=
-                                                                             // 0
-            && mPath != null;
+            mShowLongDate = getResources().getBoolean(R.bool.show_long_date);
 
         if (path instanceof OpenFileRoot) {
 			runUpdateTask();
@@ -979,10 +981,10 @@ OnTaskUpdateListener, ContentAdapter.Callback {
 			DialogHandler.showFileHeatmap(getExplorer(), getPath());
 			return true;
 		case R.id.menu_new_file:
-			EventHandler.createNewFile(getPath(), getActivity());
+                EventHandler.createNewFile(getPath(), getActivity(), this);
 			return true;
 		case R.id.menu_new_folder:
-			EventHandler.createNewFolder(getPath(), getActivity());
+                EventHandler.createNewFolder(getPath(), getActivity(), this);
 			return true;
             case R.id.menu_sort_name_asc:
                 onSortingChanged(SortType.Type.ALPHA);
@@ -1763,6 +1765,8 @@ OnTaskUpdateListener, ContentAdapter.Callback {
 
 	@Override
 	public OpenPath getPath() {
+        if(mPath == null && getArguments() != null && getArguments().containsKey("path"))
+            return mPath = (OpenPath)getArguments().getParcelable("path");
 		return mPath;
 	}
 
@@ -1911,7 +1915,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
 					}
 					mShareActionProvider.setShareIntent(shareIntent);
 					mShareActionProvider
-						.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
+                            .setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
 				}
 			}
 
@@ -1965,8 +1969,7 @@ OnTaskUpdateListener, ContentAdapter.Callback {
                                     getActivity().startActivity(theIntent);
                                     return true;
 			}
-                            })
-                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                            }).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 }
             }
 

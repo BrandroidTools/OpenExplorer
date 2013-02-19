@@ -118,17 +118,8 @@ public class SubmitStatsTask extends AsyncTask<String, Void, Void> {
                                 .putLong("last_stat_submit", new Date().getTime())
                                 .putString("pref_json", pjmd5).commit();
                         Logger.clearDb();
-                    } else {
-                        if (params.length == 1) {
-                            Logger.LogWarning("Server(" + uc.getURL().getHost()
-                                    + ") responding improperly. Retrying");
-                            doInBackground(params[0], "http://dev2.brandroid.org/stats.php");
-                            return null;
-                        } else {
-                            Logger.LogError("Server(" + uc.getURL().getHost()
-                                    + ") response invalid again.");
-                    }
-                }
+                    } else
+                        return doInBackground(params[0], "http://dev2.brandroid.org/stats.php");
                 }
             } else {
                 Logger.LogWarning("Couldn't send logs (" + uc.getResponseCode() + ")");

@@ -18,11 +18,28 @@
         android:layout_height="5dp"
         android:layout_below="@+id/multiselect_command_grid"
         android:background="@color/darkGray" />
+    
+    <TextView
+        android:id="@+id/multiselect_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:layout_below="@+id/multiselect_separator"
+        android:gravity="center"
+        style="@style/Text.Large.Dialog"
+        android:text="@string/s_files"
+        />
+
+    <View
+        android:id="@+id/multiselect_separator2"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@+id/multiselect_status"
+        android:background="@color/darkGray" />
 
     <ListView
         android:id="@+id/multiselect_item_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/multiselect_separator" />
+        android:layout_below="@+id/multiselect_separator2" />
 
 </RelativeLayout>
