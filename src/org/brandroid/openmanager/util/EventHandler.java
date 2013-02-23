@@ -48,6 +48,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -61,12 +63,18 @@ import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenSMB;
 import org.brandroid.openmanager.data.OpenSmartFolder;
+import org.brandroid.openmanager.data.OpenPath.OpenPathByteIO;
+import org.brandroid.openmanager.data.OpenPath.OpenPathCopyable;
+import org.brandroid.openmanager.data.OpenTar;
 import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.FileManager.OnProgressUpdateCallback;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
+import org.kamranzafar.jtar.TarEntry;
+import org.kamranzafar.jtar.TarInputStream;
+import org.kamranzafar.jtar.TarUtils;
 
 @SuppressWarnings({
         "unchecked", "rawtypes"
@@ -84,11 +92,17 @@ public class EventHandler {
     public static final EventType CUT_TYPE = EventType.CUT;
     public static final EventType TOUCH_TYPE = EventType.TOUCH;
     public static final EventType ERROR_TYPE = EventType.ERROR;
+    public static final EventType UNTAR_TYPE = EventType.UNTAR;
+    public static final EventType TAR_TYPE = EventType.TAR;
+    public static final EventType GUNZIP_TYPE = EventType.UNTGZ;
+    public static final EventType GZIP_TYPE = EventType.UNTGZ;
     public static final int BACKGROUND_NOTIFICATION_ID = 123;
     private static final boolean ENABLE_MULTITHREADS = false; // !OpenExplorer.BEFORE_HONEYCOMB;
 
+    static final int TAR_BUFFER = 2048;
+
     public enum EventType {
-        SEARCH, COPY, CUT, DELETE, RENAME, MKDIR, TOUCH, UNZIP, UNZIPTO, ZIP, ERROR
+        SEARCH, COPY, CUT, DELETE, RENAME, MKDIR, TOUCH, UNZIP, UNZIPTO, ZIP, ERROR, UNTAR, UNTGZ, TAR, TGZ, GUNZIP, GZIP
     }
 
     public static boolean SHOW_NOTIFICATION_STATUS = !OpenExplorer.isBlackBerry()
@@ -543,8 +557,8 @@ public class EventHandler {
     }
 
     public void cutFile(Collection<OpenPath> files, OpenPath newPath, Context mContext) {
-        for(OpenPath file : files)
-            if(!checkDestinationExists(file, newPath, mContext, CUT_TYPE))
+        for (OpenPath file : files)
+            if (!checkDestinationExists(file, newPath, mContext, CUT_TYPE))
                 execute(new BackgroundWork(CUT_TYPE, mContext, newPath), file);
     }
 
@@ -588,17 +602,17 @@ public class EventHandler {
                 .create().show();
     }
 
+    public void untarFile(final OpenPath file, final OpenPath dest, final Context mContext, final String... includes)
+    {
+        execute(new BackgroundWork(UNTAR_TYPE, mContext, dest, includes), file);
+    }
+
     /*
      * public void unZipFileTo(OpenPath zipFile, OpenPath toDir, Context
      * mContext) { new BackgroundWork(UNZIPTO_TYPE, mContext,
      * toDir).execute(zipFile); }
      */
 
-    /**
-     * Do work on second thread class
-     * 
-     * @author Joe Berria
-     */
     public class BackgroundWork extends AsyncTask<OpenPath, Integer, Integer> implements
             OnProgressUpdateCallback {
         private final EventType mType;
@@ -676,6 +690,8 @@ public class EventHandler {
                     return getResourceString(mContext, R.string.s_menu_rename).toString();
                 case TOUCH:
                     return getResourceString(mContext, R.string.s_create).toString();
+                case UNTAR:
+                    return getResourceString(mContext, R.string.s_untarring).toString();
             }
             return getResourceString(mContext, R.string.s_title_executing);
         }
@@ -792,6 +808,12 @@ public class EventHandler {
                 case ZIP:
                     showDialog = false;
                     showNotification = true;
+                    break;
+                case UNTGZ:
+                case UNTAR:
+                    showDialog = true;
+                    showNotification = false;
+                    isCancellable = false;
                     break;
                 default:
                     showDialog = showNotification = false;
@@ -915,6 +937,8 @@ public class EventHandler {
             mTotalCount = params.length;
             int ret = 0;
 
+            mCurrentPath = params[0];
+
             switch (mType) {
 
                 case DELETE:
@@ -984,11 +1008,46 @@ public class EventHandler {
                     publishProgress();
                     mFileMang.createZipFile(mIntoPath, params);
                     break;
+
+                case UNTAR:
+                    if (untarFile(mCurrentPath, mIntoPath, mInitParams))
+                        ret++;
+                    break;
+
+                case UNTGZ:
+                    try {
+                        TarUtils.untarTGzFile(mIntoPath.getPath(), mCurrentPath.getPath());
+                        ret++;
+                    } catch (IOException e) {
+                        Logger.LogError("Unable to untar file: " + mCurrentPath, e);
+                    }
+                    break;
+
+                case TAR:
+                    try {
+                        TarUtils.tar(new java.io.File(mIntoPath.getPath()), mCurrentPath.getPath());
+                        ret++;
+                    } catch (IOException e) {
+                        Logger.LogError("Unable to untar file: " + mCurrentPath, e);
+                    }
+                    break;
             }
 
             return ret;
         }
 
+        private Boolean untarFile(OpenPath source, OpenPath into, String... includes) {
+            if (!into.exists() && !into.mkdir())
+                return false;
+            try {
+                TarUtils.untarTarFile(into.getPath(), source.getPath(), includes);
+                return true;
+            } catch (IOException e) {
+                Logger.LogError("Unable to untar!", e);
+                return false;
+            }
+        }
+        
         /*
          * More efficient Channel based copying
          */
@@ -1105,6 +1164,14 @@ public class EventHandler {
                     Logger.LogWarning("Couldn't create initial destination file.");
                     return false;
                 }
+                if (old instanceof OpenPathCopyable)
+                {
+                    try {
+                        if (((OpenPathCopyable)old).copyTo(newFile))
+                            return true;
+                    } catch (IOException e) {
+                    }
+                }
 
                 int size = (int)old.length();
                 int pos = 0;
@@ -1117,9 +1184,12 @@ public class EventHandler {
                     i_stream = new BufferedInputStream(old.getInputStream());
                     o_stream = new BufferedOutputStream(newFile.getOutputStream());
 
-                    while ((read = i_stream.read(data, 0, FileManager.BUFFER)) != -1) {
+                    while ((read = i_stream.read(data, 0,
+                            Math.min(size - pos, FileManager.BUFFER))) != -1) {
                         o_stream.write(data, 0, read);
-                        pos += FileManager.BUFFER;
+                        pos += read;
+                        if (pos >= size)
+                            break;
                         publishMyProgress(pos, size);
                     }
 
@@ -1401,6 +1471,28 @@ public class EventHandler {
                                         R.string.s_msg_moved), Toast.LENGTH_SHORT).show();
 
                     break;
+
+                case TAR:
+                case TGZ:
+                    break;
+
+                case UNTGZ:
+                case UNTAR:
+                    if (result == null || result == 0)
+                        Toast.makeText(
+                                mContext,
+                                getResourceString(mContext, R.string.s_msg_none,
+                                        R.string.s_untar), Toast.LENGTH_SHORT).show();
+                    else if (result != null && result < 0)
+                        Toast.makeText(
+                                mContext,
+                                getResourceString(mContext, R.string.s_msg_some,
+                                        R.string.s_untar), Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(
+                                mContext,
+                                getResourceString(mContext, R.string.s_msg_all,
+                                        R.string.s_untar), Toast.LENGTH_SHORT).show();
 
                 case UNZIPTO:
                     break;

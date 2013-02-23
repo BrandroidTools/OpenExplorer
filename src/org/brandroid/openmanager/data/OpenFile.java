@@ -687,4 +687,11 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
     public boolean showChildPath() {
         return false;
     }
+
+    @Override
+    public boolean copyTo(OpenPath dest) throws IOException {
+        if(dest instanceof OpenFile)
+            return ((OpenFile)dest).copyFrom(this);
+        return false;
+    }
 }

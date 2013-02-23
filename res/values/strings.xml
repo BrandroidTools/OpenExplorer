@@ -391,5 +391,12 @@
     <string name="s_alert_destination_exists">Destination already exists. What would you like to do?</string>
     <string name="s_overwrite">Overwrite</string>
     <string name="s_skip">Skip</string>
+    <string name="s_untar">unTARed</string>
+    <string name="s_untarring">unTARing</string>
+    <string name="s_msg_file_exists">Some destination files may already exist. Ok to overwrite?</string>
+    <string name="s_title_file_exists">File already exists.</string>
+    <string name="s_msg_pref_archives">Would you like to browse or extract the archive?</string>
+    <string name="s_archive_browse">Browse</string>
+    <string name="s_archive_extract">Extract</string>
 
 </resources>

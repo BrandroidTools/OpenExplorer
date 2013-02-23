@@ -14,14 +14,13 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.brandroid.openmanager"
     android:installLocation="auto"
-    android:versionCode="212"
-    android:versionName="0.212" >
+    android:versionCode="214"
+    android:versionName="0.214" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -91,6 +90,13 @@
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/tar" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.ALTERNATIVE" />
 
                 <data android:mimeType="text/*" />
@@ -106,7 +112,9 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="application/vnd.org.brandroid.beam" />
             </intent-filter>
         </activity>

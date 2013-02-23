@@ -270,11 +270,15 @@ public class Logger {
                 Logger.LogWarning("Crash file written, but we can't find it!");
         } else
             Logger.LogWarning("Crash file is null!");
-        return Log.wtf(
-                LOG_KEY,
-                msg
-                        + (trace.length > 0 ? " (" + trace[0].getFileName() + ":"
-                                + trace[0].getLineNumber() + ")" : ""), ex);
+        try {
+            return Log.wtf(
+                    LOG_KEY,
+                    msg
+                            + (trace.length > 0 ? " (" + trace[0].getFileName() + ":"
+                                    + trace[0].getLineNumber() + ")" : ""), ex);
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     public static int LogWarning(String msg) {
