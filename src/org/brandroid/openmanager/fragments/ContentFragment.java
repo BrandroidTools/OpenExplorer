@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.brandroid.openmanager.R;
@@ -39,6 +41,8 @@ import org.brandroid.openmanager.data.OpenPath.OpenContentUpdater;
 import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateListener;
 import org.brandroid.openmanager.data.OpenPathArray;
 import org.brandroid.openmanager.data.OpenPathMerged;
+import org.brandroid.openmanager.data.OpenTar;
+import org.brandroid.openmanager.data.OpenTar.OpenTarEntry;
 import org.brandroid.openmanager.data.OpenZip;
 import org.brandroid.openmanager.util.EventHandler;
 import org.brandroid.openmanager.util.EventHandler.EventType;
@@ -56,6 +60,7 @@ import org.brandroid.utils.MenuUtils;
 import org.brandroid.utils.Preferences;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
+import org.kamranzafar.jtar.TarUtils;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -177,14 +182,14 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         }
     }
 
-    private ContentFragment(OpenPath path) {
-        mPath = path;
-    }
-
-    private ContentFragment(OpenPath path, int view) {
-        mPath = path;
-        mViewMode = view;
-    }
+    // private ContentFragment(OpenPath path) {
+    // mPath = path;
+    // }
+    //
+    // private ContentFragment(OpenPath path, int view) {
+    // mPath = path;
+    // mViewMode = view;
+    // }
 
     public static ContentFragment getInstance(OpenPath path, int mode) {
         return getInstance(path, mode, null);
@@ -198,7 +203,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             } catch (NullPointerException e) {
             }
         if (ret == null)
-            ret = new ContentFragment(path, mode);
+            ret = new ContentFragment();
         // if(path instanceof OpenFile) return ret;
         Bundle args = ret.getArguments();
         if (args == null)
@@ -219,7 +224,9 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     }
 
     public static ContentFragment getInstance(OpenPath path, Bundle args) {
-        ContentFragment ret = new ContentFragment(path);
+        ContentFragment ret = new ContentFragment();
+        if (args == null)
+            args = new Bundle();
         args.putParcelable("path", path);
         ret.setArguments(args);
         // Logger.LogVerbose("ContentFragment.getInstance(" + path.getPath() +
@@ -267,8 +274,6 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             return OpenExplorer.VIEW_LIST;
         if (pref.equals("grid"))
             return OpenExplorer.VIEW_GRID;
-        if (pref.equals("carousel"))
-            return OpenExplorer.VIEW_CAROUSEL;
         return OpenExplorer.VIEW_LIST;
     }
 
@@ -462,6 +467,9 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             return;
         }
 
+        if (path instanceof OpenFile && !path.canRead())
+            path = new OpenFileRoot(path);
+
         if (DEBUG)
             Logger.LogDebug("refreshData running...");
 
@@ -482,13 +490,15 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                 path = OpenExplorer.getDownloadParent();
         }
 
-        if (path instanceof OpenFile
-                && (((path.getName().equalsIgnoreCase("data") || sPath.indexOf("/data") > -1) && !sPath
-                        .startsWith(OpenFile.getExternalMemoryDrive(true).getParent().getPath()))
-                        || sPath.startsWith("/mnt/shell")
-                        || (sPath.indexOf("/emulated/") > -1 && sPath.indexOf("/emulated/0") == -1) || sPath
-                            .startsWith("/system")))
-            path = new OpenFileRoot(path);
+        /*
+         * if (path instanceof OpenFile &&
+         * (((path.getName().equalsIgnoreCase("data") || sPath.indexOf("/data")
+         * > -1) && !sPath
+         * .startsWith(OpenFile.getExternalMemoryDrive(true).getParent
+         * ().getPath())) || sPath.startsWith("/mnt/shell") ||
+         * (sPath.indexOf("/emulated/") > -1 && sPath.indexOf("/emulated/0") ==
+         * -1) || sPath .startsWith("/system"))) path = new OpenFileRoot(path);
+         */
 
         mPath = path;
 
@@ -530,11 +540,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         // mShowThumbnails = true;
 
         if (getActivity() != null && getActivity().getWindow() != null)
-            mShowLongDate = getResources().getBoolean(R.bool.show_long_date) // getActivity().getWindow().getWindowManager().getDefaultDisplay().getRotation()
-                    // %
-                    // 180
-                    // !=
-                    // 0
+            mShowLongDate = getResources().getBoolean(R.bool.show_long_date)
                     && mPath != null;
 
         if (path instanceof OpenFileRoot) {
@@ -703,13 +709,59 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         onItemClick(list, view, position, id);
     }
 
+    private void untarAll(final OpenPath tar, final OpenPath dest, final String... includes)
+    {
+        if (TarUtils.checkUntar(tar.getPath(), dest.getPath(), includes))
+            DialogHandler.showConfirmationDialog(getContext(),
+                    getResources().getString(R.string.s_msg_file_exists),
+                    getResources().getString(R.string.s_title_file_exists),
+                    new OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            getHandler().untarFile(tar, dest, getContext(), includes);
+                        }
+                    });
+        else
+            getHandler().untarFile(tar, dest, getContext(), includes);
+    }
+
     @Override
     public void onItemClick(AdapterView<?> list, View view, int position, long id) {
         OpenPath file = (OpenPath)list.getItemAtPosition(position);
         Logger.LogInfo("ContentFragment.onItemClick (" + file.getPath() + ")");
 
-        if (file.isArchive() && file instanceof OpenFile && Preferences.Pref_Zip_Internal)
+        if (getActionMode() == null && file.isArchive() && file instanceof OpenFile
+                && Preferences.Pref_Zip_Internal)
             file = new OpenZip((OpenFile)file);
+        else if (getActionMode() == null && file instanceof OpenFile
+                && file.getMimeType().contains("tar"))
+        {
+            final OpenPath tar = file;
+            DialogHandler.showConfirmationDialog(getContext(),
+                    getString(R.string.s_msg_pref_archives),
+                    getString(R.string.s_untar),
+                    getPreferences(),
+                    "pref_tar",
+                    new OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which)
+                            {
+                                case R.string.s_archive_browse:
+                                    getExplorer().onChangeLocation(new OpenTar((OpenFile)tar));
+                                    break;
+                                case R.string.s_archive_extract:
+                                    untarAll(tar, tar.getParent().getChild(
+                                            tar.getName().replace("." + tar.getExtension(), "")));
+                                    break;
+                            }
+                        }
+                    },
+                    R.string.s_archive_browse,
+                    R.string.s_archive_extract,
+                    R.string.s_cancel
+                    );
+            return;
+        }
 
         if (getActionMode() != null) {
             if (mLastSelectionModeCallback != null) {
@@ -749,7 +801,9 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             }
         }
 
-        if ((file.isDirectory() || (file.isArchive() && Preferences.Pref_Zip_Internal))
+        if ((file.isDirectory()
+                || (file.isArchive() && Preferences.Pref_Zip_Internal)
+                || file.getMimeType().contains("tar"))
                 && getActionMode() == null) {
             /*
              * if (mThumbnail != null) { mThumbnail.setCancelThumbnails(true);
@@ -999,10 +1053,10 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                 DialogHandler.showFileHeatmap(getExplorer(), getPath());
                 return true;
             case R.id.menu_new_file:
-                EventHandler.createNewFile(getPath(), getActivity());
+                EventHandler.createNewFile(getPath(), getActivity(), this);
                 return true;
             case R.id.menu_new_folder:
-                EventHandler.createNewFolder(getPath(), getActivity());
+                EventHandler.createNewFolder(getPath(), getActivity(), this);
                 return true;
             case R.id.menu_sort_name_asc:
                 onSortingChanged(SortType.Type.ALPHA);
@@ -1182,6 +1236,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                 OpenClipboard cb = getClipboard();
                 if (cb != null) {
                     cb.setCurrentPath(into);
+                    checkClipboardForTar();
                     if (cb.size() > 0) {
                         if (cb.DeleteSource)
                             getHandler().cutFile(cb, into, getActivity());
@@ -1301,6 +1356,37 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                 // return true;
         }
         return false;
+    }
+
+    private boolean checkClipboardForTar() {
+        OpenClipboard cb = getClipboard();
+        Hashtable<OpenTar, Vector<OpenTarEntry>> tarKids = new Hashtable<OpenTar, Vector<OpenTar.OpenTarEntry>>();
+        for (OpenPath p : cb)
+            if (p instanceof OpenTarEntry)
+            {
+                OpenTarEntry kid = (OpenTarEntry)p;
+                OpenTar tar = kid.getTar();
+                if (!tarKids.containsKey(tar))
+                    tarKids.put(tar, new Vector<OpenTar.OpenTarEntry>());
+                Vector<OpenTarEntry> kids = tarKids.get(tar);
+                kids.add(kid);
+                tarKids.put(tar, kids);
+            }
+        if (tarKids.size() == 0)
+            return false;
+        for (OpenTar tar : tarKids.keySet())
+        {
+            Vector<OpenTarEntry> kids = tarKids.get(tar);
+            String[] includes = new String[kids.size()];
+            for (int i = 0; i < kids.size(); i++)
+            {
+                OpenTarEntry kid = kids.get(i);
+                cb.remove(kid);
+                includes[i] = kid.getRelativePath();
+            }
+            untarAll(tar, getPath(), includes);
+        }
+        return true;
     }
 
     @Override
@@ -1784,6 +1870,8 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
     @Override
     public OpenPath getPath() {
+        if (mPath == null && getArguments() != null && getArguments().containsKey("path"))
+            return mPath = (OpenPath)getArguments().getParcelable("path");
         return mPath;
     }
 

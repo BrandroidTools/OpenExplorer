@@ -135,10 +135,12 @@ public class OpenPathDbAdapter {
             String query = generateInsertStatement(files);
             if (query == null || query.equals(""))
                 return 0;
+            if (mDb == null || !mDb.isOpen())
+                open();
             mDb.execSQL(query);
             return files.length;
         } catch (Exception e) {
-            Logger.LogError("Couldn't do mass insert.", e);
+            Logger.LogError("Couldn't do mass insert.");
             long ret = 0;
             for (OpenPath file : files)
                 if (file != null)

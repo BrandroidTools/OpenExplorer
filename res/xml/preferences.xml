@@ -245,13 +245,5 @@
             android:key="pref_hardware_accel"
             android:title="@string/s_pref_hardware_accel" />
     </PreferenceScreen>
-    <PreferenceScreen
-        android:icon="@drawable/ic_folder_pipe"
-        android:key="servers"
-        android:title="@string/s_pref_servers" >
-        <PreferenceScreen
-            android:key="server_add"
-            android:title="@string/s_pref_server_add" />
-    </PreferenceScreen>
 
 </PreferenceScreen>

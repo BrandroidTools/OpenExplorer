@@ -800,16 +800,19 @@ public class RootTools {
      * @param exception The exception that was thrown (Needed for errors)
      */
     public static void log(String msg) {
-        Logger.LogDebug("Root Tools: " + msg);
+        if(OpenExplorer.IS_DEBUG_BUILD)
+            Logger.LogDebug("Root Tools: " + msg);
         // log(null, msg, 3, null);
     }
 
     public static void log(String TAG, String msg) {
-        Logger.LogDebug("RootTools: " + TAG + ": " + msg);
+        if(OpenExplorer.IS_DEBUG_BUILD)
+            Logger.LogDebug("RootTools: " + TAG + ": " + msg);
         // log(TAG, msg, 3, null);
     }
 
     public static void log(String msg, int type, Exception e) {
+        if(!OpenExplorer.IS_DEBUG_BUILD && type != 2) return;
         if (type == 1)
             Logger.LogVerbose("Root Tools: " + msg, e);
         else if (type == 2)

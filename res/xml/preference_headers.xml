@@ -32,13 +32,5 @@
             android:name="key"
             android:value="advanced" />
     </header>
-    <header
-        android:fragment="org.brandroid.openmanager.activities.SettingsActivity$PreferenceFragmentV11"
-        android:icon="@drawable/ic_folder_pipe"
-        android:title="@string/s_pref_servers" >
-        <extra
-            android:name="key"
-            android:value="servers" />
-    </header>
 
 </preference-headers>

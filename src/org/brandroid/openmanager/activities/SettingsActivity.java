@@ -18,18 +18,12 @@
 
 package org.brandroid.openmanager.activities;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,7 +32,6 @@ import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.OpenClipboard;
 import org.brandroid.openmanager.data.OpenFTP;
 import org.brandroid.openmanager.data.OpenFile;
-import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.fragments.DialogHandler;
@@ -50,7 +43,6 @@ import org.brandroid.utils.Logger;
 import org.brandroid.utils.LruCache;
 import org.brandroid.utils.Preferences;
 import org.brandroid.utils.Utils;
-import org.brandroid.utils.ViewUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -91,9 +83,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.view.Menu;
-import android.view.View;
-import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Toast;
@@ -186,7 +175,9 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setTheme(R.style.AppTheme_Dark);
+        //        int theme = getThemeId();
+        //        getApplicationContext().setTheme(theme);
+        //        setTheme(theme);
 
         ActionBar bar = getSupportActionBar();
         if (bar != null)
@@ -665,16 +656,17 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         if (key.equals("servers_private"))
         {
             OpenFile f = OpenFile.getExternalMemoryDrive(true).getChild("Android").getChild("data")
-                    .getChild("org.brandroid.openmanager").getChild("files").getChild("servers.json");
+                    .getChild("org.brandroid.openmanager").getChild("files")
+                    .getChild("servers.json");
             OpenFile f2 = new OpenFile(getContext().getFilesDir().getPath(), "servers.json");
             Boolean doPrivate = (Boolean)newValue;
-            if(doPrivate)
+            if (doPrivate)
             {
-                if(f.exists() && f.length() > f2.length())
+                if (f.exists() && f.length() > f2.length())
                     f2.copyFrom(f);
                 f.delete();
             } else {
-                if(f2.exists() && f2.length() > f.length())
+                if (f2.exists() && f2.length() > f.length())
                     f.copyFrom(f2);
                 f2.delete();
             }
@@ -760,20 +752,21 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         Preferences prefs = new Preferences(context);
         try {
             OpenFile f = OpenFile.getExternalMemoryDrive(true).getChild("Android").getChild("data")
-                    .getChild("org.brandroid.openmanager").getChild("files").getChild("servers.json");
-            if(prefs.getSetting("global", "servers_private", false))
+                    .getChild("org.brandroid.openmanager").getChild("files")
+                    .getChild("servers.json");
+            if (prefs.getSetting("global", "servers_private", false))
             {
-               if(f.exists())
-               {
-                   if(f.length() > f2.length())
-                       f2.copyFrom(f);
-                   f.delete();
-               }
-               return f2;
+                if (f.exists())
+                {
+                    if (f.length() > f2.length())
+                        f2.copyFrom(f);
+                    f.delete();
+                }
+                return f2;
             }
-            if(!f.exists())
+            if (!f.exists())
                 f.touch();
-            if(!f.exists() || !f.canWrite())
+            if (!f.exists() || !f.canWrite())
             {
                 prefs.setSetting("global", "servers_private", true);
                 return f2;
@@ -800,7 +793,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                 return f2;
             }
             return f;
-        } catch(Exception e) {
+        } catch (Exception e) {
             prefs.setSetting("global", "servers_private", true);
             return f2;
         }
@@ -848,7 +841,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
             if (!f.exists() && !f.create()) {
                 Logger.LogWarning("Couldn't create default servers file (" + f.getPath() + ")");
                 return new OpenServers();
-            } else if(f.length() <= 1)
+            } else if (f.length() <= 1)
                 return new OpenServers(); // Empty file
             else {
                 // Logger.LogDebug("Created default servers file (" +
@@ -976,6 +969,19 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                 defaultResourceId);
     }
 
+    public int getThemeId() {
+        String themeName = getPreferences().getString("global", "pref_themes", "dark");
+        if (themeName.equals("dark"))
+            return R.style.AppTheme_Dark;
+        else if (themeName.equals("light"))
+            return R.style.AppTheme_Light;
+        else if (themeName.equals("lightdark"))
+            return R.style.AppTheme_LightAndDark;
+        else if (themeName.equals("custom"))
+            return R.style.AppTheme_Custom;
+        return 0;
+    }
+
     @TargetApi(11)
     public static class PreferenceFragmentV11 extends PreferenceFragment {
         @Override
@@ -1023,6 +1029,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
             return false;
         }
 
+        @SuppressLint("ValidFragment")
         public class ServerSettings extends PreferenceFragment {
             @Override
             public void onCreate(Bundle savedInstanceState) {

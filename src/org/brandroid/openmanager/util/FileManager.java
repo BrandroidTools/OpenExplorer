@@ -47,6 +47,7 @@ import org.brandroid.openmanager.data.OpenSMB;
 import org.brandroid.openmanager.data.OpenSearch;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
+import org.brandroid.openmanager.data.OpenTar;
 import org.brandroid.openmanager.data.OpenZip;
 import org.brandroid.openmanager.data.OpenSearch.SearchProgressUpdateListener;
 import org.brandroid.utils.Logger;
@@ -467,10 +468,11 @@ public class FileManager {
                 } catch (Exception e) {
                     Logger.LogError("Couldn't get samba from cache.", e);
                 }
-            } else if (path.startsWith("/data") || path.startsWith("/system")
+            } /*else if (path.startsWith("/data") || path.startsWith("/system")
                     || path.startsWith("/mnt/shell")
                     || (path.indexOf("/emulated/") > -1 && path.indexOf("/emulated/0") == -1))
                 ret = new OpenFileRoot(new OpenFile(path));
+              */
             else if (path.startsWith("/"))
                 ret = new OpenFile(path);
             else if (path.startsWith("file://"))
@@ -487,6 +489,11 @@ public class FileManager {
                 return ret;
             if (ret instanceof OpenFile && ret.isArchive() && Preferences.Pref_Zip_Internal)
                 ret = new OpenZip((OpenFile)ret);
+//            if (ret instanceof OpenFile
+//                    && (ret.getMimeType().contains("tar")
+//                            || ret.getExtension().equalsIgnoreCase("tar")
+//                            || ret.getExtension().equalsIgnoreCase("win")))
+//                ret = new OpenTar((OpenFile)ret);
             if (ret.requiresThread() && bGetNetworkedFiles) {
                 if (ret.listFiles() != null)
                     setOpenCache(path, ret);

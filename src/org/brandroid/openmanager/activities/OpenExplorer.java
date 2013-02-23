@@ -22,10 +22,17 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.NetworkInfo.State;
+import android.nfc.FormatException;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcAdapter.CreateNdefMessageCallback;
+import android.nfc.NfcEvent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.os.StatFs;
 import android.provider.MediaStore;
 import android.annotation.SuppressLint;
@@ -67,6 +74,7 @@ import android.text.InputType;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.format.Time;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.SingleLineTransformationMethod;
 import android.text.style.ForegroundColorSpan;
@@ -97,6 +105,7 @@ import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -108,6 +117,7 @@ import android.widget.TextView.BufferType;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -116,6 +126,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -228,7 +239,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     public static final boolean SHOW_FILE_DETAILS = false;
     public static boolean USE_PRETTY_CONTEXT_MENUS = true;
     public static boolean IS_FULL_SCREEN = false;
-    public static boolean IS_KEYBOARD_AVAILABLE = false;
+    public static final boolean IS_KEYBOARD_AVAILABLE = false;
 
     // private final static boolean DEBUG = IS_DEBUG_BUILD && true;
 
@@ -320,6 +331,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         Preferences.Pref_Text_Internal = prefs.getBoolean("global", "pref_text_internal", true);
         Preferences.Pref_Zip_Internal = prefs.getBoolean("global", "pref_zip_internal", true);
         Preferences.Pref_ShowUp = prefs.getBoolean("global", "pref_showup", false);
+        Preferences.Pref_ShowThumbs = prefs.getBoolean("global", "pref_thumbs", true);
         Preferences.Pref_Language = prefs.getString("global", "pref_language", "");
         Preferences.Pref_Analytics = prefs.getBoolean("global", "pref_stats", true);
         Preferences.Pref_Text_Max_Size = prefs.getInt("global", "text_max", 500000);
@@ -386,6 +398,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         super.onResume();
         if (IS_DEBUG_BUILD)
             Logger.LogVerbose("OpenExplorer.onResume");
+        handleIntent(getIntent());
         onClipboardUpdate();
     }
 
@@ -405,13 +418,14 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             IS_FULL_SCREEN = false;
         }
 
-        IS_KEYBOARD_AVAILABLE = getContext().getResources().getConfiguration().keyboard == Configuration.KEYBOARD_QWERTY;
+        //IS_KEYBOARD_AVAILABLE = getContext().getResources().getConfiguration().keyboard == Configuration.KEYBOARD_QWERTY;
 
         loadPreferences();
         checkRoot();
 
         int theme = getThemeId();
-        boolean themeDark = R.style.AppTheme_Dark == theme;
+        boolean themeDark = R.style.AppTheme_Dark == theme ||
+                R.style.AppTheme_LightAndDark == theme;
 
         getApplicationContext().setTheme(theme);
         setTheme(theme);
@@ -471,6 +485,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_fragments);
+        handleNfc();
         if (Build.VERSION.SDK_INT < 11)
             getWindow().setBackgroundDrawableResource(
                     themeDark ? R.drawable.background_holo_dark : R.drawable.background_holo_light);
@@ -644,12 +659,25 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         if (isNook()) {
             Intent iRate = new Intent("com.bn.sdk.shop.details");
             iRate.putExtra("product_details_ean", "2940043894236");
-            startActivity(iRate);
-        } else if (isBlackBerry())
+            if (IntentManager.getResolveInfo(iRate, this) != null)
+                try {
+                    startActivity(iRate);
+                    return;
+                } catch (Exception e) {
+                    Logger.LogWarning("Unable to launch Nook reviews!");
+                }
+            launchUri(
+                    this,
+                    Uri.parse("http://www.barnesandnoble.com/reviews/OpenExplorer%2Fbrandroidorg/1111331126"));
+            return;
+        }
+        else if (isBlackBerry())
             launchUri(this,
-                    Uri.parse("http://appworld.blackberry.com/webstore/content/reviews/85146/"));
+                    Uri.parse("http://appworld.blackberry.com/webstore/content/85146/"));
         else
-            launchUri(this, Uri.parse("market://details?id=org.brandroid.openmanager&reviewId=0"));
+            launchUri(
+                    this,
+                    Uri.parse("https://play.google.com/store/apps/details?id=org.brandroid.openmanager&reviewId=0"));
     }
 
     private void checkWelcome() {
@@ -882,7 +910,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     protected void onNewIntent(Intent intent) {
         Logger.LogDebug("New Intent! " + intent.toString());
         setIntent(intent);
-        handleIntent(intent);
+        // handleIntent(intent); //Unneeded, onResume will handle
     }
 
     public boolean showMenu(int menuId, final View from, final boolean fromTouch) {
@@ -1071,6 +1099,20 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         } else if (intent.hasExtra("state")) {
             Bundle state = intent.getBundleExtra("state");
             onRestoreInstanceState(state);
+        } else if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+            Logger.LogInfo("BEAM Received: " + rawMsgs.length);
+            for (Parcelable p : rawMsgs) {
+                NdefMessage msg = (NdefMessage)p;
+                NdefRecord[] recs = msg.getRecords();
+                OpenFile file = (OpenFile)getDownloadParent().getChild(
+                        "nfc_" + new Time().toString());
+                int dataPos = 1;
+                if (recs.length > 2)
+                    file = (OpenFile)getDownloadParent().getChild(
+                            new String(recs[dataPos++].getPayload()));
+                file.writeBytes(recs[dataPos].getPayload());
+            }
         }
         return false;
     }
@@ -1650,6 +1692,62 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         }, 1000);
     }
 
+    private void handleNfc() {
+        if (Build.VERSION.SDK_INT < 14)
+            return;
+        // Initialize nfc adapter
+        NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (mNfcAdapter == null)
+            return;
+        if (Build.VERSION.SDK_INT >= 16) {
+            mNfcAdapter.setBeamPushUrisCallback(new NfcAdapter.CreateBeamUrisCallback() {
+                @Override
+                public Uri[] createBeamUris(NfcEvent event) {
+                    Set<OpenPath> selectedFiles = getClipboard();
+                    if (selectedFiles.size() > 0) {
+                        List<Uri> fileUri = new ArrayList<Uri>();
+                        for (OpenPath f : selectedFiles) {
+                            // Beam ignores folders and system files
+                            if (!f.isDirectory() && f.canWrite()) {
+                                fileUri.add(f.getUri());
+                            }
+                        }
+                        if (fileUri.size() > 0) {
+                            Logger.LogInfo("BEAM: " + fileUri.size() + " items");
+                            return fileUri.toArray(new Uri[fileUri.size()]);
+                        }
+                    }
+                    return null;
+                }
+            }, this);
+        } else if (Build.VERSION.SDK_INT >= 14) {
+            mNfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback() {
+                public NdefMessage createNdefMessage(NfcEvent event) {
+                    Logger.LogVerbose("Beam me up, scotty!");
+                    Set<OpenPath> selectedFiles = getClipboard();
+                    if (selectedFiles.size() > 0) {
+                        List<NdefRecord> recs = new ArrayList<NdefRecord>();
+                        for (OpenPath f : selectedFiles) {
+                            if (!(f instanceof OpenFile) || f.isDirectory() || !f.canWrite())
+                                continue;
+                            OpenFile of = (OpenFile)f;
+                            NdefRecord rec = new NdefRecord(NdefRecord.TNF_MIME_MEDIA,
+                                    "application/vnd.org.brandroid.beam".getBytes(),
+                                    f.getName().getBytes(),
+                                    of.readBytes());
+                            recs.add(rec);
+                        }
+                        if (recs.size() > 0) {
+                            Logger.LogInfo("BEAM: " + recs.size() + " items");
+                            return new NdefMessage(recs.toArray(new NdefRecord[recs.size()]));
+                        }
+                    }
+                    return null;
+                }
+            }, this);
+        }
+    }
+
     public void handleMediaReceiver() {
         storageReceiver = new BroadcastReceiver() {
             @Override
@@ -1952,6 +2050,8 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
     public void ensureCursorCache() {
         // findCursors();
+        if (!Preferences.Pref_ShowThumbs)
+            return;
         if (mRunningCursorEnsure
         // || mLastCursorEnsure == 0
         // || new Date().getTime() - mLastCursorEnsure < 10000 // at least 10
@@ -2262,7 +2362,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         } else
             fragmentManager.beginTransaction().replace(R.id.content_frag, editor)
 
-            // .addToBackStack(null)
+                    // .addToBackStack(null)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
         // addTab(editor, path.getName(), true);
         return true;
@@ -2737,14 +2837,16 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         View root = ((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
                 R.layout.clipboard_layout, null);
         final TextView tvStatus = (TextView)root.findViewById(R.id.multiselect_status);
-        tvStatus.setText(getClipboard().size() + " " + getString(R.string.s_files) + " :: " + DialogHandler.formatSize(getClipboard().getTotalSize()));
+        tvStatus.setText(getClipboard().size() + " " + getString(R.string.s_files) + " :: "
+                + DialogHandler.formatSize(getClipboard().getTotalSize()));
         GridView mGridCommands = (GridView)root.findViewById(R.id.multiselect_command_grid);
         final ListView mListClipboard = (ListView)root.findViewById(R.id.multiselect_item_list);
         mListClipboard.setAdapter(getClipboard());
         mClipboard.setClipboardUpdateListener(new OnClipboardUpdateListener() {
             @Override
             public void onClipboardUpdate() {
-                tvStatus.setText(getClipboard().size() + " " + getString(R.string.s_files) + " :: " + DialogHandler.formatSize(getClipboard().getTotalSize()));
+                tvStatus.setText(getClipboard().size() + " " + getString(R.string.s_files) + " :: "
+                        + DialogHandler.formatSize(getClipboard().getTotalSize()));
                 OpenExplorer.this.onClipboardUpdate();
             }
         });
@@ -3027,7 +3129,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                     }
                     if (mLastPath != null) {
                         Logger.LogDebug("last path set to " + mLastPath.getPath());
-                        changePath(mLastPath, false);
+                        changePath(mLastPath, false, true);
                         // updateTitle(mLastPath.getPath());
                     } else
                         showExitDialog();
@@ -3494,7 +3596,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 });
             if (parent == null)
                 parent = new OpenPathArray(new OpenPath[] {
-                    path
+                        path
                 });
             ArrayList<OpenPath> arr = new ArrayList<OpenPath>();
             for (OpenPath kid : parent.list())

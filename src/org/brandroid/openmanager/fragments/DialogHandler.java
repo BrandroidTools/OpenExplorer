@@ -28,6 +28,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Context;
@@ -59,6 +60,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.Button;
+import android.widget.GridLayout;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -456,7 +459,7 @@ public class DialogHandler {
                     }
                 }).setCancelable(true).setPositiveButton(android.R.string.ok, onOK).show();
         final int[] cnt = new int[] {
-            countSecs
+                countSecs
         };
         final Button btCancel = dlg.getButton(DialogInterface.BUTTON_NEGATIVE);
         TimerTask tt = new TimerTask() {
@@ -532,6 +535,64 @@ public class DialogHandler {
             onYes.onClick(null, DialogInterface.BUTTON_POSITIVE);
     }
 
+    public static void showConfirmationDialog(Context context, String text, String title,
+            final Preferences preferences, final String pref_key,
+            final DialogInterface.OnClickListener onClick,
+            final Integer resYesId,
+            final Integer resNoId,
+            final Integer resCancelId) {
+
+        int ret = preferences.getInt("warn", pref_key, -1);
+        if(ret > -1)
+        {
+            onClick.onClick(null, ret);
+            return;
+        }
+        if (ret == -1) {
+            final View layout = inflate(context, R.layout.confirm_view);
+            final CheckBox cb = (CheckBox)layout.findViewById(R.id.confirm_remember);
+            
+            final Builder builder = new AlertDialog.Builder(context).setTitle(title)
+                    .setView(layout);
+            builder.setPositiveButton(context.getResources().getString(resYesId),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if(cb != null && cb.isChecked())
+                                preferences.setSetting("warn", pref_key, resYesId);
+                            onClick.onClick(dialog, resYesId);
+                        }
+                    });
+            if (resNoId != null)
+                builder.setNegativeButton(context.getResources().getString(resNoId),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if(cb != null && cb.isChecked())
+                                    preferences.setSetting("warn", pref_key, resNoId);
+                                onClick.onClick(dialog, resNoId);
+                            }
+                        });
+            if (resCancelId != null)
+                builder.setNeutralButton(context.getResources().getString(resCancelId),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if(cb != null && cb.isChecked())
+                                    preferences.setSetting("warn", pref_key, resCancelId);
+                                onClick.onClick(dialog, resCancelId);
+                            }
+                        });
+            final AlertDialog dialog = builder.create();
+
+            ViewUtils.setText(layout, text, R.id.confirm_message);
+            ViewUtils.setViewsVisible(layout, false, R.id.confirm_buttons);
+            
+            if (context != null)
+                dialog.show();
+        }
+    }
+
     public static View inflate(Context context, int layoutId) {
         return ((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
                 layoutId, null);
@@ -577,44 +638,70 @@ public class DialogHandler {
         }
     }
 
-    public static void showMultiButtonDialog(Context context, String message, String title,
-            final DialogInterface.OnClickListener listener, int... buttonStringIds) {
-        final View layout = inflate(context, R.layout.alert_multibutton_view);
+    public static AlertDialog showMultiButtonDialog(Context context, String message, String title,
+            final DialogInterface.OnClickListener listener, final int... buttonStringIds) {
 
-        ViewUtils.setViewsVisible(layout, false, R.id.confirm_remember);
-
-        ViewUtils.setText(layout, message, R.id.confirm_message);
-
-        final AlertDialog dialog = new AlertDialog.Builder(context).setView(layout).create();
-
-        if (title != null)
-            dialog.setTitle(title);
-
-        final ViewGroup buttons = (ViewGroup)layout.findViewById(R.id.buttons);
-        buttons.removeAllViews();
-
-        for (final int id : buttonStringIds) {
-            Button btn = new Button(context);
-            btn.setText(id);
-            btn.setId(id);
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams)btn.getLayoutParams();
-            if (lp == null)
-                lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-                        LayoutParams.WRAP_CONTENT);
-            if (lp != null) {
-                lp.weight = 1;
-                btn.setLayoutParams(lp);
-            }
-            btn.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.onClick(dialog, id);
+        if (buttonStringIds.length <= 3)
+        {
+            Builder builder = new AlertDialog.Builder(context)
+                    .setTitle(title).setMessage(message);
+            DialogInterface.OnClickListener click = new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    int ret = 0;
+                    if (which == DialogInterface.BUTTON_NEUTRAL)
+                        ret = 1;
+                    else if (which == DialogInterface.BUTTON_NEGATIVE)
+                        ret = 2;
+                    listener.onClick(dialog, buttonStringIds[ret]);
                 }
-            });
-            buttons.addView(btn);
-        }
+            };
+            builder.setPositiveButton(buttonStringIds[0], click);
+            if (buttonStringIds.length > 1)
+                builder.setNeutralButton(buttonStringIds[1], click);
+            if (buttonStringIds.length > 2)
+                builder.setNegativeButton(buttonStringIds[2], click);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+            return dialog;
+        } else {
 
-        dialog.show();
+            final View layout = inflate(context, R.layout.alert_multibutton_view);
+            ViewUtils.setViewsVisible(layout, false, R.id.confirm_remember);
+            ViewUtils.setText(layout, message, R.id.confirm_message);
+
+            final AlertDialog dialog = new AlertDialog.Builder(context).setView(layout).create();
+
+            if (title != null)
+                dialog.setTitle(title);
+
+            final ViewGroup buttons = (ViewGroup)layout.findViewById(R.id.buttons);
+
+            buttons.removeAllViews();
+
+            for (final int id : buttonStringIds) {
+                Button btn = new Button(context);
+                btn.setText(id);
+                btn.setId(id);
+                ViewGroup.LayoutParams lp = btn.getLayoutParams();
+                if (lp == null || !(lp instanceof LinearLayout.LayoutParams))
+                    lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
+                            LayoutParams.WRAP_CONTENT);
+                if (lp != null) {
+                    ((LinearLayout.LayoutParams)lp).weight = 1;
+                    btn.setLayoutParams(lp);
+                }
+                btn.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        listener.onClick(dialog, id);
+                    }
+                });
+                buttons.addView(btn);
+            }
+
+            dialog.show();
+            return dialog;
+        }
     }
 
     public static AlertDialog showConfirmationDialog(final Context context, String msg,
@@ -677,8 +764,8 @@ public class DialogHandler {
 
         String sVersionInfo = "";
         try {
-            PackageInfo pi = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(),
-                    0);
+            PackageInfo pi = mContext.getPackageManager().getPackageInfo(
+                    mContext.getPackageName(), 0);
             sVersionInfo += pi.versionName;
             if (!pi.versionName.contains("" + pi.versionCode))
                 sVersionInfo += " (" + pi.versionCode + ")";
@@ -719,7 +806,7 @@ public class DialogHandler {
                 // intent.addCategory(Intent.CATEGORY_APP_EMAIL);
                 intent.putExtra(android.content.Intent.EXTRA_TEXT, "\n" + getDeviceInfo());
                 intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[] {
-                    "brandroid64@gmail.com"
+                        "brandroid64@gmail.com"
                 });
                 intent.putExtra(android.content.Intent.EXTRA_SUBJECT, sSubject);
                 try {
@@ -804,6 +891,7 @@ public class DialogHandler {
         tab3.setVisibility(View.GONE);
 
         AlertDialog mDlgAbout = new AlertDialog.Builder(mContext).setTitle(R.string.app_name)
+                .setPositiveButton(android.R.string.ok, OnClickDismiss)
                 .setView(view).create();
 
         mDlgAbout.getWindow().getAttributes().windowAnimations = R.style.SlideDialogAnimation;
@@ -811,6 +899,12 @@ public class DialogHandler {
 
         mDlgAbout.show();
     }
+
+    public static DialogInterface.OnClickListener OnClickDismiss = new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+        }
+    };
 
     private static void fillShortcutsTable(TableLayout table) {
         final Context context = table.getContext();
@@ -1012,12 +1106,7 @@ public class DialogHandler {
                 .setIcon(
                         mHolder != null && mHolder.getIcon(app) != null ? mHolder.getIcon(app)
                                 : context.getResources().getDrawable(R.drawable.sm_ftp))
-                .setNegativeButton(context.getString(R.string.s_cancel),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
+                .setNegativeButton(context.getString(R.string.s_cancel), OnClickDismiss)
                 .setNeutralButton(context.getString(R.string.s_remove),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {

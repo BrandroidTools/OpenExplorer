@@ -1,53 +1,54 @@
 
 package org.brandroid.openmanager.data;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
+import java.util.concurrent.TimeoutException;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
-import org.brandroid.openmanager.fragments.DialogHandler;
+import org.brandroid.openmanager.util.EventHandler;
+import org.brandroid.openmanager.util.FileManager;
+import org.brandroid.openmanager.util.RootManager;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
+import org.kamranzafar.jtar.*;
+
+import com.jcraft.jzlib.GZIPInputStream;
+import com.stericson.RootTools.RootTools;
+import com.stericson.RootTools.RootTools.Result;
+import com.stericson.RootTools.RootToolsException;
+import com.stericson.RootTools.Shell;
 
 import android.net.Uri;
+import android.os.Process;
 
-public class OpenZip extends OpenPath {
+public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener {
     private final OpenFile mFile;
-    private ZipFile mZip = null;
     private OpenPath[] mChildren = null;
-    private ArrayList<OpenZipEntry> mEntries = null;
+    private ArrayList<OpenTarEntry> mEntries = null;
     private final Hashtable<String, List<OpenPath>> mFamily = new Hashtable<String, List<OpenPath>>();
-    private final Hashtable<String, OpenZipVirtualPath> mVirtualPaths = new Hashtable<String, OpenZip.OpenZipVirtualPath>();
+    private final Hashtable<String, OpenTarVirtualPath> mVirtualPaths = new Hashtable<String, OpenTar.OpenTarVirtualPath>();
     private final boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
 
-    public OpenZip(OpenFile zipFile) {
-        mFile = zipFile;
-        try {
-            mZip = new ZipFile(mFile.getPath());
-            // Logger.LogInfo("Zip file " + zipFile + " has " + length() +
-            // " entries");
-        } catch (IOException e) {
-            Logger.LogError("Couldn't open zip file (" + zipFile + ")");
-        }
+    public OpenTar(OpenFile file) {
+        if (OpenExplorer.IS_DEBUG_BUILD)
+            Logger.LogDebug("Creating OpenTar(" + file.getPath() + ")");
+        mFile = file;
     }
 
     @Override
     public boolean canHandleInternally() {
-        return Preferences.Pref_Zip_Internal;
-    }
-
-    public ZipFile getZip() {
-        return mZip;
+        return true;
     }
 
     @Override
@@ -86,7 +87,15 @@ public class OpenZip extends OpenPath {
 
     @Override
     public OpenPath getChild(String name) {
-        return new OpenZipEntry(this, mZip.getEntry(name));
+        try {
+            for (OpenTarEntry entry : getAllEntries())
+                if (entry.getName().equalsIgnoreCase(name))
+                    return entry;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -104,44 +113,65 @@ public class OpenZip extends OpenPath {
         return -1;
     }
 
-    public static boolean isValidZip(OpenFile file)
-    {
-        OpenZip zip = new OpenZip(file);
-        InputStream s = null;
-        try {
-            s = zip.getInputStream();
-            return true;
-        } catch (IOException e) {
-            return false;
-        } finally {
-            try {
-                if (s != null)
-                    s.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+    public List<OpenTarEntry> getAllEntries() throws IOException {
+        return getAllEntries(null);
     }
 
-    public List<OpenZipEntry> getAllEntries() throws IOException {
+    public List<OpenTarEntry> getAllEntries(OpenContentUpdater updater) throws IOException {
         if (mEntries != null)
             return mEntries;
-        mEntries = new ArrayList<OpenZipEntry>();
-        Enumeration<? extends ZipEntry> entries = mZip.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry ze = entries.nextElement();
-            if (ze.isDirectory())
+        mEntries = new ArrayList<OpenTarEntry>();
+        TarInputStream tis = getInputStream();
+        TarEntry te;
+        //        try {
+        //            RootTools.useRoot = false; //RootTools.closeAllShells();
+        //            RootTools.sendShell("tar -tvf " + mFile.getPath(), new Result() {
+        //                public void processError(String line) throws Exception {
+        //                    Logger.LogVerbose("TAR Error: " + line);
+        //                }
+        //
+        //                public void process(String
+        //                        line) throws Exception { // -rw-rw-r-- root/sdcard_rw 7 2013-02-22 13:42:02 123.txt
+        //                    String[] parts = line.split("  *", 6);
+        //                    String perms = parts[0];
+        //                    String[] owner = parts[1].split("/");
+        //                    long size = Long.parseLong(parts[2]);
+        //                    String date = parts[3];
+        //                    String time = parts[4];
+        //                    String filename = parts[parts.length - 1];
+        //                    Logger.LogVerbose("TAR Kid: " + filename);
+        //                }
+        //
+        //                public void onFailure(Exception ex) {
+        //                }
+        //
+        //                public void onComplete(int diag) {
+        //                }
+        //            }, 10000);
+        //        } catch (RootToolsException e) {
+        //            Logger.LogError("Root exception getting tar!", e);
+        //        } catch (TimeoutException e) {
+        //            Logger.LogError("Timeout getting tar!", e);
+        //        }
+
+        int pos = 0;
+        while ((te = tis.getNextEntry()) != null)
+        {
+            pos += te.getHeaderSize() + te.getSize();
+            if (te.isDirectory())
                 continue;
-            String name = ze.getName();
-            if (name.indexOf("/") > 0 && name.indexOf("/") < name.length() - 1)
-                name = name.substring(0, name.lastIndexOf("/") + 1);
-            else
-                name = "";
-            OpenPath vp = findVirtualPath(name);
-            OpenZipEntry entry = new OpenZipEntry(vp, ze);
+            if (te.getName().endsWith("/"))
+                continue;
+            String par = te.getHeader().namePrefix.toString();
+            if (!par.equals("") && !par.endsWith("/"))
+                par += "/";
+            if (te.getName().indexOf("/") > -1)
+                par += te.getName().substring(0, te.getName().lastIndexOf("/"));
+            Logger.LogVerbose("TAR: " + par);
+            OpenPath vp = findVirtualPath(par, updater);
+            OpenTarEntry entry = new OpenTarEntry(vp, te, (int)(pos - te.getSize()));
             mEntries.add(entry);
-            addFamilyEntry(name, entry);
+            addFamilyEntry(par, entry);
         }
         Set<String> keys = mFamily.keySet();
         for (String path : keys.toArray(new String[keys.size()])) {
@@ -152,12 +182,12 @@ public class OpenZip extends OpenPath {
         return mEntries;
     }
 
-    private OpenPath findVirtualPath(String name) {
+    private OpenPath findVirtualPath(String name, OpenContentUpdater updater) {
         if (mVirtualPaths.containsKey(name))
             return mVirtualPaths.get(name);
-        OpenZipVirtualPath path = null;
+        OpenTarVirtualPath path = null;
         if (name.equals(""))
-            return OpenZip.this;
+            return OpenTar.this;
         else {
             String par = name;
             if (par.endsWith("/"))
@@ -166,7 +196,7 @@ public class OpenZip extends OpenPath {
                 par = par.substring(0, par.lastIndexOf("/") + 1);
             else
                 par = "";
-            path = new OpenZipVirtualPath(findVirtualPath(par), name);
+            path = new OpenTarVirtualPath(findVirtualPath(par, updater), name);
         }
         mVirtualPaths.put(name, path);
         return path;
@@ -184,7 +214,7 @@ public class OpenZip extends OpenPath {
         List<OpenPath> kids = mFamily.get(parent);
         if (kids == null)
             kids = new ArrayList<OpenPath>();
-        OpenPath vp = findVirtualPath(path);
+        OpenPath vp = findVirtualPath(path, null);
         if (!kids.contains(vp))
             kids.add(vp);
         mFamily.put(parent, kids);
@@ -192,7 +222,7 @@ public class OpenZip extends OpenPath {
             addFamilyPath(parent);
     }
 
-    private void addFamilyEntry(String path, OpenZipEntry entry) {
+    private void addFamilyEntry(String path, OpenTarEntry entry) {
         List<OpenPath> list = mFamily.get(path);
         if (list == null)
             list = new ArrayList<OpenPath>();
@@ -200,6 +230,24 @@ public class OpenZip extends OpenPath {
             Logger.LogDebug("Adding [" + entry.getName() + "] into [" + path + "]");
         list.add(entry);
         mFamily.put(path, list);
+    }
+
+    @Override
+    public void list(final OpenContentUpdater callback) throws IOException {
+        final RootManager rm = new RootManager();
+        new Thread(new Runnable() {
+            public void run() {
+                Logger.LogVerbose("Running tar list");
+                try {
+                    getAllEntries(callback);
+                    for (OpenPath p : listFiles())
+                        callback.addContentPath(p);
+                    callback.doneUpdating();
+                } catch (Exception e2) {
+                    Logger.LogError("Error listing TAR #2.", e2);
+                }
+            }
+        }).start();
     }
 
     @Override
@@ -212,8 +260,9 @@ public class OpenZip extends OpenPath {
     @Override
     public OpenPath[] listFiles() throws IOException {
         if (DEBUG)
-            Logger.LogVerbose("Listing OpenZip " + mFile);
-        if (mZip == null)
+            Logger.LogVerbose("Listing OpenTar " + mFile);
+
+        if (mChildren != null)
             return mChildren;
 
         getAllEntries();
@@ -225,7 +274,7 @@ public class OpenZip extends OpenPath {
 
     public OpenPath[] listFiles(String rootRelative) throws IOException {
         if (DEBUG)
-            Logger.LogDebug("OpenZip.listFiles(" + rootRelative + ")");
+            Logger.LogDebug("OpenTar.listFiles(" + rootRelative + ")");
         if (!mFamily.containsKey(rootRelative)) {
             Logger.LogWarning("No children found for [" + rootRelative + "]");
             return new OpenPath[0];
@@ -238,7 +287,7 @@ public class OpenZip extends OpenPath {
 
     @Override
     public Boolean isDirectory() {
-        return false; // this used to be true, but was causing too many issues
+        return false;
     }
 
     @Override
@@ -283,7 +332,7 @@ public class OpenZip extends OpenPath {
 
     @Override
     public Boolean requiresThread() {
-        return false;
+        return true;
     }
 
     @Override
@@ -297,20 +346,24 @@ public class OpenZip extends OpenPath {
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
-        return new ZipInputStream(mFile.getInputStream());
+    public TarInputStream getInputStream() throws IOException {
+        if (getMimeType().contains("x-"))
+            return new TarInputStream(new BufferedInputStream(new GZIPInputStream(
+                    new FileInputStream(mFile.getFile()))));
+        else
+            return new TarInputStream(new BufferedInputStream(new FileInputStream(mFile.getFile())));
     }
 
     @Override
-    public OutputStream getOutputStream() throws IOException {
-        return new ZipOutputStream(mFile.getOutputStream());
+    public TarOutputStream getOutputStream() throws IOException {
+        return new TarOutputStream(new BufferedOutputStream(new FileOutputStream(mFile.getFile())));
     }
 
-    public class OpenZipVirtualPath extends OpenPath {
+    public class OpenTarVirtualPath extends OpenPath {
         private final String path;
         private final OpenPath mParent;
 
-        public OpenZipVirtualPath(OpenPath parent, String path) {
+        public OpenTarVirtualPath(OpenPath parent, String path) {
             mParent = parent;
             this.path = path;
         }
@@ -326,7 +379,7 @@ public class OpenZip extends OpenPath {
 
         @Override
         public String getPath() {
-            return OpenZip.this.getPath() + "/" + path;
+            return OpenTar.this.getPath() + "/" + path;
         }
 
         @Override
@@ -369,7 +422,7 @@ public class OpenZip extends OpenPath {
 
         @Override
         public OpenPath[] list() throws IOException {
-            return OpenZip.this.listFiles(path);
+            return OpenTar.this.listFiles(path);
         }
 
         @Override
@@ -399,7 +452,7 @@ public class OpenZip extends OpenPath {
 
         @Override
         public Long lastModified() {
-            return OpenZip.this.lastModified();
+            return OpenTar.this.lastModified();
         }
 
         @Override
@@ -451,15 +504,17 @@ public class OpenZip extends OpenPath {
 
     }
 
-    public class OpenZipEntry extends OpenPath {
+    public class OpenTarEntry extends OpenPath implements OpenPath.OpenPathCopyable {
         private final OpenPath mParent;
-        private final ZipEntry ze;
+        private final TarEntry te;
         private OpenPath[] mChildren = null;
+        private final int mOffset;
 
-        public OpenZipEntry(OpenPath parent, ZipEntry entry) {
+        public OpenTarEntry(OpenPath parent, TarEntry entry, int offset) {
             mParent = parent;
-            ze = entry;
-            if (ze.getName().endsWith("/") || ze.isDirectory()) {
+            te = entry;
+            mOffset = offset;
+            if (te.getName().endsWith("/") || te.isDirectory()) {
                 try {
                     mChildren = list();
                 } catch (IOException e) {
@@ -469,7 +524,7 @@ public class OpenZip extends OpenPath {
 
         @Override
         public String getName() {
-            String name = ze.getName();
+            String name = te.getName();
             if (name.endsWith("/"))
                 name = name.substring(0, name.length() - 1);
             name = name.substring(name.lastIndexOf("/") + 1);
@@ -478,7 +533,7 @@ public class OpenZip extends OpenPath {
 
         @Override
         public String getPath() {
-            return OpenZip.this.getPath() + "/" + ze.getName();
+            return OpenTar.this.getPath() + "/" + te.getName();
         }
 
         @Override
@@ -493,7 +548,11 @@ public class OpenZip extends OpenPath {
 
         @Override
         public long length() {
-            return ze.getSize();
+            return te.getSize();
+        }
+
+        public int getOffset() {
+            return mOffset;
         }
 
         @Override
@@ -521,7 +580,7 @@ public class OpenZip extends OpenPath {
 
         @Override
         public OpenPath[] listFiles() throws IOException {
-            return OpenZip.this.listFiles(ze.getName());
+            return OpenTar.this.listFiles(te.getName());
         }
 
         @Override
@@ -535,20 +594,17 @@ public class OpenZip extends OpenPath {
 
         @Override
         public String getDetails(boolean countHiddenChildren) {
-            String ret = super.getDetails(countHiddenChildren);
-            if (!isDirectory())
-                ret += " (" + DialogHandler.formatSize(ze.getCompressedSize()) + ")";
-            return ret;
+            return super.getDetails(countHiddenChildren);
         }
 
         @Override
         public Boolean isDirectory() {
-            return ze.isDirectory() || ze.getName().endsWith("/");
+            return te.isDirectory() || te.getName().endsWith("/");
         }
 
         @Override
         public Boolean isFile() {
-            return !ze.isDirectory();
+            return !te.isDirectory();
         }
 
         @Override
@@ -563,7 +619,7 @@ public class OpenZip extends OpenPath {
 
         @Override
         public Long lastModified() {
-            return ze.getTime();
+            return te.getModTime().getTime();
         }
 
         @Override
@@ -603,12 +659,66 @@ public class OpenZip extends OpenPath {
 
         @Override
         public InputStream getInputStream() throws IOException {
-            return mZip.getInputStream(ze);
+            TarInputStream fis = OpenTar.this.getInputStream();
+            fis.setDefaultSkip(true);
+            fis.skip(getOffset());
+            return fis;
         }
 
         @Override
         public OutputStream getOutputStream() throws IOException {
             return null;
+        }
+
+        public boolean copyFrom(OpenPath file) {
+            return false;
+        }
+
+        public boolean copyTo(OpenPath dest) throws IOException {
+            Logger.LogDebug("TAR copyTo " + dest);
+            final int bsize = FileManager.BUFFER;
+            byte[] ret = new byte[bsize];
+            TarInputStream s = null;
+            FileInputStream fis = null;
+            OutputStream os = new BufferedOutputStream(dest.getOutputStream());
+            s = new TarInputStream(new BufferedInputStream(new FileInputStream(new File(
+                    OpenTar.this.getPath()))));
+            s.setDefaultSkip(false);
+            s.skip(getOffset());
+            TarEntry entry;
+            boolean valid = false;
+            while ((entry = s.getNextEntry()) != null)
+            {
+                if (entry.getHeader().name.equals(getName()))
+                {
+                    valid = true;
+                    break;
+                }
+            }
+            if (!valid)
+                return false;
+            int count = 0;
+            int size = (int)te.getSize();
+            int pos = 0;
+            while ((count = s.read(ret, 0, Math.min(bsize, size - pos))) != -1)
+            {
+                os.write(ret, 0, Math.min(count, size - pos));
+                pos += count;
+                if (pos >= size)
+                    break;
+            }
+            os.flush();
+            os.close();
+            s.close();
+            return true;
+        }
+
+        public String getRelativePath() {
+            return te.getName();
+        }
+
+        public OpenTar getTar() {
+            return OpenTar.this;
         }
 
     }

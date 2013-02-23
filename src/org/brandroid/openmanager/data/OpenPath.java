@@ -771,6 +771,8 @@ public abstract class OpenPath implements Serializable, Parcelable, Comparable<O
          *         not.
          */
         public boolean copyFrom(OpenPath file);
+        
+        public boolean copyTo(OpenPath dest) throws IOException;
     }
 
     /**

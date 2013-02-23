@@ -312,6 +312,7 @@ public class ThumbnailCreator {
     public static int getDefaultResourceId(OpenPath file, int mWidth, int mHeight) {
         final String mName = file.getName();
         final String ext = mName.substring(mName.lastIndexOf(".") + 1);
+        final String mime = file.getMimeType();
         final String sPath2 = mName.toLowerCase();
         final boolean useLarge = mWidth > 36;
         boolean hasKids = false;
@@ -376,9 +377,7 @@ public class ThumbnailCreator {
         } else if (ext.equalsIgnoreCase("ppt") || ext.equalsIgnoreCase("pptx")) {
             return (useLarge ? R.drawable.lg_powerpoint : R.drawable.sm_powerpoint);
 
-        } else if (ext.equalsIgnoreCase("zip") || ext.equalsIgnoreCase("gzip")
-                || ext.equalsIgnoreCase("rar") || ext.equalsIgnoreCase("gz")
-                || ext.equalsIgnoreCase("7z")) {
+        } else if (mime.contains("zip") || mime.contains("tar")) {
             return (useLarge ? R.drawable.lg_zip : R.drawable.sm_zip);
 
         } else if (ext.equalsIgnoreCase("pdf")) {

@@ -48,6 +48,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -61,12 +63,18 @@ import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenSMB;
 import org.brandroid.openmanager.data.OpenSmartFolder;
+import org.brandroid.openmanager.data.OpenPath.OpenPathByteIO;
+import org.brandroid.openmanager.data.OpenPath.OpenPathCopyable;
+import org.brandroid.openmanager.data.OpenTar;
 import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.FileManager.OnProgressUpdateCallback;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
+import org.kamranzafar.jtar.TarEntry;
+import org.kamranzafar.jtar.TarInputStream;
+import org.kamranzafar.jtar.TarUtils;
 
 @SuppressWarnings({
         "unchecked", "rawtypes"
@@ -84,11 +92,17 @@ public class EventHandler {
     public static final EventType CUT_TYPE = EventType.CUT;
     public static final EventType TOUCH_TYPE = EventType.TOUCH;
     public static final EventType ERROR_TYPE = EventType.ERROR;
+    public static final EventType UNTAR_TYPE = EventType.UNTAR;
+    public static final EventType TAR_TYPE = EventType.TAR;
+    public static final EventType GUNZIP_TYPE = EventType.UNTGZ;
+    public static final EventType GZIP_TYPE = EventType.UNTGZ;
     public static final int BACKGROUND_NOTIFICATION_ID = 123;
-    private static final boolean ENABLE_MULTITHREADS = false; //!OpenExplorer.BEFORE_HONEYCOMB;
+    private static final boolean ENABLE_MULTITHREADS = false; // !OpenExplorer.BEFORE_HONEYCOMB;
+
+    static final int TAR_BUFFER = 2048;
 
     public enum EventType {
-        SEARCH, COPY, CUT, DELETE, RENAME, MKDIR, TOUCH, UNZIP, UNZIPTO, ZIP, ERROR
+        SEARCH, COPY, CUT, DELETE, RENAME, MKDIR, TOUCH, UNZIP, UNZIPTO, ZIP, ERROR, UNTAR, UNTGZ, TAR, TGZ, GUNZIP, GZIP
     }
 
     public static boolean SHOW_NOTIFICATION_STATUS = !OpenExplorer.isBlackBerry()
@@ -270,16 +284,13 @@ public class EventHandler {
     /**
      * @param directory directory path to create the new folder in.
      */
-    public static void createNewFolder(final OpenPath folder, final Context context) {
+    public static void createNewFolder(final OpenPath folder, final Context context,
+            final OnWorkerUpdateListener threadListener) {
         final InputDialog dlg = new InputDialog(context).setTitle(R.string.s_title_newfolder)
                 .setIcon(R.drawable.ic_menu_folder_add_dark).setMessage(R.string.s_alert_newfolder)
                 .setMessageTop(R.string.s_alert_newfolder_folder)
                 .setDefaultTop(folder.getPath(), false).setCancelable(true)
-                .setNegativeButton(R.string.s_cancel, new OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                .setNegativeButton(R.string.s_cancel, DialogHandler.OnClickDismiss);
         dlg.setPositiveButton(R.string.s_create, new OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 String name = dlg.getInputText();
@@ -291,8 +302,13 @@ public class EventHandler {
                             // can't be created for another reason
                             OpenPath path = folder.getChild(name);
                             Logger.LogError("Unable to create folder (" + path + ")");
+                            if (threadListener != null)
+                                threadListener.onWorkerThreadFailure(MKDIR_TYPE);
                             Toast.makeText(context, R.string.s_msg_folder_none, Toast.LENGTH_LONG)
                                     .show();
+                        } else {
+                            if (threadListener != null)
+                                threadListener.onWorkerThreadComplete(MKDIR_TYPE);
                         }
                     } else {
                         // folder exists, so let the user know
@@ -312,7 +328,8 @@ public class EventHandler {
         return folder.getChild(folderName).mkdir();
     }
 
-    public static void createNewFile(final OpenPath folder, final Context context) {
+    public static void createNewFile(final OpenPath folder, final Context context,
+            final OnWorkerUpdateListener threadListener) {
         final InputDialog dlg = new InputDialog(context).setTitle(R.string.s_title_newfile)
                 .setIcon(R.drawable.ic_menu_new_file).setMessage(R.string.s_alert_newfile)
                 .setMessageTop(R.string.s_alert_newfile_folder).setDefaultTop(folder.getPath())
@@ -325,7 +342,7 @@ public class EventHandler {
             public void onClick(DialogInterface dialog, int which) {
                 String name = dlg.getInputText();
                 if (name.length() > 0) {
-                    createNewFile(folder, name, context);
+                    createNewFile(folder, name, threadListener);
                 } else {
                     dialog.dismiss();
                 }
@@ -334,10 +351,14 @@ public class EventHandler {
         dlg.create().show();
     }
 
-    public static void createNewFile(final OpenPath folder, final String filename, Context context) {
+    public static void createNewFile(final OpenPath folder, final String filename,
+            final OnWorkerUpdateListener threadListener) {
         new Thread(new Runnable() {
             public void run() {
-                folder.getChild(filename).touch();
+                if (folder.getChild(filename).touch())
+                    threadListener.onWorkerThreadComplete(TOUCH_TYPE);
+                else
+                    threadListener.onWorkerThreadFailure(TOUCH_TYPE);
             }
         }).start();
         // BackgroundWork bw = new BackgroundWork(TOUCH_TYPE, context, folder,
@@ -398,16 +419,93 @@ public class EventHandler {
     }
 
     public void copyFile(OpenPath source, OpenPath destPath, Context mContext) {
-        if (!destPath.isDirectory())
-            destPath = destPath.getParent();
-        execute(new BackgroundWork(COPY_TYPE, mContext, destPath, source.getName()), source);
+        Collection<OpenPath> files = new ArrayList<OpenPath>();
+        files.add(source);
+        copyFile(files, destPath, mContext);
     }
 
-    public void copyFile(Collection<OpenPath> files, OpenPath newPath, Context mContext) {
-        //for (OpenPath file : files)
-        //    copyFile(file, newPath.getChild(file.getName()), mContext);
-        execute(new BackgroundWork(COPY_TYPE, mContext, newPath, files.size() + " "
-                + mContext.getString(R.string.s_files)), files.toArray(new OpenPath[files.size()]));
+    public void copyFile(final Collection<OpenPath> files, final OpenPath newPath,
+            final Context mContext) {
+        copyFile(files, newPath, mContext, true);
+    }
+
+    public void copyFile(final Collection<OpenPath> files, final OpenPath newPath,
+            final Context mContext, final boolean copyOnly) {
+        // for (OpenPath file : files)
+        // copyFile(file, newPath.getChild(file.getName()), mContext);
+        final EventType type = copyOnly ? COPY_TYPE : CUT_TYPE;
+        for (final OpenPath file : files.toArray(new OpenPath[files.size()]))
+        {
+            if (checkDestinationExists(file, newPath, mContext, type))
+                files.remove(file);
+            else
+                execute(new BackgroundWork(type,
+                        mContext, newPath, file.getName()), file);
+        }
+    }
+
+    private boolean checkDestinationExists(final OpenPath file, final OpenPath newPath,
+            final Context mContext, final EventType type)
+    {
+        final OpenPath newFile = newPath.getChild(file.getName());
+        if (newFile != null && newFile.exists())
+        {
+            DialogHandler.showMultiButtonDialog(mContext,
+                    getResourceString(mContext, R.string.s_alert_destination_exists),
+                    getResourceString(mContext, R.string.s_title_copying)
+                            + " " + file.getName(),
+                    new OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which)
+                            {
+                                case R.string.s_menu_rename:
+                                    OpenPath destFile = newFile;
+                                    int i = 1;
+                                    while (destFile.exists())
+                                        destFile = newPath.getChild(
+                                                file.getName() + " (" + i++ + ")");
+                                    showRenameOnCopyDialog(file, destFile, mContext);
+                                    break;
+                                case R.string.s_overwrite:
+                                    execute(new BackgroundWork(type, mContext, newPath,
+                                            file.getName()), file);
+                                    break;
+                            }
+                            try {
+                                dialog.dismiss();
+                            } catch (Exception e) {
+                                Logger.LogWarning(
+                                        "Unable to cancel copyFile dialog.", e);
+                            }
+                        }
+                    },
+                    R.string.s_overwrite, R.string.s_skip, R.string.s_menu_rename);
+            return true;
+        }
+        return false;
+    }
+
+    private void showRenameOnCopyDialog(final OpenPath sourceFile, final OpenPath destFile,
+            final Context mContext)
+    {
+        final InputDialog dlg = new InputDialog(mContext)
+                .setTitle(R.string.s_menu_rename)
+                .setDefaultText(destFile.getName());
+        dlg.setPositiveButton(android.R.string.ok, new OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                OpenPath newDest = destFile.getParent().getChild(dlg.getInputText());
+                newDest.touch();
+                execute(new BackgroundWork(COPY_TYPE, mContext, newDest, newDest.getPath()),
+                        sourceFile);
+
+                dialog.dismiss();
+            }
+        }).setNegativeButton(android.R.string.no, new OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dlg.create().show();
     }
 
     public static AsyncTask execute(AsyncTask job) {
@@ -459,10 +557,9 @@ public class EventHandler {
     }
 
     public void cutFile(Collection<OpenPath> files, OpenPath newPath, Context mContext) {
-        OpenPath[] array = new OpenPath[files.size()];
-        files.toArray(array);
-
-        execute(new BackgroundWork(CUT_TYPE, mContext, newPath), array);
+        for (OpenPath file : files)
+            if (!checkDestinationExists(file, newPath, mContext, CUT_TYPE))
+                execute(new BackgroundWork(CUT_TYPE, mContext, newPath), file);
     }
 
     public void searchFile(OpenPath dir, String query, Context mContext) {
@@ -505,17 +602,17 @@ public class EventHandler {
                 .create().show();
     }
 
+    public void untarFile(final OpenPath file, final OpenPath dest, final Context mContext, final String... includes)
+    {
+        execute(new BackgroundWork(UNTAR_TYPE, mContext, dest, includes), file);
+    }
+
     /*
      * public void unZipFileTo(OpenPath zipFile, OpenPath toDir, Context
      * mContext) { new BackgroundWork(UNZIPTO_TYPE, mContext,
      * toDir).execute(zipFile); }
      */
 
-    /**
-     * Do work on second thread class
-     * 
-     * @author Joe Berria
-     */
     public class BackgroundWork extends AsyncTask<OpenPath, Integer, Integer> implements
             OnProgressUpdateCallback {
         private final EventType mType;
@@ -593,6 +690,8 @@ public class EventHandler {
                     return getResourceString(mContext, R.string.s_menu_rename).toString();
                 case TOUCH:
                     return getResourceString(mContext, R.string.s_create).toString();
+                case UNTAR:
+                    return getResourceString(mContext, R.string.s_untarring).toString();
             }
             return getResourceString(mContext, R.string.s_title_executing);
         }
@@ -709,6 +808,12 @@ public class EventHandler {
                 case ZIP:
                     showDialog = false;
                     showNotification = true;
+                    break;
+                case UNTGZ:
+                case UNTAR:
+                    showDialog = true;
+                    showNotification = false;
+                    isCancellable = false;
                     break;
                 default:
                     showDialog = showNotification = false;
@@ -832,6 +937,8 @@ public class EventHandler {
             mTotalCount = params.length;
             int ret = 0;
 
+            mCurrentPath = params[0];
+
             switch (mType) {
 
                 case DELETE:
@@ -858,7 +965,6 @@ public class EventHandler {
                         ret += p.touch() ? 1 : 0;
                     break;
                 case COPY:
-                    // / TODO: Add existing file check
                     for (int i = 0; i < params.length; i++) {
                         mCurrentIndex = i;
                         mCurrentPath = params[i];
@@ -902,23 +1008,59 @@ public class EventHandler {
                     publishProgress();
                     mFileMang.createZipFile(mIntoPath, params);
                     break;
+
+                case UNTAR:
+                    if (untarFile(mCurrentPath, mIntoPath, mInitParams))
+                        ret++;
+                    break;
+
+                case UNTGZ:
+                    try {
+                        TarUtils.untarTGzFile(mIntoPath.getPath(), mCurrentPath.getPath());
+                        ret++;
+                    } catch (IOException e) {
+                        Logger.LogError("Unable to untar file: " + mCurrentPath, e);
+                    }
+                    break;
+
+                case TAR:
+                    try {
+                        TarUtils.tar(new java.io.File(mIntoPath.getPath()), mCurrentPath.getPath());
+                        ret++;
+                    } catch (IOException e) {
+                        Logger.LogError("Unable to untar file: " + mCurrentPath, e);
+                    }
+                    break;
             }
 
             return ret;
         }
 
+        private Boolean untarFile(OpenPath source, OpenPath into, String... includes) {
+            if (!into.exists() && !into.mkdir())
+                return false;
+            try {
+                TarUtils.untarTarFile(into.getPath(), source.getPath(), includes);
+                return true;
+            } catch (IOException e) {
+                Logger.LogError("Unable to untar!", e);
+                return false;
+            }
+        }
+        
         /*
          * More efficient Channel based copying
          */
         private Boolean copyFileToDirectory(final OpenFile source, OpenFile into, final int total) {
             Logger.LogVerbose("Using Channel copy for " + source);
-            if (into.isDirectory() || !into.exists())
+            into.mkdir();
+            if (into.isDirectory())
                 into = into.getChild(source.getName());
             if (source.getPath().equals(into.getPath()))
                 return false;
             final OpenFile dest = (OpenFile)into;
             final boolean[] running = new boolean[] {
-                true
+                    true
             };
             final long size = source.length();
             if (size > 50000)
@@ -1022,6 +1164,14 @@ public class EventHandler {
                     Logger.LogWarning("Couldn't create initial destination file.");
                     return false;
                 }
+                if (old instanceof OpenPathCopyable)
+                {
+                    try {
+                        if (((OpenPathCopyable)old).copyTo(newFile))
+                            return true;
+                    } catch (IOException e) {
+                    }
+                }
 
                 int size = (int)old.length();
                 int pos = 0;
@@ -1034,9 +1184,12 @@ public class EventHandler {
                     i_stream = new BufferedInputStream(old.getInputStream());
                     o_stream = new BufferedOutputStream(newFile.getOutputStream());
 
-                    while ((read = i_stream.read(data, 0, FileManager.BUFFER)) != -1) {
+                    while ((read = i_stream.read(data, 0,
+                            Math.min(size - pos, FileManager.BUFFER))) != -1) {
                         o_stream.write(data, 0, read);
-                        pos += FileManager.BUFFER;
+                        pos += read;
+                        if (pos >= size)
+                            break;
                         publishMyProgress(pos, size);
                     }
 
@@ -1248,6 +1401,16 @@ public class EventHandler {
             if (getRunningTasks().length == 0)
                 mNotifier.cancelAll();
 
+            try {
+                showToast(result);
+            } catch (Exception e) {
+                Logger.LogError("Unable to show EventHandle PostExecute Toast.", e);
+            }
+            OnWorkerThreadComplete(mType);
+        }
+
+        private void showToast(Integer result)
+        {
             switch (mType) {
 
                 case DELETE:
@@ -1309,6 +1472,28 @@ public class EventHandler {
 
                     break;
 
+                case TAR:
+                case TGZ:
+                    break;
+
+                case UNTGZ:
+                case UNTAR:
+                    if (result == null || result == 0)
+                        Toast.makeText(
+                                mContext,
+                                getResourceString(mContext, R.string.s_msg_none,
+                                        R.string.s_untar), Toast.LENGTH_SHORT).show();
+                    else if (result != null && result < 0)
+                        Toast.makeText(
+                                mContext,
+                                getResourceString(mContext, R.string.s_msg_some,
+                                        R.string.s_untar), Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(
+                                mContext,
+                                getResourceString(mContext, R.string.s_msg_all,
+                                        R.string.s_untar), Toast.LENGTH_SHORT).show();
+
                 case UNZIPTO:
                     break;
 
@@ -1318,7 +1503,6 @@ public class EventHandler {
                 case ZIP:
                     break;
             }
-            OnWorkerThreadComplete(mType);
         }
     }
 

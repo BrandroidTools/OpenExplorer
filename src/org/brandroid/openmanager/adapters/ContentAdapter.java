@@ -11,6 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.BookmarkHolder;
+import org.brandroid.openmanager.data.OpenFileRoot;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateListener;
 import org.brandroid.openmanager.interfaces.OpenApp;
@@ -220,10 +221,12 @@ public class ContentAdapter extends BaseAdapter {
                 return new OpenPath[0];
             if (mParent.requiresThread() && Thread.currentThread().equals(OpenExplorer.UiThread))
                 return mParent.list();
+            else if(!mParent.canRead())
+                return new OpenFileRoot(mParent).listFiles();
             else
                 return mParent.listFiles();
         } catch (Exception e) {
-            Logger.LogError("Couldn't getList in ContentAdapter");
+            Logger.LogError("Couldn't getList in ContentAdapter", e);
             return new OpenPath[0];
         }
     }

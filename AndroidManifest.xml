@@ -14,13 +14,13 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.brandroid.openmanager"
     android:installLocation="auto"
-    android:versionCode="209"
-    android:versionName="0.209" >
+    android:versionCode="214"
+    android:versionName="0.214" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -31,14 +31,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- Disable for BB: -->
+    <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
-    <!-- <uses-permission android:name="android.permission.READ_LOGS" /> -->
-    <!--
-    Not using donations for now:
-	<uses-permission android:name="com.android.vending.BILLING" />
-    -->
 
     <uses-feature
         android:name="com.google.android.tv"
@@ -54,6 +48,9 @@
         android:required="false" />
     <uses-feature
         android:name="android.hardware.usb.accessory"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.nfc"
         android:required="false" />
 
     <application
@@ -93,11 +90,15 @@
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/tar" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.ALTERNATIVE" />
-                <!--
-                <data android:scheme="content" />
-				<data android:scheme="file" />
-                -->
+
                 <data android:mimeType="text/*" />
             </intent-filter>
             <intent-filter>
@@ -108,6 +109,13 @@
                 <!-- data android:scheme="content" / -->
                 <data android:scheme="file" />
                 <data android:mimeType="text/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/vnd.org.brandroid.beam" />
             </intent-filter>
         </activity>
         <activity
@@ -173,19 +181,6 @@
             android:label="File Operations Complete"
             android:launchMode="singleInstance" >
         </activity>
-
-        <!--
-        activity android:name=".APKDecompiler" android:label="Decompile APK" android:icon="@drawable/apk">
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<data android:scheme="content" />
-				<data android:scheme="file" />
-				<data android:mimeType="application/vnd.android.package-archive" />
-			</intent-filter>
-		</activity
-        -->
-
         <activity
             android:name=".activities.WTFSenderActivity"
             android:theme="@style/Dialog" />
@@ -200,18 +195,6 @@
         <activity
             android:name=".activities.SplashActivity"
             android:theme="@style/Dialog" />
-
-        <!--
-		<service android:name="org.brandroid.billing.BillingService" />
-
-		<receiver android:name="org.brandroid.billing.BillingReceiver">
-			<intent-filter>
-				<action android:name="com.android.vending.billing.IN_APP_NOTIFY" />
-			    <action android:name="com.android.vending.billing.RESPONSE_CODE" />
-			    <action android:name="com.android.vending.billing.PURCHASE_STATE_CHANGED" />
-			</intent-filter>
-		</receiver>
-        -->
 
         <meta-data
             android:name="ga_code"
