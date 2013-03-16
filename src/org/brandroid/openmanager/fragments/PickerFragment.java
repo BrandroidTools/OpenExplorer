@@ -34,7 +34,6 @@ import android.widget.TextView;
 
 public class PickerFragment extends OpenFragment implements OnItemClickListener,
         OpenPathFragmentInterface {
-    private Context mContext;
     private OnOpenPathPickedListener mPickListener;
     private View view;
     private OpenViewPager mPager;
@@ -45,16 +44,18 @@ public class PickerFragment extends OpenFragment implements OnItemClickListener,
     private boolean pickDirOnly = true;
     private boolean mShowSelection = true;
     private String mDefaultName;
+    
+    public PickerFragment() { }
 
-    public PickerFragment(Context context, OpenPath start) {
-        mContext = context;
-        mPath = start;
-        Bundle args = getArguments();
-        if (args == null)
-            args = new Bundle();
+    public static PickerFragment getInstance(OpenPath start) {
+        PickerFragment ret = new PickerFragment();
+        ret.mPath = start;
+        Bundle args = new Bundle();
         args.putParcelable("start", start);
+        ret.setArguments(args);
         // onCreateView((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE),
         // null, null);
+        return ret;
     }
 
     public void setDefaultName(String name) {
@@ -113,7 +114,7 @@ public class PickerFragment extends OpenFragment implements OnItemClickListener,
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mPagerAdapter = new PickerPagerAdapter(getFragmentManager()).setContext(mContext);
+        mPagerAdapter = new PickerPagerAdapter(getFragmentManager()).setContext(getContext());
         // mGrid.setOnItemClickListener(this);
         if (savedInstanceState != null && savedInstanceState.containsKey("start"))
             mPath = (OpenPath)savedInstanceState.getParcelable("start");
@@ -228,7 +229,7 @@ public class PickerFragment extends OpenFragment implements OnItemClickListener,
 
         @Override
         public Fragment getItem(int position) {
-            SimpleContentFragment ret = new SimpleContentFragment(PickerFragment.this,
+            SimpleContentFragment ret = SimpleContentFragment.getInstance(PickerFragment.this,
                     getItemPath(position));
             ret.setOnItemClickListener(mListener);
             return ret;

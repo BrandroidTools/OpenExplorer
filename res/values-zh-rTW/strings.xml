@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">開源瀏覽器</string>
     <string name="s_photos">相片</string>
     <string name="s_videos">影像</string>
@@ -142,7 +142,7 @@
     <string name="s_menu_delete_all">全部刪除</string>
     <string name="s_menu_move_all">移動至此</string>
     <string name="s_menu_copy_all">複製至此</string>
-    <string name="s_confirm_delete" formatted="false">確定要刪除 %s？</string>
+    <string name="s_confirm_delete" formatted="false" tools:ignore="StringFormatInvalid">確定要刪除 %1$s？</string>
     <string name="s_error_same_destination">目的檔案夾相同</string>
     <string name="s_sample_notification">複製 -> sdcard:  3 個檔案</string>
     <string name="s_pref_fullscreen">全螢幕</string>

@@ -149,7 +149,7 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter implements Titl
                     } while (path != null);
                     notifyDataSetChanged();
                 } else if (path.isTextFile() || path.length() < Preferences.Pref_Text_Max_Size)
-                    mFrags.add(new TextEditorFragment(path));
+                    mFrags.add(TextEditorFragment.getInstance(path));
             }
     }
 

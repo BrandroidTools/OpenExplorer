@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2" xmlns:tools="http://schemas.android.com/tools">
 
     <string name="s_search">検索</string>
     <string name="s_photos">写真</string>
@@ -74,11 +74,11 @@
     <string name="s_pref_server_type">サーバーの種類</string>
     <string name="s_files">ファイル</string>
     <string name="s_create">作成</string>
-    <string name="s_title_holding_x_files" formatted="false">%sのファイルを保持</string>
+    <string name="s_title_holding_x_files">%sのファイルを保持</string>
     <string name="s_title_newfolder">新規フォルダ作成</string>
-    <string name="s_title_send" formatted="false">%sを送信</string>
-    <string name="s_title_unzip" formatted="false">%sを解凍</string>
-    <string name="s_title_zip" formatted="false">%sを圧縮</string>
+    <string name="s_title_send">%sを送信</string>
+    <string name="s_title_unzip">%sを解凍</string>
+    <string name="s_title_zip">%sを圧縮</string>
     <string name="s_title_executing">実行</string>
     <string name="s_title_deleting">削除</string>
     <string name="s_title_searching">検索</string>
@@ -87,10 +87,10 @@
     <string name="s_title_zipping">Zip圧縮する</string>
     <string name="s_title_unzipping">解凍中</string>
     <string name="s_title_wait">しばらくお待ちください...</string>
-    <string name="s_alert_confirm_delete" formatted="false">%sを削除すると元に戻すことはできません。続行してもよろしいですか？</string>
+    <string name="s_alert_confirm_delete">%sを削除すると元に戻すことはできません。続行してもよろしいですか？</string>
     <string name="s_alert_rename">このファイルの新しい名前を入力してください</string>
     <string name="s_alert_newfolder">作成したいフォルダの名前を入力してくさだい</string>
-    <string name="s_alert_unzip" formatted="false">%sを解凍しますか？</string>
+    <string name="s_alert_unzip">%sを解凍しますか？</string>
     <string name="s_button_unzip_here">ここへ解凍</string>
     <string name="s_button_unzip_else">他の場所へ解凍</string>
     <string name="s_msg_none">失敗しました</string>
@@ -144,7 +144,7 @@
     <string name="s_menu_delete_all">全削除</string>
     <string name="s_menu_move_all">ここに移動</string>
     <string name="s_menu_copy_all">ここにコピー</string>
-    <string name="s_confirm_delete" formatted="false">本当に%sを削除しても宜しいですか？</string>
+    <string name="s_confirm_delete">本当に%sを削除しても宜しいですか？</string>
     <string name="s_error_same_destination">移動元とコピー先のディレクトリが同じです</string>
     <string name="s_sample_notification">SDカードにコピー中</string>
     <string name="s_pref_fullscreen">全画面</string>
@@ -213,8 +213,8 @@
     <string name="s_pref_fancy_menus">ファンシーメニュー</string>
     <string name="s_pref_fancy_context">ファンシーコンテキストメニュー</string>
     <string name="s_search_files">ファイルシステムを検索</string>
-    <string name="search_summary" formatted="false">"%s"を%s(%d)の中で検索してます...</string>
-    <string name="search_results" formatted="false">"%s"は%sの中で%d個見つかりました</string>
+    <string name="search_summary" formatted="false" tools:ignore="TypographyEllipsis">"%s"を%s(%d)の中で検索してます...</string>
+    <string name="search_results" tools:ignore="StringFormatMatches" formatted="false">"%s"は%sの中で%d個見つかりました</string>
     <string name="s_menu_exit">終了</string>
     <string name="s_warn_wtf_message">おっと！未処理のエラーが発生したようです！多くのベータ版のアプリで共通の問題ですが、このような問題を解決する唯一の方法は、さまざまなデバイスからレポートを受信することです。私達開発者にのみ、匿名のデータを含むレポートを送信しまますか？</string>
     <string name="s_warn_wtf_ps">注意***このアプリはベータ版です。クラッシュしたというだけの理由で、このアプリに悪い評価を与えないでください。本当にあなたを悩ませている場合だけアンインストールしてください。ありがとう！</string>
@@ -242,12 +242,12 @@
     <string name="menu_view_font_medium">中フォント</string>
     <string name="menu_view_font_large">大フォント</string>
     <string name="app_description">Open Explorer - すべてのデバイスのためのオープンソースのファイルマネージャ！(タブレット・スマートフォン・Googleのテレビ、そしてサンドイッチ！)\nファイルシステムの完全な管理\n-USB、SDおよびその他の外部メディア\n - ネットワークへの接続(FTP、SFTP、SMB /のSamba / Windows / LAN / WIFI)\n - ビルトインテキストエディタ\n様々なメディアを自動的に読み込むスマートフォルダ(ビデオ、写真、音楽、ダウンロード)\n - ページャーディレクトリナビゲーション(左右のスワイプでフォルダの階層を移動)\nスーパユーザ/ルート機能/システムフォルダの読み込み(書き込みは未対応)\n\n特徴:\n-タブテキストエディタ\n-多くのネットワーク機能(Dropbox・Box.net・SkyDrive)\n - クラウドへの接続無しにファイルを記憶するオフラインファイルキャッシュ\n大きなファイルがどのくらいのスペースを使っているか、わかりやすく表示する容量グラフ\n\n*注意：このアプリはベータ版です。多くのバグが残っています。これらのバグを回避したい場合は、このアプリをダウンロードしないでください。私にこれらのバグを知らせたい場合は電子メールを送るか、またはGitHubの(https://github.com/BrandoCommando/OpenExplorer/)で私に協力してください。悪い評価をすることは誰も助けないと言うのを覚えておいてください。</string>
-    <string name="alert_translate_google" formatted="false">こんにちは、この翻訳はGoogle翻訳で提供されています。英語と%sを使えますか？よりよい翻訳にご協力くださる場合は、このボタンをクリックしてください:</string>
-    <string name="alert_translate_none" formatted="false">こんにちは、あなたはサポートされていない言語を使用しているようです。英語と%sを使えますか？正しい翻訳にご協力くださる場合は、ここをクリックしてください:</string>
+    <string name="alert_translate_google">こんにちは、この翻訳はGoogle翻訳で提供されています。英語と%sを使えますか？よりよい翻訳にご協力くださる場合は、このボタンをクリックしてください:</string>
+    <string name="alert_translate_none">こんにちは、あなたはサポートされていない言語を使用しているようです。英語と%sを使えますか？正しい翻訳にご協力くださる場合は、ここをクリックしてください:</string>
     <string name="button_translate">翻訳</string>
     <string name="s_status_remaining">時間</string>
     <string name="s_pref_logview">ネットワークログ</string>
-    <string name="s_alert_dirty" formatted="false">%sは変更されています 保存しますか？</string>
+    <string name="s_alert_dirty">%sは変更されています 保存しますか？</string>
     <string name="s_menu_sort_folders">フォルダを前にソート</string>
     <string name="s_alert_back_to_exit">もう一度戻るボタンを押すと終了します</string>
     <string name="s_pref_zip_internal">Zipファイルの扱い方</string>
@@ -324,8 +324,6 @@
     <string name="no_items">アイテム無し</string>
     <string name="clipboard">クリップボード</string>
     <string name="theme">テーマ</string>
-    <string name="theme_dark">ダークUI</string>
-    <string name="theme_light">ライトUI</string>
     <string name="chooser_remember">選択を記憶</string>
     <string name="activity_resolver_use_always">常に</string>
     <string name="activity_resolver_use_once">今回だけ</string>

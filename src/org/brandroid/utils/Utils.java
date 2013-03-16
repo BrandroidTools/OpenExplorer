@@ -31,7 +31,10 @@ import android.util.Log;
 
 import java.io.Closeable;
 import java.io.InterruptedIOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
@@ -553,5 +556,21 @@ public class Utils {
             if (item.equals(key))
                 return true;
         return false;
+    }
+
+    public static String urlencode(String s) {
+        try {
+            s = URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+        }
+        return s;
+    }
+
+    public static String urldecode(String s) {
+        try {
+            s = URLDecoder.decode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+        }
+        return s;
     }
 }

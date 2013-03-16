@@ -18,6 +18,12 @@
 
 package org.brandroid.openmanager.util;
 
+import SevenZip.ArchiveExtractCallback;
+import SevenZip.HRESULT;
+import SevenZip.Handler;
+import SevenZip.IArchiveExtractCallback;
+import SevenZip.IInArchive;
+import SevenZip.MyRandomAccessFile;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Build;
@@ -43,38 +49,56 @@ import android.net.Uri;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executor;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import net.contrapunctus.lzma.LzmaInputStream;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.BluetoothActivity;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.OpenCursor;
+import org.brandroid.openmanager.data.OpenLZMA;
+import org.brandroid.openmanager.data.OpenLZMA.OpenLZMAEntry;
 import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenFile;
+import org.brandroid.openmanager.data.OpenPath.OpenStream;
+import org.brandroid.openmanager.data.OpenRAR;
+import org.brandroid.openmanager.data.OpenRAR.OpenRAREntry;
+import org.brandroid.openmanager.data.OpenTar.OpenTarEntry;
 import org.brandroid.openmanager.data.OpenSMB;
 import org.brandroid.openmanager.data.OpenSmartFolder;
-import org.brandroid.openmanager.data.OpenPath.OpenPathByteIO;
 import org.brandroid.openmanager.data.OpenPath.OpenPathCopyable;
-import org.brandroid.openmanager.data.OpenTar;
+import org.brandroid.openmanager.data.OpenZip;
 import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.FileManager.OnProgressUpdateCallback;
 import org.brandroid.utils.Logger;
+import org.brandroid.utils.Preferences;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
+import org.itadaki.bzip2.BZip2InputStream;
+import org.itadaki.bzip2.BZip2OutputStream;
 import org.kamranzafar.jtar.TarEntry;
-import org.kamranzafar.jtar.TarInputStream;
+import org.kamranzafar.jtar.TarOutputStream;
 import org.kamranzafar.jtar.TarUtils;
+
+import com.github.junrar.Archive;
+import com.github.junrar.rarfile.FileHeader;
+import com.jcraft.jzlib.GZIPOutputStream;
 
 @SuppressWarnings({
         "unchecked", "rawtypes"
@@ -83,8 +107,6 @@ import org.kamranzafar.jtar.TarUtils;
 public class EventHandler {
     public static final EventType SEARCH_TYPE = EventType.SEARCH;
     public static final EventType COPY_TYPE = EventType.COPY;
-    public static final EventType UNZIP_TYPE = EventType.UNZIP;
-    public static final EventType UNZIPTO_TYPE = EventType.UNZIPTO;
     public static final EventType ZIP_TYPE = EventType.ZIP;
     public static final EventType DELETE_TYPE = EventType.DELETE;
     public static final EventType RENAME_TYPE = EventType.RENAME;
@@ -92,17 +114,18 @@ public class EventHandler {
     public static final EventType CUT_TYPE = EventType.CUT;
     public static final EventType TOUCH_TYPE = EventType.TOUCH;
     public static final EventType ERROR_TYPE = EventType.ERROR;
-    public static final EventType UNTAR_TYPE = EventType.UNTAR;
-    public static final EventType TAR_TYPE = EventType.TAR;
-    public static final EventType GUNZIP_TYPE = EventType.UNTGZ;
-    public static final EventType GZIP_TYPE = EventType.UNTGZ;
+    public static final EventType EXTRACT_TYPE = EventType.EXTRACT;
     public static final int BACKGROUND_NOTIFICATION_ID = 123;
     private static final boolean ENABLE_MULTITHREADS = false; // !OpenExplorer.BEFORE_HONEYCOMB;
 
     static final int TAR_BUFFER = 2048;
 
     public enum EventType {
-        SEARCH, COPY, CUT, DELETE, RENAME, MKDIR, TOUCH, UNZIP, UNZIPTO, ZIP, ERROR, UNTAR, UNTGZ, TAR, TGZ, GUNZIP, GZIP
+        SEARCH, COPY, CUT, DELETE, RENAME, MKDIR, TOUCH, EXTRACT, ZIP, ERROR
+    }
+
+    public enum CompressionType {
+        ZIP, TAR, GZ, BZ2, LZMA, RAR
     }
 
     public static boolean SHOW_NOTIFICATION_STATUS = !OpenExplorer.isBlackBerry()
@@ -110,6 +133,7 @@ public class EventHandler {
 
     private static NotificationManager mNotifier = null;
     private static int EventCount = 0;
+    public static CompressionType DefaultCompressionType = CompressionType.ZIP;
 
     private OnWorkerUpdateListener mThreadListener;
     private TaskChangeListener mTaskListener;
@@ -201,6 +225,14 @@ public class EventHandler {
         for (int resId : resIds)
             ret += (ret == "" ? "" : " ") + mContext.getText(resId);
         return ret;
+    }
+
+    private static int binarySearch(String[] array, String key)
+    {
+        for (int i = 0; i < array.length; i++)
+            if (array[i].equals(key))
+                return i;
+        return -1;
     }
 
     public void deleteFile(final OpenPath file, final OpenApp mApp, boolean showConfirmation) {
@@ -525,9 +557,9 @@ public class EventHandler {
 
     public static AsyncTask execute(AsyncTask job, OpenFile... params) {
         if (OpenExplorer.BEFORE_HONEYCOMB)
-            job.execute(params);
+            job.execute((Object[])params);
         else
-            job.executeOnExecutor(getExecutor(), params);
+            job.executeOnExecutor(getExecutor(), (Object[])params);
         return job;
     }
 
@@ -550,9 +582,9 @@ public class EventHandler {
 
     public static AsyncTask execute(AsyncTask job, String... params) {
         if (OpenExplorer.BEFORE_HONEYCOMB)
-            job.execute(params);
+            job.execute((Object[])params);
         else
-            job.executeOnExecutor(getExecutor(), params);
+            job.executeOnExecutor(getExecutor(), (Object[])params);
         return job;
     }
 
@@ -567,44 +599,25 @@ public class EventHandler {
     }
 
     public BackgroundWork zipFile(OpenPath into, Collection<OpenPath> files, Context mContext) {
-        return zipFile(into, files.toArray(new OpenPath[0]), mContext);
+        return zipFile(into, files, mContext, DefaultCompressionType);
     }
 
-    public BackgroundWork zipFile(OpenPath into, OpenPath[] files, Context mContext) {
-        return (BackgroundWork)execute(new BackgroundWork(ZIP_TYPE, mContext, into), files);
+    public BackgroundWork zipFile(OpenPath into, Collection<OpenPath> files, Context mContext,
+            CompressionType type) {
+        return zipFile(into, files.toArray(new OpenPath[files.size()]), mContext, type);
     }
 
-    public void unzipFile(final OpenPath file, final Context mContext) {
-        final OpenPath into = file.getParent().getChild(
-                file.getName().replace("." + file.getExtension(), ""));
-        // AlertDialog.Builder b = new AlertDialog.Builder(mContext);
-        final InputDialog dUnz = new InputDialog(mContext);
-        dUnz.setTitle(
-                getResourceString(mContext, R.string.s_title_unzip).toString().replace("xxx",
-                        file.getName()))
-                .setMessage(
-                        getResourceString(mContext, R.string.s_prompt_unzip).toString().replace(
-                                "xxx", file.getName()))
-                .setIcon(R.drawable.lg_zip)
-                .setPositiveButton(android.R.string.ok, new OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        OpenPath path = new OpenFile(dUnz.getInputText());
-                        if (!path.exists() && !path.mkdir()) {
-                            Logger.LogError("Couldn't locate output path for unzip! "
-                                    + path.getPath());
-                            OnWorkerThreadFailure(UNZIPTO_TYPE);
-                            return;
-                        }
-                        Logger.LogVerbose("Unzipping " + file.getPath() + " into " + path);
-                        execute(new BackgroundWork(UNZIP_TYPE, mContext, path), file);
-                    }
-                }).setNegativeButton(android.R.string.cancel, null).setDefaultText(into.getPath())
-                .create().show();
+    public BackgroundWork zipFile(OpenPath into, OpenPath[] files, Context mContext,
+            CompressionType type) {
+        BackgroundWork bw = new BackgroundWork(ZIP_TYPE, mContext, into);
+        bw.setCompressionType(type);
+        return (BackgroundWork)execute(bw, files);
     }
 
-    public void untarFile(final OpenPath file, final OpenPath dest, final Context mContext, final String... includes)
+    public void extractSet(final OpenPath file, final OpenPath dest, final Context mContext,
+            final String... includes)
     {
-        execute(new BackgroundWork(UNTAR_TYPE, mContext, dest, includes), file);
+        execute(new BackgroundWork(EXTRACT_TYPE, mContext, dest, includes), file);
     }
 
     /*
@@ -636,6 +649,7 @@ public class EventHandler {
         private boolean notifReady = false;
         private final int[] mLastProgress = new int[3];
         private int notifIcon;
+        private CompressionType mCompressType = CompressionType.ZIP;
 
         private OnWorkerUpdateListener mListener;
 
@@ -671,6 +685,11 @@ public class EventHandler {
                 mTaskListener.OnTasksChanged(getRunningTasks().length);
         }
 
+        public void setCompressionType(CompressionType type)
+        {
+            mCompressType = type;
+        }
+
         public String getOperation() {
             switch (mType) {
                 case DELETE:
@@ -681,17 +700,14 @@ public class EventHandler {
                     return getResourceString(mContext, R.string.s_title_copying).toString();
                 case CUT:
                     return getResourceString(mContext, R.string.s_title_moving).toString();
-                case UNZIP:
-                case UNZIPTO:
-                    return getResourceString(mContext, R.string.s_title_unzipping).toString();
+                case EXTRACT:
+                    return getResourceString(mContext, R.string.s_extracting).toString();
                 case ZIP:
                     return getResourceString(mContext, R.string.s_title_zipping).toString();
                 case MKDIR:
                     return getResourceString(mContext, R.string.s_menu_rename).toString();
                 case TOUCH:
                     return getResourceString(mContext, R.string.s_create).toString();
-                case UNTAR:
-                    return getResourceString(mContext, R.string.s_untarring).toString();
             }
             return getResourceString(mContext, R.string.s_title_executing);
         }
@@ -792,27 +808,21 @@ public class EventHandler {
                     if (mIntoPath.requiresThread())
                         notifIcon = android.R.drawable.stat_sys_upload;
                     notifIcon = R.drawable.ic_menu_copy;
-                    showDialog = false;
+                    showDialog = true;
                     showNotification = true;
                     break;
                 case CUT:
                     notifIcon = R.drawable.ic_menu_cut;
-                    showDialog = false;
-                    showNotification = true;
-                    break;
-                case UNZIP:
-                case UNZIPTO:
-                    showDialog = false;
+                    showDialog = true;
                     showNotification = true;
                     break;
                 case ZIP:
-                    showDialog = false;
+                    showDialog = true;
                     showNotification = true;
                     break;
-                case UNTGZ:
-                case UNTAR:
+                case EXTRACT:
                     showDialog = true;
-                    showNotification = false;
+                    showNotification = true;
                     isCancellable = false;
                     break;
                 default:
@@ -998,47 +1008,202 @@ public class EventHandler {
                         }
                     }
                     break;
-                case UNZIPTO:
-                case UNZIP:
-                    extractZipFiles(params[0], mIntoPath);
+
+                case EXTRACT:
+                    if (params[0] instanceof OpenStream)
+                    {
+                        int x = extractFiles(params[0], mIntoPath, mInitParams);
+                        if(x > 0 && new Preferences(mContext).getBoolean("global", "pref_archive_postdelete", false))
+                            params[0].delete();
+                        ret += x;
+                    }
                     break;
 
                 case ZIP:
-                    mFileMang.setProgressListener(this);
-                    publishProgress();
-                    mFileMang.createZipFile(mIntoPath, params);
+                    int x = compressFiles(mIntoPath, params);
+                    if(x > 0 && new Preferences(mContext).getBoolean("global", "pref_archive_postdelete", false))
+                        for(OpenPath p : params)
+                            p.delete();
+                    ret += x;
                     break;
 
-                case UNTAR:
-                    if (untarFile(mCurrentPath, mIntoPath, mInitParams))
-                        ret++;
-                    break;
-
-                case UNTGZ:
-                    try {
-                        TarUtils.untarTGzFile(mIntoPath.getPath(), mCurrentPath.getPath());
-                        ret++;
-                    } catch (IOException e) {
-                        Logger.LogError("Unable to untar file: " + mCurrentPath, e);
-                    }
-                    break;
-
-                case TAR:
-                    try {
-                        TarUtils.tar(new java.io.File(mIntoPath.getPath()), mCurrentPath.getPath());
-                        ret++;
-                    } catch (IOException e) {
-                        Logger.LogError("Unable to untar file: " + mCurrentPath, e);
-                    }
-                    break;
             }
 
             return ret;
         }
 
-        private Boolean untarFile(OpenPath source, OpenPath into, String... includes) {
+        protected int compressFiles(OpenPath mArchive, OpenPath... files)
+        {
+            switch (mCompressType)
+            {
+                case GZ:
+                case BZ2:
+                case TAR:
+                    OpenStream fs = (OpenStream)mArchive;
+                    OutputStream os = null;
+                    int ret = 0;
+                    try {
+                        mTotalCount = files.length;
+                        os = new BufferedOutputStream(fs.getOutputStream());
+                        if (mCompressType == CompressionType.GZ)
+                            os = new GZIPOutputStream(os);
+                        else if (mCompressType == CompressionType.BZ2)
+                            os = new BZip2OutputStream(os);
+                        if (files.length > 1)
+                            os = new TarOutputStream(os);
+                        if (files.length == 1)
+                        {
+                            mTotalCount = (int)files[0].length();
+                            InputStream is = new BufferedInputStream(
+                                    ((OpenStream)files[0]).getInputStream());
+                            copyStreams(is, os, true, false);
+                        } else {
+                            mTotalCount = 0;
+                            for (OpenPath file : files)
+                                mTotalCount += file.length();
+                            for (OpenPath file : files)
+                            {
+                                ((TarOutputStream)os).putNextEntry(
+                                        new TarEntry(((OpenFile)file).getFile(), file.getName()));
+                                InputStream is = new BufferedInputStream(
+                                        ((OpenStream)file).getInputStream());
+                                copyStreams(is, os, true, false);
+                                //os.write(((OpenFile)file).readBytes());
+                            }
+                        }
+                    } catch (IOException e) {
+                        Logger.LogError("Unable to compress files!", e);
+                        return -1;
+                    } finally {
+                        closeStream(os);
+                    }
+                    return 1;
+                case ZIP:
+                default:
+                    mFileMang.setProgressListener(this);
+                    publishProgress();
+                    mFileMang.createZipFile(mIntoPath, files);
+                    return mTotalCount;
+            }
+        }
+
+        private void copyStreams(InputStream in, OutputStream out, boolean doCloseInput,
+                boolean doCloseOutput) throws IOException {
+            byte[] buffer = new byte[2048];
+            int count = 0;
+            int pos = 0;
+            while ((count = in.read(buffer)) != -1)
+            {
+                out.write(buffer, 0, count);
+                pos += count;
+                onProgressUpdateCallback(pos, mTotalCount);
+            }
+            if (doCloseInput)
+                try {
+                    if (in != null)
+                        in.close();
+                } catch (Exception e) {
+                }
+            if (doCloseOutput)
+                try {
+                    if (out != null)
+                        out.close();
+                } catch (Exception e) {
+                }
+        }
+
+        protected int extractFiles(OpenPath file, OpenPath into, String... includes) {
+            int ret = 0;
+            if (file.getMimeType().contains("rar") &&
+                    (ret = extractRarFiles(new OpenRAR((OpenFile)file), into)) > 0)
+                return ret;
+            if ((file.getMimeType().contains("7z") || file.getMimeType().contains("lzma")) &&
+                    (ret = extractLZMAFiles((OpenStream)file, into, includes)) > 0)
+                return ret;
+            if (file.getMimeType().contains("gz") &&
+                    (ret = extractGZip(file, into)) > 0)
+                return ret;
+            if (file.getMimeType().contains("bz") &&
+                    (ret = extractBZip2(file, into)) > 0)
+                return ret;
+            if (file.getMimeType().contains("zip") &&
+                    (ret = extractZipFiles((OpenStream)file, into)) > 0)
+                return ret;
+            return 0;
+        }
+
+        private int extractBZip2(OpenPath file, OpenPath into)
+        {
+            InputStream input = null;
+            OutputStream out = null;
+            try {
+                input = new BufferedInputStream(new BZip2InputStream(
+                        ((OpenStream)file).getInputStream(), false));
+                mTotalCount = (int)file.length();
+                if (into.isDirectory())
+                    into = into.getChild(file.getName().replace("." + file.getExtension(), ""));
+                out = new BufferedOutputStream(((OpenStream)into).getOutputStream());
+                copyStreams(input, out, true, false);
+                return 1;
+            } catch (Exception e) {
+                return 0;
+            } finally {
+                if (input != null)
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                if (out != null)
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+            }
+        }
+
+        private int extractGZip(OpenPath file, OpenPath into)
+        {
+            InputStream input = null;
+            OutputStream out = null;
+            try {
+                input = new BufferedInputStream(new GZIPInputStream(
+                        ((OpenStream)file).getInputStream()));
+                mTotalCount = (int)file.length();
+                if (into.isDirectory())
+                    into = into.getChild(file.getName().replace("." + file.getExtension(), ""));
+                out = new BufferedOutputStream(((OpenStream)into).getOutputStream());
+                copyStreams(input, out, true, true);
+                return 1;
+            } catch (Exception e) {
+                return 0;
+            } finally {
+                if (input != null)
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                if (out != null)
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+            }
+        }
+
+        private Boolean extractTar(OpenPath source, OpenPath into, String... includes) {
             if (!into.exists() && !into.mkdir())
                 return false;
+            if ((source.getMimeType().contains("7z") || source.getMimeType().contains("lzma")) &&
+                    extractLZMAFiles((OpenStream)source, into, includes) > -1)
+                return true;
             try {
                 TarUtils.untarTarFile(into.getPath(), source.getPath(), includes);
                 return true;
@@ -1047,7 +1212,7 @@ public class EventHandler {
                 return false;
             }
         }
-        
+
         /*
          * More efficient Channel based copying
          */
@@ -1164,54 +1329,58 @@ public class EventHandler {
                     Logger.LogWarning("Couldn't create initial destination file.");
                     return false;
                 }
-                if (old instanceof OpenPathCopyable)
+                if (old instanceof OpenPathCopyable && newFile instanceof OpenStream)
                 {
                     try {
-                        if (((OpenPathCopyable)old).copyTo(newFile))
+                        if (((OpenPathCopyable)old).copyTo((OpenStream)newFile))
                             return true;
                     } catch (IOException e) {
                     }
                 }
 
-                int size = (int)old.length();
-                int pos = 0;
-
-                BufferedInputStream i_stream = null;
-                BufferedOutputStream o_stream = null;
                 boolean success = false;
-                try {
-                    Logger.LogDebug("Writing " + newFile.getPath());
-                    i_stream = new BufferedInputStream(old.getInputStream());
-                    o_stream = new BufferedOutputStream(newFile.getOutputStream());
+                if (old instanceof OpenStream && newFile instanceof OpenStream)
+                {
 
-                    while ((read = i_stream.read(data, 0,
-                            Math.min(size - pos, FileManager.BUFFER))) != -1) {
-                        o_stream.write(data, 0, read);
-                        pos += read;
-                        if (pos >= size)
-                            break;
-                        publishMyProgress(pos, size);
-                    }
+                    int size = (int)old.length();
+                    int pos = 0;
 
-                    o_stream.flush();
-                    i_stream.close();
-                    o_stream.close();
+                    BufferedInputStream i_stream = null;
+                    BufferedOutputStream o_stream = null;
+                    try {
+                        Logger.LogDebug("Writing " + newFile.getPath());
+                        i_stream = new BufferedInputStream(((OpenStream)old).getInputStream());
+                        o_stream = new BufferedOutputStream(((OpenStream)newFile).getOutputStream());
 
-                    success = true;
+                        while ((read = i_stream.read(data, 0,
+                                Math.min(size - pos, FileManager.BUFFER))) != -1) {
+                            o_stream.write(data, 0, read);
+                            pos += read;
+                            if (pos >= size)
+                                break;
+                            publishMyProgress(pos, size);
+                        }
 
-                } catch (NullPointerException e) {
-                    Logger.LogError("Null pointer trying to copy file.", e);
-                } catch (FileNotFoundException e) {
-                    Logger.LogError("Couldn't find file to copy.", e);
-                } catch (IOException e) {
-                    Logger.LogError("IOException copying file.", e);
-                } catch (Exception e) {
-                    Logger.LogError("Unknown error copying file.", e);
-                } finally {
-                    if (o_stream != null)
-                        o_stream.close();
-                    if (i_stream != null)
+                        o_stream.flush();
                         i_stream.close();
+                        o_stream.close();
+
+                        success = true;
+
+                    } catch (NullPointerException e) {
+                        Logger.LogError("Null pointer trying to copy file.", e);
+                    } catch (FileNotFoundException e) {
+                        Logger.LogError("Couldn't find file to copy.", e);
+                    } catch (IOException e) {
+                        Logger.LogError("IOException copying file.", e);
+                    } catch (Exception e) {
+                        Logger.LogError("Unknown error copying file.", e);
+                    } finally {
+                        if (o_stream != null)
+                            o_stream.close();
+                        if (i_stream != null)
+                            i_stream.close();
+                    }
                 }
                 return success;
 
@@ -1224,36 +1393,175 @@ public class EventHandler {
             return false;
         }
 
-        public void extractZipFiles(OpenPath zip, OpenPath directory) {
+        private int extractRarFiles(OpenRAR rar, OpenPath directory) {
+
+            if (!directory.exists() && !directory.mkdir())
+                return -1;
+
+            int ret = 0;
+
+            List<OpenRAREntry> entries = new ArrayList<OpenRAR.OpenRAREntry>();
+            try {
+                entries = rar.getAllEntries();
+                mTotalCount = entries.size();
+            } catch (Exception e) {
+                Logger.LogError("Couldn't get RAR entries!", e);
+                return -1;
+            }
+
+            mTotalCount = (int)rar.length();
+
+            for (OpenRAREntry entry : entries) {
+                OpenPath newFile = directory.getChild(entry.getName());
+                if (!newFile.getParent().exists() && !newFile.getParent().mkdir())
+                    continue;
+                if (!(newFile instanceof OpenStream))
+                    continue;
+                OutputStream out = null;
+                try {
+                    InputStream is = new BufferedInputStream(entry.getInputStream());
+                    out = new BufferedOutputStream(((OpenStream)newFile).getOutputStream());
+                    copyStreams(is, out, false, true);
+                    ret++;
+                } catch (Exception e) {
+                    Logger.LogError("Couldn't unrar!", e);
+                } finally {
+                    closeStream(out);
+                }
+            }
+            return ret;
+        }
+
+        private int extractZipFiles(OpenStream zip, OpenPath directory) {
+            if(OpenExplorer.IS_DEBUG_BUILD)
+                Logger.LogVerbose("Extracting ZIP: " + zip + " (into " + directory + ")");
             byte[] data = new byte[FileManager.BUFFER];
             ZipEntry entry;
-            ZipInputStream zipstream;
+            ZipInputStream zipstream = null;
+            OutputStream out = null;
 
-            if (!directory.mkdir())
-                return;
+            int ret = -1;
 
             try {
+                ZipFile zf = new ZipFile(((OpenFile)zip).getPath());
+                mTotalCount = zf.size();
                 zipstream = new ZipInputStream(zip.getInputStream());
 
                 while ((entry = zipstream.getNextEntry()) != null) {
                     OpenPath newFile = directory.getChild(entry.getName());
-                    if (!newFile.mkdir())
+                    if (!newFile.getParent().exists() && !newFile.getParent().mkdir())
+                    {
+                        Logger.LogWarning("Unable to create parent directory while unzipping");
                         continue;
+                    }
+                    if (!(newFile instanceof OpenStream))
+                    {
+                        Logger.LogWarning("ZIP: New File isn't a stream? " + newFile);
+                        continue;
+                    }
 
                     int read = 0;
-                    FileOutputStream out = (FileOutputStream)newFile.getOutputStream();
-                    while ((read = zipstream.read(data, 0, FileManager.BUFFER)) != -1)
-                        out.write(data, 0, read);
-
-                    zipstream.closeEntry();
-                    out.close();
+                    try {
+                        out = new BufferedOutputStream(((OpenStream)newFile).getOutputStream());
+                        copyStreams(zipstream, out, false, true);
+                        ret++;
+                    } catch (Exception e) {
+                        Logger.LogError("Unable to unzip file!", e);
+                    } finally {
+                        zipstream.closeEntry();
+                    }
                 }
 
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
-
+                ret = -1;
+                Logger.LogError("Couldn't find zip?", e);
             } catch (IOException e) {
-                e.printStackTrace();
+                ret = -1;
+                Logger.LogError("Unable to unzip?", e);
+            } finally {
+                closeStream(out);
+                closeStream(zipstream);
+            }
+            return ret;
+        }
+
+        private int extractLZMAFiles(OpenStream s7, final OpenPath directory, String... includes) {
+            // Logger.LogVerbose("LZMA Trying to extract 7zip");
+            OpenLZMA f7 = null;
+            int ret = 0;
+
+            try {
+                if (s7 instanceof OpenLZMA)
+                    f7 = (OpenLZMA)s7;
+                else
+                    f7 = new OpenLZMA((OpenFile)s7);
+
+                mTotalCount = f7.getListLength();
+
+                int[] indices = null;
+                int i = 0;
+                if (includes.length > 0)
+                {
+                    mTotalCount = includes.length;
+                    indices = new int[includes.length];
+                    for (OpenLZMAEntry ze : f7.getAllEntries())
+                    {
+                        int pos = binarySearch(includes, ze.getRelativePath());
+                        Logger.LogVerbose("LZMA " + ze.getRelativePath());
+                        if (pos > -1)
+                            indices[i++] = pos;
+                        if (i >= indices.length)
+                            break;
+                    }
+                }
+
+                ArchiveExtractCallback extractCallbackSpec = new ArchiveExtractCallback();
+                String base = directory.getPath();
+                if (!base.endsWith("/"))
+                    base += "/";
+                extractCallbackSpec.setBasePath(base);
+                // Logger.LogVerbose("LZMA Base: " + base);
+                IArchiveExtractCallback extractCallback = extractCallbackSpec;
+                IInArchive arch = f7.getLZMA();
+
+                extractCallbackSpec.Init(arch);
+                int res = 0;
+                if (indices == null)
+                    res = arch.Extract(null, -1, IInArchive.NExtract_NAskMode_kExtract,
+                            extractCallback);
+                else
+                    res = arch.Extract(indices, indices.length,
+                            IInArchive.NExtract_NAskMode_kExtract, extractCallback);
+
+                if (res == HRESULT.S_OK) {
+                    if (extractCallbackSpec.NumErrors == 0)
+                    {
+                        Logger.LogDebug("LZMA complete?");
+                        ret = mTotalCount;
+                        return ret;
+                    } else {
+                        Logger.LogError("LZMA errors: " + extractCallbackSpec.NumErrors);
+                    }
+                } else {
+                    Logger.LogError("Error while extracting LZMA!");
+                }
+
+                return ret;
+
+            } catch (Exception e) {
+                Logger.LogError("Unable to extract LZMA.", e);
+                ret = -1;
+            } finally {
+            }
+            return ret;
+        }
+
+        private void closeStream(java.io.Closeable s)
+        {
+            try {
+                if (s != null)
+                    s.close();
+            } catch (Exception e) {
             }
         }
 
@@ -1472,35 +1780,49 @@ public class EventHandler {
 
                     break;
 
-                case TAR:
-                case TGZ:
-                    break;
-
-                case UNTGZ:
-                case UNTAR:
+                case ZIP:
+                    int typeRes = R.string.s_compressed;
                     if (result == null || result == 0)
                         Toast.makeText(
                                 mContext,
-                                getResourceString(mContext, R.string.s_msg_none,
-                                        R.string.s_untar), Toast.LENGTH_SHORT).show();
+                                mIntoPath.getMimeType().replace("application/", "") + ": " +
+                                        getResourceString(mContext, R.string.s_msg_none, typeRes),
+                                Toast.LENGTH_SHORT).show();
                     else if (result != null && result < 0)
                         Toast.makeText(
                                 mContext,
-                                getResourceString(mContext, R.string.s_msg_some,
-                                        R.string.s_untar), Toast.LENGTH_SHORT).show();
+                                mIntoPath.getMimeType().replace("application/", "") + ": " +
+                                        getResourceString(mContext, R.string.s_msg_some, typeRes),
+                                Toast.LENGTH_SHORT).show();
                     else
                         Toast.makeText(
                                 mContext,
-                                getResourceString(mContext, R.string.s_msg_all,
-                                        R.string.s_untar), Toast.LENGTH_SHORT).show();
-
-                case UNZIPTO:
+                                mIntoPath.getMimeType().replace("application/", "") + ": " +
+                                        getResourceString(mContext, R.string.s_msg_all, typeRes),
+                                Toast.LENGTH_SHORT).show();
                     break;
 
-                case UNZIP:
-                    break;
+                case EXTRACT:
+                    typeRes = R.string.s_extracted;
+                    if (result == null || result == 0)
+                        Toast.makeText(
+                                mContext,
+                                mCurrentPath.getMimeType().replace("application/", "") + ": " +
+                                        getResourceString(mContext, R.string.s_msg_none, typeRes),
+                                Toast.LENGTH_SHORT).show();
+                    else if (result != null && result < 0)
+                        Toast.makeText(
+                                mContext,
+                                mCurrentPath.getMimeType().replace("application/", "") + ": " +
+                                        getResourceString(mContext, R.string.s_msg_some, typeRes),
+                                Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(
+                                mContext,
+                                mCurrentPath.getMimeType().replace("application/", "") + ": " +
+                                        getResourceString(mContext, R.string.s_msg_all, typeRes),
+                                Toast.LENGTH_SHORT).show();
 
-                case ZIP:
                     break;
             }
         }

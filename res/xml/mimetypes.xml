@@ -82,6 +82,9 @@
         extension=".7z"
         mimetype="application/x-7z-compressed" />
     <type
+        extension=".img"
+        mimetype="application/tar" /> <!-- nandroid -->
+    <type
         extension=".tar"
         mimetype="application/tar" />
     <type
@@ -90,6 +93,15 @@
     <type
         extension=".tar.gz"
         mimetype="application/x-tar" />
+    <type
+        extension=".tar.bz2"
+        mimetype="application/x-tar" />
+    <type
+        extension=".tbz2"
+        mimetype="application/x-tar" />
+    <type
+        extension=".bz2"
+        mimetype="application/x-bzip2" />
     <type
         extension=".zip"
         mimetype="application/zip" />

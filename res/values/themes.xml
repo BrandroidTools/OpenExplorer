@@ -24,6 +24,8 @@
         <item name="actionIconOperations">@drawable/ic_action_folder_holo_dark</item>
         <item name="actionIconRefresh">@drawable/ic_action_refresh_holo_dark</item>
         <item name="actionIconSearch">@drawable/ic_action_search_holo_dark</item>
+        <item name="actionIconCheck">@drawable/ic_cab_done_holo_dark</item>
+        <item name="actionIconCancel">@android:drawable/ic_menu_close_clear_cancel</item>
 
         <!-- Action Mode icons -->
         <item name="actionIconClipboard">@drawable/ic_menu_clipboard</item>
@@ -101,6 +103,8 @@
         <item name="actionIconOperations">@drawable/ic_action_folder_holo_light</item>
         <item name="actionIconRefresh">@drawable/ic_action_refresh_holo_light</item>
         <item name="actionIconSearch">@drawable/ic_action_search_holo_light</item>
+        <item name="actionIconCheck">@drawable/ic_cab_done_holo_light</item>
+        <item name="actionIconCancel">@android:drawable/ic_menu_close_clear_cancel</item>
 
         <!-- Action Mode icons -->
         <item name="actionIconRename">@drawable/ic_rename</item>
@@ -172,6 +176,8 @@
         <item name="actionIconOperations">@drawable/ic_action_folder_holo_dark</item>
         <item name="actionIconRefresh">@drawable/ic_action_refresh_holo_dark</item>
         <item name="actionIconSearch">@drawable/ic_action_search_holo_dark</item>
+        <item name="actionIconCheck">@drawable/ic_cab_done_holo_dark</item>
+        <item name="actionIconCancel">@android:drawable/ic_menu_close_clear_cancel</item>
 
         <!-- Action Mode icons -->
         <item name="actionIconClipboard">@drawable/ic_menu_clipboard</item>
@@ -230,7 +236,6 @@
         <item name="vpiTabPageIndicatorStyle">@style/MyTabPageIndicator</item>
         <item name="vpiTabTextStyle">@style/MyTabPageIndicator.Text</item>
         <item name="vpiTabTextColor">@color/vpi__dark_theme</item>
-        <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
 
         <!-- for programmatic instantiation -->
@@ -248,6 +253,8 @@
         <item name="actionIconOperations">@drawable/ic_action_folder_holo_dark</item>
         <item name="actionIconRefresh">@drawable/ic_action_refresh_holo_dark</item>
         <item name="actionIconSearch">@drawable/ic_action_search_holo_dark</item>
+        <item name="actionIconCheck">@drawable/ic_cab_done_holo_dark</item>
+        <item name="actionIconCancel">@android:drawable/ic_menu_close_clear_cancel</item>
 
         <!-- Action Mode icons -->
         <item name="actionIconClipboard">@drawable/ic_menu_clipboard_light</item>

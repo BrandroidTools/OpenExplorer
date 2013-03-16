@@ -52,12 +52,6 @@ public class OpenPathMerged extends OpenPath {
     }
 
     @Override
-    public void setPath(String path) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public long length() {
         return mKids.size();
     }
@@ -160,16 +154,6 @@ public class OpenPathMerged extends OpenPath {
     @Override
     public Boolean mkdir() {
         return false;
-    }
-
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return null;
-    }
-
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-        return null;
     }
 
     public void setName(String string) {

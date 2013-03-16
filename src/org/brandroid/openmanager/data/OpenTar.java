@@ -12,27 +12,20 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
+import java.util.zip.GZIPInputStream;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
-import org.brandroid.openmanager.util.EventHandler;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.RootManager;
 import org.brandroid.utils.Logger;
-import org.brandroid.utils.Preferences;
+import org.itadaki.bzip2.BZip2InputStream;
 import org.kamranzafar.jtar.*;
 
-import com.jcraft.jzlib.GZIPInputStream;
-import com.stericson.RootTools.RootTools;
-import com.stericson.RootTools.RootTools.Result;
-import com.stericson.RootTools.RootToolsException;
-import com.stericson.RootTools.Shell;
-
 import android.net.Uri;
-import android.os.Process;
 
-public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener {
+public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateHandler, OpenPath.OpenStream {
     private final OpenFile mFile;
     private OpenPath[] mChildren = null;
     private ArrayList<OpenTarEntry> mEntries = null;
@@ -68,11 +61,6 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener
     @Override
     public String getAbsolutePath() {
         return mFile.getAbsolutePath();
-    }
-
-    @Override
-    public void setPath(String path) {
-        // mZip = new OpenFile(path);
     }
 
     @Override
@@ -117,7 +105,7 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener
         return getAllEntries(null);
     }
 
-    public List<OpenTarEntry> getAllEntries(OpenContentUpdater updater) throws IOException {
+    public List<OpenTarEntry> getAllEntries(OpenContentUpdateListener updater) throws IOException {
         if (mEntries != null)
             return mEntries;
         mEntries = new ArrayList<OpenTarEntry>();
@@ -167,9 +155,9 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener
                 par += "/";
             if (te.getName().indexOf("/") > -1)
                 par += te.getName().substring(0, te.getName().lastIndexOf("/"));
-            Logger.LogVerbose("TAR: " + par);
             OpenPath vp = findVirtualPath(par, updater);
             OpenTarEntry entry = new OpenTarEntry(vp, te, (int)(pos - te.getSize()));
+            if(updater == null) return null;
             mEntries.add(entry);
             addFamilyEntry(par, entry);
         }
@@ -182,7 +170,7 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener
         return mEntries;
     }
 
-    private OpenPath findVirtualPath(String name, OpenContentUpdater updater) {
+    private OpenPath findVirtualPath(String name, OpenContentUpdateListener updater) {
         if (mVirtualPaths.containsKey(name))
             return mVirtualPaths.get(name);
         OpenTarVirtualPath path = null;
@@ -233,7 +221,7 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener
     }
 
     @Override
-    public void list(final OpenContentUpdater callback) throws IOException {
+    public void list(final OpenContentUpdateListener callback) throws IOException {
         final RootManager rm = new RootManager();
         new Thread(new Runnable() {
             public void run() {
@@ -244,6 +232,8 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener
                         callback.addContentPath(p);
                     callback.doneUpdating();
                 } catch (Exception e2) {
+                    callback.onUpdateException(e2);
+                    callback.doneUpdating();
                     Logger.LogError("Error listing TAR #2.", e2);
                 }
             }
@@ -347,9 +337,12 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener
 
     @Override
     public TarInputStream getInputStream() throws IOException {
-        if (getMimeType().contains("x-"))
+        if (getExtension().toLowerCase(Locale.US).endsWith("gz"))
             return new TarInputStream(new BufferedInputStream(new GZIPInputStream(
                     new FileInputStream(mFile.getFile()))));
+        else if (getExtension().toLowerCase(Locale.US).endsWith("bz2"))
+            return new TarInputStream(new BufferedInputStream(new BZip2InputStream(
+                    new FileInputStream(mFile.getFile()), false)));
         else
             return new TarInputStream(new BufferedInputStream(new FileInputStream(mFile.getFile())));
     }
@@ -385,12 +378,6 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener
         @Override
         public String getAbsolutePath() {
             return getPath();
-        }
-
-        @Override
-        public void setPath(String path) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
@@ -490,18 +477,6 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener
             return false;
         }
 
-        @Override
-        public InputStream getInputStream() throws IOException {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public OutputStream getOutputStream() throws IOException {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
     }
 
     public class OpenTarEntry extends OpenPath implements OpenPath.OpenPathCopyable {
@@ -539,11 +514,6 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener
         @Override
         public String getAbsolutePath() {
             return getPath();
-        }
-
-        @Override
-        public void setPath(String path) {
-
         }
 
         @Override
@@ -657,24 +627,11 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener
             return false;
         }
 
-        @Override
-        public InputStream getInputStream() throws IOException {
-            TarInputStream fis = OpenTar.this.getInputStream();
-            fis.setDefaultSkip(true);
-            fis.skip(getOffset());
-            return fis;
-        }
-
-        @Override
-        public OutputStream getOutputStream() throws IOException {
-            return null;
-        }
-
-        public boolean copyFrom(OpenPath file) {
+        public boolean copyFrom(OpenStream file) {
             return false;
         }
 
-        public boolean copyTo(OpenPath dest) throws IOException {
+        public boolean copyTo(OpenStream dest) throws IOException {
             Logger.LogDebug("TAR copyTo " + dest);
             final int bsize = FileManager.BUFFER;
             byte[] ret = new byte[bsize];
@@ -720,6 +677,5 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateListener
         public OpenTar getTar() {
             return OpenTar.this;
         }
-
     }
 }

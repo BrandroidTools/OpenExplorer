@@ -12,13 +12,16 @@ import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.Date;
 
+import org.brandroid.openmanager.activities.OpenApplication;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
-import org.brandroid.openmanager.data.OpenPath.OpenPathCopyable;
+import org.brandroid.openmanager.data.OpenPath.*;
 import org.brandroid.openmanager.util.DFInfo;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
+
+import com.stericson.RootTools.RootTools;
 
 import android.annotation.SuppressLint;
 import android.database.Cursor;
@@ -28,7 +31,7 @@ import android.os.Environment;
 import android.os.StatFs;
 
 @SuppressLint("NewApi")
-public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.OpenPathByteIO {
+public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByteIO, OpenStream, OpenPathSizable {
     private static final long serialVersionUID = 6436156952322586833L;
     private File mFile;
     private OpenFile[] mChildren = null;
@@ -123,11 +126,12 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
 
     public long getUsableSpace() {
         try {
+            if(!canRead()) return 0;
             StatFs stat = new StatFs(getPath());
             if (stat.getAvailableBlocks() > 0)
                 return (long)stat.getAvailableBlocks() * (long)stat.getBlockSize();
         } catch (Exception e) {
-            Logger.LogWarning("Couldn't get Total Space.", e);
+            //Logger.LogWarning("Couldn't get Total Space.", e);
         }
         if (DFInfo.LoadDF().containsKey(getPath()))
             return (long)(DFInfo.LoadDF().get(getPath()).getSize() - DFInfo.LoadDF().get(getPath())
@@ -309,7 +313,7 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
         OpenFile parent = getExternalMemoryDrive(true).getParent();
         if (Build.VERSION.SDK_INT > 15) {
             parent = new OpenFile("/storage/usbStorage/");
-            if(parent.exists() && parent.length() > 0)
+            if (parent.exists() && parent.length() > 0)
                 return (mUsbDrive = parent);
             parent = new OpenFile("/mnt/sdcard/usbStorage/");
             if (parent.exists())
@@ -336,7 +340,7 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
                 if (kid.getName().toLowerCase().contains("usb") && kid.exists() && kid.canRead()
                         && kid.list().length > 0 && kid.getTotalSpace() != parent.getTotalSpace())
                 {
-                    if(kid.length() == 1 && kid.getChild(0).getName().startsWith("sda"))
+                    if (kid.length() == 1 && kid.getChild(0).getName().startsWith("sda"))
                         kid = (OpenFile)kid.getChild(0);
                     return (mUsbDrive = kid);
                 }
@@ -507,7 +511,8 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
         } catch (IOException e) {
             Logger.LogError(
                     "Couldn't CopyFrom (" + sourceFile.getPath() + " -> " + getPath() + ")", e);
-            ret = new OpenFileRoot(this).copyFrom(sourceFile);
+            if(OpenApplication.hasRootAccess())
+                ret = new OpenFileRoot(this).copyFrom(sourceFile);
         } finally {
             if (source != null)
                 try {
@@ -530,11 +535,6 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
         if (mFile.getParent().equals("/mnt") && getUsableSpace() == 0)
             return true;
         return false;
-    }
-
-    @Override
-    public void setPath(String path) {
-        mFile = new File(path);
     }
 
     @Override
@@ -570,7 +570,8 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
             is.read(ret);
         } catch (Exception e) {
             Logger.LogError("Unable to read byte[] data from OpenFile(" + getPath() + ")", e);
-            ret = new OpenFileRoot(this).readBytes();
+            if(OpenApplication.hasRootAccess())
+                ret = new OpenFileRoot(this).readBytes();
         } finally {
             if (is != null)
                 try {
@@ -617,7 +618,8 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
             os.close();
         } catch (IOException e) {
             Logger.LogError("Couldn't write to OpenFile (" + getPath() + ")", e);
-            new OpenFileRoot(this).writeBytes(buffer);
+            if(OpenApplication.hasRootAccess())
+                new OpenFileRoot(this).writeBytes(buffer);
         } finally {
             if (os != null)
                 try {
@@ -636,7 +638,7 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
     }
 
     @Override
-    public boolean copyFrom(OpenPath file) {
+    public boolean copyFrom(OpenStream file) {
         if (file instanceof OpenFile)
             return copyFrom((OpenFile)file);
         return false;
@@ -667,8 +669,10 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
             else
                 return getFile().createNewFile();
         } catch (Exception e) {
-            return new OpenFileRoot(this).touch();
+            if(OpenApplication.hasRootAccess())
+                return new OpenFileRoot(this).touch();
         }
+        return false;
     }
 
     public boolean isRemoveable() {
@@ -682,15 +686,15 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPath.Ope
             return true;
         return false;
     }
-    
+
     @Override
     public boolean showChildPath() {
         return false;
     }
 
     @Override
-    public boolean copyTo(OpenPath dest) throws IOException {
-        if(dest instanceof OpenFile)
+    public boolean copyTo(OpenStream dest) throws IOException {
+        if (dest instanceof OpenFile)
             return ((OpenFile)dest).copyFrom(this);
         return false;
     }

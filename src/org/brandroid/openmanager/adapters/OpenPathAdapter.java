@@ -133,7 +133,7 @@ public class OpenPathAdapter extends BaseAdapter {
             else
                 mIcon.setAlpha(255);
             if (file.isTextFile())
-                mIcon.setImageBitmap(ThumbnailCreator.getFileExtIcon(file.getExtension(), mContext,
+                mIcon.setImageDrawable(ThumbnailCreator.getFileExtIcon(file.getExtension(), mContext,
                         mWidth > 72));
             else if (!mShowThumbnails || !file.hasThumbnail())
                 mIcon.setImageDrawable(mContext.getResources().getDrawable(

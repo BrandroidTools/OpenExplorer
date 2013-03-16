@@ -73,7 +73,7 @@
     <string name="s_pref_server_type">Тип сервера</string>
     <string name="s_files">Файлы</string>
     <string name="s_create">Создать</string>
-    <string name="s_title_holding_x_files" formatted="false">Holding %s файлы</string>
+    <string name="s_title_holding_x_files">Holding %s файлы</string>
     <string name="s_title_newfolder">Создать новую папку</string>
     <string name="s_title_send">Отправка xxx</string>
     <string name="s_title_unzip">Распаковка xxx</string>
@@ -86,10 +86,10 @@
     <string name="s_title_zipping">Архивирование</string>
     <string name="s_title_unzipping">Распаковка</string>
     <string name="s_title_wait">Пожалуйста подождите...</string>
-    <string name="s_alert_confirm_delete" formatted="false">Удаление %s не может быть отменено. Вы уверены что хотите продолжить?</string>
+    <string name="s_alert_confirm_delete">Удаление %s не может быть отменено. Вы уверены что хотите продолжить?</string>
     <string name="s_alert_rename">Введите новое имя файла</string>
     <string name="s_alert_newfolder">Введите имя папки</string>
-    <string name="s_alert_unzip" formatted="false">Распаковать %s сюда или в другую папку?</string>
+    <string name="s_alert_unzip">Распаковать %s сюда или в другую папку?</string>
     <string name="s_button_unzip_here">Распаковать сюда</string>
     <string name="s_button_unzip_else">Распаковать в ...</string>
     <string name="s_msg_none">Файл(ы) не </string>
@@ -212,7 +212,7 @@
     <string name="s_pref_fancy_context">Необычные контекстные меню:</string>
     <string name="s_search_files" auto="1">Поиск файловой системы</string>
     <string name="search_summary" formatted="false" auto="1">Поиск " %s " \n в " %s " (%d) ...</string>
-    <string name="search_results" formatted="false" auto="1">Найдено %D результатов для " %s " \n в " %s "</string>
+    <string name="search_results" formatted="false" auto="1">Найдено %d результатов для " %s " \n в " %s "</string>
     <string name="s_menu_exit" auto="1">Выход</string>
     <string name="s_warn_wtf_message">Ой-ой-ой.Кажется возникла ошибка в программе.Такое часто случается с программами, которые находятся в тестовом состоянии.Единственный способ устранения таких ошибок, это сбор информации с различных устройств, таких как ваше например. Можем ли мы отсылать анонимные отчеты об ошибках в программе разработчикам?</string>
     <string name="s_warn_wtf_ps">Пожалуйста, обратите внимание на то, что данное приложение находится в состоянии Beta. Просьба не ставить плохую оценку из-за возможных ошибок и вылетов из программы. Просто удалите ее, если она вам не нравится. Большое спасибо!</string>
@@ -240,7 +240,7 @@
     <string name="menu_view_font_medium">Средний размер шрифта</string>
     <string name="menu_view_font_large">Большой размер шрифта</string>
     <string name="app_description">OpenExplorer - универсальное приложение для всех устройств (планшеты, телефоны, телевизоры Google)\n- Управление файлами\n- поддержка USB и других внешних носителей\n- Возможность подключения к FTP серверам\n- Текстовый редактор\n- Умные папки, содержат файлы определённых типов: видео, фото, музыка, загрузки\n- Текстовый редактор с вкладками\n\nСкоро будет реализовано:\n- Больше возможностей сети (Dropbox, Box.net, Sky диск, Samba, WiFi)\n- Автономный кэш файловой системы (хранение списка файлов и директорий без необходимости подключения к удаленному серверу)\n- Анализатор используемого места на носителях\n\n    ПРИМЕЧАНИЕ: Это приложение находится в бета-версии. Здесь еще много ошибок. Если Вы не хотите сталкиваться с возможными ошибками, пожалуйста, не загружайте это приложение. Если Вы хотите помочь найти эти ошибки, пожалуйста, напишите мне.\n</string>
-    <string name="alert_translate_google" formatted="false">Здравствуйте, данный перевод сделан с помощью переводчика Google. Если вы достаточно хорошо владеете английским и %s, а так же хотите помочь перевести, то нажмите сюда:</string>
+    <string name="alert_translate_google">Здравствуйте, данный перевод сделан с помощью переводчика Google. Если вы достаточно хорошо владеете английским и %s, а так же хотите помочь перевести, то нажмите сюда:</string>
     <string name="alert_translate_none">Здравствуйте, вы используете не поддерживаемый язык.если у вас есть знания английского языка,а так же хотите помочь сделать перевод, то нажмите сюда:</string>
     <string name="button_translate">Перевести</string>
     <string name="httpError">Произошла сетевая ошибка.</string>

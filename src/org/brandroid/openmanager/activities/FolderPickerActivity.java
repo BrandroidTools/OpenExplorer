@@ -90,7 +90,7 @@ public class FolderPickerActivity extends FragmentActivity implements OnItemClic
         }
         if (!addToStack)
             return;
-        PickerFragment frag = new PickerFragment(this, mPath);
+        PickerFragment frag = PickerFragment.getInstance(mPath);
         frag.setShowSelection(false);
         frag.setOnOpenPathPickedListener(new OnOpenPathPickedListener() {
             @Override

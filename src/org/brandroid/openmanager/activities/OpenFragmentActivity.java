@@ -14,6 +14,8 @@ import jcifs.smb.SmbFile.OnSMBCommunicationListener;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTP.OnFTPCommunicationListener;
 import org.brandroid.openmanager.data.OpenPath;
+import org.brandroid.openmanager.data.OpenServer;
+import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.interfaces.OpenContextProvider;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.LoggerDbAdapter;
@@ -22,10 +24,12 @@ import com.actionbarsherlock.ActionBarSherlock;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuInflater;
+import com.box.androidlib.BoxAuthentication;
 import com.jcraft.jsch.JSch;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -265,7 +269,7 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
     }
 
     @Override
-    public abstract void onChangeLocation(OpenPath path);
+    public abstract void changePath(OpenPath path);
 
     protected abstract void sendToLogView(String str, int color);
 

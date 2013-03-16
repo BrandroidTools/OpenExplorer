@@ -28,9 +28,19 @@ public class SimpleContentFragment extends Fragment implements ContentAdapter.Ca
     private Bundle mData;
     private OpenApp mApp;
 
-    public SimpleContentFragment(OpenApp app, OpenPath path) {
-        mApp = app;
-        mPath = path;
+    public SimpleContentFragment()
+    {
+        
+    }
+    
+    public static SimpleContentFragment getInstance(OpenApp app, OpenPath path) {
+        SimpleContentFragment ret = new SimpleContentFragment();
+        ret.mApp = app;
+        ret.mPath = path;
+        Bundle b = new Bundle();
+        b.putParcelable("path", path);
+        ret.setArguments(b);
+        return ret;
     }
 
     public void setShowFiles(boolean showFiles) {

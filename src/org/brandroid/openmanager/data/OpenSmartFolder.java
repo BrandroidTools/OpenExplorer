@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 import org.brandroid.utils.Logger;
+import org.brandroid.openmanager.data.OpenPath.*;
 
 import android.net.Uri;
 import android.os.Environment;
@@ -99,10 +100,6 @@ public class OpenSmartFolder extends OpenPath {
             return getFirstDir().getAbsolutePath();
         else
             return mName;
-    }
-
-    @Override
-    public void setPath(String path) {
     }
 
     @Override
@@ -243,16 +240,6 @@ public class OpenSmartFolder extends OpenPath {
     @Override
     public Boolean mkdir() {
         return getFirstDir().mkdir();
-    }
-
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return getFirstDir().getInputStream();
-    }
-
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-        return getFirstDir().getOutputStream();
     }
 
     @Override

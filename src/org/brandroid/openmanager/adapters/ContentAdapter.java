@@ -9,11 +9,12 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.brandroid.openmanager.R;
+import org.brandroid.openmanager.activities.OpenApplication;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.BookmarkHolder;
 import org.brandroid.openmanager.data.OpenFileRoot;
 import org.brandroid.openmanager.data.OpenPath;
-import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateListener;
+import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.openmanager.util.SortType.Type;
@@ -24,6 +25,8 @@ import org.brandroid.utils.ImageUtils;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
 import org.brandroid.utils.ViewUtils;
+
+import com.stericson.RootTools.RootTools;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -217,13 +220,16 @@ public class ContentAdapter extends BaseAdapter {
     private OpenPath[] getList() {
         try {
             if (mParent == null
-                    || (!mParent.isLoaded() && mParent instanceof OpenPathUpdateListener))
+                    || (!mParent.isLoaded() && mParent instanceof OpenPathUpdateHandler))
                 return new OpenPath[0];
             if (mParent.requiresThread() && Thread.currentThread().equals(OpenExplorer.UiThread))
                 return mParent.list();
             else if(!mParent.canRead())
-                return new OpenFileRoot(mParent).listFiles();
-            else
+            {
+                if(OpenApplication.hasRootAccess(true))
+                    return new OpenFileRoot(mParent).listFiles();
+                else return new OpenPath[0];
+            } else
                 return mParent.listFiles();
         } catch (Exception e) {
             Logger.LogError("Couldn't getList in ContentAdapter", e);
@@ -348,11 +354,8 @@ public class ContentAdapter extends BaseAdapter {
                 mIcon.setAlpha(100);
             else
                 mIcon.setAlpha(255);
-            if (file.isTextFile())
-                mIcon.setImageBitmap(ThumbnailCreator.getFileExtIcon(file.getExtension(),
-                        getContext(), mWidth > 72));
-            else if (!mShowThumbnails || !file.hasThumbnail()) {
-                mIcon.setImageResource(ThumbnailCreator.getDefaultResourceId(file, mWidth, mHeight));
+            if (!mShowThumbnails || !file.hasThumbnail()) {
+                mIcon.setImageDrawable(ThumbnailCreator.getDefaultDrawable(file, mWidth, mHeight, getContext()));
             } else { // if(!ThumbnailCreator.getImagePath(mIcon).equals(file.getPath()))
                 // {
                 // Logger.LogDebug("Bitmapping " + file.getPath());

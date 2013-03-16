@@ -18,10 +18,12 @@
 package org.kamranzafar.jtar;
 
 import java.io.*;
+import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.utils.Logger;
+import org.itadaki.bzip2.BZip2InputStream;
 
 import junit.framework.Assert;
 
@@ -129,11 +131,20 @@ public class TarUtils {
             throws IOException {
         OpenFile zf = new OpenFile(tar);
         TarInputStream tis = null;
-        if (zf.getMimeType().contains("x-"))
+        try {
+        if (tar.toLowerCase(Locale.US).endsWith("gz"))
             tis = new TarInputStream(new BufferedInputStream(new GZIPInputStream(
                     zf.getInputStream())));
+        else if(tar.toLowerCase(Locale.US).endsWith("bz2"))
+            tis = new TarInputStream(new BufferedInputStream(new BZip2InputStream(
+                    zf.getInputStream(), false)));
         else
             tis = new TarInputStream(new BufferedInputStream(zf.getInputStream()));
+        } catch(IOException e) {
+            if(e.getMessage().contains("unknown format"))
+                tis = new TarInputStream(new BufferedInputStream(zf.getInputStream()));
+            else throw e;
+        }
         untar(tis, destFolder, include);
 
         tis.close();
@@ -165,6 +176,22 @@ public class TarUtils {
 
         TarInputStream tis = new TarInputStream(new BufferedInputStream(new GZIPInputStream(
                 new FileInputStream(zf))));
+
+        untar(tis, destFolder);
+
+        tis.close();
+    }
+
+    /**
+     * Untar the gzipped-tar file
+     * 
+     * @throws IOException
+     */
+    public static void untarTBzFile(String destFolder, String tgz) throws IOException {
+        File zf = new File(tgz);
+
+        TarInputStream tis = new TarInputStream(new BufferedInputStream(new BZip2InputStream(
+                new FileInputStream(zf), false)));
 
         untar(tis, destFolder);
 
@@ -232,7 +259,12 @@ public class TarUtils {
         TarInputStream tis = null;
         boolean ret = false;
         try {
-            tis = new TarInputStream(new BufferedInputStream(new FileInputStream(zf)));
+            if(tar.toLowerCase(Locale.US).endsWith("gz"))
+                tis = new TarInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(zf))));
+            else if(tar.toLowerCase(Locale.US).endsWith("bz2"))
+                tis = new TarInputStream(new BufferedInputStream(new BZip2InputStream(new FileInputStream(zf), false)));
+            else
+                tis = new TarInputStream(new BufferedInputStream(new FileInputStream(zf)));
             ret = checkUntar(tis, destFolder, includes);
         } catch (IOException e) {
             Logger.LogError("Unable to check tar.", e);

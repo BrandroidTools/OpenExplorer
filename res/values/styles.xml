@@ -5,17 +5,19 @@
         <item name="background">@drawable/actionbar_striped_bg</item>
         <item name="android:background">@drawable/actionbar_striped_bg</item>
         <item name="backgroundSplit">@drawable/actionbar_striped_bg_split</item>
-        <item name="android:backgroundSplit">@drawable/actionbar_striped_bg_split</item>
         <!--
         <item name="backgroundSplit">@drawable/bg_striped_split</item>
-        <item name="android:backgroundSplit">@drawable/bg_striped_split</item>
-        -->
+        <item name="android:backgroundSplit">@drawable/bg_striped_split</item>        -->
     </style>
 
     <style name="Text.Small" parent="@android:style/TextAppearance.Small">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textSize">10dp</item>
+    </style>
+
+    <style name="Text.Small.Checkbox" parent="@android:style/TextAppearance.Small">
         <item name="android:textSize">10dp</item>
     </style>
 
@@ -94,7 +96,6 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">?attr/drawerTextColorPrimary</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textAllCaps">true</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:paddingLeft">16dp</item>
         <item name="android:background">@drawable/sd__category_background</item>
@@ -152,7 +153,7 @@
 
     <style name="ActionBar" parent="Widget.Sherlock.ActionBar">
         <item name="android:background">#eee</item>
-        <item name="android:titleTextStyle">@style/ActionBarTitle</item>
+        <item name="titleTextStyle">@style/ActionBarTitle</item>
         <item name="android:icon">@drawable/icon</item>
     </style>
 
@@ -206,7 +207,6 @@
 
     <style name="SlideDialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowAnimationStyle">@style/SlideDialogAnimation</item>
-        <item name="android:alpha">0.9</item>
     </style>
 
     <style name="SlideDialogAnimation">
@@ -276,7 +276,7 @@
         <item name="@android:windowExitAnimation">@anim/slide_out_left</item>
     </style>
 
-    <style name="Dialog" parent="Theme.Sherlock" />
+    <style name="Dialog" parent="Theme.Sherlock.Dialog" />
 
     <style name="Widget.ProgressBar.Horizontal" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:minHeight">16dip</item>

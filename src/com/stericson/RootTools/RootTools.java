@@ -56,7 +56,7 @@ public class RootTools {
     // # Public Variables #
     // --------------------
 
-    public static boolean debugMode = OpenExplorer.IS_DEBUG_BUILD;
+    public static boolean debugMode = OpenExplorer.IS_DEBUG_BUILD && false;
     public static List<String> lastFoundBinaryPaths = new ArrayList<String>();
     public static int lastExitCode;
     public static String utilPath;
@@ -800,19 +800,19 @@ public class RootTools {
      * @param exception The exception that was thrown (Needed for errors)
      */
     public static void log(String msg) {
-        if(OpenExplorer.IS_DEBUG_BUILD)
+        if(debugMode)
             Logger.LogDebug("Root Tools: " + msg);
         // log(null, msg, 3, null);
     }
 
     public static void log(String TAG, String msg) {
-        if(OpenExplorer.IS_DEBUG_BUILD)
+        if(debugMode)
             Logger.LogDebug("RootTools: " + TAG + ": " + msg);
         // log(TAG, msg, 3, null);
     }
 
     public static void log(String msg, int type, Exception e) {
-        if(!OpenExplorer.IS_DEBUG_BUILD && type != 2) return;
+        if(!debugMode && type != 2) return;
         if (type == 1)
             Logger.LogVerbose("Root Tools: " + msg, e);
         else if (type == 2)

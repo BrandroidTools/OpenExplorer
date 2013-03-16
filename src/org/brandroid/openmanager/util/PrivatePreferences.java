@@ -1,13 +1,21 @@
 
 package org.brandroid.openmanager.util;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class PrivatePreferences {
-    private static final Hashtable<String, String> privateKeys = new Hashtable<String, String>();
+    private static final Map<String, String> privateKeys = new HashMap<String, String>();
 
     public static final String getKey(String name) {
-        return privateKeys.get(name);
+        return getKey(name, "");
+    }
+    
+    public static final String getKey(String name, String defValue) {
+        if(privateKeys.containsKey(name.toLowerCase(Locale.US)))
+            return privateKeys.get(name.toLowerCase(Locale.US));
+        else return defValue;
     }
 
     public static final String getBoxAPIKey() {

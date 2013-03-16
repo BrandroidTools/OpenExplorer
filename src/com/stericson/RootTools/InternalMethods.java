@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
@@ -771,6 +772,8 @@ class InternalMethods
             }
 
         } catch (Exception e) {
+            if(e.getMessage().toLowerCase(Locale.US).contains("denied"))
+                return false;
             e.printStackTrace();
             return false;
         } finally {

@@ -215,7 +215,7 @@ public class OpenPathDbAdapter {
             else
                 return 0;
         } catch (Exception e) {
-            Logger.LogError("Couldn't write to Files DB.", e);
+            //Logger.LogError("Couldn't write to Files DB.", e);
             return 0;
         }
     }
@@ -274,7 +274,7 @@ public class OpenPathDbAdapter {
                     getSortString(sort), null);
         } catch (Exception e) {
             Logger.LogError(
-                    "Couldn't fetch from folder " + folder + ". " + e.getLocalizedMessage(), e);
+                    "Couldn't fetch from folder " + folder + ". " + e.getLocalizedMessage());
             return null;
         }
     }

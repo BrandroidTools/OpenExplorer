@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.brandroid.openmanager.data.OpenPath.OpenPathByteIO;
+import org.brandroid.openmanager.data.OpenPath.*;
 import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.utils.Logger;
@@ -26,8 +26,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PatternMatcher;
 
-public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateListener,
-        OpenPath.NeedsTempFile, OpenPath.OpenPathCopyable, OpenPathByteIO {
+public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateHandler,
+        OpenPath.NeedsTempFile, OpenPathByteIO, OpenDynamicPath {
 
     private static final long serialVersionUID = -1540464774342269126L;
     private String mPath;
@@ -203,7 +203,7 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
             mChildren.get().add(kid);
     }
 
-    public void list(final OpenContentUpdater callback) throws IOException {
+    public void list(final OpenPath.OpenContentUpdateListener callback) throws IOException {
         mLoaded = false;
         if (getChildren() != null) {
             for (OpenPath kid : getChildren())
@@ -366,15 +366,15 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
         return getFile().mkdir();
     }
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return tempDownload(null).getInputStream();
-    }
-
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-        return tempDownload(null).getOutputStream();
-    }
+//    @Override
+//    public InputStream getInputStream() throws IOException {
+//        return tempDownload(null).getInputStream();
+//    }
+//
+//    @Override
+//    public OutputStream getOutputStream() throws IOException {
+//        return tempDownload(null).getOutputStream();
+//    }
 
     @Override
     public String getDetails(boolean countHiddenChildren) {
@@ -451,7 +451,6 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
         return copy(this, dest);
     }
 
-    @Override
     public boolean copyFrom(OpenPath file) {
         if (file instanceof OpenFile) {
             RootTools.copyFile(file.getPath(), getPath(), true, false);
@@ -479,10 +478,5 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
     public void writeBytes(byte[] bytes) {
         String ret = execute("cat > " + getPath() + "\n" + new String(bytes), false);
         Logger.LogDebug("writeBytes response: " + ret);
-    }
-
-    @Override
-    public boolean copyTo(OpenPath dest) throws IOException {
-        return false;
     }
 }

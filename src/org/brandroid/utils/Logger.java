@@ -30,6 +30,99 @@ public class Logger {
                                                    // preferences
     public final static Integer MIN_DB_LEVEL = Log.INFO;
     public final static String LOG_KEY = "OpenExplorer";
+    public static final org.apache.commons.logging.Log VFSLogger = new org.apache.commons.logging.Log() {
+        
+        @Override
+        public void warn(Object arg0, Throwable arg1) {
+            Logger.LogWarning(arg0.toString(), arg1);
+        }
+        
+        @Override
+        public void warn(Object arg0) {
+            Logger.LogWarning(arg0.toString());
+        }
+        
+        @Override
+        public void trace(Object arg0, Throwable arg1) {
+            Logger.LogVerbose(arg0.toString(), arg1);
+        }
+        
+        @Override
+        public void trace(Object arg0) {
+            Logger.LogVerbose(arg0.toString());
+        }
+        
+        @Override
+        public boolean isWarnEnabled() {
+            return true;
+        }
+        
+        @Override
+        public boolean isTraceEnabled() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+        
+        @Override
+        public boolean isInfoEnabled() {
+            return true;
+        }
+        
+        @Override
+        public boolean isFatalEnabled() {
+            return true;
+        }
+        
+        @Override
+        public boolean isErrorEnabled() {
+            return true;
+        }
+        
+        @Override
+        public boolean isDebugEnabled() {
+            return OpenExplorer.IS_DEBUG_BUILD;
+        }
+        
+        @Override
+        public void info(Object arg0, Throwable arg1) {
+            Logger.LogInfo(arg0.toString(), arg1);
+        }
+        
+        @Override
+        public void info(Object arg0) {
+            Logger.LogInfo(arg0.toString());
+        }
+        
+        @Override
+        public void fatal(Object arg0, Throwable arg1) {
+            Logger.LogError(arg0.toString(), arg1);
+        }
+        
+        @Override
+        public void fatal(Object arg0) {
+            Logger.LogError(arg0.toString());
+        }
+        
+        @Override
+        public void error(Object arg0, Throwable arg1) {
+            Logger.LogError(arg0.toString(), arg1);
+        }
+        
+        @Override
+        public void error(Object arg0) {
+            Logger.LogError(arg0.toString());
+        }
+        
+        @Override
+        public void debug(Object arg0, Throwable arg1) {
+            Logger.LogDebug(arg0.toString(), arg1);
+        }
+        
+        @Override
+        public void debug(Object arg0) {
+            Logger.LogDebug(arg0.toString());
+        }
+    };
     private static LoggerDbAdapter dbLog;
 
     @Override
@@ -168,7 +261,7 @@ public class Logger {
         return Log.e(LOG_KEY, msg);
     }
 
-    public static int LogError(String msg, Error ex) {
+    public static int LogError(String msg, Throwable ex) {
         if (CheckLastLog(ex.getMessage(), Log.ERROR))
             return 0;
         StackTraceElement[] trace = getMyStackTrace(ex);

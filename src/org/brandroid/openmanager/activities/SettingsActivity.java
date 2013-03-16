@@ -18,10 +18,6 @@
 
 package org.brandroid.openmanager.activities;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -32,19 +28,22 @@ import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.OpenClipboard;
 import org.brandroid.openmanager.data.OpenFTP;
 import org.brandroid.openmanager.data.OpenFile;
+import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
+import org.brandroid.openmanager.util.InputDialog;
+import org.brandroid.openmanager.util.PrivatePreferences;
 import org.brandroid.openmanager.util.RootManager;
 import org.brandroid.openmanager.util.ShellSession;
 import org.brandroid.utils.DiskLruCache;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.LruCache;
 import org.brandroid.utils.Preferences;
+import org.brandroid.utils.SimpleCrypto;
 import org.brandroid.utils.Utils;
 import org.json.JSONArray;
-import org.json.JSONException;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
@@ -54,11 +53,13 @@ import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
+import com.box.androidlib.BoxAuthentication;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.stericson.RootTools.RootTools;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -106,12 +107,15 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
     // private DonationObserver mDonationObserver;
     private Handler mHandler;
 
-    private String getDisplayLanguage(String langCode) {
+    final static boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
+
+    public static String getDisplayLanguage(Context context, String langCode) {
         if (!langCode.equals("")) {
-            int pos = Utils.getArrayIndex(getResources().getStringArray(R.array.languages_values),
+            int pos = Utils.getArrayIndex(
+                    context.getResources().getStringArray(R.array.languages_values),
                     langCode);
             if (pos > -1) {
-                String[] langs = getResources().getStringArray(R.array.languages);
+                String[] langs = context.getResources().getStringArray(R.array.languages);
                 langCode = langs[pos];
             }
             return langCode;
@@ -120,28 +124,27 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 
     }
 
-    @TargetApi(11)
-    @Override
+    @SuppressLint("NewApi")
     public void onBuildHeaders(List<Header> target) {
+        if(Build.VERSION.SDK_INT < 12) return; // This shouldn't matter, but just in case
         loadHeadersFromResource(R.xml.preference_headers, target);
     }
 
-    @TargetApi(11)
-    @Override
+    @SuppressLint("NewApi")
     public void startPreferenceFragment(Fragment fragment, boolean push) {
         super.startPreferenceFragment(fragment, push);
+        if(Build.VERSION.SDK_INT < 12) return; // This shouldn't matter, but just in case
         Logger.LogDebug("startPreferenceFragment(" + fragment.toString() + ", " + push + ")");
         setOnChange(((PreferenceFragment)fragment).getPreferenceScreen(), false);
     }
 
-    @TargetApi(11)
-    @Override
+    @SuppressLint("NewApi")
     public boolean onPreferenceStartFragment(PreferenceFragment caller, Preference pref) {
+        if(Build.VERSION.SDK_INT < 12) return false; // This shouldn't matter, but just in case
         Logger.LogDebug("onPreferenceStartFragment(" + caller + ", " + pref + ")");
         return super.onPreferenceStartFragment(caller, pref);
     }
 
-    @Override
     public boolean onIsMultiPane() {
         // non-multipane doesn't work very well,
         // it does not return intent to OpenExplorer for some reason,
@@ -154,30 +157,29 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         // return null;
     }
 
-    @Override
     protected void onResume() {
         Intent intent = getIntent();
         Bundle data = intent != null ? intent.getExtras() : null;
         if (data == null || (data.size() == 1 && data.containsKey("path"))) {
 
         }
-        Logger.LogDebug("SettingsActivity.onResume(" + data + ")");
+        if (DEBUG)
+            Logger.LogDebug("SettingsActivity.onResume(" + data + ")");
         super.onResume();
     }
 
-    @Override
     protected void onRestoreInstanceState(Bundle state) {
-        Logger.LogDebug("SettingsActivity.onRestoreInstanceState(" + state + ")");
+        if (DEBUG)
+            Logger.LogDebug("SettingsActivity.onRestoreInstanceState(" + state + ")");
         super.onRestoreInstanceState(state);
     }
 
-    @SuppressWarnings("deprecation")
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //        int theme = getThemeId();
-        //        getApplicationContext().setTheme(theme);
-        //        setTheme(theme);
+        // int theme = getThemeId();
+        // getApplicationContext().setTheme(theme);
+        // setTheme(theme);
 
         ActionBar bar = getSupportActionBar();
         if (bar != null)
@@ -192,7 +194,8 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         if (config == null)
             config = new Bundle();
 
-        Logger.LogDebug("SettingsActivity.onCreate(" + savedInstanceState + ")");
+        if (DEBUG)
+            Logger.LogDebug("SettingsActivity.onCreate(" + savedInstanceState + ")");
 
         String path = "global";
         if (config.containsKey("path"))
@@ -246,7 +249,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                 if (pLanguage != null) {
                     String lang = pm.getSharedPreferences().getString("pref_language", "");
                     if (!lang.equals(""))
-                        pLanguage.setSummary(getDisplayLanguage(lang));
+                        pLanguage.setSummary(SettingsActivity.getDisplayLanguage(this, lang));
                     else
                         pLanguage.setSummary(pLanguage.getSummary() + " ("
                                 + Locale.getDefault().getDisplayLanguage() + ")");
@@ -255,11 +258,10 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                 final Preference pSize = pm.findPreference("text_size") != null ? pm
                         .findPreference("text_size") : findPreference("text_size");
                 if (pSize != null) {
-                    float sz = new Preferences(getApplication()).getSetting("global", "text_size",
-                            10f);
+                    float sz = new Preferences(getApplication())
+                            .getSetting("global", "text_size", 10f);
                     pSize.setSummary(sz + "");
                     pSize.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-                        @Override
                         public boolean onPreferenceClick(final Preference preference) {
                             float mSize = 10f;
                             try {
@@ -270,21 +272,17 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                             DialogHandler.showSeekBarDialog(SettingsActivity.this,
                                     getString(R.string.s_view_font_size), (int)mSize * 2, 60,
                                     new OnSeekBarChangeListener() {
-
-                                        @Override
                                         public void onProgressChanged(SeekBar seekBar,
                                                 int progress, boolean fromUser) {
                                             float fsz = (float)(progress + 1) / 2;
                                             pSize.setSummary(fsz + "");
                                         }
 
-                                        @Override
                                         public void onStartTrackingTouch(SeekBar seekBar) {
                                             // TODO Auto-generated method stub
 
                                         }
 
-                                        @Override
                                         public void onStopTrackingTouch(SeekBar seekBar) {
                                             new Preferences(getApplication()).setSetting("global",
                                                     "text_size",
@@ -304,10 +302,9 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
             // SharedPreferences sp =
             // Preferences.getPreferences(getApplicationContext(), "servers");
             // String servers = sp.getString("servers", "");
-            OpenServers servers = LoadDefaultServers(); // new
-                                                        // OpenServers(prefs.getJSON("global",
-                                                        // "servers", new
-                                                        // JSONObject()));
+            OpenServers servers = ServerSetupActivity.LoadDefaultServers(this);
+            // new OpenServers(prefs.getJSON("global", "servers", new
+            // JSONObject()));
             if (path.equals("server_add")) {
                 setTitle(getTitle() + " - Add New");
                 getPreferenceScreen().findPreference("server_delete").setEnabled(false);
@@ -369,7 +366,6 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
          */
     }
 
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         // if(mBillingService != null) mBillingService.unbind();
@@ -380,10 +376,10 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         if (mPrefServers != null) {
             // for(int i = mPrefServers.getPreferenceCount() - 1; i > 0; i--)
             // mPrefServers.removePreference(mPrefServers.getPreference(i));
-            OpenServers servers = LoadDefaultServers(); // new
-                                                        // OpenServers(prefs.getSetting("global",
-                                                        // "servers", new
-                                                        // JSONObject()));
+            OpenServers servers = ServerSetupActivity.LoadDefaultServers(this); // new
+            // OpenServers(prefs.getSetting("global",
+            // "servers", new
+            // JSONObject()));
             for (int i = 0; i < servers.size(); i++) {
                 OpenServer server = servers.get(i);
                 // Logger.LogDebug("Checking server [" + sName + "]");
@@ -404,13 +400,11 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         }
     }
 
-    @Override
     protected void onStart() {
         super.onStart();
         // ResponseHandler.register(mDonationObserver);
     }
 
-    @Override
     protected void onStop() {
         super.onStop();
         // ResponseHandler.unregister(mDonationObserver);
@@ -422,7 +416,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
             parent.getPreference(i).setOnPreferenceChangeListener(listener);
     }
 
-    private void setOnChange(Preference p, Boolean forceSummaries) {
+    public void setOnChange(Preference p, Boolean forceSummaries) {
         if (p == null)
             return;
         if (p instanceof PreferenceGroup) {
@@ -443,22 +437,22 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                     p.setDefaultValue(txt);
                 }
             } else if (p instanceof ListPreference) {
-                ((ListPreference)p).setSummary(((ListPreference)p).getValue());
+                ListPreference lp = (ListPreference)p;
+                lp.setSummary(lp.getEntry());
             }
 
     }
 
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == MODE_SERVER && data != null) {
             String sPath = data.getStringExtra("path");
             Preferences prefs = new Preferences(getApplicationContext());
-            OpenServers servers = LoadDefaultServers(); // new
-                                                        // OpenServers(prefs.getJSON("global",
-                                                        // "servers", new
-                                                        // JSONObject()));
+            OpenServers servers = ServerSetupActivity.LoadDefaultServers(this); // new
+            // OpenServers(prefs.getJSON("global",
+            // "servers", new
+            // JSONObject()));
             OpenServer server = null;
             int index = 0;
             if (sPath.equals("server_add")) {
@@ -473,7 +467,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                     if (resultCode == RESULT_FIRST_USER) // delete
                     {
                         servers.remove(index);
-                        SaveToDefaultServers(servers, getApplicationContext());
+                        ServerSetupActivity.SaveToDefaultServers(servers, getApplicationContext());
                         refreshServerList();
                         return;
                     } else
@@ -500,7 +494,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                 server.setPath(b.getString("dir"));
 
             servers.set(index, server);
-            SaveToDefaultServers(servers, getApplicationContext());
+            ServerSetupActivity.SaveToDefaultServers(servers, getApplicationContext());
             refreshServerList();
             // prefs.setSetting("global", "servers", servers.getJSONObject());
         }
@@ -515,36 +509,108 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         return false;
     }
 
-    @Override
+    public static void showMasterPassDialog(final Context context)
+    {
+        showMasterPassDialog(context, false);
+    }
+
+    public static void showMasterPassDialog(final Context context, boolean hilight)
+    {
+        final Preferences prefs = new Preferences(context);
+        String msg = context.getResources().getString(R.string.s_master_pass_warning);
+        String pw = prefs.getSetting("global", "pref_master_pass", (String)null);
+        final String sigKey = GetMasterPassword(context, true, false);
+        if (pw != null && !pw.equals(""))
+            try {
+                pw = SimpleCrypto.decrypt(sigKey, pw);
+            } catch (Exception e) {
+                try {
+                    pw = SimpleCrypto.decrypt(GetMasterPassword(context, false, false), pw);
+                } catch (Exception e2) {
+                    pw = ""; // corrupted? allow reset
+                }
+            }
+        else
+            pw = "";
+        final String old = pw;
+        final boolean isUpdate = old != null && !old.equals("");
+        if (isUpdate)
+            msg += "\n\n" + context.getResources().getString(R.string.s_pass_old);
+        final InputDialog inp = new InputDialog(context)
+                .setTitle(R.string.s_master_pass)
+                .setMessageTop(msg)
+                .setDefaultTop(isUpdate ? old.replaceAll(".", "*") : null)
+                .setMessage(R.string.s_pass_new)
+                .setNeutralButton(android.R.string.cancel, null)
+                .setCancelable(true);
+        inp.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                if (isUpdate && !inp.getInputTopText().equals(old))
+                {
+                    showMasterPassDialog(context, true);
+                    return;
+                }
+                if (!isUpdate || old.equals(inp.getInputTopText()))
+                {
+                    final String newPw = inp.getInputText();
+                    new Thread(new Runnable() {
+                        public void run() {
+                            String encPw = newPw;
+                            try {
+                                if (!newPw.equals(""))
+                                    encPw = SimpleCrypto.encrypt(sigKey, encPw);
+                            } catch (Exception e) {
+                            }
+                            prefs.setSetting("global", "pref_master_pass", encPw);
+                            OpenServers.setDecryptKey(GetMasterPassword(context));
+                            JSONArray jarr = OpenServers.getDefaultServers().getJSONArray();
+                            ServerSetupActivity.encryptPasswords(jarr, newPw);
+                            ServerSetupActivity.SaveToDefaultServers(jarr, context);
+                            OpenServers.setDefaultServers(new OpenServers(jarr));
+                        }
+                    }).start();
+                }
+            }
+        });
+        inp.create().show();
+    }
+
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+        return onPreferenceTreeClick(preferenceScreen, preference, this);
+    }
+
+    public static boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
+            Preference preference, Activity activity) {
         final String key = preference.getKey();
         if (key.equals("pref_global")) {
-            Intent intentGlobal = new Intent(this, SettingsActivity.class);
-            startActivity(intentGlobal);
+            Intent intentGlobal = new Intent(activity, SettingsActivity.class);
+            activity.startActivity(intentGlobal);
             return true;
         } else if (key.equals("pref_translate")) {
-            OpenExplorer.launchTranslator(SettingsActivity.this);
+            OpenExplorer.launchTranslator(activity);
         } else if (key.equals("pref_privacy")) {
             Intent intent = new Intent(Intent.ACTION_VIEW,
                     Uri.parse("http://brandroid.org/privacy.php"));
-            startActivity(intent);
+            activity.startActivity(intent);
+        } else if (key.equals("pref_master_pass")) {
+            showMasterPassDialog(activity);
         } else if (key.equals("pref_language")) {
 
         } else if (key.equals("pref_thumbs_cache_clear")) {
-            Toast.makeText(this, "Cache cleared!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "Cache cleared!", Toast.LENGTH_SHORT).show();
             return true;
         } else if (key.equals("pref_system_mount")) {
             final CheckBoxPreference pSystem = (CheckBoxPreference)preference;
             final boolean checked = pSystem.isChecked();
             new Thread(new Runnable() {
-                @Override
                 public void run() {
                     String mode;
                     try {
                         mode = !checked ? "ro" : "rw";
                         RootTools.remount("/system", mode);
-                        Logger.LogDebug("New /system: " + RootTools.getMountedAs("/system"));
-                        //pSystem.setChecked(RootTools.getMountedAs("/system").equalsIgnoreCase("rw"));
+                        if (DEBUG)
+                            Logger.LogDebug("New /system: " + RootTools.getMountedAs("/system"));
+                        // pSystem.setChecked(RootTools.getMountedAs("/system").equalsIgnoreCase("rw"));
                     } catch (Exception e) {
                         Logger.LogError("Unable to remount system", e);
                     }
@@ -553,45 +619,25 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
 
             return true;
         } else if (key.equals("server_add")) {
-            DialogHandler
-                    .showServerDialog(this, new OpenFTP((OpenFTP)null, null, null), null, true);
-            /*
-             * Intent intentServer = new Intent(this, SettingsActivity.class);
-             * intentServer.putExtra("path", "server_add");
-             * intentServer.putExtra("mode", MODE_SERVER);
-             * startActivityForResult(intentServer, MODE_SERVER);
-             */
+            Intent intentServer = new Intent(activity, ServerSetupActivity.class);
+            activity.startActivityForResult(intentServer, MODE_SERVER);
             return true;
         } else if (key.equals("pref_start")) {
-            OpenExplorer.showSplashIntent(this,
-                    new Preferences(this).getSetting("global", "pref_start", "External"));
+            OpenExplorer.showSplashIntent(activity,
+                    new Preferences(activity).getSetting("global", "pref_start", "External"));
             return true;
-        } else if (key.startsWith("server_modify")) {
+        } else if (key.startsWith("server_modify") && activity instanceof OpenApp) {
             int snum = -1;
+            OpenNetworkPath onp = null;
             try {
                 snum = Integer.parseInt(key.replace("server_modify_", ""));
+                onp = ServerSetupActivity.LoadDefaultServers(activity).get(snum).getOpenPath();
             } catch (NumberFormatException e) {
             }
-            if (snum > -1) {
-                String type = OpenServers.DefaultServers.get(snum).getType();
-                if (type == null)
-                    type = "ftp";
-                String[] types = getApplicationContext().getResources().getStringArray(
-                        R.array.server_types_values);
-                int pos = 0;
-                for (int i = 0; i < types.length; i++)
-                    if (types[i].toLowerCase().equals(type.toLowerCase()))
-                        pos = i;
-                DialogHandler.showServerDialog(this, snum, pos, null, true);
-            } else {
-                Intent intentServer = new Intent(this, SettingsActivity.class);
-                intentServer.putExtra("path", key);
-                intentServer.putExtra("mode", MODE_SERVER);
-                startActivityForResult(intentServer, MODE_SERVER);
-            }
+            ServerSetupActivity.showServerDialog((OpenApp)activity, onp);
             return true;
         } else if (key.equals("server_update")) {
-            Intent iNew = getIntent();
+            Intent iNew = activity.getIntent();
             // OpenServer server = new OpenServer();
             Preference p = preferenceScreen.findPreference("server_type");
             iNew.putExtra("type", ((ListPreference)p).getValue());
@@ -604,8 +650,9 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                     // server.setSetting(s,
                     // ((EditTextPreference)getPreferenceManager().findPreference("server_"
                     // + s)).getText());
-                    Logger.LogDebug("Found " + s + " = "
-                            + ((EditTextPreference)p).getEditText().getText().toString());
+                    if (DEBUG)
+                        Logger.LogDebug("Found " + s + " = "
+                                + ((EditTextPreference)p).getEditText().getText().toString());
                     iNew.putExtra(s, ((EditTextPreference)p).getEditText().getText().toString());
                 }
             // server.setSetting("name", server.getString("name",
@@ -618,13 +665,12 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
             // servers.addServer(server.getString("name", "Server"), server);
             // SaveToDefaultServers(servers, getApplicationContext());
             // prefs.setSetting("global", "servers", servers.getJSONObject());
-            setResult(RESULT_OK, iNew);
-            finish();
+            activity.setResult(RESULT_OK, iNew);
+            activity.finish();
         } else if (key.equals("server_delete")) {
-            setResult(RESULT_FIRST_USER, getIntent());
-            finish();
+            activity.setResult(RESULT_FIRST_USER, activity.getIntent());
+            activity.finish();
         }
-        super.onPreferenceTreeClick(preferenceScreen, preference);
         return false;
     }
 
@@ -642,23 +688,28 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
     }
 
     public boolean onPreferenceChange(final Preference preference, final Object newValue) {
+        return onPreferenceChange(preference, newValue, this);
+    }
+
+    public static boolean onPreferenceChange(final Preference preference, final Object newValue,
+                final Activity activity)
+    {
+        final Preferences prefs = new Preferences(activity);
+        final Intent intent = activity.getIntent();
         final String key = preference.getKey();
 
-        Logger.LogDebug("SettingsActivity.onPreferenceChange(" + key + ", " + newValue + ")");
+        if (DEBUG)
+            Logger.LogDebug("SettingsActivity.onPreferenceChange(" + key + ", " + newValue + ")");
 
-        if (key.equals("server_host")
-                && (!getIntent().hasExtra("name") || getIntent().getStringExtra("name") == null))
-            onPreferenceChange(getPreferenceScreen().findPreference("server_name"), newValue);
-        Intent intent = getIntent();
         if (Utils.inArray(key, "pref_fullscreen", "pref_fancy_menus", "pref_basebar",
                 "pref_themes", "pref_stats", "pref_root", "pref_language"))
-            getPreferences().setSetting("global", "restart", true);
+            prefs.setSetting("global", "restart", true);
         if (key.equals("servers_private"))
         {
             OpenFile f = OpenFile.getExternalMemoryDrive(true).getChild("Android").getChild("data")
                     .getChild("org.brandroid.openmanager").getChild("files")
                     .getChild("servers.json");
-            OpenFile f2 = new OpenFile(getContext().getFilesDir().getPath(), "servers.json");
+            OpenFile f2 = new OpenFile(activity.getFilesDir().getPath(), "servers.json");
             Boolean doPrivate = (Boolean)newValue;
             if (doPrivate)
             {
@@ -672,9 +723,21 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
             }
         }
         if (key.equals("pref_language"))
-            preference.setSummary(getDisplayLanguage((String)newValue));
+            preference.setSummary(SettingsActivity.getDisplayLanguage(activity, (String)newValue));
         else if (preference instanceof ListPreference && newValue instanceof String)
+        {
             preference.setSummary((String)newValue);
+            CharSequence[] opts = ((ListPreference)preference).getEntries();
+            CharSequence[] vals = ((ListPreference)preference).getEntryValues();
+            for (int i = 0; i < opts.length; i++)
+            {
+                if (vals[i].equals(newValue))
+                {
+                    preference.setSummary(opts[i]);
+                    break;
+                }
+            }
+        }
         else if (EditTextPreference.class.equals(preference.getClass())
                 && ((EditTextPreference)preference).getEditText() != null
                 && ((EditTextPreference)preference).getEditText().getTransformationMethod() != null)
@@ -685,36 +748,37 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                             ((EditTextPreference)preference).getEditText()));
 
         if (key.equals("pref_show"))
-            askApplyToAll(preference, "show_");
+            SettingsActivity.askApplyToAll(activity, preference, "show_");
         else if (key.equals("pref_sorting"))
-            askApplyToAll(preference, "sort_");
+            SettingsActivity.askApplyToAll(activity, preference, "sort_");
         else if (key.equals("pref_sorting_folders"))
-            askApplyToAll(preference, "ff_");
+            SettingsActivity.askApplyToAll(activity, preference, "ff_");
 
         // preference.getExtras().putString("value", newValue.toString());
         Logger.LogInfo("Preference: " + key + ": " + newValue.toString());
         intent.putExtra(key.replace("server_", ""), newValue.toString());
-        final OpenApp app = ((OpenApplication)getApplication());
+        final OpenApp app = ((OpenApplication)activity.getApplication());
         app.queueToTracker(new Runnable() {
             public void run() {
                 app.getAnalyticsTracker().trackEvent("Preferences", "Change", key,
                         newValue instanceof Integer ? (Integer)newValue : 0);
             }
         });
-        setIntent(intent);
+        activity.setIntent(intent);
         if (Arrays.binarySearch(new String[] {
                 "pref_fullscreen", "pref_fancy_menus", "pref_basebar", "pref_themes", "pref_stats",
                 "pref_root", "pref_language"
         }, key) > -1) {
-            getPreferences().setSetting("global", "restart", true);
-            setResult(OpenExplorer.RESULT_RESTART_NEEDED, intent);
+            prefs.setSetting("global", "restart", true);
+            activity.setResult(OpenExplorer.RESULT_RESTART_NEEDED, intent);
         } else
-            setResult(OpenExplorer.RESULT_OK, intent);
+            activity.setResult(OpenExplorer.RESULT_OK, intent);
         return true;
     }
 
-    private void askApplyToAll(final Preference preference, final String spKeyPrefix) {
-        Preferences prefs = new Preferences(this);
+    private static void askApplyToAll(final Context context, final Preference preference,
+            final String spKeyPrefix) {
+        Preferences prefs = new Preferences(context);
         final SharedPreferences sp = Preferences.getPreferences("views");
         final SharedPreferences spGlobal = prefs.getPreferences();
         final Runnable clearAll = new Runnable() {
@@ -743,131 +807,45 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
             }
         };
 
-        DialogHandler.showConfirmationDialog(getContext(), getString(R.string.apply_to_all),
+        DialogHandler.showConfirmationDialog(context,
+                context.getResources().getString(R.string.apply_to_all),
                 preference.getTitle().toString(), listener);
     }
 
-    public static OpenFile GetDefaultServerFile(Context context) {
-        OpenFile f2 = new OpenFile(context.getFilesDir().getPath(), "servers.json");
-        Preferences prefs = new Preferences(context);
-        try {
-            OpenFile f = OpenFile.getExternalMemoryDrive(true).getChild("Android").getChild("data")
-                    .getChild("org.brandroid.openmanager").getChild("files")
-                    .getChild("servers.json");
-            if (prefs.getSetting("global", "servers_private", false))
-            {
-                if (f.exists())
-                {
-                    if (f.length() > f2.length())
-                        f2.copyFrom(f);
-                    f.delete();
-                }
-                return f2;
-            }
-            if (!f.exists())
-                f.touch();
-            if (!f.exists() || !f.canWrite())
-            {
-                prefs.setSetting("global", "servers_private", true);
-                return f2;
-            }
-            else if (f2.exists()) {
-                if (OpenExplorer.IS_DEBUG_BUILD)
-                    Logger.LogVerbose("Old servers.json(" + f2.length()
-                            + ") found. Overwriting new servers.json(" + f.length() + ")!");
-                if (!f.exists() || f2.length() > f.length())
-                    f.copyFrom(f2);
-                f2.delete();
-            }
-            if (OpenExplorer.isBlackBerry() && f.exists() && f.canWrite()) {
-                f2 = OpenFile.getExternalMemoryDrive(true).getChild(".servers.json");
-                if (f2.exists()) {
-                    if (!f.exists() || f2.length() > f.length())
-                        f.copyFrom(f2);
-                    f2.delete();
-                }
-            }
-            if (!f.exists() && !f.touch())
-            {
-                prefs.setSetting("global", "servers_private", true);
-                return f2;
-            }
-            return f;
-        } catch (Exception e) {
-            prefs.setSetting("global", "servers_private", true);
-            return f2;
-        }
+    public static String GetMasterPassword(Context context)
+    {
+        return GetMasterPassword(context, true, true);
     }
 
-    public static void SaveToDefaultServers(OpenServers servers, Context context) {
-        Writer w = null;
-        OpenFile f = GetDefaultServerFile(context);
-        try {
-            f.delete();
-            f.create();
-            w = new BufferedWriter(new FileWriter(f.getFile()));
-            String data = servers.getJSONArray(true, context).toString();
-            Logger.LogDebug("Writing to " + f.getPath() + ": " + data);
-            // data = SimpleCrypto.encrypt(GetSignatureKey(context), data);
-            w.write(data);
-            w.close();
-            Logger.LogDebug("Wrote " + data.length() + " bytes to OpenServers (" + f.getPath()
-                    + ").");
-        } catch (IOException e) {
-            Logger.LogError("Couldn't save OpenServers.", e);
-        } catch (Exception e) {
-            Logger.LogError("Problem encrypting servers?", e);
-        } finally {
+    public static String GetMasterPassword(Context context, boolean useMasterKey,
+            boolean useMasterPass) {
+        String sigKey = GetSignatureKey(context, useMasterKey);
+        if (!useMasterKey)
+            return sigKey;
+        String pass = null;
+        if (useMasterPass)
+            pass = new Preferences(context)
+                    .getSetting("global", "pref_master_pass", (String)null);
+        if (pass == null || pass.equals(""))
+            return sigKey;
+        else {
             try {
-                if (w != null)
-                    w.close();
-            } catch (IOException e2) {
-                Logger.LogError("Couldn't close writer during error", e2);
+                pass = SimpleCrypto.decrypt(sigKey, pass);
+            } catch (Exception e) {
             }
+            return pass;
         }
     }
 
-    public OpenServers LoadDefaultServers() {
-        if (OpenServers.DefaultServers == null)
-            OpenServers.DefaultServers = LoadDefaultServers(getApplicationContext());
-        return OpenServers.DefaultServers;
-    }
-
-    public static OpenServers LoadDefaultServers(Context context) {
-        if (OpenServers.DefaultServers != null)
-            return OpenServers.DefaultServers;
-        OpenFile f = GetDefaultServerFile(context);
-        try {
-            if (!f.exists() && !f.create()) {
-                Logger.LogWarning("Couldn't create default servers file (" + f.getPath() + ")");
-                return new OpenServers();
-            } else if (f.length() <= 1)
-                return new OpenServers(); // Empty file
-            else {
-                // Logger.LogDebug("Created default servers file (" +
-                // f.getPath() + ")");
-                String data = f.readAscii();
-                if (OpenExplorer.IS_DEBUG_BUILD)
-                    Logger.LogDebug("Server JSON: " + data);
-                OpenServers.DefaultServers = new OpenServers(new JSONArray(data),
-                        GetSignatureKey(context));
-                Logger.LogDebug("Loaded " + OpenServers.DefaultServers.size() + " servers @ "
-                        + data.length() + " bytes from " + f.getPath());
-                return OpenServers.DefaultServers;
-            }
-        } catch (IOException e) {
-            Logger.LogError("Error loading default server list.", e);
-            return new OpenServers();
-        } catch (JSONException e) {
-            Logger.LogError("Error decoding JSON for default server list.", e);
-            return new OpenServers();
-        }
-    }
-
-    public static String GetSignatureKey(Context context) {
+    private static String GetSignatureKey(Context context, boolean useMasterKey) {
         String ret = "";
+        if (useMasterKey)
+            ret = PrivatePreferences.getKey("master_key", "");
+        if (!ret.equals(""))
+            return ret;
         try {
-            Signature[] sigs = context.getPackageManager().getPackageInfo(context.getPackageName(),
+            Signature[] sigs = context.getPackageManager().getPackageInfo(
+                    context.getPackageName(),
                     PackageManager.GET_SIGNATURES).signatures;
             for (Signature sig : sigs)
                 ret += sig.toCharsString();
@@ -877,7 +855,6 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         return ret;
     }
 
-    @Override
     public DataManager getDataManager() {
         // TODO Auto-generated method stub
         return null;
@@ -982,61 +959,4 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         return 0;
     }
 
-    @TargetApi(11)
-    public static class PreferenceFragmentV11 extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            getPreferenceManager().setSharedPreferencesName("global");
-            PreferenceManager.setDefaultValues(getActivity(), "global", R.xml.preferences,
-                    PreferenceActivity.MODE_PRIVATE, false);
-
-            addPreferencesFromResource(R.xml.preferences);
-
-            PreferenceScreen ps = getPreferenceScreen();
-            String key = null;
-            if (getArguments().containsKey("key")) {
-                Preference p = ps.findPreference(getArguments().getCharSequence("key"));
-                ps.removeAll();
-                if (p instanceof PreferenceGroup) {
-                    PreferenceGroup pc = (PreferenceGroup)p;
-                    for (int i = 0; i < pc.getPreferenceCount(); i++)
-                        ps.addPreference(pc.getPreference(i));
-                } else
-                    ps.addPreference(p);
-                setPreferenceScreen(ps);
-            }
-
-            ((SettingsActivity)getActivity()).setOnChange(getPreferenceScreen(), false);
-        }
-
-        @Override
-        public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
-                Preference preference) {
-            super.onPreferenceTreeClick(preferenceScreen, preference);
-
-            if (((SettingsActivity)getActivity()).onPreferenceTreeClick(preferenceScreen,
-                    preference))
-                return true;
-
-            if (preference.getKey().equals("server_prefs")) {
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.content_frag, new ServerSettings()).addToBackStack(null)
-                        .commit();
-                return true;
-            }
-            return false;
-        }
-
-        @SuppressLint("ValidFragment")
-        public class ServerSettings extends PreferenceFragment {
-            @Override
-            public void onCreate(Bundle savedInstanceState) {
-                super.onCreate(savedInstanceState);
-                addPreferencesFromResource(R.xml.server_prefs);
-            }
-        }
-
-    }
 }

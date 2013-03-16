@@ -72,7 +72,7 @@
     <string name="s_pref_server_type" auto="1">Tipo de servidor</string>
     <string name="s_files" auto="1">archivos</string>
     <string name="s_create" auto="1">Crear</string>
-    <string name="s_title_holding_x_files" formatted="false">Mantener %s archivos</string>
+    <string name="s_title_holding_x_files">Mantener %s archivos</string>
     <string name="s_title_newfolder">Crear una nueva carpeta</string>
     <string name="s_title_send" auto="1">Enviar xxx</string>
     <string name="s_title_unzip">Descomprimir zip xxx</string>
@@ -85,10 +85,10 @@
     <string name="s_title_zipping">Comprimiendo</string>
     <string name="s_title_unzipping">Descomprimiendo</string>
     <string name="s_title_wait">Por favor, espere ...</string>
-    <string name="s_alert_confirm_delete" formatted="false">La eliminación de %s no se puede deshacer. ¿Está seguro que desea continuar?</string>
+    <string name="s_alert_confirm_delete">La eliminación de %s no se puede deshacer. ¿Está seguro que desea continuar?</string>
     <string name="s_alert_rename" auto="1">Por favor, escriba el nuevo nombre de este archivo</string>
     <string name="s_alert_newfolder" auto="1">Escriba el nombre de la carpeta que desea crear.</string>
-    <string name="s_alert_unzip" formatted="false">¿Te gustaría descomprimir zip %s aquí o en alguna otra carpeta?</string>
+    <string name="s_alert_unzip">¿Te gustaría descomprimir zip %s aquí o en alguna otra carpeta?</string>
     <string name="s_button_unzip_here">Descomprimir zip aquí</string>
     <string name="s_button_unzip_else">Descomprimir zip en otra parte ...</string>
     <string name="s_msg_none">Los Archivo (s) no puede (n) ser</string>
@@ -141,7 +141,7 @@
     <string name="s_menu_delete_all">Eliminar todo</string>
     <string name="s_menu_move_all" auto="1">Mover aquí</string>
     <string name="s_menu_copy_all" auto="1">Copiar aquí</string>
-    <string name="s_confirm_delete" formatted="false" auto="1">¿Está seguro que desea eliminar  %s ?</string>
+    <string name="s_confirm_delete" auto="1">¿Está seguro que desea eliminar  %s ?</string>
     <string name="s_error_same_destination">El directorio destino es el mismo.</string>
     <string name="s_sample_notification">Copiando -> sdcard:  3 Archivos</string>
     <string name="s_pref_fullscreen">Pantalla completa</string>
@@ -235,12 +235,9 @@
     <string name="s_menu_location_ext">Ruta de memoria externa</string>
     <string name="s_wtf_context">Por favor, describa el contexto en el que falló la aplicación:</string>
     <string name="thanks" auto="1">¡Gracias!</string>
-    <string name="menu_view_font_small">Fuente Pequeña</string>
-    <string name="menu_view_font_medium">Fuente de tamaño medio</string>
-    <string name="menu_view_font_large">Fuente Grande</string>
     <string name="app_description" auto="1">Abra el Explorador - administrador de archivos de código abierto para todos los dispositivos! (Tabletas, teléfonos, televisores de pantalla de Google, bocadillos!) \n-completo sistema de gestión de archivo \n-USB, SD y otros medios externos \n de la red para conexión (FTP, SFTP, SMB / Samba / Windows / LAN / Wi-Fi) \n - Editor de texto \n-Smart Folders que exploran los diferentes tipos de medios (videos, fotos, música, descargas) \n-View Pager directorio de navegación (a la derecha pase para subir un directorio) \n-de superusuario / root capacidad para la lista / leer las carpetas del sistema (sin sistema de escritura aún) \n \nFeatures por venir: \n-con pestañas Editor de texto \n-Más capacidad de red (Dropbox, Box.net, Sky Drive) \n-caché de la estructura de archivos sin conexión, se recuerda que los archivos que tiene en diferentes lugares sin necesidad de conectarse \n-Disk mapa del espacio de calor muestra dónde están sus archivos son más grandes \n \n * NOTA: Esta aplicación está en beta. Todavía hay muchos errores. Si usted no desea experimentar estos errores, por favor, no descargar esta aplicación. Si usted quisiera que me ayudara a encontrar estos errores, por favor envíeme un correo electrónico, o que colaboran conmigo en GitHub (https://github.com/BrandoCommando/OpenExplorer/). Por favor, recuerde malas calificaciones ayudan a nadie.</string>
     <string name="alert_translate_google">Hola, esta traducción es proporcionada por Google Translate. Si sabes Inglés, así como español, y le gustaría ayudar a proporcionar una mejor traducción, por favor haga clic en este botón:</string>
-    <string name="alert_translate_none" formatted="false" auto="1">Hola, parece que usted está usando un lenguaje no compatible. ¿Sabe usted s Inglés y %s? Si quieres ayudar a proporcionar una traducción correcta, haga clic aquí:</string>
+    <string name="alert_translate_none" auto="1">Hola, parece que usted está usando un lenguaje no compatible. ¿Sabe usted s Inglés y %s? Si quieres ayudar a proporcionar una traducción correcta, haga clic aquí:</string>
     <string name="button_translate">español</string>
     <string name="httpError">Se ha producido un error de red.</string>
     <string name="httpErrorAuth">La autenticación no se ha realizado correctamente.</string>
@@ -304,8 +301,6 @@
     <string name="no_items">No hay archivos</string>
     <string name="clipboard">Portapapeles</string>
     <string name="theme">temas</string>
-    <string name="theme_dark">Tema oscuro</string>
-    <string name="theme_light">Tema claro</string>
     <string name="chooser_remember">Recordar mi elección</string>
     <string name="use_system">Usar sistema>></string>
     <string name="activity_resolver_use_always">siempre</string>

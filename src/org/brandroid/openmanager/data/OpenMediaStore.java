@@ -5,10 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import org.brandroid.openmanager.fragments.DialogHandler;
+import org.brandroid.openmanager.data.OpenPath.*;
 import android.database.Cursor;
 import android.net.Uri;
 
-public class OpenMediaStore extends OpenPath {
+public class OpenMediaStore extends OpenPath implements OpenStream {
     private OpenCursor curs;
     private String id;
     private String name;
@@ -204,11 +205,6 @@ public class OpenMediaStore extends OpenPath {
 
     public long getMediaID() {
         return Long.parseLong(id);
-    }
-
-    @Override
-    public void setPath(String path) {
-
     }
 
     @Override

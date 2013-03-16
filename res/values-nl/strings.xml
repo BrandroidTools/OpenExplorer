@@ -73,7 +73,7 @@
     <string name="s_pref_server_type">Server Type</string>
     <string name="s_files">bestanden</string>
     <string name="s_create">Aanmaken</string>
-    <string name="s_title_holding_x_files" formatted="false">Vasthouden van %s bestanden</string>
+    <string name="s_title_holding_x_files">Vasthouden van %s bestanden</string>
     <string name="s_title_newfolder">Maak een nieuwe map aan</string>
     <string name="s_title_send">Verzend xxx</string>
     <string name="s_title_unzip">Pak xxx uit</string>
@@ -86,10 +86,10 @@
     <string name="s_title_zipping">Zippen</string>
     <string name="s_title_unzipping">Uitpakkend</string>
     <string name="s_title_wait">Even geduld...</string>
-    <string name="s_alert_confirm_delete" formatted="false"> %s verwijderen kan niet ongedaan worden gemaakt. Ben je zeker dat je wil verdergaan?</string>
+    <string name="s_alert_confirm_delete"> %s verwijderen kan niet ongedaan worden gemaakt. Ben je zeker dat je wil verdergaan?</string>
     <string name="s_alert_rename">Tik een nieuwe naam voor dit bestand in</string>
     <string name="s_alert_newfolder">\nTik de naam van de map die je wil aanmaken.</string>
-    <string name="s_alert_unzip" formatted="false">\nWil je %s hier ofwel in een andere map uitpakken?</string>
+    <string name="s_alert_unzip">\nWil je %s hier ofwel in een andere map uitpakken?</string>
     <string name="s_button_unzip_here">Hier uitpakken</string>
     <string name="s_button_unzip_else">Ergens anders uitpakken...</string>
     <string name="s_msg_none">Bestand(en) konden niet</string>
@@ -142,7 +142,7 @@
     <string name="s_menu_delete_all">Verwijder alles</string>
     <string name="s_menu_move_all">Verplaats naar hier</string>
     <string name="s_menu_copy_all">Kopieer hier</string>
-    <string name="s_confirm_delete" formatted="false">Weet je zeker dat je %s wil verwijderen?</string>
+    <string name="s_confirm_delete">Weet je zeker dat je %s wil verwijderen?</string>
     <string name="s_error_same_destination">Doelmap is dezelfde</string>
     <string name="s_sample_notification">3 bestanden naar sd-kaart kopieeren</string>
     <string name="s_pref_fullscreen">Volledig scherm</string>
@@ -236,12 +236,9 @@
     <string name="s_menu_location_ext">Locatie extern geheugen</string>
     <string name="s_wtf_context">Verklaar a.u.b. de context van deze crash:</string>
     <string name="thanks">Dankje!</string>
-    <string name="menu_view_font_small">Klein lettertype</string>
-    <string name="menu_view_font_medium">Gemiddeld lettertype</string>
-    <string name="menu_view_font_large">Groot lettertype</string>
     <string name="app_description">Niemand </string>
-    <string name="alert_translate_google" formatted="false">Hallo, deze vertaling werd automatisch uitgevoerd door Google Translate. Indien je zowel Engels als %s kent en zou willen helpen met een betere vertaling, klik dan op deze knop:</string>
-    <string name="alert_translate_none" formatted="false">Het lijkt erop dat je een niet ondersteunde taal gebruikt. Ken je zowel Engels als %s en zou je willen helpen met de vertaling, klik dan hier:</string>
+    <string name="alert_translate_google">Hallo, deze vertaling werd automatisch uitgevoerd door Google Translate. Indien je zowel Engels als %s kent en zou willen helpen met een betere vertaling, klik dan op deze knop:</string>
+    <string name="alert_translate_none">Het lijkt erop dat je een niet ondersteunde taal gebruikt. Ken je zowel Engels als %s en zou je willen helpen met de vertaling, klik dan hier:</string>
     <string name="button_translate">Vertaal</string>
     <string name="httpError">Er is een netwerkfout opgetreden.</string>
     <string name="httpErrorAuth">Verificatie mislukt.</string>
@@ -305,8 +302,6 @@
     <string name="no_items">Lege map.</string>
     <string name="clipboard">Klembord</string>
     <string name="theme">Thema</string>
-    <string name="theme_dark">Donker UI</string>
-    <string name="theme_light">Lichter UI</string>
     <string name="chooser_remember">Onthoud mijn keuze</string>
     <string name="use_system">Gebruik systeem >></string>
     <string name="activity_resolver_use_always">Altijd </string>

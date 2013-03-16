@@ -5,6 +5,7 @@ import java.util.Date;
 
 import org.brandroid.utils.Logger;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -107,6 +108,7 @@ public class IconAnimationPanel extends SurfaceView implements SurfaceHolder.Cal
             this.running = running;
         }
 
+        @SuppressLint("WrongCall")
         public void run() {
             Canvas c;
             while (running) {

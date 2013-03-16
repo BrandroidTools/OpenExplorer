@@ -23,6 +23,8 @@ import org.brandroid.openmanager.fragments.ContentFragment;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.openmanager.views.RemoteImageView;
+import org.brandroid.utils.ViewUtils;
+
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -31,9 +33,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class BookmarkHolder {
-    private RemoteImageView mIcon;
     private ImageView mEject;
-    private TextView mMainText, mInfo, mPath, mSizeText;
     private View mParentView;
     private String sTitle;
     private String sPath;
@@ -49,7 +49,6 @@ public class BookmarkHolder {
         mParentView = view;
         sPath = path.getPath();
         mFile = path;
-        ensureViews();
         this.mode = mode;
         // mIndicate = (ImageView)view.findViewById(R.id.)
         setTitle(title);
@@ -57,19 +56,6 @@ public class BookmarkHolder {
 
     public int getMode() {
         return mode;
-    }
-
-    private void ensureViews() {
-        if (mIcon == null)
-            mIcon = (RemoteImageView)mParentView.findViewById(R.id.content_icon);
-        if (mMainText == null && mParentView.findViewById(R.id.content_text) != null && mParentView.findViewById(R.id.content_text) instanceof TextView)
-            mMainText = (TextView)mParentView.findViewById(R.id.content_text);
-        if (mEject == null)
-            mEject = (ImageView)mParentView.findViewById(R.id.eject);
-        if (mInfo == null)
-            mInfo = (TextView)mParentView.findViewById(R.id.content_info);
-        if (mSizeText == null)
-            mSizeText = (TextView)mParentView.findViewById(R.id.size_text);
     }
 
     public void hideViews(View... views) {
@@ -83,18 +69,11 @@ public class BookmarkHolder {
     }
 
     public RemoteImageView getIconView() {
-        ensureViews();
-        return mIcon;
+        return (RemoteImageView)mParentView.findViewById(R.id.content_icon);
     }
 
     public void setIconResource(int res) {
-        ensureViews();
-        if (mIcon != null)
-            mIcon.setImageDrawable(mParentView.getResources().getDrawable(res));
-    }
-
-    public void setIconDrawable(Drawable d) {
-        mIcon.setImageDrawable(d);
+        ViewUtils.setImageResource(mParentView, res, R.id.content_icon);
     }
 
     public void setEjectClickListener(View.OnClickListener listener) {
@@ -108,6 +87,9 @@ public class BookmarkHolder {
     }
 
     public Boolean isEjectable() {
+        return isEjectable(getOpenPath());
+    }
+    public static Boolean isEjectable(OpenPath mFile) {
         String path = mFile.getPath().toLowerCase();
         if (path.startsWith("/storage/") && (path.endsWith("sdcard1") || path.contains("usb")))
             return true;
@@ -127,8 +109,7 @@ public class BookmarkHolder {
 
     public void setPath(String path) {
         sPath = path;
-        if (mPath != null)
-            mPath.setText(path.substring(0, path.lastIndexOf("/")));
+        ViewUtils.setText(mParentView, path, R.id.text_path);
     }
 
     public String getTitle() {
@@ -140,20 +121,17 @@ public class BookmarkHolder {
     }
 
     public void setTitle(String title, boolean permanent) {
-        if (mMainText != null)
-            mMainText.setText(title);
+        ViewUtils.setText(mParentView, title, R.id.content_text);
         if (permanent)
             sTitle = title;
     }
 
     public void hideTitle() {
-        if (mMainText != null)
-            mMainText.setVisibility(View.GONE);
+        ViewUtils.setViewsVisible(mParentView, false, R.id.content_text);
     }
 
     public void showTitle() {
-        if (mMainText != null)
-            mMainText.setVisibility(View.VISIBLE);
+        ViewUtils.setViewsVisible(mParentView, true, R.id.content_text);
     }
 
     public View getView() {
@@ -161,17 +139,28 @@ public class BookmarkHolder {
     }
 
     public String getInfo() {
+        TextView mInfo = (TextView)mParentView.findViewById(R.id.content_info);
         return mInfo != null ? mInfo.getText().toString() : null;
     }
 
-    public void setInfo(String info) {
+    public void setInfo(final String info) {
+        final TextView mInfo = (TextView)mParentView.findViewById(R.id.content_info);
         if (mInfo != null)
-            mInfo.setText(info);
+            mInfo.post(new Runnable() {
+                public void run() {
+                    mInfo.setText(info);
+                }
+            });
     }
 
-    public void setSizeText(String txt) {
+    public void setSizeText(final String txt) {
+        final TextView mSizeText = (TextView)mParentView.findViewById(R.id.size_text);
         if (mSizeText != null)
-            mSizeText.setText(txt);
+            mSizeText.post(new Runnable() {
+                public void run() {
+                    mSizeText.setText(txt);
+                }
+            });
     }
 
     private static String getTitleFromPath(String path) {
@@ -184,8 +173,7 @@ public class BookmarkHolder {
     }
 
     public void showPath(Boolean visible) {
-        if (mPath != null)
-            mPath.setVisibility(visible ? View.VISIBLE : View.GONE);
+        ViewUtils.setViewsVisible(mParentView, visible, R.id.text_path);
     }
 
     /*
@@ -196,7 +184,7 @@ public class BookmarkHolder {
     public Drawable getIcon(OpenApp app) {
         if (getIconView() != null && getIconView().getDrawable() != null)
             return getIconView().getDrawable();
-        if (mIcon != null && getOpenPath() != null) {
+        if (getOpenPath() != null) {
             Bitmap bmp = ThumbnailCreator.getThumbnailCache(app, getOpenPath(),
                     ContentFragment.mListImageSize, ContentFragment.mListImageSize);
             if (bmp != null)

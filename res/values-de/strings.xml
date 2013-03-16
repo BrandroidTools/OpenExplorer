@@ -142,7 +142,7 @@
     <string name="s_menu_delete_all">Alle löschen</string>
     <string name="s_menu_move_all">Hierhin verschieben</string>
     <string name="s_menu_copy_all">Hierher kopieren</string>
-    <string name="s_confirm_delete" formatted="false">Wollen Sie %s wirklich löschen?</string>
+    <string name="s_confirm_delete">Wollen Sie %s wirklich löschen?</string>
     <string name="s_error_same_destination">Das Zielverzeichnis ist gleich dem Quellverzeichnis.</string>
     <string name="s_sample_notification">Kopieren -> SD-Karte:  \\n3 Dateien</string>
     <string name="s_pref_fullscreen">Vollbild</string>

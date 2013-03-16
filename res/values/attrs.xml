@@ -35,6 +35,8 @@
         <attr name="actionIconOperations" format="reference" />
         <attr name="actionIconRefresh" format="reference" />
         <attr name="actionIconSearch" format="reference" />
+        <attr name="actionIconCheck" format="reference" />
+        <attr name="actionIconCancel" format="reference" />
 
         <!-- Action Mode Icons -->
         <attr name="actionIconRename" format="reference" />

@@ -57,6 +57,7 @@
 
                 <CheckBox
                     android:id="@+id/check_port"
+                    style="@style/Text.Small.Checkbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBaseline="@+id/text_port"
@@ -65,59 +66,87 @@
                     android:layout_marginTop="1dp"
                     android:layout_weight="1"
                     android:checked="true"
-                    android:text="@string/s_default"
-                    android:textAppearance="@style/Text.Small" />
+                    android:text="@string/s_default" />
             </RelativeLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" >
-
-                    <include
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        layout="@layout/server_host" />
-                </FrameLayout>
-
-                <EditText
-                    android:id="@+id/text_path"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="@string/s_pref_server_path"
-                    android:inputType="textNoSuggestions|text|textWebEditText"
-                    android:singleLine="true" >
-                </EditText>
-            </LinearLayout>
-
-            <LinearLayout
+            <include
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                layout="@layout/server_auth_stub" />
 
-                <EditText
-                    android:id="@+id/text_user"
+            <LinearLayout
+                android:id="@+id/server_texts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" >
+
+                        <include
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            layout="@layout/server_host" />
+                    </FrameLayout>
+
+                    <EditText
+                        android:id="@+id/text_path"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="@string/s_pref_server_path"
+                        android:inputType="textNoSuggestions|text|textWebEditText"
+                        android:singleLine="true" >
+                    </EditText>
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/s_pref_server_user"
-                    android:inputType="textNoSuggestions"
-                    android:singleLine="true" />
+                    android:orientation="horizontal" >
 
-                <EditText
-                    android:id="@+id/text_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/s_pref_server_password"
-                    android:inputType="textPassword"
-                    android:singleLine="true" />
+                    <EditText
+                        android:id="@+id/text_user"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/s_pref_server_user"
+                        android:inputType="textNoSuggestions"
+                        android:singleLine="true" />
+                    
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        >
+
+                    <EditText
+                        android:id="@+id/text_password"
+                        android:layout_alignParentLeft="true"
+                        android:layout_toLeftOf="@+id/check_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/s_pref_server_password"
+                        android:inputType="textPassword"
+                        android:singleLine="true" />
+
+                    <CheckBox
+                        android:id="@+id/check_password"
+                        style="@style/Text.Small.Checkbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:lines="1"
+                        android:text="@string/s_show_password" />
+                    </RelativeLayout>
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -133,15 +162,6 @@
                     android:hint="@string/s_pref_server_name"
                     android:inputType="textNoSuggestions"
                     android:singleLine="true" />
-
-                <CheckBox
-                    android:id="@+id/check_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:lines="1"
-                    android:text="@string/s_show_password"
-                    android:textAppearance="@style/Text.Small" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

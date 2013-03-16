@@ -4,10 +4,8 @@ package org.brandroid.openmanager.data;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
-import org.brandroid.openmanager.data.OpenPath.NeedsTempFile;
+import org.brandroid.openmanager.data.OpenPath.*;
 import org.brandroid.utils.Logger;
 
 import android.annotation.SuppressLint;
@@ -18,7 +16,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.MediaStore;
 
-public class OpenContent extends OpenPath implements NeedsTempFile {
+public class OpenContent extends OpenPath implements NeedsTempFile, OpenStream {
     private static final long serialVersionUID = 3185620135972000643L;
     private final Uri uri;
     private final Context mContext;
@@ -61,11 +59,6 @@ public class OpenContent extends OpenPath implements NeedsTempFile {
     @Override
     public String getAbsolutePath() {
         return uri.getPath();
-    }
-
-    @Override
-    public void setPath(String path) {
-
     }
 
     @Override

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="app_name">Open Explorer</string>
     <string name="s_photos" auto="1">Fotoğraflar</string>
@@ -74,7 +74,7 @@
     <string name="s_pref_server_type" auto="1">Sunucu Türü</string>
     <string name="s_files">Dosyalar</string>
     <string name="s_create">Oluştur</string>
-    <string name="s_title_holding_x_files" formatted="false">% dosyaları seçildi</string>
+    <string name="s_title_holding_x_files" tools:ignore="StringFormatMatches">% dosyaları seçildi</string>
     <string name="s_title_newfolder">Yeni klasör oluştur</string>
     <string name="s_title_send">...leri gonder</string>
     <string name="s_title_unzip">...leri sıkıştırmadan çıkart</string>
@@ -87,14 +87,14 @@
     <string name="s_title_zipping">Sıkıştırılıyor</string>
     <string name="s_title_unzipping">Sıkıştırma açılıyor</string>
     <string name="s_title_wait" auto="1">Lütfen bekleyin ...</string>
-    <string name="s_alert_confirm_delete" formatted="false">Silinen % lar geri alınamaz. Devam etmek istediğinize emin misiniz?</string>
+    <string name="s_alert_confirm_delete">Silinen % lar geri alınamaz. Devam etmek istediğinize emin misiniz?</string>
     <string name="s_alert_rename">Bu dosya için yeni bir isim giriniz</string>
     <string name="s_alert_newfolder">Oluşturmak istediğiniz klasör için isim giriniz.</string>
-    <string name="s_alert_unzip" formatted="false">%ları buraya mı açmak istersiniz yoksa başka bir klasöre mi?</string>
+    <string name="s_alert_unzip">%ları buraya mı açmak istersiniz yoksa başka bir klasöre mi?</string>
     <string name="s_button_unzip_here">Buraya çıkart</string>
     <string name="s_button_unzip_else">Başka bir yere çıkart</string>
-    <string name="s_msg_none" formatted="false">Dosya(lar) %ılamadı</string>
-    <string name="s_msg_some" formatted="false">Bazı dosyalar %ılamadı</string>
+    <string name="s_msg_none">Dosya(lar) %ılamadı</string>
+    <string name="s_msg_some">Bazı dosyalar %ılamadı</string>
     <string name="s_msg_all" auto="1">Dosya (lar) başarıyla</string>
     <string name="s_msg_deleted" auto="1">silindi</string>
     <string name="s_msg_moved" auto="1">taşındı</string>
@@ -143,7 +143,7 @@
     <string name="s_menu_delete_all" auto="1">Tümünü Sil</string>
     <string name="s_menu_move_all">Buraya Taşı</string>
     <string name="s_menu_copy_all">Buraya kopyala</string>
-    <string name="s_confirm_delete" formatted="false">%ları silmek istediğinizden emin misiniz?</string>
+    <string name="s_confirm_delete">%s ları silmek istediğinizden emin misiniz?</string>
     <string name="s_error_same_destination" auto="1">Hedef dizin aynıdır.</string>
     <string name="s_sample_notification">Kopyalanıyor -> sdcard: n 3 dosya</string>
     <string name="s_pref_fullscreen" auto="1">Tam Ekran</string>
@@ -212,8 +212,8 @@
     <string name="s_pref_fancy_menus" auto="1">Fantezi Menüler</string>
     <string name="s_pref_fancy_context" auto="1">Fantezi Bağlam Menüler</string>
     <string name="s_search_files">Dosya sistemi ara</string>
-    <string name="search_summary" formatted="false">\" % \" yı (%d) içinde ara</string>
-    <string name="search_results" formatted="false">%d içindeki \" % \" sonuçları</string>
+    <string name="search_summary" tools:ignore="StringFormatCount">\" %1$s \" yı (%2$d) içinde ara</string>
+    <string name="search_results" formatted="false">%d içindeki \" %s \" sonuçları</string>
     <string name="s_menu_exit" auto="1">Çıkış</string>
     <string name="s_warn_wtf_message">Oops! İşlenemeyen bir hata oluştu. Beta sürümlerde sık karşılaşılan bir durum ve çözümü bu gibi durumların anonim raporlarla geliştiriciye bildirilmeidir.  Bu durum geliştiriciye bildirilsin mi?</string>
     <string name="s_warn_wtf_ps">***Bu Beta bir uygulamadır. Lütfen kötü bir değerlendirme puanı vermeyin. Sizi gerçekten rahatsız ederse sadece cihazınızdan kaldırın.</string>
@@ -242,7 +242,7 @@
     <string name="menu_view_font_large">Büyük Boy Yazılar</string>
     <string name="app_description" auto="1">Açık Explorer - tüm cihazlar için açık kaynak bir dosya yöneticisi! (Tablet, Telefonları, Google TV, sandviçler!)  N-Komple dosya sistem yönetimi  n-USB, SD ve diğer dış ortam  n-Ağ Bağlanabilir (FTP, SFTP, SMB / Samba / Windows / Lan / WIFI)  n - Text Editor  n-Akıllı Klasörler farklı medya türlerini (Video, Fotoğraf, Müzik, indir)  n-View Çağrı dizin navigasyon (bir dizin yukarı çıkmak için tokatlamak sağ)  n-Superuser / Kök yeteneği / liste için tarama Sistem klasörleri (hiçbir sistem henüz yazma) gelmek  n  nFeatures okuyun:  n-Sekmeli Metin Editörü  n-Daha Fazla Ağ yeteneği (Dropbox, Box.net, Sky sürücü)  n-Çevrimdışı dosya yapısı önbellek, hatırlar, hangi dosyaların bağlanmak gerek  n-Disk alanı ısı haritası sizin en büyük dosyaların nerede gösterir olmadan farklı yerlerde var  n  n * LÜTFEN DİKKAT: Bu app Beta bulunmaktadır. BİRÇOK hataları hala var. Eğer bu hataları yaşamak istemiyorsanız, lütfen bu app indirmek yok. Eğer beni bu hataları bulmanıza yardımcı olmak isterseniz, lütfen bana e-posta veya GitHub (https://github.com/BrandoCommando/OpenExplorer/) benimle işbirliği. Kötü derecelendirme kimse yardım unutmayın.</string>
     <string name="alert_translate_google">Merhaba bu çeviri Tuncay Acuner tarafından sağlandı. Eğer ingilizcenize güveniyorsanız ve daha iyi çeviririm diyorsanız buraya tıklayın:</string>
-    <string name="alert_translate_none" auto="1" formatted="false">Merhaba, size desteklenmeyen bir dil kullanarak anlaşılmaktadır. İngilizce ve %s biliyor musunuz? Eğer doğru bir çeviri sağlanmasında yardımcı olmak istiyorsanız, buraya tıklayın:</string>
+    <string name="alert_translate_none" auto="1">Merhaba, size desteklenmeyen bir dil kullanarak anlaşılmaktadır. İngilizce ve %s biliyor musunuz? Eğer doğru bir çeviri sağlanmasında yardımcı olmak istiyorsanız, buraya tıklayın:</string>
     <string name="button_translate">Çevir</string>
     <string name="httpError">Bir ağ hatası oluştu.</string>
     <string name="httpErrorAuth">Kimlik doğrulanamadı.</string>

@@ -140,13 +140,11 @@
                 android:icon="@drawable/ic_menu_paste"
                 android:showAsAction="always"
                 android:title="@android:string/paste"/>
-            <!--
-     			<item
-			    android:id="@+id/menu_refresh"
+     		<item
+			    android:id="@+id/menu_refresh2"
 			    android:title="@string/s_menu_refresh"
 			    android:icon="@drawable/ic_menu_refresh"
 			    />
-            -->
         </menu>
     </item>
     <item

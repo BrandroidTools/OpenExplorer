@@ -2,31 +2,21 @@
 package org.brandroid.openmanager.util;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Hashtable;
 
 import jcifs.smb.SmbAuthException;
 import jcifs.smb.SmbException;
 
-import org.brandroid.openmanager.R;
-import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
-import org.brandroid.openmanager.data.OpenFTP;
-import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenSMB;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
-import org.brandroid.openmanager.fragments.ContentFragment;
-import org.brandroid.openmanager.util.RootManager.UpdateCallback;
 import org.brandroid.utils.Logger;
 
-import android.content.Context;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 
@@ -86,8 +76,8 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
         if (params != null)
             for (OpenPath path : params) {
                 try {
-                    if (path instanceof OpenNetworkPath && ((OpenNetworkPath)path).isConnected())
-                        ((OpenNetworkPath)path).disconnect();
+                    if (path instanceof OpenNetworkPath.PipeNeeded && ((OpenNetworkPath.PipeNeeded)path).isConnected())
+                        ((OpenNetworkPath.PipeNeeded)path).disconnect();
                 } catch (IOException e) {
                 }
                 mFileTasks.remove(path.getPath());
@@ -127,9 +117,9 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
                 SimpleUserInfo info = new SimpleUserInfo();
                 OpenServer server = null;
                 if (path instanceof OpenNetworkPath) {
-                    int si = ((OpenNetworkPath)path).getServersIndex();
+                    int si = ((OpenNetworkPath)path).getServerIndex();
                     if (si > -1)
-                        server = OpenServers.DefaultServers.get(si);
+                        server = OpenServers.getDefaultServers().get(si);
                     if (server != null && server.getPassword() != null
                             && server.getPassword() != "")
                         info.setPassword(server.getPassword());

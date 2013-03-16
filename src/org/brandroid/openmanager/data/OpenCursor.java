@@ -280,23 +280,6 @@ public class OpenCursor extends OpenPath {
         return false;
     }
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void setPath(String path) {
-
-    }
-
     public long getTotalSize() {
         return mTotalSize;
     }

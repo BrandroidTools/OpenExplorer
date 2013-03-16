@@ -43,7 +43,7 @@ import android.widget.Toast;
  * @author BrandoCommando
  */
 @SuppressLint("NewApi")
-public class OpenClipboard extends BaseAdapter implements Set<OpenPath> {
+public class OpenClipboard extends BaseAdapter implements List<OpenPath> {
     private static final long serialVersionUID = 8847538312028343319L;
     public boolean DeleteSource = false;
     public boolean ClearAfter = true;

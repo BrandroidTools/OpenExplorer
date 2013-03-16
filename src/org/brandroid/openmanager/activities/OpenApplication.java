@@ -20,10 +20,12 @@ import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+import com.stericson.RootTools.RootTools;
 
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.TypedArray;
@@ -45,6 +47,7 @@ public class OpenApplication extends Application implements OpenApp {
     private ActionMode mActionMode;
     private GoogleAnalyticsTracker mTracker;
     private SparseArray<Integer> mThemedAssets = new SparseArray<Integer>();
+    private static Boolean mRootAccess = null;
 
     @Override
     public void onCreate() {
@@ -262,5 +265,35 @@ public class OpenApplication extends Application implements OpenApp {
     @Override
     public void refreshBookmarks() {
 
+    }
+
+    public static boolean hasRootAccess() {
+        return hasRootAccess(!Thread.currentThread().equals(OpenExplorer.UiThread));
+    }
+
+    public static boolean hasRootAccess(boolean doAsk)
+    {
+        if(OpenExplorer.IS_DEBUG_BUILD)
+            Logger.LogDebug("hasRootAccess(" + doAsk + ")? " + mRootAccess);
+        if (mRootAccess != null)
+            return mRootAccess;
+        try {
+            if (!RootTools.isAccessRequested() && doAsk)
+            {
+                mRootAccess = false;
+                mRootAccess = RootTools.isAccessGiven();
+            } else if (RootTools.isAccessRequested())
+                mRootAccess = RootTools.isAccessGiven();
+            else
+                return false;
+        } catch (Exception e) {
+            mRootAccess = false;
+        }
+        return mRootAccess;
+    }
+    
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        
     }
 }

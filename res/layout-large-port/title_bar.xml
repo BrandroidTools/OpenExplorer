@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/title_bar"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="bottom|left"
+    android:gravity="bottom|left" >
+
+    <RelativeLayout
+        android:id="@+id/title_icon_holder"
+        style="@style/ActionBarCompatHomeItem"
+        android:layout_width="@dimen/actionbar_compat_button_home_width"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="5dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_horizontal"
+        android:longClickable="true"
+        android:padding="5dp" >
+
+        <ImageView
+            android:id="@+id/title_icon_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/title_icon"
+            android:layout_alignParentLeft="true"
+            android:layout_alignTop="@+id/title_icon"
+            android:layout_centerInParent="true"
+            android:src="?attr/actionIconHomeUp" />
+
+        <ImageView
+            android:id="@+id/title_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/title_icon_up"
+            android:src="@drawable/ic_launcher" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/title_title"
+        style="@style/Text.Large"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/title_icon_holder"
+        android:layout_alignParentTop="true"
+        android:layout_alignTop="@+id/title_icon_holder"
+        android:layout_toLeftOf="@+id/title_static_buttons"
+        android:layout_toRightOf="@+id/title_icon_holder"
+        android:gravity="left|center_vertical"
+        android:text="@string/app_name" />
+
+    <ProgressBar
+        android:id="@+id/title_progress"
+        style="@android:style/Widget.ProgressBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_margin="4dp"
+        android:layout_toLeftOf="@+id/title_static_buttons"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/title_static_buttons"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/actionbar_compat_height"
+        android:layout_toLeftOf="@+id/title_buttons"
+        android:orientation="horizontal" >
+
+        <include
+            android:id="@+id/title_paste"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            layout="@layout/title_paste" />
+
+        <ImageButton
+            android:id="@+id/title_ops"
+            style="@style/ActionBarCompatHomeItem"
+            android:layout_width="@dimen/actionbar_compat_button_width"
+            android:layout_height="match_parent"
+            android:longClickable="true"
+            android:padding="0dp"
+            android:src="@drawable/ic_gear" />
+
+        <ImageButton
+            android:id="@+id/title_log"
+            style="@style/ActionBarCompatHomeItem"
+            android:layout_width="@dimen/actionbar_compat_button_width"
+            android:layout_height="match_parent"
+            android:longClickable="true"
+            android:padding="0dp"
+            android:src="@drawable/ic_paper" />
+
+        <View
+            android:id="@+id/title_divider"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/darkGray" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/title_buttons"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:nextFocusRight="@+id/title_icon_holder"
+        android:showDividers="middle" >
+    </LinearLayout>
+
+</RelativeLayout>

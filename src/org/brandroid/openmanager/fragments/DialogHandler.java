@@ -26,18 +26,23 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Message;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Bitmap.Config;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.text.Html;
 import android.text.util.Linkify;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -48,34 +53,34 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.ViewParent;
 import android.view.WindowManager;
-import android.view.WindowManager.BadTokenException;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.Button;
-import android.widget.GridLayout;
-import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -92,20 +97,16 @@ import jcifs.smb.SmbFile;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
-import org.brandroid.openmanager.activities.SettingsActivity;
+import org.brandroid.openmanager.activities.ServerSetupActivity;
 import org.brandroid.openmanager.adapters.HeatmapAdapter;
 import org.brandroid.openmanager.adapters.IconContextMenu;
-import org.brandroid.openmanager.data.BookmarkHolder;
-import org.brandroid.openmanager.data.OpenFTP;
 import org.brandroid.openmanager.data.OpenMediaStore;
-import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenSMB;
-import org.brandroid.openmanager.data.OpenServer;
-import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.HelpStringHelper;
+import org.brandroid.openmanager.util.IntentManager;
 import org.brandroid.openmanager.util.OpenChromeClient;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
@@ -535,62 +536,182 @@ public class DialogHandler {
             onYes.onClick(null, DialogInterface.BUTTON_POSITIVE);
     }
 
-    public static void showConfirmationDialog(Context context, String text, String title,
-            final Preferences preferences, final String pref_key,
-            final DialogInterface.OnClickListener onClick,
-            final Integer resYesId,
-            final Integer resNoId,
-            final Integer resCancelId) {
+    public static void showExtractDialog(final OpenExplorer app, String title, final OpenPath file,
+            final String pref_key, final DialogInterface.OnClickListener onClick) {
 
-        int ret = preferences.getInt("warn", pref_key, -1);
-        if(ret > -1)
+        final Context context = app.getContext();
+        final Preferences preferences = new Preferences(context);
+        final LinearLayout view = new LinearLayout(context);
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        view.setOrientation(LinearLayout.VERTICAL);
+
+        String[] keys2 = context.getResources()
+                .getStringArray(R.array.archive_handler_options);
+        String[] vals2 = context.getResources()
+                .getStringArray(R.array.archive_handler_values);
+        LinkedHashMap<String, CharSequence> opts = new LinkedHashMap<String, CharSequence>();
+        for (int i = 0; i < keys2.length; i++)
+            opts.put(vals2[i], keys2[i]);
+        opts.remove("ask");
+        boolean hasIntents = IntentManager.getIntentsAvailable(file, app) > 0;
+        if (!hasIntents)
+            opts.remove("external");
+
+        //if(file.getMimeType().contains("gz") || file.getMimeType().contains("bz"))
+        //    opts.remove("browse");
+
+        final String[] keys = opts.keySet().toArray(new String[opts.size()]);
+        final CharSequence[] csVals = opts.values().toArray(new CharSequence[opts.size()]);
+
+        String mDefault = preferences.getString("global", pref_key, (String)null);
+        if (mDefault != null)
         {
-            onClick.onClick(null, ret);
-            return;
+            if (mDefault.equals("external"))
+                if (IntentManager.startIntent(file, app))
+                    return;
+            if (mDefault.equals("browse"))
+            {
+                onClick.onClick(null, R.string.s_browse);
+                return;
+            }
+            else if (mDefault.equals("extract"))
+            {
+                onClick.onClick(null, R.string.s_extract);
+                return;
+            }
         }
-        if (ret == -1) {
-            final View layout = inflate(context, R.layout.confirm_view);
-            final CheckBox cb = (CheckBox)layout.findViewById(R.id.confirm_remember);
-            
-            final Builder builder = new AlertDialog.Builder(context).setTitle(title)
-                    .setView(layout);
-            builder.setPositiveButton(context.getResources().getString(resYesId),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if(cb != null && cb.isChecked())
-                                preferences.setSetting("warn", pref_key, resYesId);
-                            onClick.onClick(dialog, resYesId);
-                        }
-                    });
-            if (resNoId != null)
-                builder.setNegativeButton(context.getResources().getString(resNoId),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if(cb != null && cb.isChecked())
-                                    preferences.setSetting("warn", pref_key, resNoId);
-                                onClick.onClick(dialog, resNoId);
-                            }
-                        });
-            if (resCancelId != null)
-                builder.setNeutralButton(context.getResources().getString(resCancelId),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if(cb != null && cb.isChecked())
-                                    preferences.setSetting("warn", pref_key, resCancelId);
-                                onClick.onClick(dialog, resCancelId);
-                            }
-                        });
-            final AlertDialog dialog = builder.create();
 
-            ViewUtils.setText(layout, text, R.id.confirm_message);
-            ViewUtils.setViewsVisible(layout, false, R.id.confirm_buttons);
-            
-            if (context != null)
-                dialog.show();
+        final Preferences prefs = new Preferences(context);
+        final CheckBox cbRemember = new CheckBox(context);
+        final Builder builder = new AlertDialog.Builder(context).setTitle(title)
+                .setView(view);
+        builder.setItems(csVals, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (cbRemember != null && cbRemember.isChecked())
+                    preferences.setSetting("global", pref_key, keys[which]);
+                if (keys[which].equals("external")) {
+                    IntentManager.startIntent(file, app);
+                } else
+                    onClick.onClick(dialog, getWhichArchiveHandler(keys[which]));
+            }
+        });
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+                if (dialog != null)
+                    dialog.dismiss();
+            }
+        });
+
+        final AlertDialog dialog = builder.create();
+
+        final LinearLayout btns = new LinearLayout(context);
+        if (hasIntents)
+        {
+            btns.setOrientation(LinearLayout.HORIZONTAL);
+            int i = 0;
+            for (ResolveInfo ri : IntentManager.getResolvesAvailable(file, app))
+            {
+                String pkg = ri.activityInfo.packageName;
+                if (pkg.contains("org.brandroid.openmanager"))
+                    continue;
+                final Intent intent = IntentManager.getIntent(file, app);
+                intent.setPackage(pkg);
+                Drawable icon = ri.loadIcon(app.getPackageManager());
+                final CharSequence lbl = ri.loadLabel(app.getPackageManager());
+                ImageButton btn = new ImageButton(context);
+                if (icon instanceof BitmapDrawable)
+                {
+                    Bitmap bmp = ((BitmapDrawable)icon).getBitmap();
+                    int h = context.getResources().getDimensionPixelSize(R.dimen.list_icon_size);
+                    if (bmp.getHeight() > h || bmp.getWidth() > h)
+                        bmp = Bitmap.createScaledBitmap(bmp, h, h, true);
+                    else {
+                        Bitmap cb = Bitmap.createBitmap(h, h, Config.ARGB_8888);
+                        Canvas c = new Canvas(cb);
+                        Paint p = new Paint();
+                        c.drawBitmap(bmp, (bmp.getWidth() - h) / 2, ((bmp.getHeight() - h) / 2), p);
+                        bmp = cb;
+                    }
+                    icon = new BitmapDrawable(context.getResources(), bmp);
+                }
+                //Button btn = new Button(context);
+                btn.setBackgroundResource(android.R.drawable.list_selector_background);
+                btn.setImageDrawable(icon);
+                btn.setPadding(8, 8, 8, 8);
+                btn.setOnLongClickListener(new View.OnLongClickListener() {
+                    public boolean onLongClick(View v) {
+                        Toast.makeText(v.getContext(), lbl, Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                });
+                //btn.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
+                //btn.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+                btn.setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        try {
+                            app.startActivity(intent);
+                            dialog.dismiss();
+                        } catch (Exception e) {
+                        }
+                    }
+                });
+                //if(i++ > 0)
+                //    btns.addView(makeDivider(context, false));
+                btns.addView(btn);
+            }
+            view.addView(makeDivider(context, true));
+            view.addView(btns);
         }
+
+        view.addView(makeDivider(context, true));
+
+        CheckBox mDeleteAfter = new CheckBox(context);
+        mDeleteAfter.setText(R.string.s_delete_after);
+        if (prefs.getBoolean("global", "pref_archive_postdelete", false))
+            mDeleteAfter.setChecked(true);
+        mDeleteAfter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                prefs.setSetting("global", "pref_archive_postdelete", isChecked);
+                if (btns != null)
+                    ViewUtils.setEnabled(btns, !isChecked);
+            }
+        });
+        view.addView(mDeleteAfter);
+        cbRemember.setText(R.string.s_wtf_remember);
+        view.addView(cbRemember);
+
+        //ViewUtils.setText(layout, text, R.id.confirm_message);
+        //ViewUtils.setViewsVisible(layout, false, R.id.confirm_buttons);
+
+        if (context != null)
+            dialog.show();
+    }
+
+    private static View makeDivider(Context context, boolean horizontal)
+    {
+        View sep = new View(context);
+        LayoutParams lp = null;
+        if (horizontal)
+            lp = new LayoutParams(LayoutParams.MATCH_PARENT, 3);
+        else
+            lp = new LayoutParams(3, LayoutParams.MATCH_PARENT);
+        sep.setLayoutParams(lp);
+        sep.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
+        return sep;
+    }
+
+    private static int getWhichArchiveHandler(String which)
+    {
+        if (which.equals("browse"))
+            return R.string.s_browse;
+        if (which.equals("extract"))
+            return R.string.s_extract;
+        if (which.equals("external"))
+            return R.string.s_external;
+        if (which.equals("ask"))
+            return R.string.s_ask_again;
+        return 0;
     }
 
     public static View inflate(Context context, int layoutId) {
@@ -724,14 +845,14 @@ public class DialogHandler {
 
     public static AlertDialog showPickerDialog(final Context context, String title, OpenPath path,
             final PickerFragment.OnOpenPathPickedListener onPickListener) {
-        final PickerFragment picker = new PickerFragment(context,
-                OpenFile.getExternalMemoryDrive(true));
+        final PickerFragment picker =
+                PickerFragment.getInstance(OpenFile.getExternalMemoryDrive(true));
         picker.setOnOpenPathPickedListener(onPickListener);
         Bundle args = new Bundle();
         args.putParcelable("start", OpenFile.getExternalMemoryDrive(true));
         View view = picker.onCreateView(
-                (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE), null,
-                args);
+                (LayoutInflater)context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE), null, args);
         picker.setDefaultName(path.getName());
         picker.onViewCreated(view, args);
         return new AlertDialog.Builder(context).setTitle(title).setView(view)
@@ -810,7 +931,7 @@ public class DialogHandler {
                 });
                 intent.putExtra(android.content.Intent.EXTRA_SUBJECT, sSubject);
                 try {
-                    OpenFile fAttach = SettingsActivity.GetDefaultServerFile(mContext).getParent()
+                    OpenFile fAttach = ServerSetupActivity.GetDefaultServerFile(mContext).getParent()
                             .getChild("oe_logs.txt");
                     ArrayList<Uri> uris = new ArrayList<Uri>();
                     uris.add(fAttach.getUri());
@@ -1053,141 +1174,15 @@ public class DialogHandler {
                 + (ms > 6000 ? (s >= 10 ? "" : "0") + s : (ms < 1000 ? ms + "ms" : s + "s"));
     }
 
-    public static void showServerWarning(final Context context) {
+    public static boolean showServerWarning(final Context context) {
         if (Preferences.Warn_Networking)
-            return;
+            return false;
         Preferences.Warn_Networking = true;
         showWarning(context, R.string.warn_networking, 20, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 new Preferences(context).setSetting("warn", "networking", true);
             }
         });
-    }
-
-    public static boolean showServerDialog(final OpenApp app, final OpenFTP mPath,
-            final BookmarkHolder mHolder, final boolean allowShowPass) {
-        return DialogHandler.showServerDialog(app, mPath.getServersIndex(), -1, mHolder,
-                allowShowPass);
-    }
-
-    public static boolean showServerDialog(final OpenApp app, final OpenNetworkPath mPath,
-            final BookmarkHolder mHolder, final boolean allowShowPass) {
-        return DialogHandler.showServerDialog(app, mPath.getServersIndex(), -1, mHolder,
-                allowShowPass);
-    }
-
-    public static boolean showServerDialog(final OpenApp app, final int iServersIndex,
-            int serverType, final BookmarkHolder mHolder, final boolean allowShowPass) {
-        final Context context = app.getContext();
-        final OpenServers servers = SettingsActivity.LoadDefaultServers(context);
-        final OpenServer server = iServersIndex > -1 ? servers.get(iServersIndex)
-                : new OpenServer().setName("New Server");
-        if (serverType > -1) {
-            if (serverType == 0)
-                server.setType("ftp");
-            else if (serverType == 1)
-                server.setType("sftp");
-            else if (serverType == 2)
-                server.setType("smb");
-        } else if (server.getType().equals("ftp"))
-            serverType = 0;
-        else if (server.getType().equals("sftp"))
-            serverType = 1;
-        else if (server.getType().equals("smb"))
-            serverType = 2;
-        LayoutInflater inflater = (LayoutInflater)context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View v = inflater.inflate(R.layout.server, null);
-        if (!OpenServer.setupServerDialog(server, iServersIndex, v))
-            return false;
-        int addStrId = iServersIndex >= 0 ? R.string.s_update : R.string.s_add;
-        final AlertDialog dialog = new AlertDialog.Builder(context)
-                .setView(v)
-                .setIcon(
-                        mHolder != null && mHolder.getIcon(app) != null ? mHolder.getIcon(app)
-                                : context.getResources().getDrawable(R.drawable.sm_ftp))
-                .setNegativeButton(context.getString(R.string.s_cancel), OnClickDismiss)
-                .setNeutralButton(context.getString(R.string.s_remove),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (iServersIndex > -1)
-                                    servers.remove(iServersIndex);
-                                dialog.dismiss();
-                                app.refreshBookmarks();
-                            }
-                        })
-                .setPositiveButton(context.getString(addStrId),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (iServersIndex > -1)
-                                    servers.set(iServersIndex, server);
-                                else
-                                    servers.add(server);
-                                SettingsActivity.SaveToDefaultServers(servers, context);
-                                app.refreshBookmarks();
-                                dialog.dismiss();
-                            }
-                        }).setTitle(server.getName()).create();
-        if (iServersIndex == -1)
-            dialog.setButton(AlertDialog.BUTTON_NEUTRAL, null, (Message)null);
-        /*
-         * context.getString(R.string.test), new
-         * DialogInterface.OnClickListener() {
-         * @Override public void onClick(DialogInterface dialog, int which) {
-         * OpenPath path = FileManager.getOpenCache(server.toString()); try {
-         * ((OpenNetworkPath)path).connect(); Toast.makeText(context,
-         * R.string.test_success, Toast.LENGTH_LONG); } catch(Exception e) {
-         * Toast.makeText(context, R.string.httpError, Toast.LENGTH_LONG); } }
-         * });
-         */
-
-        final AutoCompleteTextView mServerHost = (AutoCompleteTextView)v
-                .findViewById(R.id.text_server);
-        final ArrayList<String> mHosts = new ArrayList<String>();
-        final ArrayAdapter<String> mHostAdapter = new ArrayAdapter<String>(context,
-                android.R.layout.simple_dropdown_item_1line, mHosts);
-        if (mServerHost != null)
-            mServerHost.setAdapter(mHostAdapter);
-
-        final int iServerType = serverType;
-        final int[] OnlyOnSMB = new int[] {}; // R.id.server_drop,
-                                              // R.id.server_scan};
-        final int[] NotOnSMB = new int[] {
-                R.id.text_path, R.id.text_path_label, R.id.text_port, R.id.label_port,
-                R.id.check_port
-        };
-        if (OnlyOnSMB.length > 0)
-            ViewUtils.setViewsVisible(v, serverType == 2, OnlyOnSMB);
-        if (NotOnSMB.length > 0)
-            ViewUtils.setViewsVisible(v, serverType != 2, NotOnSMB);
-
-        final Spinner mServerType = (Spinner)v.findViewById(R.id.server_type);
-        mServerType.setOnItemSelectedListener(new OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (OnlyOnSMB.length > 0)
-                    ViewUtils.setViewsVisible(v, position == 2, OnlyOnSMB);
-                if (NotOnSMB.length > 0)
-                    ViewUtils.setViewsVisible(v, position != 2, NotOnSMB);
-                server.setType("ftp");
-                if (position == 1)
-                    server.setType("sftp");
-                if (position == 2)
-                    server.setType("smb");
-            }
-
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-        mServerType.setSelection(serverType);
-
-        try {
-            dialog.show();
-            showServerWarning(context);
-        } catch (BadTokenException e) {
-            Logger.LogError("Couldn't show dialog.", e);
-            return false;
-        }
         return true;
     }
-
 }
