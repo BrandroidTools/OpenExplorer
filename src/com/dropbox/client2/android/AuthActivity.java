@@ -260,6 +260,21 @@ public class AuthActivity extends Activity {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(intent);
     }
+    
+    public static String getConnectUrl(String consumerKey, String consumerSig)
+    {
+        String path = "/connect";
+
+        String[] params = {
+                "k", consumerKey,
+                "s", consumerSig,
+        };
+
+        String url = RESTUtility.buildURL("www.dropbox.com",
+                DropboxAPI.VERSION, path, params);
+
+        return url;
+    }
 
     private static final String[] DROPBOX_APP_SIGNATURES = {
         "308202223082018b02044bd207bd300d06092a864886f70d01010405003058310b3" +

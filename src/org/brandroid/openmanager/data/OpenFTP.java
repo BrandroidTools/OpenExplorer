@@ -348,7 +348,11 @@ public class OpenFTP extends OpenNetworkPath implements OpenNetworkPath.PipeNeed
 
     @Override
     public String getAbsolutePath() {
-        return getPath(true);
+        String ret = "ftp://";
+        if(getServer() != null)
+            ret = getServer().getAbsolutePath();
+        ret += getRemotePath();
+        return ret;
     }
 
     @Override

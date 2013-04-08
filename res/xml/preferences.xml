@@ -84,6 +84,13 @@
                 android:dependency="pref_thumbs"
                 android:key="pref_thumbs_cache_clear"
                 android:title="@string/s_pref_thumbs_cache_clear" />
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:dependency="pref_thumbs"
+                android:key="pref_thumbs_cache"
+                android:summary="@string/s_pref_thumbs_cache_summary"
+                android:title="@string/s_pref_thumbs_cache" />
         </PreferenceCategory>
     </PreferenceScreen>
     <PreferenceScreen
@@ -178,8 +185,8 @@
         android:title="@string/s_bookmark_servers" >
         <PreferenceScreen
             android:key="pref_master_pass"
-            android:title="@string/s_master_pass" 
-            />
+            android:title="@string/s_master_pass" />
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="servers_private"
@@ -198,9 +205,9 @@
             android:title="@string/s_compress_type" />
 
         <CheckBoxPreference
-            android:title="@string/s_delete_after"
             android:defaultValue="false"
-            android:key="pref_archive_postdelete" />
+            android:key="pref_archive_postdelete"
+            android:title="@string/s_delete_after" />
 
         <PreferenceCategory android:title="@string/s_title_archive_handler" >
             <ListPreference
@@ -233,10 +240,10 @@
         android:icon="@drawable/ic_menu_help"
         android:key="about"
         android:title="@string/s_menu_about" >
-
         <PreferenceScreen
             android:key="pref_privacy"
             android:title="@string/s_privacy" />
+
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_stats"
@@ -267,7 +274,6 @@
             android:defaultValue="true"
             android:key="pref_text_internal"
             android:title="@string/s_pref_text_internal" />
-        
         <CheckBoxPreference
             android:defaultValue="false"
             android:enabled="@bool/honeycomb"

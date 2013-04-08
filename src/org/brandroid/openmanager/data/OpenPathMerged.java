@@ -106,7 +106,7 @@ public class OpenPathMerged extends OpenPath {
     public Uri getUri() {
         String s = "content://org.brandroid.openmanager/merge/";
         for (OpenPath p : mParents)
-            s += p.getPath() + ":";
+            s += Uri.encode(p.getPath()) + ":";
         s = s.substring(0, s.length() - 1);
         Uri ret = null;
         ret = Uri.parse(s);

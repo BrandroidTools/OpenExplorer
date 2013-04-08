@@ -14,7 +14,6 @@ import net.contrapunctus.lzma.LzmaInputStream;
 import net.contrapunctus.lzma.LzmaOutputStream;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.util.EventHandler.OnWorkerUpdateListener;
 import org.brandroid.openmanager.data.OpenPath.*;
 import org.brandroid.utils.Logger;
@@ -557,7 +556,7 @@ public class OpenLZMA extends OpenPath implements OpenStream {
         public String getDetails(boolean countHiddenChildren) {
             String ret = super.getDetails(countHiddenChildren);
             if (!isDirectory())
-                ret += " (" + DialogHandler.formatSize(ze.getCompressedSize()) + ")";
+                ret += " (" + OpenPath.formatSize(ze.getCompressedSize()) + ")";
             return ret;
         }
 

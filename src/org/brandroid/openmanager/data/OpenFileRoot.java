@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.brandroid.openmanager.data.OpenNetworkPath.Cancellable;
 import org.brandroid.openmanager.data.OpenPath.*;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.utils.Logger;
 import com.stericson.RootTools.Command;
@@ -203,46 +203,67 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateHan
             mChildren.get().add(kid);
     }
 
-    public void list(final OpenPath.OpenContentUpdateListener callback) throws IOException {
+    public Cancellable list(final OpenPath.OpenContentUpdateListener callback) {
         mLoaded = false;
-        if (getChildren() != null) {
-            for (OpenPath kid : getChildren())
-                callback.addContentPath(kid);
-            return;
-        }
-        String path = getPath();
-        if (!path.endsWith("/"))
-            path += "/";
-        Logger.LogDebug("Trying to list " + path + " via Su with Callback");
-        final String[] buff = new String[] {
-            null
-        };
-        String lsopts = getLSOpts();
-        String bb = RootTools.getBusyBoxVersion();
-        if (bb == null)
-            bb = "";
-        if (bb.equals(""))
-            lsopts = "";
-        final String w = (lsopts.equals("") ? "" : "busybox ") + "ls -l" + lsopts + " " + path;
-        Command cmd = new Command(0, 10, w) {
-            @Override
-            public void output(int id, String line) {
-                if (line.indexOf("\n") > -1)
-                    for (String s : line.split("\n"))
-                        output(id, s);
-                else {
-                    OpenFileRoot kid = new OpenFileRoot(getPath(), line);
-                    addChild(kid);
-                    callback.addContentPath(kid);
+        final Thread t = thread(new Runnable() {
+            public void run() {
+                if (getChildren() != null) {
+                    for (OpenPath kid : getChildren())
+                        callback.addContentPath(kid);
+                }
+                String path = getPath();
+                if (!path.endsWith("/"))
+                    path += "/";
+                Logger.LogDebug("Trying to list " + path + " via Su with Callback");
+                final String[] buff = new String[] {
+                        null
+                };
+                String lsopts = getLSOpts();
+                String bb = RootTools.getBusyBoxVersion();
+                if (bb == null)
+                    bb = "";
+                if (bb.equals(""))
+                    lsopts = "";
+                final String w = (lsopts.equals("") ? "" : "busybox ") + "ls -l" + lsopts + " "
+                        + path;
+                Command cmd = new Command(0, 10, w) {
+                    @Override
+                    public void output(int id, String line) {
+                        if (line.indexOf("\n") > -1)
+                            for (String s : line.split("\n"))
+                                output(id, s);
+                        else {
+                            OpenFileRoot kid = new OpenFileRoot(getPath(), line);
+                            addChild(kid);
+                            callback.addContentPath(kid);
+                        }
+                    }
+
+                    @Override
+                    public void commandFinished(int id) {
+                        callback.doneUpdating();
+                    }
+                };
+                try {
+                    Shell.startRootShell().add(cmd);
+                } catch (Exception e) {
+                    callback.onException(e);
                 }
             }
+        });
+        return new Cancellable() {
 
             @Override
-            public void commandFinished(int id) {
-                callback.doneUpdating();
+            public boolean cancel() {
+                if (t != null && t.isAlive())
+                {
+                    t.interrupt();
+                    return true;
+                }
+                return false;
             }
         };
-        Shell.startRootShell().add(cmd);
+
     }
 
     @Override
@@ -366,15 +387,15 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateHan
         return getFile().mkdir();
     }
 
-//    @Override
-//    public InputStream getInputStream() throws IOException {
-//        return tempDownload(null).getInputStream();
-//    }
-//
-//    @Override
-//    public OutputStream getOutputStream() throws IOException {
-//        return tempDownload(null).getOutputStream();
-//    }
+    // @Override
+    // public InputStream getInputStream() throws IOException {
+    // return tempDownload(null).getInputStream();
+    // }
+    //
+    // @Override
+    // public OutputStream getOutputStream() throws IOException {
+    // return tempDownload(null).getOutputStream();
+    // }
 
     @Override
     public String getDetails(boolean countHiddenChildren) {
@@ -382,7 +403,7 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateHan
         if (getChildren() != null)
             deets = getChildren().size() + " %s | ";
         else if (isFile())
-            deets = DialogHandler.formatSize(length());
+            deets = OpenPath.formatSize(length());
         return deets;
     }
 
@@ -424,10 +445,10 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateHan
 
     private String execute(final String cmd, boolean useBusyBox) {
         final boolean[] waiting = new boolean[] {
-            true
+                true
         };
         final String[] ret = new String[] {
-            ""
+                ""
         };
         final String bb = useBusyBox && RootTools.isBusyboxAvailable() ? "busybox " : "";
         try {

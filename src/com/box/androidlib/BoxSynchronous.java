@@ -86,6 +86,8 @@ public class BoxSynchronous {
         }
         return instance;
     }
+    
+    private static final boolean mLoggingEnabled = true;
 
     /**
      * Get the API Key that this instance of BoxSynchronous is using.
@@ -1188,19 +1190,21 @@ public class BoxSynchronous {
             conn.setRequestProperty("User-Agent", BoxConfig.getInstance().getUserAgent());
             conn.setRequestProperty("Accept-Language", BoxConfig.getInstance().getAcceptLanguage());
             conn.setConnectTimeout(BoxConfig.getInstance().getConnectionTimeOut());
-            if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
+            if (mLoggingEnabled) {
                 DevUtils.logcat("URL: " + theUri.toString());
-                Iterator<String> keys = conn.getRequestProperties().keySet().iterator();
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    DevUtils.logcat("Request Header: " + key + " => " + conn.getRequestProperties().get(key));
-                }
+//                Iterator<String> keys = conn.getRequestProperties().keySet().iterator();
+//                while (keys.hasNext()) {
+//                    String key = keys.next();
+//                    DevUtils.logcat("Request Header: " + key + " => " + conn.getRequestProperties().get(key));
+//                }
             }
 
             int responseCode = -1;
             try {
                 conn.connect();
                 responseCode = conn.getResponseCode();
+                if(mLoggingEnabled)
+                    DevUtils.logcat("Response Code: " + responseCode);
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     InputStream inputStream = conn.getInputStream();
                     xmlReader.parse(new InputSource(inputStream));
@@ -1226,18 +1230,6 @@ public class BoxSynchronous {
                 }
             }
             finally {
-                if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
-                    DevUtils.logcat("Response Code: " + responseCode);
-                    DevUtils.logcat("User-Agent : " + conn.getRequestProperty("User-Agent"));
-                    Map<String, List<String>> headerfields = conn.getHeaderFields();
-                    if (headerfields != null) {
-                        Set<Entry<String, List<String>>> headers = headerfields.entrySet();
-                        for (Iterator<Map.Entry<String, List<String>>> i = headers.iterator(); i.hasNext();) {
-                            Map.Entry<String, List<String>> map = i.next();
-                            DevUtils.logcat("Response Header: " + map.getKey() + " : " + map.getValue());
-                        }
-                    }
-                }
                 conn.disconnect();
             }
         }

@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/server_auth_buttons"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/server_auth_buttons"
-    android:visibility="gone"
     android:orientation="vertical" >
-    
-    <Button
-        android:id="@+id/server_authenticate"
-        android:text="@string/s_authenticate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    
-    <Button
-        android:id="@+id/server_logout"
-        android:text="@string/s_logout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    
-    <WebView 
+
+    <WebView
         android:id="@+id/server_webview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        />
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/server_authenticate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/s_authenticate" />
+
+    <Button
+        android:id="@+id/server_logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/s_logout" />
 
 </LinearLayout>

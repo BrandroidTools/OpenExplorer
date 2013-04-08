@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.data.OpenPath.*;
 import org.brandroid.utils.Logger;
 import com.github.junrar.Archive;
@@ -529,7 +528,7 @@ public class OpenRAR extends OpenPath implements OpenPath.OpenStream {
         public String getDetails(boolean countHiddenChildren) {
             String ret = super.getDetails(countHiddenChildren);
             if (!isDirectory())
-                ret += " (" + DialogHandler.formatSize(ze.getFullPackSize()) + ")";
+                ret += " (" + OpenPath.formatSize(ze.getFullPackSize()) + ")";
             if(ze.isEncrypted())
                 ret += "*";
             return ret;

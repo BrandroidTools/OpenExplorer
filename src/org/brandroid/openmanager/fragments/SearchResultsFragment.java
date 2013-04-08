@@ -45,8 +45,14 @@ public class SearchResultsFragment extends ContentFragment implements OnItemLong
     private String lastTitle = "";
     private boolean mStopped = false;
 
-    private SearchResultsFragment(Bundle b) {
-        setArguments(b);
+    public SearchResultsFragment() {
+        super();
+    }
+    
+    public static SearchResultsFragment getInstance(Bundle b) {
+        SearchResultsFragment ret = new SearchResultsFragment();
+        ret.setArguments(b);
+        return ret;
     }
 
     private class SearchTask extends AsyncTask<Void, Void, Void> {
@@ -95,7 +101,7 @@ public class SearchResultsFragment extends ContentFragment implements OnItemLong
         if (basePath instanceof OpenSearch)
             basePath = ((OpenSearch)basePath).getBasePath();
         data.putParcelable("search_in", basePath);
-        SearchResultsFragment ret = new SearchResultsFragment(data);
+        SearchResultsFragment ret = SearchResultsFragment.getInstance(data);
         ret.setArguments(data);
         return ret;
     }
@@ -307,8 +313,7 @@ public class SearchResultsFragment extends ContentFragment implements OnItemLong
     }
 
     @Override
-    public void onAddResults(OpenPath[] results) {
-        for (OpenPath p : results)
-            mContentAdapter.add(p);
+    public void onAddResults(List<OpenPath> results) {
+        mContentAdapter.addAll(results);
     }
 }

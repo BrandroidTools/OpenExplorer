@@ -173,13 +173,17 @@ public class OpenSmartFolder extends OpenPath {
 
     public OpenPath getFirstDir() {
         for (SmartSearch s : mSearches)
-            if (s.mParent instanceof OpenFile)
+            if (s.mParent instanceof OpenFile && !s.mParent.isHidden())
                 return s.mParent;
         if (mSearches.size() > 0)
-            return mSearches.get(0).mParent;
-        else
-            return new OpenFile(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+        {
+            for(int i = 0; i < mSearches.size(); i++)
+                if(mSearches.get(i).mParent instanceof OpenFile &&
+                        !mSearches.get(i).mParent.isHidden())
+                    return mSearches.get(i).mParent;
+        }
+        return new OpenFile(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
     }
 
     @Override

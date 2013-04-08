@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -96,6 +97,7 @@ public class DropboxAPI<SESS_T extends Session> {
     private static final int REVISION_DEFAULT_LIMIT = 1000;
     private static final int SEARCH_DEFAULT_LIMIT = 10000;
     private static final int UPLOAD_SO_TIMEOUT_MS = 3 * 60 * 1000; // 3 minutes
+    public static final Logger mDropboxLogger = Logger.getLogger("Dropbox"); 
 
     protected final SESS_T session;
 

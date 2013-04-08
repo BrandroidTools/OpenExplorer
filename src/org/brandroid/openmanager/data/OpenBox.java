@@ -9,37 +9,34 @@ import java.util.Vector;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
 import org.brandroid.openmanager.util.PrivatePreferences;
+import org.brandroid.openmanager.util.SortType;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Utils;
-import org.brandroid.utils.ViewUtils;
-
 import com.box.androidlib.Box;
+import com.box.androidlib.BoxConfig;
 import com.box.androidlib.BoxFile;
 import com.box.androidlib.BoxFolder;
+import com.box.androidlib.CopyListener;
 import com.box.androidlib.DAO;
+import com.box.androidlib.DeleteListener;
+import com.box.androidlib.DevUtils;
 import com.box.androidlib.FileDownloadListener;
 import com.box.androidlib.FileUploadListener;
+import com.box.androidlib.GetAccountInfoListener;
 import com.box.androidlib.GetAccountTreeListener;
-import com.box.androidlib.GetAuthTokenListener;
-import com.box.androidlib.GetTicketListener;
 import com.box.androidlib.User;
 
-import android.annotation.SuppressLint;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Toast;
 
-public class OpenBox extends OpenNetworkPath implements OpenPath.OpenPathSizable,
-        OpenPath.ThumbnailOverlayInterface, OpenPath.ListHandler {
+public class OpenBox extends OpenNetworkPath implements OpenPath.SpaceHandler,
+        OpenPath.ThumbnailOverlayInterface, OpenNetworkPath.CloudOpsHandler,
+        OpenPath.OpenPathSizable {
 
     private static final long serialVersionUID = 5742031992345655964L;
     private final Box mBox;
@@ -48,9 +45,14 @@ public class OpenBox extends OpenNetworkPath implements OpenPath.OpenPathSizable
     private final OpenBox mParent;
     private Long mId = 0l;
 
-    private List<OpenPath> mChildren = null;
+    private List<OpenBox> mChildren = null;
 
     private final boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
+    
+    static {
+        BoxConfig.getInstance().setEnableHttpLogging(true);
+        DevUtils.setLogHandler(Logger.getDefaultHandler());
+    }
 
     public OpenBox(User user)
     {
@@ -67,6 +69,81 @@ public class OpenBox extends OpenNetworkPath implements OpenPath.OpenPathSizable
         mBox = parent.mBox;
         mUser = parent.mUser;
         mFile = child;
+    }
+
+    @Override
+    public void getSpace(final SpaceListener callback) {
+        if (mUser != null && mUser.getSpaceAmount() > 0)
+        {
+            callback.onSpaceReturned(mUser.getSpaceAmount(), mUser.getSpaceUsed(),
+                    mUser.getMaxUploadSize());
+            return;
+        }
+        try {
+            mBox.getAccountInfo(mUser.getAuthToken(), new GetAccountInfoListener() {
+                public void onIOException(IOException e) {
+                    callback.onException(e);
+                }
+
+                public void onComplete(User user, String status) {
+                    if (user != null)
+                    {
+                        callback.onSpaceReturned(
+                                user.getSpaceAmount(),
+                                user.getSpaceUsed(),
+                                0
+                                );
+                    }
+                }
+            });
+        } catch (Exception e) {
+            postException(e, callback);
+        }
+    }
+
+    public boolean copyTo(final OpenNetworkPath path,
+            final OpenNetworkPath.CloudCompletionListener callback) {
+        if (path instanceof OpenBox)
+        {
+            final OpenBox folder = (OpenBox)path;
+            mBox.copy(mUser.getAuthToken(), getBoxType(), getId(), folder.getFolderId(),
+                    new CopyListener() {
+                        public void onIOException(IOException e) {
+                            callback.onException(e);
+                        }
+
+                        public void onComplete(String status) {
+                            callback.onCloudComplete(status);
+                        }
+                    });
+            return true;
+        }
+        return false;
+    }
+
+    public String getBoxType()
+    {
+        if (isDirectory())
+            return Box.TYPE_FOLDER;
+        return Box.TYPE_FILE;
+    }
+
+    @Override
+    public boolean delete(final CloudDeleteListener callback) {
+        mBox.delete(mUser.getAuthToken(), getBoxType(),
+                getId(), new DeleteListener() {
+
+                    @Override
+                    public void onIOException(IOException e) {
+                        callback.onException(e);
+                    }
+
+                    @Override
+                    public void onComplete(String status) {
+                        callback.onDeleteComplete(status);
+                    }
+                });
+        return true;
     }
 
     @Override
@@ -114,19 +191,80 @@ public class OpenBox extends OpenNetworkPath implements OpenPath.OpenPathSizable
     }
 
     @Override
-    public void list(final ListListener listener) {
-        if(mChildren != null)
+    public boolean listFromDb(SortType sort) {
+        if (!OpenPath.AllowDBCache)
+            return false;
+        String folder = getPath(); // .replace("/" + getName(), "");
+        if (!isDirectory())
+            folder = folder.replace("/" + getName(), "");
+        if (!folder.endsWith("/"))
+            folder += "/";
+        if (folder.endsWith("//"))
+            folder = folder.substring(0, folder.length() - 1);
+        Cursor c = mDb.fetchItemsFromFolder(folder, sort);
+        if (c == null)
+            return false;
+        if (c.getCount() == 0) {
+            c.close();
+            c = mDb.fetchItemsFromFolder(folder.substring(0, folder.length() - 1), sort);
+        }
+        mChildren.clear();
+        c.moveToFirst();
+        while (!c.isAfterLast()) {
+            // String folder =
+            // c.getString(OpenPathDbAdapter.getKeyIndex(OpenPathDbAdapter.KEY_FOLDER));
+            DAO file = new BoxFile();
+            boolean f = true;
+            String name = c.getString(OpenPathDbAdapter.getKeyIndex(OpenPathDbAdapter.KEY_NAME));
+            int size = c.getInt(OpenPathDbAdapter.getKeyIndex(OpenPathDbAdapter.KEY_SIZE));
+            int modified = c.getInt(OpenPathDbAdapter.getKeyIndex(OpenPathDbAdapter.KEY_MTIME));
+            String path = folder + name;
+            int atts = c.getInt(OpenPathDbAdapter.getKeyIndex(OpenPathDbAdapter.KEY_ATTRIBUTES));
+            if (path.endsWith("//"))
+                path = path.substring(0, path.length() - 1);
+            if(name.endsWith("/"))
+            {
+                BoxFolder f2 = new BoxFolder();
+                f2.setFolderName(name);
+                f2.setUpdated((long)modified);
+                f2.setId((long)atts);
+                f2.setFileCount((long)size);
+                file = f2;
+            } else {
+                BoxFile f3 = new BoxFile();
+                f3.setFileName(name);
+                f3.setSize((long)size);
+                f3.setUpdated((long)modified);
+                f3.setId((long)atts);
+                file = f3;
+            }
+            OpenBox child = new OpenBox(this, file);
+            mChildren.add(child);
+            c.moveToNext();
+        }
+        c.close();
+        return true;
+    }
+    
+    @Override
+    public int getAttributes() {
+        return (int)getId();
+    }
+
+    @Override
+    public Thread list(final ListListener listener) {
+        if (mChildren != null)
             listener.onListReceived(getChildren());
-        mChildren = new Vector<OpenPath>();
+        mChildren = new Vector<OpenBox>();
         if (DEBUG)
             Logger.LogDebug("Box listing for " + getId() + "!");
-        mBox.getAccountTree(getToken(), getId(), null, new GetAccountTreeListener() {
-            
+        return mBox.getAccountTree(getToken(), getId(), null, new GetAccountTreeListener() {
+
             @Override
             public void onIOException(IOException e) {
                 postException(e, listener);
             }
-            
+
             @Override
             public void onComplete(BoxFolder targetFolder, String status) {
                 if (targetFolder != null)
@@ -147,6 +285,11 @@ public class OpenBox extends OpenNetworkPath implements OpenPath.OpenPathSizable
         });
     }
     
+    public void clearChildren() {
+        if(mChildren != null)
+            mChildren.clear();
+    }
+
     public void list(final OpenContentUpdateListener callback) throws IOException {
         if (mChildren != null)
         {
@@ -155,20 +298,20 @@ public class OpenBox extends OpenNetworkPath implements OpenPath.OpenPathSizable
             callback.doneUpdating();
             return;
         }
-        mChildren = new Vector<OpenPath>();
+        mChildren = new Vector<OpenBox>();
         if (DEBUG)
             Logger.LogDebug("Box listing for " + getId() + "!");
         mBox.getAccountTree(getToken(), getId(), new String[0], new GetAccountTreeListener() {
 
             @Override
             public void onIOException(IOException e) {
-                callback.onUpdateException(e);
+                callback.onException(e);
             }
 
             @Override
             public void onComplete(BoxFolder targetFolder, String status) {
                 if (status.equals("not_logged_in"))
-                    callback.onUpdateException(new Exception(status));
+                    callback.onException(new Exception(status));
                 if (DEBUG)
                     Logger.LogDebug("Box.onComplete!: " + status + " " + targetFolder);
                 if (targetFolder != null)
@@ -195,9 +338,9 @@ public class OpenBox extends OpenNetworkPath implements OpenPath.OpenPathSizable
     public String getName() {
         if (isDirectory() && getFolder().getId() == 0)
         {
-            if(getServer() != null)
+            if (getServer() != null)
                 return getServer().getName();
-            if(mUser != null)
+            if (mUser != null)
                 return mUser.getLogin();
         }
         if (isDirectory() && getFolder().getFolderName() != null)
@@ -214,18 +357,20 @@ public class OpenBox extends OpenNetworkPath implements OpenPath.OpenPathSizable
 
     @Override
     public String getPath() {
-        String ret = "/";
+        String ret = null;
         if (getFolderId() != 0)
             ret = getParent().getPath();
+        else ret = "box://" + Utils.urlencode(mUser.getLogin()) + "@m.box.com/";
         ret += getName();
-        if(isDirectory() && !ret.endsWith("/"))
+        if (isDirectory() && !ret.endsWith("/"))
             ret += "/";
         return ret;
     }
 
     @Override
     public String getAbsolutePath() {
-        return "box://" + Utils.urlencode(mUser.getLogin()) + ":" + Utils.urlencode(getToken()) + "@m.box.com" + "/" + getId();
+        return "box://" + Utils.urlencode(mUser.getLogin()) + ":" + Utils.urlencode(getToken())
+                + "@m.box.com" + "/" + getId();
     }
 
     @Override
@@ -261,7 +406,7 @@ public class OpenBox extends OpenNetworkPath implements OpenPath.OpenPathSizable
 
     @Override
     public OpenPath[] list() throws IOException {
-        if(mChildren != null)
+        if (mChildren != null)
             return mChildren.toArray(new OpenBox[mChildren.size()]);
         return null;
     }
@@ -307,7 +452,7 @@ public class OpenBox extends OpenNetworkPath implements OpenPath.OpenPathSizable
 
     @Override
     public Boolean canWrite() {
-        return false;
+        return true;
     }
 
     @Override
@@ -332,7 +477,7 @@ public class OpenBox extends OpenNetworkPath implements OpenPath.OpenPathSizable
 
     @Override
     public boolean syncUpload(final OpenFile f, final NetworkListener l) {
-        if(DEBUG)
+        if (DEBUG)
             Logger.LogDebug("OpenFTP.copyFrom(" + f + ")");
         try {
             mBox.upload(getToken(), Box.UPLOAD_ACTION_UPLOAD, f.getFile(), f.getName(),
@@ -383,129 +528,93 @@ public class OpenBox extends OpenNetworkPath implements OpenPath.OpenPathSizable
         return false;
     }
 
-    public static void handleBoxWebview(final View baseView, final OpenServer server,
-            final WebView web)
-    {
-        final Box box = Box.getInstance(PrivatePreferences.getBoxAPIKey());
-        box.getTicket(new GetTicketListener() {
-
-            @Override
-            public void onComplete(final String ticket, final String status) {
-                if (status.equals("get_ticket_ok")) {
-                    loadLoginWebview(baseView, server, box, ticket, web);
-                }
-                else {
-                    Toast.makeText(baseView.getContext(), "Unable to get Box ticket!",
-                            Toast.LENGTH_LONG).show();
-                    Logger.LogError("Unable to get Box ticket!");
-                }
-            }
-
-            @Override
-            public void onIOException(final IOException e) {
-                Toast.makeText(baseView.getContext(),
-                        "Exception getting Box ticket! " + e.getMessage(), Toast.LENGTH_LONG)
-                        .show();
-                Logger.LogError("Exception getting Box ticket!", e);
-            }
-        });
-
-    }
-
-    @SuppressLint("SetJavaScriptEnabled")
-    private static void loadLoginWebview(final View baseView, final OpenServer server,
-            final Box box, final String ticket, final WebView mLoginWebView)
-    {
-        String loginUrl = "https://m.box.net/api/1.0/auth/" + ticket;
-
-        mLoginWebView.setVisibility(View.VISIBLE);
-        mLoginWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-        mLoginWebView.getSettings().setJavaScriptEnabled(true);
-        mLoginWebView.setWebViewClient(new WebViewClient() {
-
-            @Override
-            public void onPageFinished(final WebView view, final String url) {
-                // Listen for page loads and execute Box.getAuthToken() after
-                // each one to see if the user has successfully logged in.
-                getAuthToken(baseView, server, box, ticket, 0);
-            }
-
-            @Override
-            public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
-                if (url != null && url.startsWith("market://")) {
-                    try {
-                        view.getContext().startActivity(
-                                new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-                        return true;
-                    }
-                    catch (ActivityNotFoundException e) {
-                        // e.printStackTrace();
-                    }
-                }
-                return false;
-            }
-        });
-        mLoginWebView.loadUrl(loginUrl);
-    }
-
-    private static void getAuthToken(final View baseView, final OpenServer server, final Box box,
-            final String ticket, final int tries) {
-        if (tries >= 5) {
-            return;
-        }
-        final Handler handler = new Handler();
-        box.getAuthToken(ticket, new GetAuthTokenListener() {
-
-            @Override
-            public void onComplete(final User user, final String status) {
-                if (status.equals("get_auth_token_ok") && user != null) {
-                    server.setUser(user.getLogin());
-                    server.setName(user.getLogin());
-                    server.setPassword(user.getAuthToken());
-                    String dao = DAO.toJSON(user);
-                    User u2 = DAO.fromJSON(dao, User.class);
-                    u2.setAuthToken("");
-                    dao = DAO.toJSON(u2);
-                    server.setSetting("dao", dao);
-                    ViewUtils.setViewsEnabled(baseView, false, R.id.server_logout);
-                    ViewUtils.setViewsEnabled(baseView, true, R.id.server_authenticate);
-                }
-                else if (status.equals("error_unknown_http_response_code")) {
-                    handler.postDelayed(new Runnable() {
-                        public void run() {
-                            getAuthToken(baseView, server, box, ticket, tries + 1);
-                        }
-                    }, 500);
-                }
-            }
-
-            @Override
-            public void onIOException(final IOException e) {
-            }
-        });
-    }
-
-    @Override
-    public long getTotalSpace() {
-        return mUser.getSpaceAmount();
-    }
-
-    @Override
-    public long getUsedSpace() {
-        return mUser.getSpaceUsed();
-    }
-    
-    @Override
-    public long getFreeSpace() {
-        return getTotalSpace() - getUsedSpace();
-    }
-
     public void setId(long id) {
         mId = id;
     }
 
     @Override
     public Drawable getOverlayDrawable(Context c, boolean large) {
-        return c.getResources().getDrawable(large ? R.drawable.lg_box_overlay : R.drawable.sm_box_overlay);
+        return c.getResources().getDrawable(
+                large ? R.drawable.lg_box_overlay : R.drawable.sm_box_overlay);
+    }
+
+    @Override
+    public long getTotalSpace() {
+        if (mUser != null)
+            return mUser.getSpaceAmount();
+        return 0;
+    }
+
+    @Override
+    public long getUsedSpace() {
+        if (mUser != null)
+            return mUser.getSpaceUsed();
+        return 0;
+    }
+
+    @Override
+    public long getThirdSpace() {
+        //if (mUser != null)
+        //return mUser.getMaxUploadSize();
+        return 0;
+    }
+    
+    @Override
+    public Cancellable downloadFromCloud(OpenFile file, final CloudProgressListener callback) {
+        return mBox.download(getToken(), getId(), file.getFile(), null, new FileDownloadListener() {
+            
+            @Override
+            public void onIOException(IOException e) {
+                callback.onException(e);
+            }
+            
+            @Override
+            public void onProgress(long bytesDownloaded) {
+                callback.onProgress(bytesDownloaded);
+            }
+            
+            @Override
+            public void onComplete(String status) {
+                callback.onCloudComplete(status);
+            }
+        });
+    }
+
+    @Override
+    public Cancellable uploadToCloud(final OpenFile file, final CloudProgressListener callback) {
+        return mBox.upload(getToken(), Box.UPLOAD_ACTION_UPLOAD, file.getFile(), file.getName(),
+                getFolderId(), new FileUploadListener() {
+            
+            @Override
+            public void onIOException(IOException e) {
+                callback.onException(e);
+            }
+            
+            @Override
+            public void onProgress(long bytesTransferredCumulative) {
+                callback.onProgress(bytesTransferredCumulative);
+            }
+            
+            @Override
+            public void onMalformedURLException(MalformedURLException e) {
+                callback.onException(e);
+            }
+            
+            @Override
+            public void onFileNotFoundException(FileNotFoundException e) {
+                callback.onException(e);
+            }
+            
+            @Override
+            public void onComplete(BoxFile boxFile, String status) {
+                callback.onCloudComplete(status);
+            }
+        });
+    }
+
+    @Override
+    public boolean touch(CloudCompletionListener callback) {
+        // TODO Auto-generated method stub
+        return false;
     }
 }

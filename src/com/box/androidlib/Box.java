@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.data.OpenNetworkPath.Cancellable;
 
 import android.os.Handler;
 
@@ -493,9 +494,9 @@ public class Box {
      * @param listener
      *            The callback that will run
      */
-    public final void getAccountTree(final String authToken, final long folderId, final String[] params, final GetAccountTreeListener listener) {
+    public final Thread getAccountTree(final String authToken, final long folderId, final String[] params, final GetAccountTreeListener listener) {
 
-        new Thread() {
+        Thread ret = new Thread() {
 
             @Override
             public void run() {
@@ -519,7 +520,9 @@ public class Box {
                     });
                 }
             }
-        }.start();
+        };
+        ret.start();
+        return ret;
     }
 
     /**
@@ -1603,7 +1606,7 @@ public class Box {
      *            {@link com.box.androidlib.FileDownloadListener#onComplete(String)}
      * @return A Cancelable that allows you to try to cancel a download in progress.
      */
-    public final Cancelable download(final String authToken, final long fileId, final File destinationFile, final Long versionId,
+    public final Cancellable download(final String authToken, final long fileId, final File destinationFile, final Long versionId,
         final FileDownloadListener listener) {
         try {
             return download(authToken, fileId, new FileOutputStream(destinationFile), versionId, listener);
@@ -1634,7 +1637,7 @@ public class Box {
      *            {@link com.box.androidlib.FileDownloadListener#onComplete(String)}
      * @return A Cancelable that allows you to try to cancel a download in progress.
      */
-    public final Cancelable download(final String authToken, final long fileId, final OutputStream destinationOutputStream, final Long versionId,
+    public final Cancellable download(final String authToken, final long fileId, final OutputStream destinationOutputStream, final Long versionId,
         final FileDownloadListener listener) {
 
         final Thread thread = new Thread() {
@@ -1665,7 +1668,7 @@ public class Box {
         };
         thread.start();
 
-        Cancelable cancelable = new Cancelable() {
+        Cancellable cancelable = new Cancellable() {
 
             @Override
             public boolean cancel() {
@@ -1767,7 +1770,7 @@ public class Box {
      *            {@link com.box.androidlib.FileUploadListener#onComplete(com.box.androidlib.BoxFile, String)}
      * @return A Cancelable that allows you to try to cancel an upload in progress.
      */
-    public final Cancelable upload(final String authToken, final String action, final File file, final String filename, final long destinationId,
+    public final Cancellable upload(final String authToken, final String action, final File file, final String filename, final long destinationId,
         final FileUploadListener listener) {
 
         final Thread thread = new Thread() {
@@ -1816,7 +1819,7 @@ public class Box {
         };
         thread.start();
 
-        Cancelable cancelable = new Cancelable() {
+        Cancellable cancelable = new Cancellable() {
 
             @Override
             public boolean cancel() {

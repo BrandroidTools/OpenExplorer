@@ -73,6 +73,10 @@ import org.brandroid.openmanager.data.OpenCursor;
 import org.brandroid.openmanager.data.OpenLZMA;
 import org.brandroid.openmanager.data.OpenLZMA.OpenLZMAEntry;
 import org.brandroid.openmanager.data.OpenMediaStore;
+import org.brandroid.openmanager.data.OpenNetworkPath;
+import org.brandroid.openmanager.data.OpenNetworkPath.Cancellable;
+import org.brandroid.openmanager.data.OpenNetworkPath.CloudDeleteListener;
+import org.brandroid.openmanager.data.OpenNetworkPath.CloudOpsHandler;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenPath.OpenStream;
@@ -472,7 +476,7 @@ public class EventHandler {
                 files.remove(file);
             else
                 execute(new BackgroundWork(type,
-                        mContext, newPath, file.getName()), file);
+                        mContext, newPath), file);
         }
     }
 
@@ -634,7 +638,6 @@ public class EventHandler {
         private final OpenPath mIntoPath;
         private ProgressDialog mPDialog;
         private Notification mNote = null;
-        private final int mNotifyId;
         private ArrayList<String> mSearchResults = null;
         private boolean isDownload = false;
         private boolean isCancellable = true;
@@ -650,6 +653,7 @@ public class EventHandler {
         private final int[] mLastProgress = new int[3];
         private int notifIcon;
         private CompressionType mCompressType = CompressionType.ZIP;
+        private Cancellable mCloudCancellor;
 
         private OnWorkerUpdateListener mListener;
 
@@ -670,6 +674,8 @@ public class EventHandler {
         }
 
         public BackgroundWork(EventType type, Context context, OpenPath intoPath, String... params) {
+//            if(OpenExplorer.IS_DEBUG_BUILD)
+//                Logger.LogVerbose("EventHandler.BackgroundWork: " + type.toString() + ", " + intoPath.getAbsolutePath() + ", " + Utils.joinArray(params, "-"));
             mType = type;
             mContext = context;
             mInitParams = params;
@@ -679,7 +685,6 @@ public class EventHandler {
                         .getSystemService(Context.NOTIFICATION_SERVICE);
             taskId = mTasks.size();
             mStart = new Date();
-            mNotifyId = BACKGROUND_NOTIFICATION_ID + EventCount++;
             mTasks.add(this);
             if (mTaskListener != null)
                 mTaskListener.OnTasksChanged(getRunningTasks().length);
@@ -739,7 +744,7 @@ public class EventHandler {
             if (!auto) {
                 if (mLastRate > 0)
                     return getResourceString(mContext, R.string.s_status_rate)
-                            + DialogHandler.formatSize(mLastRate).replace(" ", "").toLowerCase()
+                            + OpenPath.formatSize(mLastRate).replace(" ", "").toLowerCase()
                             + "/s";
                 else
                     return "";
@@ -781,14 +786,16 @@ public class EventHandler {
 
         @Override
         protected void onCancelled() {
-            mNotifier.cancel(mNotifyId);
+            if (mCloudCancellor != null)
+                mCloudCancellor.cancel();
+            mNotifier.cancel(BACKGROUND_NOTIFICATION_ID);
             super.onCancelled();
             mTasks.remove(this);
         }
 
         @Override
         protected void onCancelled(Integer result) {
-            mNotifier.cancel(mNotifyId);
+            mNotifier.cancel(BACKGROUND_NOTIFICATION_ID);
             super.onCancelled(result);
             mTasks.remove(this);
         }
@@ -808,12 +815,12 @@ public class EventHandler {
                     if (mIntoPath.requiresThread())
                         notifIcon = android.R.drawable.stat_sys_upload;
                     notifIcon = R.drawable.ic_menu_copy;
-                    showDialog = true;
+                    showDialog = false;
                     showNotification = true;
                     break;
                 case CUT:
                     notifIcon = R.drawable.ic_menu_cut;
-                    showDialog = true;
+                    showDialog = false;
                     showNotification = true;
                     break;
                 case ZIP:
@@ -832,8 +839,8 @@ public class EventHandler {
             if (showDialog)
                 try {
                     mPDialog = ProgressDialog.show(mContext, getTitle(),
-                            getResourceString(mContext, R.string.s_title_wait).toString(), true,
-                            true, new DialogInterface.OnCancelListener() {
+                            getResourceString(mContext, R.string.s_title_wait).toString(), false,
+                            isCancellable, new DialogInterface.OnCancelListener() {
                                 public void onCancel(DialogInterface dialog) {
                                     cancelRunningTasks();
                                 }
@@ -858,8 +865,8 @@ public class EventHandler {
             ret += "Source: " + mCurrentPath.getParent() + "\n";
             ret += "Destination: " + mIntoPath + "\n";
             if (mLastProgress.length > 2 && mLastProgress[0] > 0 && mLastProgress[1] > 0) {
-                ret += "Progress: " + DialogHandler.formatSize(mLastProgress[0]) + " / "
-                        + DialogHandler.formatSize(mLastProgress[1]) + " ";
+                ret += "Progress: " + OpenPath.formatSize(mLastProgress[0]) + " / "
+                        + OpenPath.formatSize(mLastProgress[1]) + " ";
                 ret += "(" + getLastRate(false) + ")\n";
             }
             ret += getResourceString(mContext, R.string.s_status_remaining) + " ";
@@ -891,17 +898,20 @@ public class EventHandler {
                 } else {
                     mBuilder.setTicker(getTitle());
                 }
-                Intent intent = new Intent(mContext, OpenExplorer.class);
-                intent.putExtra("TaskId", taskId);
-                PendingIntent pendingIntent = PendingIntent.getActivity(mContext,
-                        OpenExplorer.REQUEST_VIEW, intent, 0);
-                mBuilder.setContentIntent(pendingIntent);
-                mBuilder.setOngoing(false);
-                mBuilder.setOnlyAlertOnce(true);
+                mBuilder.setContentIntent(makePendingIntent(
+                        OpenExplorer.REQ_EVENT_VIEW));
+                // mBuilder.setOnlyAlertOnce(true);
+                mBuilder.setAutoCancel(true);
                 NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle();
                 style.bigText(getDetailedText());
                 style.setBigContentTitle(getOperation() + " " + mCurrentPath.getName());
                 mBuilder.setStyle(style);
+                mBuilder.addAction(R.drawable.ic_menu_close_clear_cancel,
+                                mContext.getResources().getText(R.string.s_cancel),
+                                makePendingIntent(OpenExplorer.REQ_EVENT_CANCEL))
+                        .addAction(R.drawable.ic_menu_info_details,
+                                mContext.getText(R.string.s_menu_info),
+                                makePendingIntent(OpenExplorer.REQ_EVENT_VIEW));
                 if (Build.VERSION.SDK_INT < 11) {
                     RemoteViews noteView = new RemoteViews(mContext.getPackageName(),
                             R.layout.notification);
@@ -925,6 +935,13 @@ public class EventHandler {
             return mNote;
         }
 
+        private PendingIntent makePendingIntent(int reqIntent) {
+            Intent intent = new Intent();
+            intent.putExtra("TaskId", taskId);
+            intent.putExtra("RequestId", reqIntent);
+            return PendingIntent.getActivity(mContext, reqIntent, intent, 0);
+        }
+
         public void searchDirectory(OpenPath dir, String pattern, ArrayList<String> aList) {
             try {
                 for (OpenPath p : dir.listFiles())
@@ -943,7 +960,7 @@ public class EventHandler {
         }
 
         protected Integer doInBackground(OpenPath... params) {
-            Logger.LogDebug("Starting Op!");
+            //Logger.LogDebug("Starting Op!");
             mTotalCount = params.length;
             int ret = 0;
 
@@ -953,7 +970,12 @@ public class EventHandler {
 
                 case DELETE:
                     for (int i = 0; i < mTotalCount; i++)
-                        ret += mFileMang.deleteTarget(params[i]);
+                    {
+                        if(checkCloudDelete(params[i]))
+                            ret++;
+                        else
+                            ret += mFileMang.deleteTarget(params[i]);
+                    }
                     break;
                 case SEARCH:
                     mSearchResults = new ArrayList<String>();
@@ -978,6 +1000,8 @@ public class EventHandler {
                     for (int i = 0; i < params.length; i++) {
                         mCurrentIndex = i;
                         mCurrentPath = params[i];
+                        if(OpenExplorer.IS_DEBUG_BUILD)
+                            Logger.LogVerbose("EventHandler.BackgroundWork.doInBackground: " + BackgroundWork.this.mType.toString() + ", " + mIntoPath.getAbsolutePath() + ", " + Utils.joinArray(mInitParams, "-") + " --> " + mCurrentPath.getAbsolutePath());
                         if (mCurrentPath.requiresThread())
                             isDownload = true;
                         publishProgress();
@@ -1013,7 +1037,9 @@ public class EventHandler {
                     if (params[0] instanceof OpenStream)
                     {
                         int x = extractFiles(params[0], mIntoPath, mInitParams);
-                        if(x > 0 && new Preferences(mContext).getBoolean("global", "pref_archive_postdelete", false))
+                        if (x > 0
+                                && new Preferences(mContext).getBoolean("global",
+                                        "pref_archive_postdelete", false))
                             params[0].delete();
                         ret += x;
                     }
@@ -1021,8 +1047,10 @@ public class EventHandler {
 
                 case ZIP:
                     int x = compressFiles(mIntoPath, params);
-                    if(x > 0 && new Preferences(mContext).getBoolean("global", "pref_archive_postdelete", false))
-                        for(OpenPath p : params)
+                    if (x > 0
+                            && new Preferences(mContext).getBoolean("global",
+                                    "pref_archive_postdelete", false))
+                        for (OpenPath p : params)
                             p.delete();
                     ret += x;
                     break;
@@ -1068,7 +1096,7 @@ public class EventHandler {
                                 InputStream is = new BufferedInputStream(
                                         ((OpenStream)file).getInputStream());
                                 copyStreams(is, os, true, false);
-                                //os.write(((OpenFile)file).readBytes());
+                                // os.write(((OpenFile)file).readBytes());
                             }
                         }
                     } catch (IOException e) {
@@ -1248,10 +1276,96 @@ public class EventHandler {
             return ret;
         }
 
+        private Boolean checkCloudUpload(final OpenPath old, final OpenPath intoDir)
+        {
+            if (old instanceof OpenFile && intoDir instanceof OpenNetworkPath.CloudOpsHandler)
+            {
+                final CloudOpsHandler remote = ((OpenNetworkPath.CloudOpsHandler)intoDir);
+                final OpenFile local = (OpenFile)old;
+                final long srcLength = old.length();
+                mCloudCancellor = remote.uploadToCloud(
+                        local, new OpenNetworkPath.CloudProgressListener() {
+                            public void onException(Exception e) {
+                                Logger.LogError("Unable to upload to cloud", e);
+                                onPostExecute(0);
+                                mThreadListener.onWorkerThreadFailure(BackgroundWork.this.mType, old, intoDir);
+                            }
+
+                            @Override
+                            public void onCloudComplete(String status) {
+                                onPostExecute(1);
+                                Logger.LogDebug("Cloud Upload finished");
+                            }
+
+                            @Override
+                            public void onProgress(long bytes) {
+                                onProgressUpdate((int)bytes, (int)srcLength);
+                            }
+                        });
+
+                return true;
+            }
+            return false;
+        }
+        
+        private Boolean checkCloudDelete(final OpenPath file)
+        {
+            if(file instanceof OpenNetworkPath.CloudOpsHandler)
+            {
+                final CloudOpsHandler remote = (CloudOpsHandler)file;
+                return remote.delete(new CloudDeleteListener() {
+                    public void onException(Exception e) {
+                        Logger.LogError("Unable to delete cloud file." , e);
+                    }
+                    public void onDeleteComplete(String status) {
+                        onPostExecute(1);
+                    }
+                });
+            }
+            return false;
+        }
+
+        private Boolean checkCloudDownload(final OpenPath from, OpenPath into)
+        {
+            if (into instanceof OpenFile && from instanceof OpenNetworkPath.CloudOpsHandler)
+            {
+                if(into.isDirectory())
+                    into = into.getChild(from.getName());
+                final CloudOpsHandler remote = ((OpenNetworkPath.CloudOpsHandler)from);
+                final OpenFile local = (OpenFile)into;
+                final long srcLength = from.length();
+                mCloudCancellor = remote.downloadFromCloud(
+                        local, new OpenNetworkPath.CloudProgressListener() {
+                            public void onException(Exception e) {
+                                Logger.LogError("Unable to download from cloud", e);
+                                onPostExecute(0);
+                                mThreadListener.onWorkerThreadFailure(BackgroundWork.this.mType, from, local);
+                            }
+
+                            @Override
+                            public void onCloudComplete(String status) {
+                                onPostExecute(1);
+                            }
+
+                            @Override
+                            public void onProgress(long bytes) {
+                                onProgressUpdate((int)bytes, (int)srcLength);
+                            }
+                        });
+
+                return true;
+            }
+            return false;
+        }
+
         private Boolean copyToDirectory(OpenPath old, OpenPath intoDir, int total)
                 throws IOException {
             if (old.equals(intoDir))
                 return false;
+            if(checkCloudDownload(old, intoDir))
+                return true;
+            if(checkCloudUpload(old, intoDir))
+                return true;
             if (old instanceof OpenFile && !old.isDirectory() && intoDir instanceof OpenFile)
                 if (copyFileToDirectory((OpenFile)old, (OpenFile)intoDir, total))
                     return true;
@@ -1268,7 +1382,8 @@ public class EventHandler {
                */
             if (!intoDir.canWrite())
                 return false;
-            Logger.LogVerbose("EventHandler.copyToDirectory : Using Stream copy");
+            if(OpenExplorer.IS_DEBUG_BUILD)
+                Logger.LogVerbose("EventHandler.copyToDirectory : Using Stream copy");
             if (intoDir instanceof OpenCursor) {
                 try {
                     if (old.isImageFile() && intoDir.getName().equals("Photos")) {
@@ -1433,7 +1548,7 @@ public class EventHandler {
         }
 
         private int extractZipFiles(OpenStream zip, OpenPath directory) {
-            if(OpenExplorer.IS_DEBUG_BUILD)
+            if (OpenExplorer.IS_DEBUG_BUILD)
                 Logger.LogVerbose("Extracting ZIP: " + zip + " (into " + directory + ")");
             byte[] data = new byte[FileManager.BUFFER];
             ZipEntry entry;
@@ -1647,7 +1762,7 @@ public class EventHandler {
             if (SHOW_NOTIFICATION_STATUS) {
 
                 try {
-                    mNotifier.notify(mNotifyId,
+                    mNotifier.notify(BACKGROUND_NOTIFICATION_ID,
                             prepareNotification(notifIcon, isCancellable, values));
                 } catch (Exception e) {
                     Logger.LogWarning("Couldn't update notification progress.", e);
@@ -1699,7 +1814,7 @@ public class EventHandler {
             // NotificationManager mNotifier =
             // (NotificationManager)mContext.getSystemService(Context.NOTIFICATION_SERVICE);
             Logger.LogDebug("EventHandler.onPostExecute(" + mIntoPath + ")");
-            mNotifier.cancel(mNotifyId);
+            mNotifier.cancel(BACKGROUND_NOTIFICATION_ID);
 
             if (mPDialog != null && mPDialog.isShowing())
                 mPDialog.dismiss();

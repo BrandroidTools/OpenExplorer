@@ -153,8 +153,8 @@ public class BoxFileDownload {
 
         String theUri = builder.build().toString();
         if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
-            DevUtils.logcat("User-Agent : " + HttpProtocolParams.getUserAgent(httpclient.getParams()));
-            DevUtils.logcat("Download URL : " + theUri);
+            //DevUtils.logcat("User-Agent : " + HttpProtocolParams.getUserAgent(httpclient.getParams()));
+            DevUtils.logcat("Box Request: " + theUri);
         }
         try {
             httpGet = new HttpGet(new URI(theUri));
@@ -169,18 +169,18 @@ public class BoxFileDownload {
         int responseCode = httpResponse.getStatusLine().getStatusCode();
 
         if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
-            DevUtils.logcat("HTTP Response Code: " + responseCode);
-            Header[] headers = httpResponse.getAllHeaders();
-            for (Header header : headers) {
-                DevUtils.logcat("Response Header: " + header.toString());
-            }
+            DevUtils.logcat("Box Response: " + responseCode);
+//            Header[] headers = httpResponse.getAllHeaders();
+//            for (Header header : headers) {
+//                DevUtils.logcat("Response Header: " + header.toString());
+//            }
         }
 
         // Server returned a 503 Service Unavailable. Usually means a temporary unavailability.
         if (responseCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
-            if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
-                DevUtils.logcat("HTTP Response Code: " + HttpStatus.SC_SERVICE_UNAVAILABLE);
-            }
+//            if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
+//                DevUtils.logcat("HTTP Response Code: " + HttpStatus.SC_SERVICE_UNAVAILABLE);
+//            }
             handler.setStatus(ResponseListener.STATUS_SERVICE_UNAVAILABLE);
             return handler;
         }

@@ -54,7 +54,7 @@ public class IntentManager {
         // ret.putExtra(name, value)
         // ret.set
 
-        String mimeType = OpenExplorer.getMimeTypes(app.getContext()).getMimeType(name);
+        String mimeType = file.getMimeType();
 
         ret.setDataAndType(file.getUri(), mimeType);
 

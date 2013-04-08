@@ -22,11 +22,12 @@ import org.brandroid.openmanager.util.EventHandler.BackgroundWork;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.utils.Logger;
+import org.brandroid.utils.Utils;
 
 import android.database.Cursor;
 import android.net.Uri;
 
-public class OpenSMB extends OpenNetworkPath implements OpenPath.OpenPathSizable, OpenNetworkPath.PipeNeeded {
+public class OpenSMB extends OpenNetworkPath implements OpenNetworkPath.PipeNeeded, OpenPath.SpaceHandler {
     private SmbFile mFile;
     private OpenSMB mParent;
     private OpenSMB[] mChildren = null;
@@ -107,18 +108,7 @@ public class OpenSMB extends OpenNetworkPath implements OpenPath.OpenPathSizable
 
     @Override
     public String getName() {
-        String ret = getName(mFile.getPath());
-        if (ret.endsWith("/"))
-            ret = ret.substring(ret.lastIndexOf("/", ret.lastIndexOf("/") - 1) + 1);
-        else
-            ret = ret.substring(ret.lastIndexOf("/") + 1);
-        if (ret.indexOf("@") > -1)
-            ret = ret.substring(ret.indexOf("@") + 1);
-        if (ret.equals(""))
-            ret = mFile.getName();
-        if (ret.equals("") || ret.equals("/"))
-            ret = mFile.getServer();
-        return ret;
+        return Utils.ifNull(mName, mFile.getName());
     }
 
     @Override
@@ -166,7 +156,13 @@ public class OpenSMB extends OpenNetworkPath implements OpenPath.OpenPathSizable
 
     @Override
     public String getAbsolutePath() {
-        return mFile.getCanonicalPath();
+        String ret = "smb://";
+        if(getServer() != null)
+            ret = getServer().getAbsolutePath();
+        if(!ret.endsWith("/"))
+            ret += "/";
+        ret += mFile.getURL().getPath();
+        return ret;
     }
 
     @Override
@@ -176,23 +172,7 @@ public class OpenSMB extends OpenNetworkPath implements OpenPath.OpenPathSizable
 
     @Override
     public OpenSMB getParent() {
-        if (mParent != null)
-            return mParent;
-        else {
-            try {
-                if (!Thread.currentThread().equals(OpenExplorer.UiThread))
-                    return new OpenSMB(new SmbFile(mFile.getParent(), mFile.getAuth()));
-                String parent = OpenPath.getParent(getPath());
-                if (parent == null)
-                    return null;
-                if (!parent.startsWith("smb://"))
-                    parent = "smb://" + parent;
-                return new OpenSMB(new SmbFile(parent, mFile.getAuth()));
-            } catch (MalformedURLException e) {
-                Logger.LogError("Couldn't get SMB Parent.", e);
-                return null;
-            }
-        }
+        return mParent;
     }
 
     @Override
@@ -215,8 +195,8 @@ public class OpenSMB extends OpenNetworkPath implements OpenPath.OpenPathSizable
     }
     
     @Override
-    public void list(final ListListener listener) {
-        new Thread(new Runnable() {
+    public Thread list(final ListListener listener) {
+        return thread(new Runnable() {
             public void run() {
                 try {
                     listFiles();
@@ -233,7 +213,7 @@ public class OpenSMB extends OpenNetworkPath implements OpenPath.OpenPathSizable
                     postException(e, listener);
                 }
             }
-        }).start();
+        });
     }
 
     @Override
@@ -608,19 +588,36 @@ public class OpenSMB extends OpenNetworkPath implements OpenPath.OpenPathSizable
         mChildren = null;
     }
 
-    @Override
     public long getTotalSpace() {
         return getDiskSpace();
     }
 
-    @Override
     public long getUsedSpace() {
         return getDiskSpace() - getDiskFreeSpace();
     }
     
-    @Override
     public long getFreeSpace() {
         return getDiskFreeSpace();
+    }
+    
+    @Override
+    public void getSpace(final SpaceListener callback) {
+        if(mDiskSpace != null)
+        {
+            callback.onSpaceReturned(mDiskSpace, getUsedSpace(), 0);
+            return;
+        }
+        thread(new Runnable() {
+            public void run() {
+                final long t = getTotalSpace();
+                final long u = getUsedSpace();
+                post(new Runnable() {
+                    public void run() {
+                        callback.onSpaceReturned(t, u, 0);
+                    }
+                });
+            }
+        });
     }
 
     @Override

@@ -128,7 +128,7 @@ public class OpenPathView extends LinearLayout {
             case MotionEvent.ACTION_UP:
                 if (mDownEvent) {
                     if (touchX > checkRight) {
-                        mAdapter.toggleSelected(mFile);
+                        mAdapter.toggleSelected(mFile, this);
                         handled = true;
                         // } else if (touchX > starLeft) {
                         // mIsFavorite = !mIsFavorite;

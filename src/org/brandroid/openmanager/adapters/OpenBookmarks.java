@@ -21,11 +21,11 @@ import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
+import org.brandroid.openmanager.data.OpenPath.SpaceHandler;
 import org.brandroid.openmanager.data.OpenPathMerged;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.data.OpenSmartFolder;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.util.DFInfo;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.InputDialog;
@@ -91,6 +91,7 @@ public class OpenBookmarks implements OnGroupClickListener,
     public static final int BOOKMARK_FAVORITE = 2;
     public static final int BOOKMARK_SERVER = 3;
     public static final int BOOKMARK_EDITING = 4;
+    private Boolean mFirstRun = true;
 
     public interface NotifyAdapterCallback {
         public void notifyAdapter();
@@ -123,7 +124,7 @@ public class OpenBookmarks implements OnGroupClickListener,
     }
 
     public void scanRoot() {
-        Logger.LogDebug("Trying to get roots");
+        // Logger.LogDebug("Trying to get roots");
         if (mBlkids == null && mProcMounts == null) {
             mProcMounts = new ArrayList<String>();
             mBlkids = new ArrayList<String>();
@@ -201,13 +202,13 @@ public class OpenBookmarks implements OnGroupClickListener,
         checkAndAdd(BookmarkType.BOOKMARK_DRIVE, new OpenFile("/").setRoot());
         checkAndAdd(BookmarkType.BOOKMARK_DRIVE, storage.setRoot());
 
-        new Thread(new Runnable() {
+        Runnable drives = new Runnable() {
             @Override
             public void run() {
 
                 checkAndAdd(BookmarkType.BOOKMARK_DRIVE, OpenFile.getUsbDrive());
 
-                Hashtable<String, DFInfo> df = DFInfo.LoadDF(true);
+                Hashtable<String, DFInfo> df = DFInfo.LoadDF(mFirstRun);
                 mAllDataSize = 0l;
                 for (String sItem : df.keySet()) {
                     if (sItem.toLowerCase().startsWith("/dev"))
@@ -238,17 +239,24 @@ public class OpenBookmarks implements OnGroupClickListener,
                         checkAndAdd(BookmarkType.BOOKMARK_FAVORITE, new OpenFile(s));
                 }
             }
-        }).start();
+        };
 
-        notifyDataSetChanged(mApp);
+        if (mFirstRun)
+        {
+            notifyDataSetChanged(mApp);
+            new Thread(drives).start();
+        }
+        else
+            drives.run();
 
         final OpenServers servers = ServerSetupActivity.LoadDefaultServers(context);
-        new Thread(new Runnable() {
+        Runnable cloud = new Runnable() {
             public void run() {
                 for (int i = 0; i < servers.size(); i++) {
                     final int ind = i;
                     final OpenServer server = servers.get(i);
-                    Logger.LogDebug("Checking server #" + ind + ": " + server.toString());
+                    // Logger.LogDebug("Checking server #" + ind + ": " +
+                    // server.toString());
                     OpenNetworkPath onp = server.getOpenPath();
                     onp.setServer(server);
                     SimpleUserInfo info = new SimpleUserInfo();
@@ -265,7 +273,14 @@ public class OpenBookmarks implements OnGroupClickListener,
                                 OpenCommand.COMMAND_ADD_SERVER),
                         null);
             }
-        }).start();
+        };
+        if (mFirstRun)
+        {
+            new Thread(cloud).start();
+            mFirstRun = false;
+        } else
+            cloud.run();
+
         notifyDataSetChanged(mApp);
     }
 
@@ -371,10 +386,32 @@ public class OpenBookmarks implements OnGroupClickListener,
         } else
             ViewUtils.setViewsVisible(parent, false, R.id.content_count);
 
-        if (path instanceof OpenPath.OpenPathSizable) {
-            updateSizeIndicator(path, parent);
+        if (path instanceof OpenPath.OpenPathSizable && ((OpenPathSizable)path).getTotalSpace() > 0) {
+            OpenPathSizable f = (OpenPathSizable)path;
+            long size = f.getTotalSpace();
+            long used = f.getUsedSpace();
+            long last = f.getThirdSpace();
+            updateSizeIndicator(path, parent, size, used, last);
+        } else if (path instanceof OpenPath.SpaceHandler) {
+            // ViewUtils.setViewsVisible(parent, true, R.id.size_layout,
+            // R.id.size_bar);
+            ((OpenPath.SpaceHandler)path).getSpace(new OpenPath.SpaceListener() {
+                public void onException(Exception e) {
+                    ViewUtils.setViewsVisible(parent, false, R.id.size_layout, R.id.size_bar);
+                }
+
+                public void onSpaceReturned(long space, long used, long third) {
+                    if(path instanceof OpenNetworkPath)
+                    {
+                        OpenServer server = ((OpenNetworkPath)path).getServer();
+                        if(server.isDirty())
+                            ServerSetupActivity.SaveToDefaultServers(OpenServers.getDefaultServers(), app.getContext());
+                    }
+                    updateSizeIndicator(path, parent, space, used, third);
+                }
+            });
         } else {
-            ViewUtils.setViewsVisible(parent, false, R.id.size_layout, R.id.size_bar);
+            ViewUtils.setViewsVisibleNow(parent, false, R.id.size_layout, R.id.size_bar);
         }
 
         parent.setOnClickListener(new OnClickListener() {
@@ -813,90 +850,55 @@ public class OpenBookmarks implements OnGroupClickListener,
         return mBookmarkString;
     }
 
-    public void updateSizeIndicator(OpenPath mFile, View mParentView) {
-        if (mParentView == null)
-            return;
-        View size_bar = mParentView.findViewById(R.id.size_bar);
-        TextView mSizeText = (TextView)mParentView.findViewById(R.id.size_text);
-        if (size_bar == null)
-            return;
-        long size = 0l;
-        long free = 0l;
-        long total = 0l;
-        if (mFile != null && mFile instanceof OpenPath.OpenPathSizable)
-        {
-            OpenPathSizable f = (OpenPathSizable)mFile;
-            size = total = f.getTotalSpace();
-            free = f.getFreeSpace();
-        } else
-            return;
-        int total_width = mParentView.getWidth() - size_bar.getLeft();
-        if (total_width <= 0)
-            total_width = mParentView.getWidth();
-        if (total_width <= 0 && mParentView.getRootView().findViewById(R.id.list_frag) != null)
-            total_width = mParentView.getRootView().findViewById(R.id.list_frag).getWidth();
-        if (total_width <= 0)
-            total_width = getResources().getDimensionPixelSize(R.dimen.popup_width);
+    /**
+     * Update Size ProgressBar and TextViews
+     * 
+     * @param mParentView
+     * @param total Total Size to display
+     * @param used Used Size to display
+     * @param third Optional 3rd Size to display
+     */
+    public void updateSizeIndicator(OpenPath path, View mParentView, long total, long used,
+            long third)
+    {
+        boolean onlySize = used < 0;
 
-        if (size > 0 && free < size) {
-            String sFree = DialogHandler.formatSize(free, false);
-            String sTotal = DialogHandler.formatSize(size);
-            // if(sFree.endsWith(sTotal.substring(sTotal.lastIndexOf(" ") + 1)))
-            // sFree = DFInfo.getFriendlySize(free, false);
-            mSizeText.setText(sFree + "/" + sTotal);
-            mSizeText.setVisibility(View.VISIBLE);
+        if (OpenExplorer.IS_DEBUG_BUILD)
+            Logger.LogDebug("Update Size indicator for " + path + ": " + total + ", " + used + ", "
+                    + third);
 
-            while (size > 100000) {
-                size /= 10;
-                free /= 10;
+        if (total > 0) {
+            String txt = "";
+            if (used > 0)
+            {
+                boolean same = OpenPath.getSizeSuffix(used).equals(OpenPath.getSizeSuffix(total));
+                txt = OpenPath.formatSize(used, !same) + "/";
+            }
+            txt += OpenPath.formatSize(total);
+            if (third > 0)
+                txt += " (" + OpenPath.formatSize(third) + ")";
+            ViewUtils.setText(mParentView, txt, R.id.size_text);
+
+            while (total > 100000) {
+                total /= 10;
+                used /= 10;
+                third /= 10;
             }
             float total_percent = ((float)total / (float)Math.max(total, mLargestDataSize));
             total_percent = Math.min(20, total_percent);
-            int percent_width = (int)(total_percent * total_width);
-            // Logger.LogInfo("Size Total: " + mLargestDataSize + " This: " +
-            // total + " Percent: " + total_percent + " Width: " + percent_width
-            // + " / " + total_width);
-            if (size_bar instanceof ProgressBar) {
-                ProgressBar bar = (ProgressBar)size_bar;
-                bar.setMax((int)size);
-                bar.setProgress((int)(size - free));
-                if (bar.getProgress() == 0)
-                    bar.setVisibility(View.GONE);
-                else if (percent_width > 0) {
-                    bar.setVisibility(View.VISIBLE);
-                    // RelativeLayout.LayoutParams lp =
-                    // (RelativeLayout.LayoutParams)bar.getLayoutParams();
-                    // //new LayoutParams(percent_width,
-                    // LayoutParams.MATCH_PARENT);
-                    // lp.rightMargin = total_width - percent_width;
-                    // //lp.width = percent_width;
-                    // lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                    // //bar.setLayoutParams(lp);
-                    // bar.requestLayout();
-                }
-                size_bar.setTag(true);
-            } else {
-                long taken = Math.min(0, size - free);
-                float percent = (float)taken / (float)size;
-                // mParentView.measure(LayoutParams.MATCH_PARENT,
-                // LayoutParams.WRAP_CONTENT);
-                int size_width = total_width; // mParentView.getMeasuredWidth();
-                Logger.LogVerbose("Parent Width: " + size_width);
-                size_width = Math.min(0, (int)(percent * size_width));
-                size_bar.getBackground().setBounds(0, 0, size_width, 0);
-                size_bar.setTag(true);
+
+            ProgressBar bar = (ProgressBar)mParentView.findViewById(R.id.size_bar);
+            ViewUtils.setViewsVisible(bar, !onlySize, R.id.size_bar);
+
+            if (bar != null && !onlySize) {
+                bar.setMax((int)total);
+                bar.setProgress((int)used);
+                if (third > 0)
+                    bar.setSecondaryProgress((int)third);
             }
 
             ViewUtils.setViewsVisible(mParentView, true, R.id.size_bar, R.id.size_layout,
                     R.id.size_text);
-            if (size_bar.getTag() == null)
-                size_bar.setVisibility(View.GONE);
-        } else if (mFile != null && OpenCursor.class.equals(mFile.getClass())) {
-            // bar.setVisibility(View.INVISIBLE);
-            if (size_bar.getTag() == null)
-                size_bar.setVisibility(View.GONE);
-            mSizeText.setText(DialogHandler.formatSize(((OpenCursor)mFile).getTotalSize()));
-            ViewUtils.setViewsVisible(mParentView, true, R.id.size_text);
         } else
             ViewUtils.setViewsVisible(mParentView, false, R.id.size_bar, R.id.size_layout,
                     R.id.size_text);
@@ -933,56 +935,7 @@ public class OpenBookmarks implements OnGroupClickListener,
                     R.layout.bookmark_layout,
                     null);
 
-            OpenPath path = getChild(group, pos);
-
-            BookmarkHolder mHolder = null;
-            mHolder = new BookmarkHolder(path, getPathTitle(path), row, 0);
-            row.setTag(mHolder);
-
-            final TextView mCountText = (TextView)row.findViewById(R.id.content_count);
-            final ImageView mIcon = (ImageView)row.findViewById(R.id.bookmark_icon);
-
-            if (mCountText != null) {
-                if (path instanceof OpenSmartFolder || path instanceof OpenPathMerged) {
-                    if (!mCountText.isShown())
-                        mCountText.setVisibility(View.VISIBLE);
-                    if (!mCountText.getText().toString().equals("(" + path.length() + ")"))
-                        mCountText.setText("(" + path.length() + ")");
-                } else if (path instanceof OpenCursor) {
-                    final OpenCursor oc = (OpenCursor)path;
-                    int cnt = oc.getListLength();
-                    if (cnt > 0)
-                        mCountText.setText("(" + cnt + ")");
-                    oc.setUpdateBookmarkTextListener(new UpdateBookmarkTextListener() {
-                        @Override
-                        public void updateBookmarkCount(final int count) {
-                            ViewUtils.setText(row, count > 0 ? "(" + count + ")" : null,
-                                    R.id.content_count);
-                        }
-                    });
-                } else
-                    mCountText.setVisibility(View.GONE);
-            }
-
-            if (path instanceof OpenPath.OpenPathSizable) {
-                updateSizeIndicator(path, row);
-            } else {
-                ViewUtils.setViewsVisible(row, false, R.id.size_layout, R.id.size_bar);
-            }
-
-            boolean hasKids = true;
-            try {
-                if (!path.requiresThread())
-                    hasKids = path.getChildCount(true) > 0;
-            } catch (IOException e) {
-                // TODO handle exception
-            }
-
-            ViewUtils.setText(row, getPathTitle(path), R.id.content_text);
-
-            ViewUtils.setImageResource(mIcon, ThumbnailCreator.getDrawerResourceId(path));
-
-            ViewUtils.setAlpha(mIcon, !hasKids ? 0.5f : 1.0f);
+            makeBookmarkView((OpenApp)this, row, getChild(group, pos));
 
             return row;
         }

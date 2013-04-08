@@ -13,7 +13,6 @@ import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenPath;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.openmanager.views.RemoteImageView;
 import org.brandroid.utils.Logger;
@@ -240,7 +239,7 @@ public class OpenClipboard extends BaseAdapter implements List<OpenPath> {
                 info.setText(file.getListLength() + " "
                         + info.getContext().getResources().getString(R.string.s_files));
             else
-                info.setText(DialogHandler.formatSize(file.length()));
+                info.setText(OpenPath.formatSize(file.length()));
             if (file != null) {
                 if (file.getName() != null)
                     text.setText(file.getName());

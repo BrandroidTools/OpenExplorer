@@ -331,4 +331,42 @@
     <string name="s_pref_servers_private_summary" auto="1">Guarde la configuración del servidor en el área de almacenamiento privado. Esto hará que la configuración del servidor que desea eliminar si se desinstala la aplicación. Si vuelve a instalar en el futuro, dejando esto no se tienen que evitar.</string>
     <string name="s_theme_lightdark">Licht und Dunkelheit</string>
     <string name="s_theme_custom" auto="1">Nadelstreifen</string>
+    
+    <string name="s_menu_rate">Rate</string>
+	<string name="s_alert_destination_exists">Destination existiert bereits. Was möchten Sie tun?</string>
+	<string name="s_overwrite">überschreiben</string>
+	<string name="s_skip">überspringen</string>
+	<string name="s_msg_file_exists">Einige Zieldateien bereits vorhanden sein kann. Ok zu überschreiben?</string>
+	<string name="s_title_file_exists">Datei existiert bereits.</string>
+	<string name="s_msg_pref_archives">Möchten Sie durchsuchen oder das Archiv entpacken?</string>
+	<string name="s_browse">blättern</string>
+	<string name="s_extract">extrahieren</string>
+	<string name="s_extracted">extrahiert</string>
+	<string name="s_extracting">Extrahieren</string>
+	<string name="s_extract_with">Auszug mit ...</string>
+	<string name="s_title_archive_handler">Archive Handler</string>
+	<string name="s_ask_again">Fragen Sie jedes Mal</string>
+	<string name="s_archives">Archiv</string>
+	<string name="s_compress">komprimieren</string>
+	<string name="s_compress_type">Compression Type</string>
+	<string name="s_compressed">Druckluft</string>
+	<string name="s_delete_after">Löschen Quelle nach Abschluss</string>
+	<string name="s_master_pass">Master-Passwort</string>
+	<string name="s_master_pass_warning">Sie können einen Master-Passwort als Schlüssel für alle gespeicherten Passwörter verwendet. Wenn Sie dieses Feld leer lassen, wird Kennwörter weiterhin verschlüsselt werden, und die Standard-Master-Passwort verwendet werden. Bitte beachten Sie, dass, wenn Sie Ihr Passwort zu aktualisieren mit gespeicherten Netzwerk-Passwörter, werden Sie wahrscheinlich benötigen, um Passwörter zurückzusetzen und authentifizieren Cloud-Server nach dem Zurücksetzen dieses Passwort.</string>
+	<string name="s_pass_old">Altes Passwort eingeben:</string>
+	<string name="s_pass_new">Neues Passwort eingeben:</string>
+	<string name="s_logout">ausloggen</string>
+	<string name="s_authenticate">authentifizieren</string>
+	<string name="s_authenticating">Authentifizierung</string>
+	<string name="s_bookmark_history">Geschichte</string>
+	<string name="s_server_account_title">Konto:</string>
+	<string name="s_authenticate_success">Authentifizierung erfolgreich</string>
+	<string name="s_authenticate_refresh">Aktualisieren Authentication</string>
+	<string name="s_pref_thumbs_cache">Pre-Cache Thumbnails</string>
+	<string name="s_pref_thumbs_cache_summary">Dies wird zu einer Beschleunigung der Be-Ordner mit Fotos und Videos.</string>
+	<string name="s_folders">Ordner</string>
+	<string name="s_hidden">versteckt</string>
+	<string name="s_total">gesamt</string>
+	<string name="s_custom_account">benutzerdefinierten Kontos</string>
+	    
 </resources>

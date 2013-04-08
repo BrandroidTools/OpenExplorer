@@ -80,7 +80,7 @@ public class BoxAuthentication extends Activity {
             return;
         }
 
-        setContentView(R.layout.box_authentication);
+        setContentView(R.layout.server_auth_stub);
 
         // Get a ticket. We need a ticket in order to load the login webpage.
         // Once we have a ticket, launch a login webview.
@@ -114,7 +114,7 @@ public class BoxAuthentication extends Activity {
         // Load the login webpage. Note how the ticket must be appended to the
         // login url.
         String loginUrl = BoxConstants.LOGIN_URL + ticket;
-        mLoginWebView = (WebView) findViewById(R.id.loginWebView);
+        mLoginWebView = (WebView) findViewById(R.id.server_webview);
         mLoginWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         mLoginWebView.getSettings().setJavaScriptEnabled(true);
         mLoginWebView.setWebViewClient(new WebViewClient() {

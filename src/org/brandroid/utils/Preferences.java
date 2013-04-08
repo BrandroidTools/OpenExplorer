@@ -6,9 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.brandroid.openmanager.R;
-import org.brandroid.openmanager.activities.ServerSetupActivity;
-import org.brandroid.openmanager.activities.SettingsActivity;
-import org.brandroid.openmanager.data.OpenServers;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,8 +27,10 @@ public class Preferences {
     public static boolean Pref_Zip_Internal = true;
     public static boolean Pref_ShowUp = false;
     public static boolean Pref_ShowThumbs = true;
+    public static boolean Pref_CacheThumbs = false;
     public static boolean Warn_TextEditor = false;
     public static boolean Warn_Networking = false;
+    public static boolean Pref_RealSizes = true;
     public static int Pref_Text_Max_Size = 500000;
     public static boolean Pref_Analytics = true;
     public static String Pref_Language = ""; // Default

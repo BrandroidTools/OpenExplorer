@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.data.OpenNetworkPath.Cancellable;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.RootManager;
 import org.brandroid.utils.Logger;
@@ -221,9 +222,8 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateHandler,
     }
 
     @Override
-    public void list(final OpenContentUpdateListener callback) throws IOException {
-        final RootManager rm = new RootManager();
-        new Thread(new Runnable() {
+    public Cancellable list(final OpenContentUpdateListener callback) {
+        return cancelify(thread(new Runnable() {
             public void run() {
                 Logger.LogVerbose("Running tar list");
                 try {
@@ -232,12 +232,12 @@ public class OpenTar extends OpenPath implements OpenPath.OpenPathUpdateHandler,
                         callback.addContentPath(p);
                     callback.doneUpdating();
                 } catch (Exception e2) {
-                    callback.onUpdateException(e2);
+                    callback.onException(e2);
                     callback.doneUpdating();
                     Logger.LogError("Error listing TAR #2.", e2);
                 }
             }
-        }).start();
+        }));
     }
 
     @Override

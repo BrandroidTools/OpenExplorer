@@ -47,6 +47,7 @@
         <item>@string/s_server_smb</item>
         <item>Box</item>
         <item>DropBox</item>
+        <item>Drive</item>
     </string-array>
     <string-array name="server_types_values">
         <item>ftp</item>
@@ -54,6 +55,7 @@
         <item>smb</item>
         <item>box</item>
         <item>db</item>
+        <item>drive</item>
     </string-array>
     <string-array name="bookmark_groups">
         <item>@string/s_bookmark_drives</item>

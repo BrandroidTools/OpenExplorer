@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutionException;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.data.OpenPath;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
@@ -105,7 +104,7 @@ public class HeatmapAdapter extends BaseAdapter {
         if (!path.isDirectory()) {
             long size = path.length();
             mSizes.put(path, size);
-            mSize.setText("Size: " + DialogHandler.formatSize(size));
+            mSize.setText("Size: " + OpenPath.formatSize(size));
             mBar.setProgress((int)size / 1000);
         } else if (!mTasks.containsKey(path)) {
             mBar.setProgress(0);
@@ -124,7 +123,7 @@ public class HeatmapAdapter extends BaseAdapter {
                 }
                 if (bytes > 0) {
                     mBar.setProgress((int)(bytes / 1000));
-                    mSize.setText("Size: " + DialogHandler.formatSize(bytes));
+                    mSize.setText("Size: " + OpenPath.formatSize(bytes));
                 }
             } else
                 task.setViews(mBar, mSize);
@@ -177,7 +176,7 @@ public class HeatmapAdapter extends BaseAdapter {
             if (mCallback != null)
                 mCallback.OnHeatmapTasksComplete(mTotalBytes, false);
             if (mSizeText != null)
-                mSizeText.setText("Size: " + DialogHandler.formatSize(result));
+                mSizeText.setText("Size: " + OpenPath.formatSize(result));
             if (mBar != null) {
                 mBar.setMax((int)mTotalBytes / 1000);
                 mBar.setProgress((int)((long)result / 1000));

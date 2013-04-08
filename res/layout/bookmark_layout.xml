@@ -7,32 +7,17 @@
     android:background="?attr/drawerListSelector"
     android:gravity="center|left"
     android:paddingLeft="8dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
     android:paddingRight="8dp" >
-
-    <ProgressBar
-        android:id="@+id/size_bar"
-        style="@android:style/Widget.ProgressBar.Horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/bookmark_icon"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="2dp"
-        android:layout_toRightOf="@+id/bookmark_icon"
-        android:alpha="0.5"
-        android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
-        android:max="100"
-        android:progress="50"
-        android:progressDrawable="@drawable/progress_horizontal"
-        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/bookmark_icon"
-        android:contentDescription="@string/s_bookmarks"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_centerVertical="true"
         android:layout_marginRight="8dp"
-        android:visibility="invisible"
+        android:contentDescription="@string/s_bookmarks"
         android:src="@drawable/icon" />
 
     <TextView
@@ -41,14 +26,10 @@
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
         android:layout_toRightOf="@+id/bookmark_icon"
-        android:drawablePadding="16dp"
         android:gravity="center_vertical"
-        android:paddingBottom="8dp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:paddingTop="8dp"
         android:text="@string/s_bookmarks"
-        android:maxLines="2"
         android:textAppearance="?android:attr/textAppearance"
         android:textColor="?attr/drawerTextColorPrimary"
         android:textSize="18sp" />
@@ -79,20 +60,38 @@
     <RelativeLayout
         android:id="@+id/size_layout"
         android:layout_width="fill_parent"
-        android:layout_height="20dp"
+        android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/content_text"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/content_text"
-        android:gravity="right"
-        android:visibility="gone" >
+        android:layout_toRightOf="@+id/bookmark_icon"
+        android:gravity="right" >
+
+        <ProgressBar
+            android:id="@+id/size_bar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:alpha="0.5"
+            android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
+            android:max="100"
+            android:progress="50"
+            android:progressDrawable="@drawable/progress_horizontal" />
 
         <TextView
             android:id="@+id/size_text"
             style="@style/Text.Small.Dialog"
-            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/size_bar"
+            android:layout_alignTop="@+id/size_bar"
+            android:layout_alignBottom="@+id/size_bar"
+            android:gravity="center_vertical"
             android:layout_marginRight="4dp"
-            android:text="@string/s_size"
-            android:visibility="gone" />
+            android:lines="1"
+            android:text="@string/s_size" />
     </RelativeLayout>
 
 </RelativeLayout>

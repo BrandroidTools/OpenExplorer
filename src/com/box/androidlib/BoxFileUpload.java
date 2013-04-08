@@ -152,7 +152,7 @@ public class BoxFileUpload {
         }
 
         if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
-            DevUtils.logcat("Uploading : " + filename + "  Action= " + action + " DestinionID + " + destinationId);
+//            DevUtils.logcat("Uploading : " + filename + "  Action= " + action + " DestinionID + " + destinationId);
             DevUtils.logcat("Upload URL : " + builder.build().toString());
         }
         // Set up post body
@@ -196,7 +196,7 @@ public class BoxFileUpload {
         catch (final IOException e) {
             // Detect if the download was cancelled through thread interrupt. See CountingOutputStream.write() for when this exception is thrown.
             if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
-                DevUtils.logcat("IOException Uploading " + filename + " Exception Message: " + e.getMessage() + e.toString());
+//                DevUtils.logcat("IOException Uploading " + filename + " Exception Message: " + e.getMessage() + e.toString());
                 DevUtils.logcat(" Exception : " + e.toString());
                 e.printStackTrace();
                 DevUtils.logcat("Upload URL : " + builder.build().toString());
@@ -218,10 +218,10 @@ public class BoxFileUpload {
         if (BoxConfig.getInstance().getHttpLoggingEnabled()) {
             DevUtils.logcat("HTTP Response Code: " + httpResponse.getStatusLine().getStatusCode());
             Header[] headers = httpResponse.getAllHeaders();
-            DevUtils.logcat("User-Agent : " + HttpProtocolParams.getUserAgent(httpClient.getParams()));
-            for (Header header : headers) {
-                DevUtils.logcat("Response Header: " + header.toString());
-            }
+//            DevUtils.logcat("User-Agent : " + HttpProtocolParams.getUserAgent(httpClient.getParams()));
+//            for (Header header : headers) {
+//                DevUtils.logcat("Response Header: " + header.toString());
+//            }
         }
 
         // Server returned a 503 Service Unavailable. Usually means a temporary unavailability.

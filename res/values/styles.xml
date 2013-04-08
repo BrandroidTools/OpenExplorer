@@ -276,7 +276,18 @@
         <item name="@android:windowExitAnimation">@anim/slide_out_left</item>
     </style>
 
-    <style name="Dialog" parent="Theme.Sherlock.Dialog" />
+    <style name="Dialog" parent="Theme.Sherlock.Dialog">
+        <item name="android:windowActionBar">true</item>
+        <item name="android:windowActionModeOverlay">false</item>
+        <item name="windowActionBar">true</item>
+        <item name="windowActionModeOverlay">false</item>
+    </style>
+    <style name="Dialog.Light" parent="Theme.Sherlock.Light.Dialog">
+        <item name="android:windowActionBar">true</item>
+        <item name="android:windowActionModeOverlay">false</item>
+        <item name="windowActionBar">true</item>
+        <item name="windowActionModeOverlay">false</item>
+    </style>
 
     <style name="Widget.ProgressBar.Horizontal" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:minHeight">16dip</item>

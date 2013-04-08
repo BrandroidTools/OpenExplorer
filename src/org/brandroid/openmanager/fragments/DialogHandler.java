@@ -103,7 +103,10 @@ import org.brandroid.openmanager.adapters.IconContextMenu;
 import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenFile;
+import org.brandroid.openmanager.data.OpenPath.SpaceListener;
 import org.brandroid.openmanager.data.OpenSMB;
+import org.brandroid.openmanager.data.OpenPath.OpenPathSizable;
+import org.brandroid.openmanager.data.OpenPath.SpaceHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.HelpStringHelper;
 import org.brandroid.openmanager.util.IntentManager;
@@ -156,7 +159,7 @@ public class DialogHandler {
             @Override
             public void OnHeatmapTasksComplete(long mTotalBytes, boolean allDone) {
                 mTotalSize.setText(app.getContext().getResources().getString(R.string.s_size)
-                        + ": " + formatSize(mTotalBytes) + (allDone ? "" : "..."));
+                        + ": " + OpenPath.formatSize(mTotalBytes) + (allDone ? "" : "..."));
             }
         });
 
@@ -186,41 +189,6 @@ public class DialogHandler {
         return v;
     }
 
-    public static String formatSize(long size) {
-        return formatSize(size, true);
-    }
-
-    public static String formatSize(long size, boolean includeUnits) {
-        return formatSize(size, 2, includeUnits);
-    }
-
-    public static String formatSize(long size, int decimalPoints) {
-        return formatSize(size, decimalPoints, true);
-    }
-
-    public static String formatSize(long size, int decimalPoints, boolean includeUnits) {
-        int kb = 1024;
-        int mb = kb * 1024;
-        int gb = mb * 1024;
-        String ssize = "";
-
-        int factor = (10 ^ decimalPoints);
-
-        if (size < kb)
-            ssize = size + " B";
-        else if (size > kb && size < mb)
-            ssize = ((double)Math.round(((double)size / kb) * factor) / factor)
-                    + (includeUnits ? " KB" : "");
-        else if (size > mb && size < gb)
-            ssize = ((double)Math.round(((double)size / mb) * factor) / factor)
-                    + (includeUnits ? " MB" : "");
-        else if (size > gb)
-            ssize = ((double)Math.round(((double)size / gb) * factor) / factor)
-                    + (includeUnits ? " GB" : "");
-
-        return ssize;
-    }
-
     public static void populateFileInfoViews(OpenApp app, View v, OpenPath file) throws IOException {
 
         if (file instanceof OpenMediaStore)
@@ -245,11 +213,15 @@ public class DialogHandler {
         // }
 
         // ((TextView)v.findViewById(R.id.info_name_label)).setText(file.getName());
+        
         ((TextView)v.findViewById(R.id.info_time_stamp)).setText(date.toString());
         ((TextView)v.findViewById(R.id.info_path_label)).setText(file.getPath());
         ((TextView)v.findViewById(R.id.info_read_perm)).setText(file.canRead() + "");
         ((TextView)v.findViewById(R.id.info_write_perm)).setText(file.canWrite() + "");
         ((TextView)v.findViewById(R.id.info_execute_perm)).setText(file.canExecute() + "");
+        ViewUtils.setText(v, file.getMimeType(), R.id.info_mime);
+        
+        ViewUtils.setViewsVisible(v, file.isDirectory(), R.id.info_dirs_row1, R.id.info_dirs_row2);
 
         if (file.isDirectory())
             ((ImageView)v.findViewById(R.id.info_icon)).setImageResource(R.drawable.lg_folder);
@@ -295,11 +267,10 @@ public class DialogHandler {
                 if (bFirst)
                     firstDirs++;
                 try {
-                    for (OpenPath f : p.list())
-                        addPath(f, false);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    if(p != null)
+                        for (OpenPath f : p.list())
+                            addPath(f, false);
+                } catch (Exception e) {
                 }
             }
             if (fileCount + dirCount % 50 == 0)
@@ -309,8 +280,8 @@ public class DialogHandler {
         @Override
         protected void onProgressUpdate(Integer... values) {
             updateTexts(mTextFiles, fileCount, mTextDirs, dirCount, mTextSize,
-                    formatSize(totalSize), mTextFree, formatSize(freeSize), mTextTotal,
-                    formatSize(diskTotal));
+                    OpenPath.formatSize(totalSize), mTextFree, OpenPath.formatSize(freeSize), mTextTotal,
+                    OpenPath.formatSize(diskTotal));
         }
 
         @Override
@@ -325,29 +296,22 @@ public class DialogHandler {
 
             publishProgress();
 
-            if (path instanceof OpenFile) {
-                freeSize = ((OpenFile)path).getFreeSpace();
-                diskTotal = ((OpenFile)path).getTotalSpace();
+            if (path instanceof OpenPathSizable && ((OpenPathSizable)path).getTotalSpace() > 0) {
+                freeSize = ((OpenPathSizable)path).getTotalSpace() - ((OpenPathSizable)path).getUsedSpace();
+                diskTotal = ((OpenPathSizable)path).getTotalSpace();
                 publishProgress();
+            } else if (path instanceof SpaceHandler) {
+                ((SpaceHandler)path).getSpace(new SpaceListener() {
+                    public void onException(Exception e) {
+                    }
+                    public void onSpaceReturned(long total, long used, long third) {
+                        updateTexts(mTextTotal, OpenPath.formatSize(total), mTextFree, OpenPath.formatSize(total - used));
+                    }
+                });
             } else if (path instanceof OpenMediaStore) {
                 OpenMediaStore ms = (OpenMediaStore)path;
                 freeSize = ms.getFile().getFreeSpace();
                 diskTotal = ms.getFile().getTotalSpace();
-                publishProgress();
-            } else if (path instanceof OpenSMB) {
-                try {
-                    SmbFile smb = ((OpenSMB)path).getFile();
-                    freeSize = smb.getDiskFreeSpace();
-                    String server = smb.getServer();
-                    if (server == null)
-                        diskTotal = smb.length();
-                    else
-                        diskTotal = new SmbFile((server.startsWith("smb://") ? "" : "smb://")
-                                + server + (server.endsWith("/") ? "" : "/")).length();
-                } catch (SmbException e) {
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
                 publishProgress();
             }
 
@@ -357,7 +321,7 @@ public class DialogHandler {
             String[] ret = new String[] {
                     firstDirs + (dirCount > firstDirs ? " (" + dirCount + ")" : ""),
                     firstFiles + (fileCount > firstFiles ? " (" + fileCount + ")" : ""),
-                    formatSize(totalSize), formatSize(freeSize), formatSize(diskTotal)
+                    OpenPath.formatSize(totalSize), OpenPath.formatSize(freeSize), OpenPath.formatSize(diskTotal)
             };
             return ret;
         }
@@ -1127,13 +1091,6 @@ public class DialogHandler {
         return ret;
     }
 
-    public static String getLangCode() {
-        String lang = Locale.getDefault().toString().toUpperCase();
-        if (lang.length() > 2)
-            lang = lang.substring(0, 2);
-        return lang;
-    }
-
     public static String getDeviceInfo() {
         String ret = "";
         String sep = "\n";
@@ -1143,7 +1100,7 @@ public class DialogHandler {
             ret += "Screen: " + OpenExplorer.SCREEN_WIDTH + "x" + OpenExplorer.SCREEN_HEIGHT + sep;
         if (OpenExplorer.SCREEN_DPI > -1)
             ret += "DPI: " + OpenExplorer.SCREEN_DPI + sep;
-        ret += "Lang: " + getLangCode() + sep;
+        ret += "Lang: " + Utils.getLangCode() + sep;
         ret += "Runs: " + Preferences.Run_Count + sep;
         ret += "Fingerprint: " + Build.FINGERPRINT + sep;
         ret += "Manufacturer: " + Build.MANUFACTURER + sep;
@@ -1163,15 +1120,6 @@ public class DialogHandler {
             ret += "Unknown: " + Build.UNKNOWN + sep;
         ret += "ID: " + Build.ID;
         return ret;
-    }
-
-    public static String formatDuration(long ms) {
-        int s = (int)(ms / 1000), m = s / 60, h = m / 60;
-        m = m % 60;
-        s = s % 60;
-        return (ms > 360000 ? h + ":" : "")
-                + (ms > 6000 ? (h == 0 || m >= 10 ? "" : "0") + m + ":" : "")
-                + (ms > 6000 ? (s >= 10 ? "" : "0") + s : (ms < 1000 ? ms + "ms" : s + "s"));
     }
 
     public static boolean showServerWarning(final Context context) {

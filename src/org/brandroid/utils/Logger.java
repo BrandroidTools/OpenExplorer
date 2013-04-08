@@ -1,11 +1,20 @@
 
 package org.brandroid.utils;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.OpenFile;
@@ -123,6 +132,33 @@ public class Logger {
             Logger.LogDebug(arg0.toString());
         }
     };
+    
+    private static Handler mDefaultHandler;
+    private final static List<String> mLogsHandled = new ArrayList<String>();
+    public static void setDefaultHandler(Handler handler) { mDefaultHandler = handler; }
+    public static void setHandler() {
+        LogManager man = LogManager.getLogManager();
+        Enumeration<String> names = man.getLoggerNames();
+        String name;
+        while(names.hasMoreElements() && (name = names.nextElement()) != null)
+        {
+            if(Utils.isNullOrEmpty(name)) continue;
+            if(name.equalsIgnoreCase("global")) continue;
+            if(name.toLowerCase(Locale.US).contains("android")) continue;
+            if(name.startsWith("org.apache")) continue;
+            setHandler(name);
+        }
+    }
+    public static void setHandler(String name) {
+        if(mLogsHandled.contains(name)) return;
+        mLogsHandled.add(name);
+        java.util.logging.Logger log = java.util.logging.Logger.getLogger(name);
+        log.setLevel(Level.FINE);
+        log.addHandler(mDefaultHandler);
+        if(OpenExplorer.IS_DEBUG_BUILD)
+            Logger.LogVerbose("Logger added to " + name);
+    }
+    
     private static LoggerDbAdapter dbLog;
 
     @Override
@@ -514,5 +550,8 @@ public class Logger {
     public static void closeDb() {
         if (hasDb())
             dbLog.close();
+    }
+    public static Handler getDefaultHandler() {
+        return mDefaultHandler;
     }
 }

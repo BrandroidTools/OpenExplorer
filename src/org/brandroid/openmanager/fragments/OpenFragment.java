@@ -56,6 +56,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
@@ -66,6 +67,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnCreateContextMenuListener;
 import android.view.View.OnKeyListener;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 
 /*
@@ -171,6 +173,19 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
         mShare.setActionProvider(mShareProvider);
 
         mShare.setVisible(true);
+    }
+    
+    public void makeToast(final Context context, final CharSequence text)
+    {
+        getHandler().post(new Runnable() {
+            public void run() {
+                try {
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Logger.LogError("Unable to make toast!", e);
+                }
+            }
+        });
     }
 
     public String getString(int resId, String mDefault) {
@@ -603,14 +618,9 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     public String getClassName() {
         return this.getClass().getSimpleName();
     }
-
-    /**
-     * Get instance of Event Handler.
-     * 
-     * @return
-     */
-    protected EventHandler getHandler() {
-        return OpenExplorer.getEventHandler();
+    
+    public static Handler getHandler() {
+        return OpenExplorer.getHandler();
     }
 
     /**

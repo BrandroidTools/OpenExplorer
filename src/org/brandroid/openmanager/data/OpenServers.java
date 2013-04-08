@@ -3,6 +3,7 @@ package org.brandroid.openmanager.data;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
@@ -21,7 +22,6 @@ public class OpenServers implements Iterable<OpenServer> {
 
     public OpenServers() {
         mData = new CopyOnWriteArrayList<OpenServer>();
-        mDecryptKey = null;
     }
 
     public OpenServers(JSONArray arr) {
@@ -31,20 +31,41 @@ public class OpenServers implements Iterable<OpenServer> {
         for (int i = 0; i < arr.length(); i++)
             try {
                 OpenServer server = new OpenServer(arr.getJSONObject(i));
+                server.setServerIndex(i);
                 add(server);
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+        clean();
     }
     
-    public static boolean hasDefaultServers() { return mDefaultServersSet; }
-    public static OpenServers setDefaultServers(OpenServers servers) { mDefaultServersSet = true; DefaultServers = servers; return servers; }
-    public static OpenServers getDefaultServers() { return DefaultServers; }
-    
-    public static void setDecryptKey(String key) { mDecryptKey = key; }
-    
-    protected static String getDecryptKey() { return mDecryptKey; }
+    public void clean() {
+        for(OpenServer server : mData)
+            server.clean();
+    }
+
+    public static boolean hasDefaultServers() {
+        return mDefaultServersSet;
+    }
+
+    public static OpenServers setDefaultServers(OpenServers servers) {
+        mDefaultServersSet = true;
+        DefaultServers = servers;
+        return servers;
+    }
+
+    public static OpenServers getDefaultServers() {
+        return DefaultServers;
+    }
+
+    public static void setDecryptKey(String key) {
+        mDecryptKey = key;
+    }
+
+    protected static String getDecryptKey() {
+        return mDecryptKey;
+    }
 
     public OpenServer findByPath(String type, String host, String user, String path) {
         for (int i = 0; i < mData.size(); i++) {
@@ -60,18 +81,28 @@ public class OpenServers implements Iterable<OpenServer> {
     public OpenServer findByUser(String type, String host, String user) {
         for (int i = 0; i < mData.size(); i++) {
             OpenServer server = mData.get(i);
-            if (server.getHost().equalsIgnoreCase(host) && server.getType().equalsIgnoreCase(type)
-                    && (user == "" || server.getUser().equalsIgnoreCase(user)))
+            if ((host == null || server.getHost().equalsIgnoreCase(host))
+                    && server.getType().equalsIgnoreCase(type)
+                    && (user == null || user == ""
+                    || server.getUser().equalsIgnoreCase(user)))
                 return server;
         }
         return null;
     }
-    
+
     public boolean hasServerType(String type) {
-        for(OpenServer server : mData)
-            if(server.getType().equalsIgnoreCase(type))
+        for (OpenServer server : mData)
+            if (server.getType().equalsIgnoreCase(type))
                 return true;
         return false;
+    }
+
+    public List<OpenServer> findByType(String type) {
+        Vector<OpenServer> ret = new Vector<OpenServer>();
+        for (OpenServer server : mData)
+            if (server.getType().equals(type))
+                ret.add(server);
+        return ret;
     }
 
     public OpenServer findByHost(String type, String host) {
@@ -88,7 +119,7 @@ public class OpenServers implements Iterable<OpenServer> {
             Logger.LogWarning("Invalid Server: " + value);
             return false;
         }
-        if(DEBUG)
+        if (DEBUG)
             Logger.LogDebug("Adding Server: " + value);
         return mData.add(value);
     }
@@ -98,7 +129,7 @@ public class OpenServers implements Iterable<OpenServer> {
     }
 
     public boolean set(int index, OpenServer value) {
-        if(DEBUG)
+        if (DEBUG)
             Logger.LogDebug("Setting Server #" + index + ": " + value);
         if (!value.isValid())
             return false;

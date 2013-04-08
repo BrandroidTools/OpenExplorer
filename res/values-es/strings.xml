@@ -325,4 +325,42 @@
     <string name="s_pref_servers_private_summary" auto="1">Guarde la configuración del servidor en el área de almacenamiento privado. Esto hará que la configuración del servidor que desea eliminar si se desinstala la aplicación. Si vuelve a instalar en el futuro, dejando esto no se tienen que evitar.</string>
     <string name="s_theme_lightdark" auto="1">Luz y Oscuridad</string>
     <string name="s_theme_custom" auto="1">Pin rayas</string>
+    
+    <string name="s_menu_rate">velocidad</string>
+	<string name="s_alert_destination_exists">Destino ya existe. ¿Qué te gustaría hacer?</string>
+	<string name="s_overwrite">Sobrescribir</string>
+	<string name="s_skip">omitir</string>
+	<string name="s_msg_file_exists">Algunos archivos de destino ya exista. Aceptar para sobrescribir?</string>
+	<string name="s_title_file_exists">El archivo ya existe.</string>
+	<string name="s_msg_pref_archives">¿Te gustaría explorar o extraer el archivo?</string>
+	<string name="s_browse">Navegar</string>
+	<string name="s_extract">extraer</string>
+	<string name="s_extracted">extraído</string>
+	<string name="s_extracting">extrayendo</string>
+	<string name="s_extract_with">Extraer con ...</string>
+	<string name="s_title_archive_handler">Archivo del controlador</string>
+	<string name="s_ask_again">Preguntar cada vez</string>
+	<string name="s_archives">archivo</string>
+	<string name="s_compress">comprimir</string>
+	<string name="s_compress_type">Tipo de compresión</string>
+	<string name="s_compressed">comprimido</string>
+	<string name="s_delete_after">Eliminar de origen después de la finalización</string>
+	<string name="s_master_pass">Contraseña maestra</string>
+	<string name="s_master_pass_warning">Debe introducir una contraseña maestra, que se utiliza como clave de cifrado para las contraseñas almacenadas. Si lo deja en blanco, las contraseñas todavía se cifrará y la contraseña maestra predeterminada se utilizará. Tenga en cuenta que si actualiza su contraseña con las contraseñas de red almacenados, probablemente tendrá que restablecer las contraseñas y autenticar servidores de la nube después de restablecer la contraseña.</string>
+	<string name="s_pass_old">Introduzca la contraseña antigua:</string>
+	<string name="s_pass_new">Escriba la nueva contraseña:</string>
+	<string name="s_logout">finalizar la sesión</string>
+	<string name="s_authenticate">autenticar</string>
+	<string name="s_authenticating">Autenticación</string>
+	<string name="s_bookmark_history">historia</string>
+	<string name="s_server_account_title">cuenta:</string>
+	<string name="s_authenticate_success">autenticación exitosa</string>
+	<string name="s_authenticate_refresh">Actualizar autenticación</string>
+	<string name="s_pref_thumbs_cache">Cache de Pre-Thumbnails</string>
+	<string name="s_pref_thumbs_cache_summary">Esto ayudará a acelerar la carga de las carpetas que contienen imágenes y vídeos.</string>
+	<string name="s_folders">carpetas</string>
+	<string name="s_hidden">oculto</string>
+	<string name="s_total">total</string>
+	<string name="s_custom_account">cuenta personalizada</string>
+	    
 </resources>

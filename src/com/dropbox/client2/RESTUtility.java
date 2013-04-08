@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Level;
 
 import javax.net.ssl.SSLException;
 
@@ -190,6 +191,8 @@ public class RESTUtility {
 
         session.sign(req);
         HttpResponse resp = execute(session, req);
+        
+        DropboxAPI.mDropboxLogger.config("Response: " + resp.getStatusLine().getStatusCode());
 
         return new RequestAndResponse(req, resp);
     }
@@ -472,6 +475,8 @@ public class RESTUtility {
         } catch (UnsupportedEncodingException uce) {
             return null;
         }
+        
+        DropboxAPI.mDropboxLogger.log(Level.FINE, "Request URL: " + target);
 
         return "https://" + host + ":443" + target;
     }

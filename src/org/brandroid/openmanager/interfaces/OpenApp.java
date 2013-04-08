@@ -124,4 +124,5 @@ public interface OpenApp {
     public int getThemedResourceId(int styleableId, int defaultResourceId);
 
     public void startActivityForResult(Intent intent, int requestCode);
+    
 }

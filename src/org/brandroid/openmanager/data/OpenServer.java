@@ -10,6 +10,7 @@ import jcifs.smb.SmbFile;
 
 import org.apache.commons.net.ftp.FTPFile;
 import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.activities.ServerSetupActivity;
 import org.brandroid.openmanager.util.SimpleUserInfo;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.SimpleCrypto;
@@ -25,12 +26,13 @@ import com.dropbox.client2.android.AndroidAuthSession;
 import android.content.Context;
 import android.net.Uri;
 
-public class OpenServer {
+public class OpenServer extends OpenPath {
     private final JSONObject mData;
     private final static boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
     private OpenNetworkPath mPath;
-    private int mServerIndex = -1;
+    private Integer mServerIndex = null;
     private boolean mPasswordDecrypted = false;
+    private boolean mDirty = false;
 
     public OpenServer() {
         mData = new JSONObject();
@@ -54,7 +56,8 @@ public class OpenServer {
             return false;
         OpenServer os = (OpenServer)o;
         try {
-            if (os.getHost().equals(getHost()) &&
+            if (os.getType().equals(getType()) &&
+                    os.getHost().equals(getHost()) &&
                     os.getPassword().equals(getPassword()) &&
                     os.getUser().equals(getUser()) &&
                     os.getPath().equals(getPath()) &&
@@ -67,22 +70,17 @@ public class OpenServer {
     }
 
     public int getServerIndex() {
-        if (mServerIndex > -1)
+        if (mServerIndex != null)
             return mServerIndex;
 
-        if(OpenServers.hasDefaultServers())
+        if (OpenServers.hasDefaultServers())
         {
             OpenServers servers = OpenServers.getDefaultServers();
             for (int i = 0; i < servers.size(); i++)
-            {
                 if (servers.get(i).equals(this))
-                {
-                    mServerIndex = i;
-                    return i;
-                }
-            }
+                    return mServerIndex = i;
         }
-        return -1;
+        return mServerIndex = -1;
     }
 
     public boolean isPasswordDecrypted()
@@ -116,7 +114,7 @@ public class OpenServer {
             }
         };
         if (threaded)
-            new Thread(decryptor).start();
+            thread(decryptor);
         else
             decryptor.run();
     }
@@ -133,7 +131,7 @@ public class OpenServer {
                     mData.put("password", pw);
                     mPasswordDecrypted = false;
                 } catch (Exception e) {
-                    // Logger.LogError("Error decrypting password.", e);
+                    Logger.LogError("Error decrypting password.", e);
                 }
             }
         };
@@ -144,11 +142,19 @@ public class OpenServer {
     }
 
     public boolean isValid() {
-        if (getType().equalsIgnoreCase("box"))
-            return true;
-        if (getType().equalsIgnoreCase("db"))
-            return true;
-        return mData != null && mData.has("host");
+        switch (ServerSetupActivity.getServerTypeFromString(getType()))
+        {
+            case 0: // FTP
+            case 1: // SFTP
+            case 2: // SMB
+                return mData != null && mData.has("host");
+            case 3: // Box
+            case 4: // Dropbox
+            case 5: // Drive
+                return mData != null && mData.has("password");
+            default:
+                return false;
+        }
     }
 
     private static String[] getNames(JSONObject o) {
@@ -199,6 +205,7 @@ public class OpenServer {
     public OpenServer setSetting(String key, String value) {
         try {
             mData.put(key, value);
+            mDirty = true;
             if (DEBUG)
                 Logger.LogDebug("OpenServer.setSetting(" + key + ", " + value + ")");
         } catch (JSONException e) {
@@ -224,6 +231,7 @@ public class OpenServer {
     public OpenServer setSetting(String key, long value) {
         try {
             mData.put(key, value);
+            mDirty = true;
         } catch (JSONException e) {
         }
         return this;
@@ -235,7 +243,7 @@ public class OpenServer {
 
     public String getPath() {
         String mPath = get("dir", "");
-        if(!mPath.startsWith("/"))
+        if (!mPath.startsWith("/"))
             mPath = "/" + mPath;
         return mPath + (mPath.equals("") || mPath.endsWith("/") ? "" : "/");
     }
@@ -254,7 +262,8 @@ public class OpenServer {
             mPath = new OpenSCP(getHost(), getUser(), getPath(), info);
         } else if (t2.startsWith("sftp")) {
             mPath = new OpenSFTP(getHost(), getUser(), getPath());
-            //mPath = new OpenVFS("sftp://" + getUser() + ":" + getPassword() + "@" + getHost() + getPath());
+            // mPath = new OpenVFS("sftp://" + getUser() + ":" + getPassword() +
+            // "@" + getHost() + getPath());
         } else if (t2.startsWith("smb")) {
             try {
                 mPath = new OpenSMB(new SmbFile("smb://" + getHost() + "/" + getPath(),
@@ -282,6 +291,9 @@ public class OpenServer {
             DropboxAPI<AndroidAuthSession> mApi = new DropboxAPI<AndroidAuthSession>(
                     OpenDropBox.buildSession(this));
             mPath = new OpenDropBox(mApi);
+        } else if (t2.startsWith("drive"))
+        {
+            return new OpenDrive(getPassword(), get("refresh"));
         } else
             return null;
         mPath.setServer(this);
@@ -298,7 +310,7 @@ public class OpenServer {
 
     public String getName() {
         String mName = get("name");
-        if(mName != null && !mName.equals(""))
+        if (mName != null && !mName.equals(""))
             return mName;
         return getOpenPath().getName();
     }
@@ -401,15 +413,39 @@ public class OpenServer {
     public long get(String key, long defValue) {
         return mData.optLong(key, defValue);
     }
-/*
+
     @Override
     public String getAbsolutePath() {
-        return getOpenPath().getAbsolutePath();
+        String ret = ""; //getType() + "://";
+        if(getUser() != null || getPassword() != null)
+        {
+            if(getUser() != null)
+                ret += Uri.encode(getUser());
+            if(getPassword() != null)
+                ret += ":" + Uri.encode(getPassword());
+            ret += "@";
+        }
+        if(getHost() != null)
+            ret += getHost();
+        if(getPort() > 0)
+            ret += ":" + getPort();
+        String p = getPath();
+        if(p != null)
+        {
+            if(!ret.endsWith("/") || !p.startsWith("/"))
+                ret += "/";
+            ret += p;
+            ret = ret.replace("//", "/");
+        }
+        if(getType().equals("dropbox"))
+            return "db://" + ret;
+        else
+            return getType() + "://" + ret;
     }
 
     @Override
     public long length() {
-        return getOpenPath().length();
+        return 0;
     }
 
     @Override
@@ -419,62 +455,63 @@ public class OpenServer {
 
     @Override
     public OpenPath getChild(String name) {
-        return getOpenPath().getChild(name);
+        return null;
     }
 
     @Override
     public OpenPath[] list() throws IOException {
-        return getOpenPath().list();
+        return null;
     }
 
     @Override
     public OpenPath[] listFiles() throws IOException {
-         return getOpenPath().listFiles();
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
     public Boolean isDirectory() {
-        return getOpenPath().isDirectory();
+        return true;
     }
 
     @Override
     public Boolean isFile() {
-        return getOpenPath().isFile();
+        return false;
     }
 
     @Override
     public Boolean isHidden() {
-        return getOpenPath().isHidden();
+        return false;
     }
 
     @Override
     public Uri getUri() {
-        return getOpenPath().getUri();
+        return null;
     }
 
     @Override
     public Long lastModified() {
-        return getOpenPath().lastModified();
+        return null;
     }
 
     @Override
     public Boolean canRead() {
-        return getOpenPath().canRead();
+        return true;
     }
 
     @Override
     public Boolean canWrite() {
-        return getOpenPath().canWrite();
+        return false;
     }
 
     @Override
     public Boolean canExecute() {
-        return getOpenPath().canExecute();
+        return false;
     }
 
     @Override
     public Boolean exists() {
-        return getOpenPath().exists();
+        return true;
     }
 
     @Override
@@ -484,13 +521,17 @@ public class OpenServer {
 
     @Override
     public Boolean delete() {
-        OpenServers.getDefaultServers().remove(getServerIndex());
-        return true;
+        return false;
     }
 
     @Override
     public Boolean mkdir() {
-        return getOpenPath().mkdir();
+        return false;
     }
-*/
+
+    public boolean isDirty() {
+        return mDirty;
+    }
+    
+    public void clean() { mDirty = false; }
 }

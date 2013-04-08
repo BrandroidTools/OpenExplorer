@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.nio.channels.FileChannel;
 import java.util.Date;
 
@@ -31,10 +32,11 @@ import android.os.Environment;
 import android.os.StatFs;
 
 @SuppressLint("NewApi")
-public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByteIO, OpenStream, OpenPathSizable {
+public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByteIO, OpenStream, SpaceHandler, OpenPath.OpenPathSizable {
     private static final long serialVersionUID = 6436156952322586833L;
     private File mFile;
-    private OpenFile[] mChildren = null;
+    private WeakReference<OpenFile[]> mChildren = null;
+    private Integer mChildCount = null;
     private boolean bGrandPeeked = false;
     // private String mRoot = null;
     private OutputStream output = null;
@@ -43,6 +45,9 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
     private static OpenFile mUsbDrive = null;
     private static OpenFile mTempDir = null;
     private String deets = null;
+    private Long mTotalSpace = null;
+    private Long mUsedSpace = null;
+    private static boolean mTryStat = true;
 
     public OpenFile setRoot() {
         // / TODO fix this
@@ -93,35 +98,16 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
 
     @Override
     public int getListLength() {
+        if (mChildCount != null)
+            return mChildCount;
         if (mChildren != null)
-            return mChildren.length;
+            return mChildCount = mChildren.get().length;
         else
-            return -1;
+            return list().length;
     }
 
     public long getFreeSpace() {
-        if (getDepth() > 3) {
-            if (getPath().startsWith("/mnt/")) {
-                OpenFile toCheck = this;
-                for (int i = 3; i < getDepth(); i++) {
-                    toCheck = toCheck.getParent();
-                    if (toCheck == null)
-                        break;
-                }
-                if (toCheck != null)
-                    return toCheck.getFreeSpace();
-            }
-        }
-        try {
-            StatFs stat = new StatFs(getPath());
-            if (stat.getFreeBlocks() > 0)
-                return (long)stat.getFreeBlocks() * (long)stat.getBlockSize();
-        } catch (Exception e) {
-            Logger.LogWarning("Couldn't get Total Space.", e);
-        }
-        if (DFInfo.LoadDF().containsKey(getPath()))
-            return (long)DFInfo.LoadDF().get(getPath()).getFree();
-        return Build.VERSION.SDK_INT > 8 ? mFile.getFreeSpace() * 1024 * 1024 : 0;
+        return getTotalSpace() - getUsedSpace();
     }
 
     public long getUsableSpace() {
@@ -143,6 +129,7 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
     }
 
     public long getTotalSpace() {
+        if (mTotalSpace != null) return mTotalSpace;
         if (getDepth() > 4) {
             if (getPath().indexOf("/mnt/") > -1) {
                 OpenFile toCheck = this;
@@ -152,27 +139,44 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
                         break;
                 }
                 if (toCheck != null)
-                    return toCheck.getTotalSpace();
+                    return mTotalSpace = toCheck.getTotalSpace();
             }
         }
+        if (DFInfo.LoadDF().containsKey(getPath()))
+            return mTotalSpace = (long)DFInfo.LoadDF().get(getPath()).getSize();
+        if(mTryStat)
         try {
             StatFs stat = new StatFs(getPath());
             if (stat.getBlockCount() > 0)
-                return (long)stat.getBlockCount() * (long)stat.getBlockSize();
+                return mTotalSpace = (long)stat.getBlockCount() * (long)stat.getBlockSize();
         } catch (Exception e) {
+            mTryStat = false;
+            mTotalSpace = 0l;
             Logger.LogWarning("Couldn't get Total Space for " + getPath(), e);
         }
-        if (DFInfo.LoadDF().containsKey(getPath()))
-            return (long)DFInfo.LoadDF().get(getPath()).getSize();
         return Build.VERSION.SDK_INT > 8 ? mFile.getTotalSpace() * 1024 * 1024 : length();
     }
 
     public long getUsedSpace() {
+        if (mUsedSpace != null) return mUsedSpace;
+        if(mTryStat)
+        try {
+            StatFs stat = new StatFs(getPath());
+            if (stat.getBlockCount() > 0)
+                return mUsedSpace = (stat.getBlockCount() - stat.getFreeBlocks()) * (long)stat.getBlockSize();
+        } catch (Exception e) {
+            mTryStat = false;
+            mUsedSpace = 0l;
+            Logger.LogWarning("Couldn't get Used Space for " + getPath(), e);
+        }
+/*
         long ret = length();
         if (isDirectory())
             for (OpenPath kid : list())
                 ret += ((OpenFile)kid).getUsedSpace();
-        return ret;
+        return mUsedSpace = ret;
+        */
+        return 0l;
     }
 
     public int countAllFiles() {
@@ -213,7 +217,7 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
             Logger.LogWarning("Null found in DB");
             return false;
         }
-        mChildren = new OpenFile[c.getCount()];
+        OpenFile[] mKids = new OpenFile[c.getCount()];
         c.moveToFirst();
         while (!c.isAfterLast()) {
             String folder = c
@@ -221,10 +225,11 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
             String name = c.getString(OpenPathDbAdapter.getKeyIndex(OpenPathDbAdapter.KEY_NAME));
             int size = c.getInt(OpenPathDbAdapter.getKeyIndex(OpenPathDbAdapter.KEY_SIZE));
             int modified = c.getInt(OpenPathDbAdapter.getKeyIndex(OpenPathDbAdapter.KEY_MTIME));
-            mChildren[c.getPosition()] = new OpenFile(folder + "/" + name);
+            mKids[c.getPosition()] = new OpenFile(folder + "/" + name);
             c.moveToNext();
         }
-        Logger.LogVerbose("listFromDb found " + mChildren.length + " children");
+        Logger.LogVerbose("listFromDb found " + mKids.length + " children");
+        mChildren = new WeakReference<OpenFile[]>(mKids);
         c.close();
         return true;
     }
@@ -367,7 +372,7 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
     }
 
     public OpenFile[] listFiles(boolean grandPeek) {
-        mChildren = getOpenPaths(mFile.listFiles());
+        OpenFile[] mChildren = getOpenPaths(mFile.listFiles());
         if (!grandPeek) {
             // Logger.LogDebug(mFile.getPath() + " has " + mChildren.length +
             // " children");
@@ -385,13 +390,16 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
                 try {
                     if (!mChildren[i].isDirectory())
                         continue;
-                    mChildren[i].listFiles();
+                    mChildren[i].list();
                 } catch (ArrayIndexOutOfBoundsException e) {
                     Logger.LogWarning("Grandchild lost!", e);
                 }
             }
             bGrandPeeked = true;
         }
+        
+        mChildCount = mChildren.length;
+        this.mChildren = new WeakReference<OpenFile[]>(mChildren);
 
         return mChildren;
     }
@@ -435,9 +443,9 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
     }
 
     @Override
-    public OpenPath[] list() {
+    public OpenFile[] list() {
         if (mChildren != null)
-            return mChildren;
+            return mChildren.get();
         return listFiles();
     }
 
@@ -697,5 +705,51 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
         if (dest instanceof OpenFile)
             return ((OpenFile)dest).copyFrom(this);
         return false;
+    }
+
+    @Override
+    public void getSpace(final SpaceListener callback) {
+        if(mTotalSpace != null && mUsedSpace != null)
+        {
+            callback.onSpaceReturned(mTotalSpace, mUsedSpace, 0);
+            return;
+        }
+        thread(new Runnable() {
+            public void run() {
+                try {
+                    mTotalSpace = getTotalSpace();
+                    mUsedSpace = getUsedSpace();
+                    post(new Runnable() {
+                        public void run() {
+                            callback.onSpaceReturned(mTotalSpace, mUsedSpace, 0);
+                        }
+                    });
+                } catch(Exception e) {
+                    postException(e, callback);
+                }
+            }
+        });
+    }
+
+    public Thread list(final ListListener listener) {
+        return thread(new Runnable() {
+            public void run() {
+                try {
+                    final OpenFile[] files = listFiles();
+                    post(new Runnable() {
+                        public void run() {
+                            listener.onListReceived(files);
+                        }
+                    });
+                } catch(Exception e) {
+                    postException(e, listener);
+                }
+            }
+        });
+    }
+
+    @Override
+    public long getThirdSpace() {
+        return 0;
     }
 }

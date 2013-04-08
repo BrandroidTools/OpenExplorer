@@ -28,7 +28,7 @@
         android:layout_gravity="center"
         android:background="@drawable/card_tag" >
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/content_icon_frame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,8 +37,15 @@
             <org.brandroid.openmanager.views.RemoteImageView
                 android:id="@+id/content_icon"
                 style="@style/icon.grid"
+            android:layout_centerInParent="true"
                 android:src="@drawable/lg_folder_full" />
-        </LinearLayout>
+
+            <ImageView
+                android:id="@+id/content_icon_overlay"
+                style="@style/icon.grid"
+            	android:layout_centerInParent="true"
+                android:visibility="gone" />
+        </RelativeLayout>
 
         <View
             android:id="@+id/color_chip"

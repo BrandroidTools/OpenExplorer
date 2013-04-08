@@ -166,6 +166,13 @@ public class ViewUtils {
     }
 
     public static void setOnClicks(View parent, OnClickListener listener, int... ids) {
+        if(parent == null) return;
+        for (int id : ids)
+            if (parent.findViewById(id) != null)
+                parent.findViewById(id).setOnClickListener(listener);
+    }
+
+    public static void setOnClicks(Activity parent, OnClickListener listener, int... ids) {
         for (int id : ids)
             if (parent.findViewById(id) != null)
                 parent.findViewById(id).setOnClickListener(listener);
@@ -209,6 +216,14 @@ public class ViewUtils {
     public static void setText(final View parent, final CharSequence text, int... textViewID) {
         if (parent == null)
             return;
+        
+        boolean empty = text == null || text.length() == 0;
+        if(empty)
+        {
+            ViewUtils.setViewsVisible(parent, !empty, textViewID);
+            return;
+        }
+        
         boolean ui = Thread.currentThread().equals(OpenExplorer.UiThread);
         if (textViewID.length == 0)
             if (parent != null && parent instanceof TextView)
@@ -317,6 +332,8 @@ public class ViewUtils {
         if (ids.length == 0) {
             if (parent.getVisibility() != vis)
                 parent.setVisibility(vis);
+//            if (visible && parent.getParent() != null && !parent.getParent().equals(parent) && parent.getParent() instanceof View)
+//                ((View)parent.getParent()).setVisibility(View.VISIBLE);
         } else
             for (int id : ids) {
                 View v = parent.findViewById(id);
@@ -329,7 +346,7 @@ public class ViewUtils {
     public static void setViewsVisible(final View parent, final boolean visible, final int... ids) {
         if (parent == null)
             return;
-        if (Thread.currentThread().equals(OpenExplorer.UiThread))
+        if (!Thread.currentThread().equals(OpenExplorer.UiThread))
             OpenExplorer.getHandler().post(new Runnable() {
                 public void run() {
                     setViewsVisibleNow(parent, visible, ids);

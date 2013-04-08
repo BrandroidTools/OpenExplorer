@@ -234,8 +234,8 @@ public class OpenVFS extends OpenNetworkPath implements OpenPath.ListHandler {
     }
 
     @Override
-    public void list(final ListListener listener) {
-        new Thread(new Runnable() {
+    public Thread list(final ListListener listener) {
+        return thread(new Runnable() {
             public void run() {
                 try {
                     postListReceived(listFiles(), listener);
@@ -243,7 +243,7 @@ public class OpenVFS extends OpenNetworkPath implements OpenPath.ListHandler {
                     postException(e, listener);
                 }
             }
-        }).start();
+        });
     }
 
     @Override

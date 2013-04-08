@@ -19,8 +19,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.brandroid.openmanager"
     android:installLocation="auto"
-    android:versionCode="220"
-    android:versionName="0.220" >
+    android:versionCode="223"
+    android:versionName="0.223" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -33,6 +33,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
 
     <uses-feature
         android:name="com.google.android.tv"
@@ -126,6 +129,7 @@
         <activity
             android:name="org.brandroid.openmanager.activities.ServerSetupActivity"
       		android:uiOptions="none"
+      		android:theme="@style/Dialog"
             android:configChanges="screenSize|keyboard|keyboardHidden" >
         </activity>
         <activity

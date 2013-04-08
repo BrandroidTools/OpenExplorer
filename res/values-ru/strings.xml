@@ -331,4 +331,42 @@
     <string name="s_pref_servers_private_summary" auto="1">Хранить настройки сервера в частном хранилище. Это может привести настройки сервера должны быть удалены, если приложение не будет удалено. Если вы повторно установить в будущее, оставляя это будет снят предотвратить это.</string>
     <string name="s_theme_lightdark" auto="1">Свет и Тьма</string>
     <string name="s_theme_custom" auto="1">завитки</string>
+    
+    <string name="s_menu_rate">скорость</string>
+	<string name="s_alert_destination_exists">Направления уже существует. Что бы вы хотели сделать?</string>
+	<string name="s_overwrite">переписывать</string>
+	<string name="s_skip">пропускать</string>
+	<string name="s_msg_file_exists">Некоторые файлы могут назначения уже существуют. Для перезаписи?</string>
+	<string name="s_title_file_exists">Файл уже существует.</string>
+	<string name="s_msg_pref_archives">Хотели бы вы, чтобы просмотреть или распаковать архив?</string>
+	<string name="s_browse">просматривать</string>
+	<string name="s_extract">извлечение</string>
+	<string name="s_extracted">извлеченный</string>
+	<string name="s_extracting">извлекающий</string>
+	<string name="s_extract_with">Извлечение с ...</string>
+	<string name="s_title_archive_handler">Архив Handler</string>
+	<string name="s_ask_again">Попросите каждого времени</string>
+	<string name="s_archives">архив</string>
+	<string name="s_compress">сжимать</string>
+	<string name="s_compress_type">Тип сжатия</string>
+	<string name="s_compressed">сжатый</string>
+	<string name="s_delete_after">Удаление источника после завершения</string>
+	<string name="s_master_pass">Мастер-пароль</string>
+	<string name="s_master_pass_warning">Вы можете ввести мастер-пароль, используемый в качестве ключа шифрования для любой сохраненные пароли. Если оставить это поле пустым, пароль все равно будет зашифрован, и пароль по умолчанию мастер будет использоваться. Обратите внимание, что если вы обновляете свой ​​пароль сохраненные пароли сети, вам, вероятно, нужно сброса паролей и аутентификации удаленных серверов после сброса пароля.</string>
+	<string name="s_pass_old">Введите старый пароль:</string>
+	<string name="s_pass_new">Введите новый пароль:</string>
+	<string name="s_logout">Выйти</string>
+	<string name="s_authenticate">проверять подлинность</string>
+	<string name="s_authenticating">Аутентификация</string>
+	<string name="s_bookmark_history">история</string>
+	<string name="s_server_account_title">счет:</string>
+	<string name="s_authenticate_success">Проверка подлинности успешным</string>
+	<string name="s_authenticate_refresh">Обновить аутентификации</string>
+	<string name="s_pref_thumbs_cache">Предварительно кэшировать эскизы</string>
+	<string name="s_pref_thumbs_cache_summary">Это поможет ускорить загрузку папки, содержащие фотографии и видео.</string>
+	<string name="s_folders">папки</string>
+	<string name="s_hidden">скрытый</string>
+	<string name="s_total">общий</string>
+	<string name="s_custom_account">Пользовательский аккаунт</string>
+	    
 </resources>

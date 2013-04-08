@@ -11,6 +11,11 @@
  ******************************************************************************/
 package com.box.androidlib;
 
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+
 import android.util.Log;
 
 /**
@@ -25,6 +30,10 @@ public final class DevUtils {
      */
     private DevUtils() {
     }
+    
+    private static Handler mLogHandler;
+    
+    public static void setLogHandler(Handler handler) { mLogHandler = handler; }
 
     /**
      * Send string to logcat. If the string contains multiple lines, split them up and send them to logcat.
@@ -36,19 +45,16 @@ public final class DevUtils {
         if (!BoxConfig.getInstance().getHttpLoggingEnabled()) {
             return;
         }
+        if(mLogHandler != null)
+        {
+            LogRecord rec = new LogRecord(Level.INFO, str);
+            rec.setLoggerName("Box");
+            mLogHandler.publish(rec);
+            return;
+        }
         final String[] lines = str.split("\n");
         for (int i = 0; i < lines.length; i++) {
             Log.d("BOXBOX", lines[i]);
         }
-    }
-
-    /**
-     * Send num to logcat.
-     * 
-     * @param num
-     *            the num to log.
-     */
-    public static void logcat(final int num) {
-        DevUtils.logcat("int: " + String.valueOf(num));
     }
 }

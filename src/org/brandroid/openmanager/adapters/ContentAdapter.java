@@ -3,18 +3,28 @@ package org.brandroid.openmanager.adapters;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenApplication;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.BookmarkHolder;
+import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenFileRoot;
 import org.brandroid.openmanager.data.OpenPath;
+import org.brandroid.openmanager.data.OpenPath.OpenPathSizable;
 import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateHandler;
+import org.brandroid.openmanager.data.OpenPath.SpaceHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.openmanager.util.SortType.Type;
@@ -24,6 +34,7 @@ import org.brandroid.openmanager.views.OpenPathView;
 import org.brandroid.utils.ImageUtils;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
+import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
 
 import com.stericson.RootTools.RootTools;
@@ -31,8 +42,15 @@ import com.stericson.RootTools.RootTools;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.StyleSpan;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +68,10 @@ public class ContentAdapter extends BaseAdapter {
     private final int GB = MG * KB;
 
     private final OpenPath mParent;
-    private final ArrayList<OpenPath> mData2 = new ArrayList<OpenPath>();
+    private SortedSet<OpenPath> mData2 = new TreeSet<OpenPath>();
+    private OpenPath[] mFinalItems;
+    private boolean isFinal = false;
+    // private final List<OpenPath> mData2 = new ArrayList<OpenPath>();
     public int mViewMode = OpenExplorer.VIEW_LIST;
     public boolean mShowThumbnails = true;
     private boolean mShowHiddenFiles = false;
@@ -59,7 +80,6 @@ public class ContentAdapter extends BaseAdapter {
     private boolean mPlusParent = false;
     private boolean mShowDetails = true;
     private boolean mShowFiles = true;
-    private boolean mShowChecks = false;
 
     private int checkboxOnId = -1;
     private int checkboxOffId = -1;
@@ -74,14 +94,14 @@ public class ContentAdapter extends BaseAdapter {
      * Callback from MessageListAdapter. All methods are called on the UI
      * thread.
      */
-    public interface Callback {
+    public interface SelectionCallback {
         /** Called when the user selects/unselects a message */
         void onAdapterSelectedChanged(OpenPath path, boolean newSelected, int mSelectedCount);
     }
 
-    private final Callback mCallback;
+    private final SelectionCallback mCallback;
 
-    public ContentAdapter(OpenApp app, Callback callback, int mode, OpenPath parent) {
+    public ContentAdapter(OpenApp app, SelectionCallback callback, int mode, OpenPath parent) {
         // super(context, layout, data);
         mApp = app;
         mCallback = callback;
@@ -172,7 +192,10 @@ public class ContentAdapter extends BaseAdapter {
                 + (showHidden ? "show" : "hide") + " + " + (foldersFirst ? "folders" : "files")
                 + " + " + (doSort ? mSorting.toString() : "no sort"));
 
+        OpenPath.Sorting = mSorting;
         mData2.clear();
+        isFinal = false;
+        mFinalItems = null;
 
         if (items != null)
             for (OpenPath f : items) {
@@ -191,30 +214,43 @@ public class ContentAdapter extends BaseAdapter {
                 mData2.add(f);
             }
 
-        if (doSort)
-            sort();
+        finalize();
+    }
 
+    private void prefinalize() {
+        if (isFinal)
+            return;
+        mFinalItems = mData2.toArray(new OpenPath[mData2.size()]);
+        mData2.clear();
+        isFinal = true;
+    }
+
+    public void finalize() {
+        prefinalize();
         super.notifyDataSetChanged();
+    }
+
+    private void unfinalize() {
+        if (!isFinal)
+            return;
+        isFinal = false;
+        mData2.clear();
+        mData2.addAll(Arrays.asList(mFinalItems));
+    }
+
+    public boolean isFinalized() {
+        return isFinal;
     }
 
     @Override
     public void notifyDataSetChanged() {
+        finalize();
         // super.notifyDataSetChanged();
         /*
          * Please note, this is on purpose. We want to hook into
          * notifyDataSetChanged to ensure filters & sorting are enabled.
          */
         super.notifyDataSetChanged();
-    }
-
-    public void sort() {
-        sort(mSorting);
-    }
-
-    public void sort(SortType sort) {
-        OpenPath.Sorting = sort;
-        if (mData2 != null && mData2.size() > 1)
-            Collections.sort(mData2);
     }
 
     private OpenPath[] getList() {
@@ -224,11 +260,13 @@ public class ContentAdapter extends BaseAdapter {
                 return new OpenPath[0];
             if (mParent.requiresThread() && Thread.currentThread().equals(OpenExplorer.UiThread))
                 return mParent.list();
-            else if(!mParent.canRead())
+            else if (!mParent.canRead())
             {
-                if(OpenApplication.hasRootAccess(true))
+                if ((mParent instanceof OpenFile)
+                        && OpenApplication.hasRootAccess(true))
                     return new OpenFileRoot(mParent).listFiles();
-                else return new OpenPath[0];
+                else
+                    return new OpenPath[0];
             } else
                 return mParent.listFiles();
         } catch (Exception e) {
@@ -237,13 +275,6 @@ public class ContentAdapter extends BaseAdapter {
         }
     }
 
-    public View getView(OpenPath path, View view, ViewGroup parent) {
-        if (!mData2.contains(path))
-            return null;
-        return getView(mData2.indexOf(path), view, parent);
-    }
-
-    // //@Override
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         int mode = getViewMode();
@@ -254,38 +285,25 @@ public class ContentAdapter extends BaseAdapter {
         final boolean useLarge = getViewMode() == OpenExplorer.VIEW_GRID;
         final OpenPath file = getItem(position); // super.getItem(position);
 
-        View row;
-
         if (view == null || view.getTag() == null || !(view.getTag() instanceof BookmarkHolder)
                 || ((BookmarkHolder)view.getTag()).getMode() != mode) {
             LayoutInflater in = (LayoutInflater)getContext().getSystemService(
                     Context.LAYOUT_INFLATER_SERVICE);
 
-            row = in.inflate(layout, parent, false);
-            BookmarkHolder mHolder = new BookmarkHolder(file, file.getName(), row, mode);
-            row.setTag(mHolder);
+            view = in.inflate(layout, parent, false);
+            BookmarkHolder mHolder = new BookmarkHolder(file, Utils.ifNull(file.getName(), "/"),
+                    view, mode);
+            view.setTag(mHolder);
             // file.setTag(mHolder);
-        } else {
-            row = view;
         }
 
-        if (file == null) {
-            return row;
-        } else if (row instanceof OpenPathView) {
-            ((OpenPathView)row).associateFile(file, this);
-        }
-
-        Object o = file.getTag();
-        if (o != null && o instanceof OpenPath && ((OpenPath)o).equals(file))
-            return row;
-
-        TextView mInfo = (TextView)row.findViewById(R.id.content_info);
-        TextView mDate = (TextView)row.findViewById(R.id.content_date);
+        TextView mInfo = (TextView)view.findViewById(R.id.content_info);
+        TextView mDate = (TextView)view.findViewById(R.id.content_date);
         // TextView mPathView =
         // (TextView)row.findViewById(R.id.content_fullpath);
-        TextView mNameView = (TextView)row.findViewById(R.id.content_text);
-        final ImageView mIcon = (ImageView)row.findViewById(R.id.content_icon);
-        ImageView mCheck = (ImageView)row.findViewById(R.id.content_check);
+        TextView mNameView = (TextView)view.findViewById(R.id.content_text);
+        final ImageView mIcon = (ImageView)view.findViewById(R.id.content_icon);
+        ImageView mCheck = (ImageView)view.findViewById(R.id.content_check);
 
         if (mPlusParent && position == 0) {
             mNameView.setText(R.string.s_menu_up);
@@ -294,11 +312,23 @@ public class ContentAdapter extends BaseAdapter {
                 mInfo.setText("");
             if (mDate != null)
                 mDate.setText("");
-            return row;
+            mCheck.setVisibility(View.GONE);
+            return view;
         }
+
+        if (file == null) {
+            return view;
+        } else if (view instanceof OpenPathView) {
+            ((OpenPathView)view).associateFile(file, this);
+        }
+
+        // Object o = file.getTag();
+        // if (o != null && o instanceof OpenPath && ((OpenPath)o).equals(file))
+        // return view;
+
         final String mName = file.getName();
 
-        int mWidth = getViewMode() == OpenExplorer.VIEW_GRID ? OpenExplorer.IMAGE_SIZE_GRID
+        final int mWidth = getViewMode() == OpenExplorer.VIEW_GRID ? OpenExplorer.IMAGE_SIZE_GRID
                 : OpenExplorer.IMAGE_SIZE_LIST;
         int mHeight = mWidth;
 
@@ -316,23 +346,26 @@ public class ContentAdapter extends BaseAdapter {
         // mHolder.setInfo(getFileDetails(file, false));
 
         if (mInfo != null) {
-            String sInfo = String.format(file.getDetails(getShowHiddenFiles()), getResources()
-                    .getString(R.string.s_files));
+            SpannableStringBuilder sInfo = new SpannableStringBuilder(String.format(
+                    file.getDetails(getShowHiddenFiles()), getResources()
+                            .getString(R.string.s_files)));
             if (OpenPath.Sorting.getType() == Type.SIZE
                     || OpenPath.Sorting.getType() == Type.SIZE_DESC)
-                sInfo = "<b>" + sInfo + "</b>";
+                sInfo.setSpan(new StyleSpan(Typeface.BOLD), 0, sInfo.length(),
+                        Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             if (mShowDetails && mParent.showChildPath()) {
-                sInfo += " :: " + file.getPath().replace(file.getName(), "");
+                sInfo.append(" :: " + file.getPath().replace(file.getName(), ""));
                 showLongDate = false;
             } else if (!mShowDetails)
-                sInfo = "";
+                sInfo.clear();
 
             if (mDate != null)
                 mDate.setText(file.getFormattedDate(showLongDate));
             else
-                sInfo += (sInfo.equals("") ? "" : " | ") + file.getFormattedDate(showLongDate);
+                sInfo.append((sInfo.length() == 0 ? "" : " | ")
+                        + file.getFormattedDate(showLongDate));
 
-            mInfo.setText(Html.fromHtml(sInfo));
+            mInfo.setText(sInfo);
         }
 
         if (mNameView != null)
@@ -348,14 +381,20 @@ public class ContentAdapter extends BaseAdapter {
         // RemoteImageView mIcon =
         // (RemoteImageView)view.findViewById(R.id.content_icon);
 
+        boolean hasOverlay = file instanceof OpenPath.ThumbnailOverlayInterface;
+        if (hasOverlay)
+            ViewUtils.setImageDrawable(view,
+                    ((OpenPath.ThumbnailOverlayInterface)file).getOverlayDrawable(getContext(),
+                            mViewMode == OpenExplorer.VIEW_GRID),
+                    R.id.content_icon_overlay);
+        ViewUtils.setViewsVisible(view, hasOverlay, R.id.content_icon_overlay);
+
         if (mIcon != null) {
             // mIcon.invalidate();
-            if (file.isHidden())
-                mIcon.setAlpha(100);
-            else
-                mIcon.setAlpha(255);
+            ViewUtils.setAlpha(file.isHidden() ? 0.4f : 1.0f, view, R.id.content_icon);
             if (!mShowThumbnails || !file.hasThumbnail()) {
-                mIcon.setImageDrawable(ThumbnailCreator.getDefaultDrawable(file, mWidth, mHeight, getContext()));
+                mIcon.setImageDrawable(ThumbnailCreator.getDefaultDrawable(file, mWidth, mHeight,
+                        getContext()));
             } else { // if(!ThumbnailCreator.getImagePath(mIcon).equals(file.getPath()))
                 // {
                 // Logger.LogDebug("Bitmapping " + file.getPath());
@@ -372,37 +411,28 @@ public class ContentAdapter extends BaseAdapter {
                                     Runnable doit = new Runnable() {
                                         @Override
                                         public void run() {
-                                            if (!OpenExplorer.BEFORE_HONEYCOMB) {
-                                                BitmapDrawable d = new BitmapDrawable(
-                                                        getResources(), b);
-                                                d.setGravity(Gravity.CENTER);
-                                                ImageUtils.fadeToDrawable(mIcon, d);
-                                            } else {
-                                                mIcon.setImageBitmap(b);
-                                                // mIcon.setAlpha(255);
-                                            }
+                                            Drawable d = new BitmapDrawable(getResources(), b);
+                                            ((BitmapDrawable)d).setGravity(Gravity.CENTER);
+                                            ImageUtils.fadeToDrawable(mIcon, d);
                                             mIcon.setTag(file);
                                         }
                                     };
-                                    if (!Thread.currentThread().equals(OpenExplorer.UiThread))
-                                        mIcon.post(doit);
-                                    else
-                                        doit.run();
+                                    OpenExplorer.post(doit);
                                 }
                             }
                         });
             }
         }
 
-        // row.setTag(file);
-        boolean mChecked = (mSelectedSet != null && mSelectedSet.contains(file));
-        boolean mShowCheck = true; // mChecked || (mSelectedSet != null &&
-        // mSelectedSet.size() > 0);
+        if (mCheck != null)
+            mCheck.setImageResource((mSelectedSet != null && mSelectedSet.contains(file))
+                    ? checkboxOnId : checkboxOffId);
+
         boolean mShowClip = mApp.getClipboard().contains(file);
 
         if (mShowClip) {
-            ViewUtils.setViewsVisible(row, true, R.id.content_clipboard);
-            ViewUtils.setOnClicks(row, new View.OnClickListener() {
+            ViewUtils.setViewsVisible(view, true, R.id.content_clipboard);
+            ViewUtils.setOnClicks(view, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mApp.getClipboard().remove(file);
@@ -410,82 +440,95 @@ public class ContentAdapter extends BaseAdapter {
                 }
             }, R.id.content_clipboard);
         } else {
-            ViewUtils.setViewsVisible(row, false, R.id.content_clipboard);
-            ViewUtils.setOnClicks(row, new View.OnClickListener() {
+            ViewUtils.setViewsVisible(view, false, R.id.content_clipboard);
+            final View p = view;
+            ViewUtils.setOnClicks(view, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    toggleSelected(file);
+                    toggleSelected(file, p);
+                    if (mApp != null && mApp.getActionMode() != null)
+                        mApp.getActionMode().invalidate();
                 }
             }, R.id.checkmark_area);
         }
-
-        if (mCheck != null)
-            mCheck.setImageResource(mChecked ? checkboxOnId : checkboxOffId);
-        ViewUtils.setViewsVisible(row, mShowCheck, R.id.content_check);
 
         switch (OpenPath.Sorting.getType()) {
             case DATE:
             case DATE_DESC:
                 mDate.setTextAppearance(getContext(), R.style.Text_Small_Highlight);
-                //mInfo.setTextAppearance(getContext(), R.style.Text_Small);
+                // mInfo.setTextAppearance(getContext(), R.style.Text_Small);
                 mNameView.setTextAppearance(getContext(), R.style.Text_Large_Dim);
                 break;
             case SIZE:
             case SIZE_DESC:
-                //mInfo.setTextAppearance(getContext(), R.style.Text_Small_Highlight);
+                // mInfo.setTextAppearance(getContext(),
+                // R.style.Text_Small_Highlight);
                 mDate.setTextAppearance(getContext(), R.style.Text_Small);
                 mNameView.setTextAppearance(getContext(), R.style.Text_Large_Dim);
                 break;
             case ALPHA:
             case ALPHA_DESC:
                 mNameView.setTextAppearance(getContext(), R.style.Text_Large);
-                //mInfo.setTextAppearance(getContext(), R.style.Text_Small);
+                // mInfo.setTextAppearance(getContext(), R.style.Text_Small);
                 mDate.setTextAppearance(getContext(), R.style.Text_Small);
                 break;
             default:
                 mNameView.setTextAppearance(getContext(), R.style.Text_Large_Dim);
-                //mInfo.setTextAppearance(getContext(), R.style.Text_Small);
+                // mInfo.setTextAppearance(getContext(), R.style.Text_Small);
                 mDate.setTextAppearance(getContext(), R.style.Text_Small);
                 break;
         }
 
-        return row;
+        return view;
     }
 
     @Override
     public int getCount() {
-        return mData2.size() + (mPlusParent ? 1 : 0);
+        if (!isFinal)
+            prefinalize();
+        return mFinalItems.length + (mPlusParent ? 1 : 0);
     }
 
     @Override
     public OpenPath getItem(int position) {
-        if (mPlusParent && position == 0)
-            return mParent.getParent();
-        int pos = position - (mPlusParent ? 1 : 0);
-        if (pos < 0 || pos >= mData2.size())
+        if (!isFinal)
+            prefinalize();
+        if (mPlusParent)
+        {
+            if (position == 0)
+                return mParent.getParent();
+            else
+                position--;
+        }
+        if (position < 0 || position >= mFinalItems.length)
             return null;
-        return mData2.get(pos);
+        return mFinalItems[position];
     }
 
     @Override
     public long getItemId(int position) {
+        if (!isFinal)
+            prefinalize();
         return position;
     }
 
     public void clearData() {
         mData2.clear();
+        isFinal = false;
+        mFinalItems = null;
     }
 
-    public void add(OpenPath p) {
-        mData2.add(p);
+    public void addAll(Collection<? extends OpenPath> collection) {
+        if (isFinal)
+            unfinalize();
+        mData2.addAll(collection);
+        notifyDataSetChanged();
     }
 
-    public boolean contains(OpenPath f) {
-        return mData2.contains(f);
-    }
-
-    public ArrayList<OpenPath> getAll() {
-        return mData2;
+    public void selectAll()
+    {
+        mSelectedSet.addAll(isFinal ? Arrays.asList(mFinalItems) : mData2);
+        notifyDataSetChanged();
     }
 
     public CopyOnWriteArrayList<OpenPath> getSelectedSet() {
@@ -518,8 +561,12 @@ public class ContentAdapter extends BaseAdapter {
         return getSelectedSet().contains(path);
     }
 
-    public void toggleSelected(OpenPath path) {
-        updateSelected(path, !isSelected(path));
+    public void toggleSelected(OpenPath path, View row) {
+        boolean sel = !isSelected(path);
+        updateSelected(path, sel);
+        row.setSelected(sel);
+        ViewUtils.setImageResource(row, sel ? checkboxOnId : checkboxOffId, R.id.content_check);
+        row.invalidate();
     }
 
     /**
@@ -547,5 +594,78 @@ public class ContentAdapter extends BaseAdapter {
 
     public boolean getShowHiddenFiles() {
         return mShowHiddenFiles;
+    }
+    
+    public void getStatus2(final OpenPath.SpaceListener callback) {
+        if (mParent instanceof OpenPath.OpenPathSizable
+                && ((OpenPathSizable)mParent).getTotalSpace() > 0)
+        {
+            OpenPathSizable sz = (OpenPathSizable)mParent;
+            callback.onSpaceReturned(sz.getTotalSpace(), sz.getUsedSpace(), sz.getThirdSpace());
+        } else if (mParent instanceof OpenPath.SpaceHandler)
+            new Thread(new Runnable() {
+                public void run() {
+                    {
+                        ((SpaceHandler)mParent).getSpace(callback);
+                    }
+                }
+            }).start();
+        else callback.onException(null);
+    }
+
+    public CharSequence getStatus() {
+        final SpannableStringBuilder ret = new SpannableStringBuilder();
+        int[] stats = new int[] {
+                0, 0, 0, 0
+        }; // total, folders, files, hidden
+        long bytes = 0;
+        try {
+            if (mData2 != null)
+                for (OpenPath p : mData2)
+                {
+                    stats[0]++;
+                    if (!mShowHiddenFiles && p.isHidden())
+                        stats[3]++;
+                    else if (p.isDirectory())
+                        stats[1]++;
+                    else {
+                        stats[2]++;
+                        bytes += p.length();
+                    }
+                }
+        } catch (Exception e) {
+        }
+        try {
+            if (mFinalItems != null)
+                for (OpenPath p : mFinalItems)
+                {
+                    stats[0]++;
+                    if (!mShowHiddenFiles && p.isHidden())
+                        stats[3]++;
+                    else if (p.isDirectory())
+                        stats[1]++;
+                    else {
+                        stats[2]++;
+                        bytes += p.length();
+                    }
+                }
+        } catch (Exception e) {
+        }
+        if (stats[0] == 0)
+            return "";
+        else {
+            if (stats[1] > 0)
+                ret.append(stats[1] + " " + getResources().getString(R.string.s_folders));
+            if (stats[2] > 0)
+                ret.append((ret.length() > 0 ? ", " : "") + stats[2] + " "
+                        + getResources().getString(R.string.s_files));
+            if (stats[3] > 0)
+                ret.append((ret.length() > 0 ? ", " : "") + stats[3] + " "
+                        + getResources().getString(R.string.s_hidden));
+            if (bytes > 0)
+                ret.append((ret.length() > 0 ? ", " : "") + OpenPath.formatSize(bytes, 2, true));
+
+        }
+        return ret;
     }
 }

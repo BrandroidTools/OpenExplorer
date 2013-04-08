@@ -20,6 +20,8 @@ package org.brandroid.openmanager.util;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.WeakHashMap;
 import java.io.File;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -32,11 +34,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.logging.impl.WeakHashtable;
 import org.apache.commons.net.ftp.FTPFile;
 import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.activities.ServerSetupActivity;
 import org.brandroid.openmanager.data.FTPManager;
 import org.brandroid.openmanager.data.OpenBox;
 import org.brandroid.openmanager.data.OpenContent;
+import org.brandroid.openmanager.data.OpenDrive;
 import org.brandroid.openmanager.data.OpenDropBox;
 import org.brandroid.openmanager.data.OpenFTP;
 import org.brandroid.openmanager.data.OpenFileRoot;
@@ -50,7 +55,6 @@ import org.brandroid.openmanager.data.OpenSearch;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.data.OpenTar;
-import org.brandroid.openmanager.data.OpenVFS;
 import org.brandroid.openmanager.data.OpenZip;
 import org.brandroid.openmanager.data.OpenPath.OpenStream;
 import org.brandroid.openmanager.data.OpenSearch.SearchProgressUpdateListener;
@@ -68,6 +72,7 @@ import com.jcraft.jsch.UserInfo;
 import android.content.Context;
 import android.net.Uri;
 import android.os.StatFs;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class FileManager {
@@ -76,7 +81,7 @@ public class FileManager {
     private boolean mShowHiddenFiles = false;
     private SortType mSorting = SortType.ALPHA;
     private long mDirSize = 0;
-    private static Hashtable<String, OpenPath> mOpenCache = new Hashtable<String, OpenPath>();
+    private static WeakHashMap<String, OpenPath> mOpenCache = new WeakHashMap<String, OpenPath>();
     public static UserInfo DefaultUserInfo;
     private OnProgressUpdateCallback mCallback = null;
 
@@ -288,7 +293,7 @@ public class FileManager {
             ret = new OpenFTP(path, null, new FTPManager());
         else if (path.startsWith("sftp:/"))
             ret = new OpenSFTP(path);
-            //ret = new OpenVFS(path);
+        // ret = new OpenVFS(path);
         else if (path.startsWith("smb:/"))
             try {
                 ret = new OpenSMB(path);
@@ -349,7 +354,7 @@ public class FileManager {
             return null;
         // Logger.LogDebug("Checking cache for " + path);
         if (mOpenCache == null)
-            mOpenCache = new Hashtable<String, OpenPath>();
+            mOpenCache = new WeakHashMap<String, OpenPath>();
         OpenPath ret = mOpenCache.get(path);
         OpenServers servers = OpenServers.getDefaultServers();
         if (ret == null) {
@@ -404,18 +409,50 @@ public class FileManager {
             } else if (path.startsWith("box")) {
                 try {
                     Uri uri = Uri.parse(path);
-                    String pw = uri.getUserInfo();
-                    if (pw.indexOf(":") > -1)
+                    String us = uri.getUserInfo();
+                    String pw = us;
+                    if (pw != null && pw.indexOf(":") > -1)
+                    {
+                        us = us.substring(0, us.indexOf(":"));
                         pw = pw.substring(pw.indexOf(":") + 1);
-                    User user = new User();
-                    user.setAuthToken(pw);
-                    ret = new OpenBox(user);
+                    }
+                    OpenServer server = servers.findByUser("box", null, us);
+                    if (server != null)
+                        pw = server.getPassword();
+                    User token = new User();
+                    token.setAuthToken(pw);
+                    ret = new OpenBox(token);
                     try {
-                        ((OpenBox)ret).setId(Long.parseLong(uri.getLastPathSegment()));
+                        if (uri.getPathSegments().size() > 0)
+                            ((OpenBox)ret).setId(Long.parseLong(uri.getLastPathSegment()));
                     } catch (Exception e) {
                     }
                 } catch (Exception e) {
                     Logger.LogError("Couldn't get Box.com from cache.", e);
+                }
+            } else if (path.startsWith("drive")) {
+
+                try {
+                    Uri uri = Uri.parse(path);
+                    if(OpenExplorer.IS_DEBUG_BUILD)
+                        Logger.LogVerbose("Drive path (from " + path + "): " + TextUtils.join(", ", uri.getPathSegments()));
+                    String pw = uri.getUserInfo();
+                    if (pw != null && pw.indexOf(":") > -1)
+                        pw = pw.substring(pw.indexOf(":") + 1);
+                    String refresh = "";
+                    if (servers != null) {
+                        OpenServer server = servers.findByUser("drive", null, pw);
+                        if (server != null)
+                        {
+                            ret = (OpenDrive)server.getOpenPath();
+                            if (uri.getPathSegments().size() > 0)
+                                ret = ((OpenDrive)ret).setId(uri.getLastPathSegment());
+                            return ret;
+                        }
+                    }
+                    ret = new OpenDrive(pw, refresh).setId(uri.getLastPathSegment());
+                } catch (Exception e) {
+                    Logger.LogError("Couldn't get Drive item from cache.", e);
                 }
             } else if (path.startsWith("db")) {
                 try {
@@ -423,10 +460,30 @@ public class FileManager {
                     String user = uri.getUserInfo();
                     String pw = "";
                     AccessTokenPair access = null;
-                    if (user != null && user.indexOf(":") > -1)
+                    if (user == null || user.equals(""))
                     {
-                        user = user.substring(0, user.indexOf(":"));
-                        pw = pw.substring(pw.indexOf(":") + 1);
+                        List<OpenServer> dbservers = servers.findByType("dropbox");
+                        if (dbservers.size() > 0)
+                        {
+                            OpenServer server = dbservers.get(0);
+                            if (!server.getUser().equals("") && !server.getPassword().equals(""))
+                            {
+                                user = server.getUser();
+                                pw = server.getPassword();
+                            }
+                        }
+                    }
+                    if (user != null)
+                    {
+                        if (user.indexOf(":") > -1)
+                        {
+                            user = Uri.decode(user.substring(0, user.indexOf(":")));
+                            pw = Uri.decode(pw.substring(pw.indexOf(":") + 1));
+                        }
+
+                        OpenServer server = servers.findByUser("dropbox", null, user);
+                        if (server != null)
+                            pw = server.getPassword();
                         access = new AccessTokenPair(user, pw);
                     }
                     AppKeyPair app = new AppKeyPair(

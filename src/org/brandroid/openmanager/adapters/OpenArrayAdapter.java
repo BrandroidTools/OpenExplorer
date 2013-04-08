@@ -13,7 +13,6 @@ import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.BookmarkHolder;
 import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenPath;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
@@ -151,7 +150,7 @@ public class OpenArrayAdapter extends ArrayAdapter<OpenPath> {
                 e.printStackTrace();
             }
         } else {
-            deets = DialogHandler.formatSize(file.length());
+            deets = OpenPath.formatSize(file.length());
         }
 
         deets += " | ";

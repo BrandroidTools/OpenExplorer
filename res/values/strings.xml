@@ -419,6 +419,16 @@
     <string name="s_pass_new">Enter new password:</string>
     <string name="s_logout">Log out</string>
     <string name="s_authenticate">Authenticate</string>
+    <string name="s_authenticating">Authenticating</string>
     <string name="s_bookmark_history">History</string>
+    <string name="s_server_account_title">Account:</string>
+    <string name="s_authenticate_success">Authentication successful</string>
+    <string name="s_authenticate_refresh">Refresh Authentication</string>
+    <string name="s_pref_thumbs_cache">Pre-Cache Thumbnails</string>
+    <string name="s_pref_thumbs_cache_summary">This will help speed up loading folders containing Pictures and Videos.</string>
+    <string name="s_folders">folders</string>
+    <string name="s_hidden">hidden</string>
+    <string name="s_total">total</string>
+    <string name="s_custom_account">Custom Account</string>
 
 </resources>

@@ -34,6 +34,7 @@ import org.brandroid.openmanager.activities.ServerSetupActivity;
 import org.brandroid.openmanager.data.OpenBox;
 import org.brandroid.openmanager.data.OpenCommand;
 import org.brandroid.openmanager.data.OpenCursor;
+import org.brandroid.openmanager.data.OpenDrive;
 import org.brandroid.openmanager.data.OpenDropBox;
 import org.brandroid.openmanager.data.OpenFTP;
 import org.brandroid.openmanager.data.OpenFile;
@@ -160,7 +161,7 @@ public class ThumbnailCreator {
             if (showThumbPreviews) {
                 Bitmap thumb = // !mCacheMap.containsKey(file.getPath()) ? null
                 // :
-                getThumbnailCache(app, file.getPath(), mWidth, mHeight);
+                getThumbnailCache(app, file.getThumbnailCacheFilename(mWidth), mWidth, mHeight);
 
                 if (thumb == null) {
                     mImage.setImageResource(getDefaultResourceId(file, mWidth, mHeight));
@@ -172,55 +173,64 @@ public class ThumbnailCreator {
                     // ((ThumbnailTask)mImage.getTag()).cancel(true);
 
                     try {
-                        if (!fails.containsKey(file.getPath())) {
-                            if (!app.getMemoryCache().containsKey(file.getPath()))
-                            {
-                                if (file instanceof OpenPath.ThumbnailHandler
-                                        && file.hasThumbnail()) {
-                                    ((OpenPath.ThumbnailHandler)file).getThumbnail(mWidth,
-                                            new OpenPath.ThumbnailReturnCallback() {
-                                                public void onThumbReturned(Bitmap bmp) {
-                                                    try {
-                                                        String mCacheFilename = getCacheFilename(
-                                                                file.getAbsolutePath(), mWidth,
-                                                                mHeight);
-                                                        saveThumbnail(app.getContext(),
-                                                                mCacheFilename, bmp);
-                                                        app.getMemoryCache().put(mCacheFilename,
-                                                                bmp);
-                                                        mListener.updateImage(bmp);
-                                                    } catch (OutOfMemoryError e) {
-                                                        showThumbPreviews = false;
-                                                        Logger.LogWarning("No more memory for thumbs!");
-                                                    }
+                        if (fails.containsKey(file.getPath()))
+                            return false;
+                        if (!app.getMemoryCache().containsKey(file.getPath()))
+                        {
+                            if (file instanceof OpenPath.ThumbnailHandler
+                                    && file.hasThumbnail()) {
+                                ((OpenPath.ThumbnailHandler)file).getThumbnail(app, mWidth,
+                                        new OpenPath.ThumbnailReturnCallback() {
+                                            @Override
+                                            public void onException(Exception e) {
+
+                                            }
+
+                                            public void onThumbReturned(Drawable d) {
+                                                try {
+                                                    if(!(d instanceof BitmapDrawable)) return;
+                                                    final Bitmap bmp = ((BitmapDrawable)d).getBitmap();
+                                                    String mCacheFilename = file.getThumbnailCacheFilename(mWidth);
+                                                    saveThumbnail(app.getContext(),
+                                                            mCacheFilename, bmp);
+                                                    app.getMemoryCache().put(mCacheFilename,
+                                                            bmp);
+                                                    OpenExplorer.post(new Runnable() {
+                                                        public void run() {
+                                                            mListener.updateImage(bmp);
+                                                        }});
+                                                } catch (OutOfMemoryError e) {
+                                                    showThumbPreviews = false;
+                                                    Logger.LogWarning("No more memory for thumbs!");
                                                 }
-                                            });
-                                    return true;
-                                }
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            SoftReference<Bitmap> gen = generateThumb(app, file,
-                                                    mWidth, mHeight, mContext);
-                                            if (gen != null && gen.get() != null)
-                                                mListener.updateImage(gen.get());
-                                            else
-                                                Logger.LogWarning("Couldn't generate thumb for "
-                                                        + file.getPath());
-                                        } catch (OutOfMemoryError e) {
-                                            showThumbPreviews = false;
-                                            Logger.LogWarning("No more memory for thumbs!");
-                                        }
+                                            }
+                                        });
+                                return true;
+                            }
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        SoftReference<Bitmap> gen = generateThumb(app, file,
+                                                mWidth, mHeight, mContext);
+                                        if (gen != null && gen.get() != null)
+                                            mListener.updateImage(gen.get());
+                                        else
+                                            Logger.LogWarning("Couldn't generate thumb for "
+                                                    + file.getPath());
+                                    } catch (OutOfMemoryError e) {
+                                        showThumbPreviews = false;
+                                        Logger.LogWarning("No more memory for thumbs!");
                                     }
-                                }).start();
-                            } else
-                                // new Thread(new Runnable() {public void run()
-                                // {
-                                mListener.updateImage(getThumbnailCache(app, file.getPath(),
-                                        mWidth, mHeight));
-                            // }}).start();
-                        }
+                                }
+                            }).start();
+                        } else
+                            // new Thread(new Runnable() {public void run()
+                            // {
+                            mListener.updateImage(getThumbnailCache(app, file.getPath(),
+                                    mWidth, mHeight));
+                        // }}).start();
+
                         // mImage.setTag(task);
                         // if(struct != null) task.execute(struct);
                     } catch (RejectedExecutionException rej) {
@@ -280,7 +290,7 @@ public class ThumbnailCreator {
         if (file.hasThumbnail()) {
             if (showThumbPreviews && !file.requiresThread()) {
 
-                Bitmap thumb = ThumbnailCreator.getThumbnailCache(app, file.getPath(), mWidth,
+                Bitmap thumb = ThumbnailCreator.getThumbnailCache(app, file.getThumbnailCacheFilename(mWidth), mWidth,
                         mHeight);
 
                 if (thumb == null) {
@@ -340,15 +350,6 @@ public class ThumbnailCreator {
                 d = ThumbnailCreator.getFileExtIcon(file.getExtension(), c, mWidth > 72);
             else
                 d = c.getResources().getDrawable(getDefaultResourceId(file, mWidth, mHeight));
-            if (file instanceof OpenPath.ThumbnailOverlayInterface)
-            {
-                Drawable over = ((OpenPath.ThumbnailOverlayInterface)file).getOverlayDrawable(c,
-                        mWidth > 36);
-                if (over != null)
-                    d = new LayerDrawable(new Drawable[] {
-                            d, over
-                    });
-            }
             return d;
         }
         else
@@ -356,9 +357,9 @@ public class ThumbnailCreator {
     }
 
     public static int getDefaultResourceId(OpenPath file, int mWidth, int mHeight) {
-        final String mName = file.getName();
-        final String ext = mName.substring(mName.lastIndexOf(".") + 1);
-        final String mime = file.getMimeType();
+        final String mName = Utils.ifNull(file.getName(),"");
+        final String ext = file.getExtension();
+        final String mime = Utils.ifNull(file.getMimeType(),"");
         final String sPath2 = mName.toLowerCase();
         final boolean useLarge = mWidth > 36;
         boolean hasKids = false;
@@ -376,7 +377,7 @@ public class ThumbnailCreator {
             if (file instanceof OpenSMB) {
                 return (useLarge ? R.drawable.lg_folder_pipe : R.drawable.sm_folder_pipe);
             }
-            if (file instanceof OpenVFS || file instanceof OpenSFTP) {
+            if (file instanceof OpenSFTP) {
                 return (useLarge ? R.drawable.lg_folder_secure : R.drawable.sm_folder_secure);
             }
             if (file instanceof OpenFTP) {
@@ -446,9 +447,7 @@ public class ThumbnailCreator {
 
     public static int getDrawerResourceId(OpenPath file) {
         final String mName = file.getName();
-        final String ext = mName.substring(mName.lastIndexOf(".") + 1);
         final String sPath2 = mName.toLowerCase();
-        final boolean useLarge = true;
         boolean hasKids = false;
         try {
             if (!file.requiresThread() && file.isDirectory())
@@ -461,25 +460,27 @@ public class ThumbnailCreator {
         if (file.isDirectory()) {
             // Network Object Icons
             if (file instanceof OpenSMB) {
-                return R.drawable.lg_folder_pipe;
+                return R.drawable.sm_folder_pipe;
             }
-            if (file instanceof OpenVFS || file instanceof OpenSFTP) {
-                return R.drawable.lg_folder_secure;
+            if (file instanceof OpenSFTP) {
+                return R.drawable.sm_folder_secure;
             }
             if (file instanceof OpenFTP) {
-                return R.drawable.lg_ftp;
+                return R.drawable.sm_ftp;
             }
             if (file instanceof OpenBox)
                 return R.drawable.icon_box;
             if (file instanceof OpenDropBox)
                 return R.drawable.icon_dropbox;
-            if (file instanceof OpenCommand)
-                return ((OpenCommand)file).getDrawableId();
+            if (file instanceof OpenDrive)
+                return R.drawable.icon_drive;
+            if (file instanceof OpenServer)
+                return getDrawerResourceId(((OpenServer)file).getOpenPath());
 
             // Local Filesystem Icons
             if (file.getAbsolutePath() != null && file.getAbsolutePath().equals("/")
                     && mName.equals("")) {
-                return R.drawable.lg_drive;
+                return R.drawable.sm_drive;
             } else if (file instanceof OpenSmartFolder || sPath2.indexOf("download") > -1) {
                 return R.drawable.ic_drawer_download_holo_dark;
             } else if ((mName.equalsIgnoreCase("Photos") || mName.equalsIgnoreCase("dcim")
@@ -492,43 +493,42 @@ public class ThumbnailCreator {
             } else if (hasKids
                     && (sPath2.indexOf("ext") > -1 || sPath2.indexOf("sdcard") > -1 || sPath2
                             .indexOf("microsd") > -1)) {
-                return R.drawable.lg_sdcard;
+                return R.drawable.sm_sdcard;
             } else if (hasKids
                     && (sPath2.indexOf("usb") > -1 || sPath2.indexOf("/mnt/media/") > -1 || sPath2
                             .indexOf("removeable") > -1)) {
-                return R.drawable.lg_usb;
+                return R.drawable.sm_usb;
             } else {
                 return R.drawable.ic_drawer_folder_holo_dark;
             }
 
         } else if (file instanceof OpenFTP && file.isDirectory()) {
-            return (useLarge ? R.drawable.lg_ftp : R.drawable.sm_ftp);
+            return R.drawable.sm_ftp;
 
         } else if (file instanceof OpenNetworkPath && file.isDirectory()) {
-            return (useLarge ? R.drawable.lg_folder_secure : R.drawable.sm_folder_secure);
+            return R.drawable.sm_folder_secure;
 
         } else {
-            return (useLarge ? R.drawable.lg_unknown : R.drawable.sm_unknown);
+            return R.drawable.sm_unknown;
         }
     }
 
     public static boolean hasThumbnailCached(OpenApp app, OpenPath file, int w, int h) {
-        return app.getMemoryCache().containsKey(getCacheFilename(file.getPath(), w, h));
+        return app.getMemoryCache().containsKey(file.getThumbnailCacheFilename(w));
     }
 
     public static Bitmap getThumbnailCache(OpenApp app, OpenPath file, int w, int h) {
-        return getThumbnailCache(app, getCacheFilename(file.getPath(), w, h), w, h);
+        return getThumbnailCache(app, file.getThumbnailCacheFilename(w), w, h);
     }
 
-    public static Bitmap getThumbnailCache(OpenApp app, String name, int w, int h) {
-        String cacheName = getCacheFilename(name, w, h);
+    public static Bitmap getThumbnailCache(OpenApp app, String cacheName, int w, int h) {
         if (!app.getMemoryCache().containsKey(cacheName)) {
             File f = app.getContext().getFileStreamPath(cacheName);
             if (f.exists()) {
                 if (f.length() > 0)
                     app.getMemoryCache().put(cacheName, BitmapFactory.decodeFile(f.getPath()));
                 else
-                    fails.put(name, 1);
+                    fails.put(cacheName, 1);
             }
         }
         if (app.getMemoryCache().containsKey(cacheName))
@@ -541,7 +541,7 @@ public class ThumbnailCreator {
         app.getMemoryCache().put(cacheName, value);
     }
 
-    private static String getCacheFilename(String path, int w, int h) {
+    public static String getCacheFilename(String path, int w, int h) {
         return w + "_" + Utils.md5(path).replaceAll("[^A-Za-z0-9]", "-");
         // path.replaceAll("[^A-Za-z0-9]", "-") + ".jpg";
     }
@@ -560,12 +560,14 @@ public class ThumbnailCreator {
 
         // readCache = writeCache = true;
 
+        final String mCacheFilename = file.getThumbnailCacheFilename(mWidth);
+
         Boolean useGeneric = false;
         String mParent = file.getParent() != null ? file.getParent().getName() : null;
         if (fails == null)
             fails = new Hashtable<String, Integer>();
         if (mParent != null
-                && (fails.containsKey(file.getPath()) || (fails.containsKey(mParent) && fails
+                && (fails.containsKey(mCacheFilename) || (fails.containsKey(mParent) && fails
                         .get(mParent) > 10)))
             useGeneric = true;
 
@@ -582,13 +584,9 @@ public class ThumbnailCreator {
                 return new SoftReference<Bitmap>(bmp);
         }
 
-        String path = file.getPath();
-
-        if ((file.isImageFile() || file.isVideoFile() || file.isAPKFile())
-                && (bmp = getThumbnailCache(app, path, mWidth, mHeight)) != null)
+        if (file.hasThumbnail()
+                && (bmp = getThumbnailCache(app, mCacheFilename, mWidth, mHeight)) != null)
             return new SoftReference<Bitmap>(bmp);
-
-        final String mCacheFilename = getCacheFilename(path, mWidth, mHeight);
 
         // we already loaded this thumbnail, just return it.
         if (app.getMemoryCache().get(mCacheFilename) != null)

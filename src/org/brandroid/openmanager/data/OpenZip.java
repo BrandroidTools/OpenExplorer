@@ -15,7 +15,6 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.data.OpenPath.*;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
@@ -510,7 +509,7 @@ public class OpenZip extends OpenPath implements OpenStream {
         public String getDetails(boolean countHiddenChildren) {
             String ret = super.getDetails(countHiddenChildren);
             if (!isDirectory())
-                ret += " (" + DialogHandler.formatSize(ze.getCompressedSize()) + ")";
+                ret += " (" + OpenPath.formatSize(ze.getCompressedSize()) + ")";
             return ret;
         }
 

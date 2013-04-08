@@ -31,7 +31,7 @@
                     android:text="@string/s_pref_server_type" />
 
                 <Spinner
-                    android:id="@+id/server_type"
+                    android:id="@id/server_type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
@@ -42,7 +42,7 @@
                     android:spinnerMode="dropdown" />
 
                 <TextView
-                    android:id="@+id/label_port"
+                    android:id="@id/label_port"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignLeft="@+id/text_port"
@@ -50,7 +50,7 @@
                     android:text="@string/s_pref_server_port" />
 
                 <EditText
-                    android:id="@+id/text_port"
+                    android:id="@id/text_port"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignTop="@+id/server_type"
@@ -60,7 +60,7 @@
                     android:inputType="number" />
 
                 <CheckBox
-                    android:id="@+id/check_port"
+                    android:id="@id/check_port"
                     style="@style/Text.Small.Checkbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -74,12 +74,13 @@
             </RelativeLayout>
 
             <LinearLayout
-                android:id="@+id/server_texts"
+                android:id="@id/server_texts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" >
 
                 <TextView
+                    android:id="@+id/text_server_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/s_pref_server_host" />
@@ -105,6 +106,7 @@
                     android:singleLine="true" />
 
                 <TextView
+                    android:id="@+id/text_user_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/s_pref_server_user" />
@@ -152,14 +154,11 @@
                 </RelativeLayout>
             </LinearLayout>
 
-            <include
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                layout="@layout/server_auth_stub" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/label_name"
                 android:text="@string/s_pref_server_name" />
 
             <EditText
@@ -170,6 +169,11 @@
                 android:hint="@string/s_pref_server_name"
                 android:inputType="textNoSuggestions"
                 android:singleLine="true" />
+            
+            <include
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                layout="@layout/server_auth_stub" />
         </LinearLayout>
     </ScrollView>
 

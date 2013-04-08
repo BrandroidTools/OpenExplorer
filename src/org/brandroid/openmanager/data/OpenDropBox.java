@@ -12,8 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.activities.ServerSetupActivity;
+import org.brandroid.openmanager.data.OpenNetworkPath.Cancellable;
+import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.PrivatePreferences;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.SimpleCrypto;
@@ -33,6 +38,7 @@ import com.dropbox.client2.ProgressListener;
 import com.dropbox.client2.RESTUtility.RequestMethod;
 import com.dropbox.client2.RESTUtility;
 import com.dropbox.client2.android.AndroidAuthSession;
+import com.dropbox.client2.android.AuthActivity;
 import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.session.AccessTokenPair;
 import com.dropbox.client2.session.AppKeyPair;
@@ -43,6 +49,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -50,13 +57,19 @@ import android.content.pm.Signature;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
 
-public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler,
-        OpenPath.OpenPathSizable, OpenPath.ThumbnailHandler, OpenPath.OpenStream,
+public class OpenDropBox extends OpenNetworkPath implements OpenNetworkPath.CloudOpsHandler,
+        OpenPath.OpenPathSizable, OpenPath.SpaceHandler, OpenPath.ThumbnailHandler,
+        OpenPath.OpenStream,
         OpenPath.ThumbnailOverlayInterface {
 
     private static final long serialVersionUID = 5742031992345655964L;
@@ -68,6 +81,11 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
     private Account mAccount;
 
     private final static boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
+    
+    static {
+        Logger.setHandler("Dropbox");
+        //Logger.setHandler(HttpRequestBase.class.getName());
+    }
 
     public OpenDropBox(DropboxAPI<AndroidAuthSession> api)
     {
@@ -80,6 +98,54 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
         mParent = parent;
         mAPI = mParent.mAPI;
         mEntry = child;
+    }
+
+    @Override
+    public boolean copyTo(OpenNetworkPath path, final CloudCompletionListener callback) {
+        if (path instanceof OpenDropBox)
+        {
+            final OpenDropBox folder = (OpenDropBox)path;
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        final Entry entry = mAPI.copy(getDBPath(), folder.getDBPath());
+                        post(new Runnable() {
+                            public void run() {
+                                callback.onCloudComplete(entry.path + " created!");
+                            }
+                        });
+                    } catch (Exception e) {
+                        postException(e, callback);
+                    }
+                }
+            }).start();
+        }
+        return false;
+    }
+
+    public boolean delete(final CloudDeleteListener callback) {
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    mAPI.delete(mEntry.path);
+                    post(new Runnable() {
+                        public void run() {
+                            callback.onDeleteComplete(mEntry.path + " deleted!");
+                        }
+                    });
+                } catch (Exception e) {
+                    postException(e, callback);
+                }
+            }
+        }).start();
+        return true;
+    }
+
+    public String getDBPath()
+    {
+        if (mEntry != null)
+            return mEntry.path;
+        return getPath();
     }
 
     @Override
@@ -120,7 +186,7 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
                                     new JSONObject(accountInfo).toString());
                         }
 
-                        OpenExplorer.getHandler().post(new Runnable() {
+                        post(new Runnable() {
                             public void run() {
                                 callback.onGetAccountInfo(mAccount);
                             }
@@ -167,12 +233,12 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
     }
 
     @Override
-    public void list(final ListListener listener) {
+    public Thread list(final ListListener listener) {
         if (mChildren != null)
             listener.onListReceived(getChildren());
 
         mChildren = new Vector<OpenPath>();
-        new Thread(new Runnable() {
+        return thread(new Runnable() {
             public void run() {
                 try {
                     Entry e = mAPI.metadata(getPath(), -1, null, true, null);
@@ -186,7 +252,7 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
                     postException(e, listener);
                 }
             }
-        }).start();
+        });
     }
 
     public void list(final OpenContentUpdateListener callback) throws IOException {
@@ -210,7 +276,7 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
                     }
                     callback.doneUpdating();
                 } catch (DropboxException e) {
-                    callback.onUpdateException(e);
+                    callback.onException(e);
                 }
             }
         }).start();
@@ -269,7 +335,7 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
      *             AuthActivity in your manifest, meaning that the Dropbox app
      *             will not be able to redirect back to your app after auth.
      */
-    public static void startAuthentication(Activity c) {
+    public static boolean startAuthentication(final Activity c, final WebView web) {
         AppKeyPair appKeyPair = getAppKeyPair();
 
         Intent intent = getOfficialIntent(c, appKeyPair.key, appKeyPair.secret);
@@ -277,8 +343,12 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
                 && hasDropboxApp(c, intent)) {
             c.startActivity(intent); // ,
                                      // OpenExplorer.REQ_AUTHENTICATE_DROPBOX);
+            return true;
         } else {
-            startWebAuth(c, appKeyPair);
+            //startWebAuth(c, appKeyPair);
+            return false;
+            //web.loadUrl(AuthActivity.getConnectUrl(appKeyPair.key, getConsumerSig(appKeyPair.secret)));
+            //web.setVisibility(View.VISIBLE);
         }
     }
 
@@ -388,7 +458,7 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
         return false;
     }
 
-    private static String getConsumerSig(String consumerSecret) {
+    public static String getConsumerSig(String consumerSecret) {
         MessageDigest m = null;
         try {
             m = MessageDigest.getInstance("SHA-1");
@@ -553,7 +623,7 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
 
     @Override
     public String getMimeType() {
-        if (mEntry != null)
+        if (mEntry != null && mEntry.mimeType != null)
             return mEntry.mimeType;
         return super.getMimeType();
     }
@@ -641,7 +711,7 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
     }
 
     @Override
-    public boolean getThumbnail(final int w, final ThumbnailReturnCallback callback) {
+    public boolean getThumbnail(final OpenApp app, final int w, final ThumbnailReturnCallback callback) {
         if (!hasThumbnail())
             return false;
         new Thread(new Runnable() {
@@ -656,10 +726,10 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
                 try {
                     DropboxInputStream input = mAPI.getThumbnailStream(mEntry.path, sz,
                             ThumbFormat.PNG);
-                    final Bitmap bmp = BitmapFactory.decodeStream(input);
-                    OpenExplorer.getHandler().post(new Runnable() {
+                    final BitmapDrawable bd = new BitmapDrawable(app.getResources(), input);
+                    post(new Runnable() {
                         public void run() {
-                            callback.onThumbReturned(bmp);
+                            callback.onThumbReturned(bd);
                         }
                     });
                 } catch (DropboxException e) {
@@ -679,6 +749,8 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
 
     @Override
     public long getTotalSpace() {
+        if (mAccount != null)
+            return mAccount.quota;
         if (getServer() != null)
             return getServer().get("quota", 0l);
         return 0;
@@ -686,12 +758,15 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
 
     @Override
     public long getUsedSpace() {
+        if (mAccount != null)
+            return mAccount.quotaNormal;
+        if (getServer() != null)
+            return getServer().get("normal", 0l);
         return 0;
     }
 
-    @Override
     public long getFreeSpace() {
-        return getTotalSpace();
+        return getTotalSpace() - getUsedSpace();
     }
 
     /**
@@ -747,5 +822,121 @@ public class OpenDropBox extends OpenNetworkPath implements OpenPath.ListHandler
 
     public void unlink() {
         getSession().unlink();
+    }
+
+    @Override
+    public void getSpace(final SpaceListener callback) {
+        if(mAccount != null)
+        {
+            callback.onSpaceReturned(mAccount.quota, mAccount.quotaNormal, mAccount.quotaShared);
+        }
+        if(getServer() != null && getServer().get("quota", 0) > 0)
+        {
+            callback.onSpaceReturned(getTotalSpace(), getUsedSpace(), getThirdSpace());
+            return;
+        }
+        thread(new Runnable() {
+            public void run() {
+                try {
+                    final Account account = mAPI.accountInfo();
+                    OpenServer server = getServer();
+                    server.setSetting("quota", account.quota);
+                    server.setSetting("normal", account.quotaNormal);
+                    server.setSetting("shared", account.quotaShared);
+                    post(new Runnable() {
+                        public void run() {
+                            callback.onSpaceReturned(
+                                    account.quota,
+                                    account.quotaNormal,
+                                    account.quotaShared
+                                    );
+                        }
+                    });
+
+                } catch (Exception e) {
+                    postException(e, callback);
+                }
+            }
+        });
+    }
+
+    @Override
+    public long getThirdSpace() {
+        if(mAccount != null)
+            return mAccount.quotaShared;
+        return 0;
+    }
+
+    @Override
+    public Cancellable uploadToCloud(final OpenFile file, final CloudProgressListener callback) {
+        return runCloud(new Runnable() {
+            public void run() {
+                try {
+                    mAPI.putFile(getFilePath(), file.getInputStream(), file.length(), null, new ProgressListener() {
+                        public void onProgress(long bytes, long total) {
+                            callback.onProgress(bytes);
+                        }
+                    });
+                    post(new Runnable() {
+                        public void run() {
+                            callback.onCloudComplete("Upload complete");
+                        }
+                    });
+                } catch (Exception e) {
+                    postException(e, callback);
+                }
+            }
+        }, callback);
+    }
+    
+    private String getFilePath() {
+        if(mEntry != null)
+            return mEntry.path;
+        return super.getRemotePath();
+    }
+
+    @Override
+    public Cancellable downloadFromCloud(final OpenFile file, final CloudProgressListener callback) {
+        return runCloud(new Runnable() {
+            public void run() {
+                try {
+                    mAPI.getFile(getFilePath(), null, file.getOutputStream(), new ProgressListener() {
+                        public void onProgress(final long bytes, long total) {
+                            post(new Runnable() {
+                                public void run() {
+                                    callback.onProgress(bytes);
+                                }
+                            });
+                        }
+                    });
+                    post(new Runnable() {
+                        public void run() {
+                            callback.onCloudComplete("Download complete");
+                        }
+                    });
+                } catch(Exception e) {
+                    postException(e, callback);
+                }
+            }
+        }, callback);
+    }
+
+    @Override
+    public boolean touch(final CloudCompletionListener callback) {
+        runCloud(new Runnable() {
+            public void run() {
+                try {
+                    mAPI.putFileRequest(getFilePath(), null, 0, null, null);
+                } catch(Exception e) {
+                    postException(e, callback);
+                }
+            }
+        }, callback);
+        return true;
+    }
+    
+    @Override
+    public void clearChildren() {
+        mChildren.clear();
     }
 }

@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class SimpleContentFragment extends Fragment implements ContentAdapter.Callback {
+public class SimpleContentFragment extends Fragment implements ContentAdapter.SelectionCallback {
     private OpenPath mPath;
     private GridView mGrid;
     private ContentAdapter mAdapter;
