@@ -38,8 +38,7 @@
                     android:layout_below="@+id/TextView1"
                     android:layout_toLeftOf="@+id/text_port"
                     android:entries="@array/server_types"
-                    android:prompt="@string/s_pref_server_type"
-                    android:spinnerMode="dropdown" />
+                    android:prompt="@string/s_pref_server_type" />
 
                 <TextView
                     android:id="@id/label_port"
@@ -61,7 +60,7 @@
 
                 <CheckBox
                     android:id="@id/check_port"
-                    style="@style/Text.Small.Checkbox"
+                    android:textAppearance="@style/Text.Small.Checkbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBaseline="@+id/text_port"
@@ -144,7 +143,7 @@
 
                     <CheckBox
                         android:id="@+id/check_password"
-                        style="@style/Text.Small.Checkbox"
+                        android:textAppearance="@style/Text.Small.Checkbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignBaseline="@+id/text_password"
@@ -154,11 +153,10 @@
                 </RelativeLayout>
             </LinearLayout>
 
-
             <TextView
+                android:id="@+id/label_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/label_name"
                 android:text="@string/s_pref_server_name" />
 
             <EditText
@@ -169,7 +167,7 @@
                 android:hint="@string/s_pref_server_name"
                 android:inputType="textNoSuggestions"
                 android:singleLine="true" />
-            
+
             <include
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

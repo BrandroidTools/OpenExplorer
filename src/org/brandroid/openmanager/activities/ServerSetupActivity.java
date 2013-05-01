@@ -8,8 +8,6 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.OpenClipboard;
 import org.brandroid.openmanager.data.OpenDrive;
@@ -29,6 +27,7 @@ import org.brandroid.openmanager.util.ShellSession;
 import org.brandroid.utils.DiskLruCache;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.LruCache;
+import org.brandroid.utils.MenuBuilder2;
 import org.brandroid.utils.MenuUtils;
 import org.brandroid.utils.Preferences;
 import org.brandroid.utils.SimpleCrypto;
@@ -38,11 +37,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
@@ -55,7 +50,6 @@ import com.box.androidlib.LogoutListener;
 import com.box.androidlib.User;
 import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.android.AuthActivity;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.api.client.googleapis.extensions.android.accounts.GoogleAccountManager;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import android.accounts.Account;
@@ -88,15 +82,10 @@ import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.SingleLineTransformationMethod;
 import android.text.style.ForegroundColorSpan;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.WindowManager;
+import android.view.*;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -107,13 +96,14 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ServerSetupActivity extends SherlockActivity implements OnCheckedChangeListener,
+public class ServerSetupActivity extends Activity implements OnCheckedChangeListener,
         OnClickListener, OnItemSelectedListener, OnMenuItemClickListener, OpenApp,
         OnAuthTokenListener, OnItemClickListener {
 
@@ -227,7 +217,19 @@ public class ServerSetupActivity extends SherlockActivity implements OnCheckedCh
         public AccountTypeAdapter(Context context)
         {
             accountManager = AccountManager.get(context);
-            accounts = new GoogleAccountManager(accountManager).getAccounts();
+            if(hasGoogleAccounts())
+                accounts = new GoogleAccountManager(accountManager).getAccounts();
+            else
+                accounts = new android.accounts.Account[0];
+        }
+        
+        private boolean hasGoogleAccounts()
+        {
+            try {
+                return new GoogleAccountManager(accountManager).getAccounts().length > 0;
+            } catch(Exception e) {
+                return false;
+            }
         }
 
         @Override
@@ -317,14 +319,14 @@ public class ServerSetupActivity extends SherlockActivity implements OnCheckedCh
         String themeName = new Preferences(this)
                 .getString("global", "pref_themes", "dark");
         if (themeName.equals("dark"))
-            return R.style.AppTheme_Dark;
+            return R.style.AppTheme_Dialog;
         else if (themeName.equals("light"))
-            return R.style.AppTheme_Light;
+            return R.style.AppTheme_Dialog_Light;
         else if (themeName.equals("lightdark"))
-            return R.style.AppTheme_LightAndDark;
+            return R.style.AppTheme_Dialog_Light;
         else if (themeName.equals("custom"))
-            return R.style.AppTheme_Custom;
-        return R.style.Dialog;
+            return R.style.AppTheme_Dialog;
+        return R.style.AppTheme_Dialog;
     }
 
     @Override
@@ -386,16 +388,23 @@ public class ServerSetupActivity extends SherlockActivity implements OnCheckedCh
             mServerType = getServerTypeFromString(t2);
 
         mBaseView = getLayoutInflater().inflate(R.layout.server, null);
+        
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+        
         setContentView(mBaseView);
+        
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title_bar_dialog);
         
         getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        
+        ViewUtils.setViewsVisible(mBaseView, false, R.id.title_bar);
 
         mLoginWebView = (WebView)mBaseView.findViewById(R.id.server_webview);
 
         setIcon(getServerTypeDrawable(mServerType));
         setTitle(server.getName());
-
+        
         for (int i = 0; i < mMapIDs.length; i++)
         {
             int id = mMapIDs[i];
@@ -466,12 +475,14 @@ public class ServerSetupActivity extends SherlockActivity implements OnCheckedCh
         onItemSelected(mTypeSpinner, mTypeSpinner.getChildAt(mServerType), mServerType, mTypeSpinner.getItemIdAtPosition(mServerType));
     }
 
+    @SuppressLint("NewApi")
     @Override
     protected void onResume() {
         super.onResume();
         handleIntent(getIntent());
         if(!DialogHandler.showServerWarning(this) && server.getServerIndex() == -1)
             onClick(R.id.server_authenticate);
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -613,16 +624,30 @@ public class ServerSetupActivity extends SherlockActivity implements OnCheckedCh
 
     public void setIcon(int res)
     {
-        if(getSupportActionBar() != null)
-            getSupportActionBar().setIcon(res);
-        // getSupportActionBar().setIcon(res);
+        ViewUtils.setImageResource(findViewById(R.id.title_icon), res);
     }
-
+    
     @Override
-    public void setTitle(int titleId) {
-        super.setTitle(titleId);
-        if(getSupportActionBar() != null)
-            getSupportActionBar().setTitle(titleId);
+    public void setTitle(CharSequence title) {
+        if (findViewById(R.id.title_text) != null)
+        {
+            ViewUtils.setText(this, title.toString(), R.id.title_text);
+            super.setTitle(title);
+        }
+        else
+            super.setTitle(title);
+    }
+    
+    @SuppressLint("NewApi")
+    @Override
+    public void invalidateOptionsMenu() {
+        if(findViewById(R.id.title_buttons) != null)
+        {
+            MenuBuilder2 mb = new MenuBuilder2(this);
+            onCreateOptionsMenu(mb);
+            onPrepareOptionsMenu(mb);
+        } else
+            super.invalidateOptionsMenu();
     }
 
     // @Override
@@ -1058,7 +1083,29 @@ public class ServerSetupActivity extends SherlockActivity implements OnCheckedCh
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.dialog_buttons, menu);
+        //getSupportMenuInflater().inflate(R.menu.dialog_buttons, menu);
+        getMenuInflater().inflate(R.menu.dialog_buttons, menu);
+        View mTitleButtons = findViewById(R.id.title_buttons);
+        if(mTitleButtons != null)
+        {
+            ((ViewGroup)mTitleButtons).removeAllViews();
+            final LayoutInflater inflater = LayoutInflater.from(this);
+            for(int i = 0; i < menu.size(); i++)
+            {
+                final MenuItem item = menu.getItem(i);
+                ImageView btn = (ImageView)inflater.inflate(R.layout.toolbar_button, null);
+                btn.setId(item.getItemId());
+                btn.setOnClickListener(this);
+                btn.setImageDrawable(item.getIcon());
+                btn.setOnLongClickListener(new View.OnLongClickListener() {
+                    public boolean onLongClick(View v) {
+                        Toast.makeText(ServerSetupActivity.this, item.getTitle(), Toast.LENGTH_SHORT).show();
+        return true;
+    }
+                });
+                ((ViewGroup)mTitleButtons).addView(btn);
+            }
+        }
         return true;
     }
 
@@ -1066,6 +1113,22 @@ public class ServerSetupActivity extends SherlockActivity implements OnCheckedCh
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuUtils.setMenuVisible(menu, server.isValid(), android.R.string.ok);
         MenuUtils.setMenuVisible(menu, server.getServerIndex() > -1, R.string.s_remove);
+        View mTitleButtons = findViewById(R.id.title_buttons);
+        if(mTitleButtons != null)
+        for(int i = 0; i < menu.size(); i++)
+        {
+            MenuItem item = menu.getItem(i);
+            ImageView btn = (ImageView)mTitleButtons.findViewById(item.getItemId());
+            if(btn == null)
+            {
+                btn = (ImageView)getLayoutInflater().inflate(R.layout.toolbar_button, null);
+                btn.setId(item.getItemId());
+                btn.setOnClickListener(this);
+                btn.setImageDrawable(item.getIcon());
+            }
+            ViewUtils.setViewsEnabled(btn, item.isEnabled());
+            ViewUtils.setViewsVisible(btn, item.isVisible());
+        }
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -1211,11 +1274,17 @@ public class ServerSetupActivity extends SherlockActivity implements OnCheckedCh
         return true;
     }
 
-    @Override
     public boolean onMenuItemClick(MenuItem item) {
         if (onClick(item.getItemId()))
             return true;
         return false;
+    }
+    
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        if(onClick(item.getItemId()))
+            return true;
+        return super.onMenuItemSelected(featureId, item);
     }
 
     public static OpenFile GetDefaultServerFile(Context context) {
@@ -1448,18 +1517,6 @@ public class ServerSetupActivity extends SherlockActivity implements OnCheckedCh
     }
 
     @Override
-    public ActionMode getActionMode() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void setActionMode(ActionMode mode) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public OpenClipboard getClipboard() {
         // TODO Auto-generated method stub
         return null;
@@ -1484,18 +1541,6 @@ public class ServerSetupActivity extends SherlockActivity implements OnCheckedCh
 
     @Override
     public void refreshBookmarks() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public GoogleAnalyticsTracker getAnalyticsTracker() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void queueToTracker(Runnable run) {
         // TODO Auto-generated method stub
 
     }
@@ -1768,6 +1813,18 @@ public class ServerSetupActivity extends SherlockActivity implements OnCheckedCh
             }
         }
         return false;
+    }
+
+    @Override
+    public ActionMode getActionMode() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setActionMode(ActionMode mode) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

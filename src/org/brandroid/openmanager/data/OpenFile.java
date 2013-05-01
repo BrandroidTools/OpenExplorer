@@ -251,9 +251,12 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
 
     public static OpenFile getExternalMemoryDrive(boolean fallbackToInternal) // sd
     {
-        if (mExternalDrive != null && mExternalDrive.exists())
+        if (mExternalDrive != null && mExternalDrive.exists() && !mExternalDrive.equals(getInternalMemoryDrive()))
             return mExternalDrive;
-        for (OpenFile kid : getInternalMemoryDrive().getParent().listFiles())
+        OpenFile mDaddy = getInternalMemoryDrive().getParent();
+        while(mDaddy.getDepth() > 2)
+            mDaddy = mDaddy.getParent();
+        for (OpenFile kid : mDaddy.listFiles())
             if ((kid.getName().toLowerCase().indexOf("ext") > -1 || kid.getName().toLowerCase()
                     .indexOf("sdcard1") > -1)
                     && !kid.getPath().equals(getInternalMemoryDrive().getPath())
@@ -457,6 +460,25 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
     @Override
     public String getAbsolutePath() {
         return mFile.getAbsolutePath();
+    }
+    
+    @Override
+    public int getChildCount(boolean countHidden) throws IOException {
+        if(mChildren != null)
+        {
+            OpenFile[] files = mChildren.get();
+            if(files != null)
+            {
+                int ret = 0;
+                if(!countHidden)
+                {
+                    for(OpenFile f : files)
+                        if(!f.isHidden())
+                            ret++;
+                } else ret = files.length;
+            }
+        }
+        return super.getChildCount(countHidden);
     }
 
     @Override

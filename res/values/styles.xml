@@ -13,7 +13,7 @@
     <style name="Text.Small" parent="@android:style/TextAppearance.Small">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textColor">?appTextColorPrimary</item>
         <item name="android:textSize">10dp</item>
     </style>
 
@@ -22,7 +22,7 @@
     </style>
 
     <style name="Text.Small.Dialog" parent="@style/Text.Small">
-        <item name="android:textColor">?attr/dialogTextColorSecondary</item>
+        <item name="android:textColor">?dialogTextColorSecondary</item>
         <item name="android:textSize">14dp</item>
     </style>
 
@@ -31,21 +31,21 @@
     </style>
 
     <style name="Text.Small.Dim" parent="@style/Text.Small">
-        <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textColor">?appTextColorPrimary</item>
     </style>
 
     <style name="Text.Mid" parent="@android:style/TextAppearance.Medium">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center|top</item>
-        <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textColor">?appTextColorPrimary</item>
         <item name="android:text">Mid</item>
         <item name="android:ellipsize">marquee</item>
         <item name="android:textSize">14dp</item>
     </style>
 
     <style name="Text.Mid.Dialog" parent="@style/Text.Mid">
-        <item name="android:textColor">?attr/dialogTextColorPrimary</item>
+        <item name="android:textColor">?dialogTextColorPrimary</item>
         <item name="android:textSize">18dp</item>
     </style>
 
@@ -54,13 +54,13 @@
     </style>
 
     <style name="Text.Mid.Dim" parent="@style/Text.Mid">
-        <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textColor">?appTextColorPrimary</item>
     </style>
 
     <style name="Text.Large" parent="@android:style/TextAppearance.Large">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/large_text_height</item>
-        <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textColor">?appTextColorPrimary</item>
         <item name="android:text">Big</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">marquee</item>
@@ -69,14 +69,14 @@
 
     <style name="Text.Large.Dialog" parent="@style/Text.Large">
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">?attr/dialogTextColorPrimary</item>
+        <item name="android:textColor">?dialogTextColorPrimary</item>
         <item name="android:textSize">20dp</item>
         <item name="android:singleLine">false</item>
         <item name="android:ellipsize">none</item>
     </style>
 
     <style name="Text.Large.Drawer" parent="@style/Text.Large">
-        <item name="android:textColor">?attr/dialogTextColorPrimary</item>
+        <item name="android:textColor">?dialogTextColorPrimary</item>
     </style>
 
     <style name="Text.Large.Highlight" parent="@style/Text.Large">
@@ -84,7 +84,7 @@
     </style>
 
     <style name="Text.Large.Dim" parent="@style/Text.Large">
-        <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textColor">?appTextColorPrimary</item>
     </style>
 
     <!-- Styles for the sliding menu drawer -->
@@ -94,7 +94,7 @@
 
     <style name="MenuDrawer.Widget.Category">
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">?attr/drawerTextColorPrimary</item>
+        <item name="android:textColor">?drawerTextColorPrimary</item>
         <item name="android:textSize">14sp</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:paddingLeft">16dp</item>
@@ -105,7 +105,7 @@
 
     <style name="MenuDrawer.Widget.Label">
         <item name="android:textAppearance">?android:attr/textAppearance</item>
-        <item name="android:textColor">?attr/drawerTextColorPrimary</item>
+        <item name="android:textColor">?drawerTextColorPrimary</item>
         <item name="android:textSize">18sp</item>
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">32dp</item>
@@ -146,7 +146,7 @@
 
     <style name="MyTabPageIndicator.Text" parent="Widget">
         <item name="android:textAppearance">@style/TextAppearance.MyTabPageIndicator</item>
-        <item name="android:textColor">?attr/vpiTabTextColor</item>
+        <item name="android:textColor">?vpiTabTextColor</item>
         <item name="android:maxLines">1</item>
         <item name="android:gravity">center</item>
     </style>
@@ -276,21 +276,10 @@
         <item name="@android:windowExitAnimation">@anim/slide_out_left</item>
     </style>
 
-    <style name="Dialog" parent="Theme.Sherlock.Dialog">
-        <item name="android:windowActionBar">true</item>
-        <item name="android:windowActionModeOverlay">false</item>
-        <item name="windowActionBar">true</item>
-        <item name="windowActionModeOverlay">false</item>
-    </style>
-    <style name="Dialog.Light" parent="Theme.Sherlock.Light.Dialog">
-        <item name="android:windowActionBar">true</item>
-        <item name="android:windowActionModeOverlay">false</item>
-        <item name="windowActionBar">true</item>
-        <item name="windowActionModeOverlay">false</item>
-    </style>
-
     <style name="Widget.ProgressBar.Horizontal" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:minHeight">16dip</item>
     </style>
+    
+    <style name="Widget.Spinner" parent="@android:style/Widget.Spinner" />
 
 </resources>

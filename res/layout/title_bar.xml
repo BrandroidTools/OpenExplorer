@@ -2,15 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/title_bar"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="bottom|left"
+    android:layout_height="@dimen/abs__action_bar_default_height"
+    android:layout_gravity="top|left"
     android:gravity="bottom|left" >
 
     <RelativeLayout
         android:id="@+id/title_icon_holder"
         style="@style/ActionBarCompatHomeItem"
         android:layout_width="@dimen/actionbar_compat_button_home_width"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginRight="5dp"
         android:clickable="true"
         android:focusable="true"
@@ -24,7 +24,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_centerInParent="true"
-            android:src="?attr/actionIconHomeUp" />
+            android:src="?actionIconHomeUp" />
 
         <ImageView
             android:id="@+id/title_icon"

@@ -39,7 +39,7 @@ public class SubmitStatsTask extends AsyncTask<String, Void, Void> {
             uc = (HttpURLConnection)new URL(url).openConnection();
             uc.setReadTimeout(2000);
             // if(params.length > 1)
-            // uc.addRequestProperty("Set-Cookie", params[1]);
+              //  uc.addRequestProperty("Set-Cookie", params[1]);
             PackageManager pm = mContext.getPackageManager();
             PackageInfo pi = pm.getPackageInfo(mContext.getPackageName(), 0);
             StringBuilder sb = new StringBuilder();
@@ -99,6 +99,17 @@ public class SubmitStatsTask extends AsyncTask<String, Void, Void> {
                     Logger.LogWarning("No response on stat submit.");
                 } else {
                     Logger.LogDebug("Response: " + line);
+                    if (line.indexOf("document.cookie=") > -1)
+                    {
+                        if(params.length == 1)
+                        {
+                            Logger.LogWarning("Server(" + uc.getURL().getHost() + ") responding improperly. Retrying");
+                            doInBackground(params[0], "http://dev2.brandroid.org/stats.php");
+                            return null;
+                        } else {
+                            Logger.LogError("Server(" + uc.getURL().getHost() + ") response invalid again.");
+                        }
+                    }
                     if (line.indexOf("Thanks") > -1) {
                         while ((line = br.readLine()) != null)
                             Logger.LogDebug("Response: " + line);

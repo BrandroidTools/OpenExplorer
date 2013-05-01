@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="display"
+    android:icon="@drawable/ic_menu_view"
+    android:title="@string/s_pref_display">
+    <PreferenceCategory
+        android:title="@string/s_pref_view_folders">
+	<CheckBoxPreference
+		android:key="pref_thumbs"
+		android:title="@string/s_pref_thumbs"
+		android:defaultValue="true"
+		android:summary="@string/s_pref_thumbs_summary"/>
+	<CheckBoxPreference
+		android:key="pref_show"
+		android:title="@string/s_pref_hidden"
+		android:summary="@string/s_pref_hidden_summary"/>
+	<ListPreference
+		android:key="pref_view"
+		android:title="@string/s_pref_view"
+		android:summary="@string/s_pref_view_summary"
+		android:entries="@array/view"
+		android:entryValues="@array/view_value"
+		android:dialogTitle="@string/s_pref_view" />
+	<ListPreference
+		android:key="pref_sorting"
+		android:title="@string/s_pref_sort"
+		android:summary="@string/s_pref_sort_summary"
+		android:entries="@array/sorting"
+		android:entryValues="@array/sorting_value"
+		android:dialogTitle="@string/s_pref_sort" />
+    <CheckBoxPreference
+        android:key="pref_sorting_folders"
+        android:title="@string/s_menu_sort_folders"
+        android:defaultValue="true" 
+        />
+       <!-- <PreferenceScreen
+           android:key="pref_reset_views"
+           android:title="@string/s_pref_reset" 
+           android:summary="@string/s_pref_reset_summary"
+           />-->
+       </PreferenceCategory>
+       <PreferenceCategory android:title="@string/s_pref_view_general">
+	<CheckBoxPreference
+        android:key="pref_theme"
+        android:title="@string/theme"
+        android:summaryOn="@string/theme_dark"
+        android:summaryOff="@string/theme_light"
+        android:defaultValue="true"
+        />
+    <CheckBoxPreference
+	    android:key="pref_fullscreen"
+	    android:title="@string/s_pref_fullscreen"
+	    android:summaryOn="@string/s_pref_fullscreen_summary_on"
+	    android:summaryOff="@string/s_pref_fullscreen_summary_off"
+	    android:enabled="@bool/allow_fullscreen"
+	    android:defaultValue="false"
+	    />
+	<PreferenceScreen
+	    android:key="pref_start"
+	    android:title="@string/s_pref_start"
+	    android:summary="@string/s_pref_start_summary"
+	    android:dialogTitle="@string/s_pref_start" />
+	<CheckBoxPreference
+	    android:key="pref_showup"
+	    android:title="@string/s_pref_showup"
+	    android:defaultValue="false" />
+    <ListPreference
+        android:key="pref_language"
+        android:title="@string/language"
+        android:summary="@string/s_default"
+        android:entries="@array/languages"
+        android:entryValues="@array/languages_values"
+        />
+	<Preference
+	    android:key="pref_translate"
+	    android:title="@string/button_translate"
+	    />
+    </PreferenceCategory>
+	<!-- <ListPreference
+	    android:key="pref_basebar_split"
+	    android:title="@string/s_pref_basebar"
+	    android:entries="@array/basebar_split"
+	    android:entryValues="@array/basebar_split_values"
+	    android:enabled="@bool/prehoneycomb"
+	    /> -->
+</PreferenceScreen>
+	

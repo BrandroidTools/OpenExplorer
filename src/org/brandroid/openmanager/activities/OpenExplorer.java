@@ -214,7 +214,6 @@ import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.jcraft.jsch.JSchException;
 import com.stericson.RootTools.RootTools;
 import com.viewpagerindicator.TabPageIndicator;
@@ -353,7 +352,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         Preferences.Pref_ShowThumbs = prefs.getBoolean("global", "pref_thumbs", true);
         Preferences.Pref_CacheThumbs = prefs.getBoolean("global", "pref_thumbs_cache", false);
         Preferences.Pref_Language = prefs.getString("global", "pref_language", "");
-        Preferences.Pref_Analytics = prefs.getBoolean("global", "pref_stats", true);
+        Preferences.Pref_Analytics = prefs.getBoolean("global", "pref_stats", false);
         Preferences.Pref_Text_Max_Size = prefs.getInt("global", "text_max", 500000);
         Preferences.Pref_Root = prefs.getBoolean("global", "pref_root", Preferences.Pref_Root);
         ThumbnailCreator.showCenteredCroppedPreviews = prefs.getBoolean("global",
@@ -374,22 +373,6 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         }
 
         VERSION = pi.versionCode;
-
-        if (Preferences.Pref_Analytics) {
-            String gaCode = "UA-20719255-4";
-            if (pi != null && pi.applicationInfo != null && pi.applicationInfo.metaData != null
-                    && pi.applicationInfo.metaData.containsKey("ga_code"))
-                gaCode = pi.applicationInfo.metaData.getString("ga_code");
-
-            final String ga = gaCode;
-            final Context atc = getApplicationContext();
-
-            queueToTracker(new Runnable() {
-                public void run() {
-                    getAnalyticsTracker().startNewSession(ga, atc);
-                }
-            });
-        }
 
         if (!Preferences.Pref_Language.equals(""))
             setLanguage(getContext(), Preferences.Pref_Language);
@@ -1696,9 +1679,10 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         return true;
     }
 
-    private void submitStats() {
+    private void submitStats() // submit anonymous error log
+    {
         if (!Logger.isLoggingEnabled())
-            return;
+            return; // Disable by default
         if (OpenExplorer.IS_DEBUG_BUILD)
             return;
         if (new Date().getTime() - lastSubmit < 60000)
@@ -1714,12 +1698,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         Logger.LogDebug("Found " + logs.length() + " bytes of logs.");
         EventHandler.execute(new SubmitStatsTask(this), logs);
         // } else Logger.LogWarning("Logs not found.");
-        queueToTracker(new Runnable() {
-            public void run() {
-                getAnalyticsTracker().dispatch();
             }
-        });
-    }
 
     public void handleRefreshMedia(final String path, boolean keepChecking, final int retries) {
         if (!keepChecking || retries <= 0) {
@@ -1866,8 +1845,6 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (Preferences.Pref_Analytics)
-            getAnalyticsTracker().stopSession();
         if (storageReceiver != null)
             unregisterReceiver(storageReceiver);
     }
@@ -1945,36 +1922,36 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                 getSupportLoaderManager().initLoader(0, null, this);
                 new Thread(new Runnable() {
                     public void run() {
-                        if (mHasExternal && extDrive != null && intDrive.list() != null)
-                            for (OpenPath kid : extDrive.list())
-                                if (kid.getName().toLowerCase().indexOf("movies") > -1
-                                        || kid.getName().toLowerCase().indexOf("video") > -1)
-                                    mVideoSearchParent.addSearch(new SmartSearch(kid,
-                                            SmartSearch.SearchType.TypeIn, "avi", "mpg", "3gp",
-                                            "mkv", "mp4"));
-                        if (mHasInternal && intDrive != null && intDrive.list() != null)
-                            for (OpenPath kid : intDrive.list())
-                                if (kid.getName().toLowerCase().indexOf("movies") > -1
-                                        || kid.getName().toLowerCase().indexOf("video") > -1)
-                                    mVideoSearchParent.addSearch(new SmartSearch(kid,
-                                            SmartSearch.SearchType.TypeIn, "avi", "mpg", "3gp",
-                                            "mkv", "mp4"));
-                        if (isNook()) {
-                            OpenFile files = OpenFile.getExternalMemoryDrive(true);
-                            for (int i = 0; i < 2; i++) {
-                                if (i == 1)
-                                    files = new OpenFile("/mnt/media");
-                                files = files.getChild("My Files");
-                                if (files != null && files.exists()) {
-                                    files = files.getChild("Videos");
-                                    if (files != null && files.exists())
-                                        mVideoSearchParent.addSearch(new SmartSearch(files,
+                        try {
+                            if (mHasExternal && extDrive != null && intDrive.list() != null)
+                                for (OpenPath kid : extDrive.list())
+                                    if (kid.getName().toLowerCase().indexOf("movies") > -1
+                                            || kid.getName().toLowerCase().indexOf("video") > -1)
+                                        mVideoSearchParent.addSearch(new SmartSearch(kid,
                                                 SmartSearch.SearchType.TypeIn, "avi", "mpg", "3gp",
                                                 "mkv", "mp4"));
+                            if (mHasInternal && intDrive != null && intDrive.list() != null)
+                                for (OpenPath kid : intDrive.list())
+                                    if (kid.getName().toLowerCase().indexOf("movies") > -1
+                                            || kid.getName().toLowerCase().indexOf("video") > -1)
+                                        mVideoSearchParent.addSearch(new SmartSearch(kid,
+                                                SmartSearch.SearchType.TypeIn, "avi", "mpg", "3gp",
+                                                "mkv", "mp4"));
+                            if (isNook()) {
+                                OpenFile files = OpenFile.getExternalMemoryDrive(true);
+                                for (int i = 0; i < 2; i++) {
+                                    if (i == 1)
+                                        files = new OpenFile("/mnt/media");
+                                    files = files.getChild("My Files");
+                                    if (files != null && files.exists()) {
+                                        files = files.getChild("Videos");
+                                        if (files != null && files.exists())
+                                            mVideoSearchParent.addSearch(new SmartSearch(files,
+                                                    SmartSearch.SearchType.TypeIn, "avi", "mpg",
+                                                    "3gp", "mkv", "mp4"));
+                                    }
                                 }
                             }
-                        }
-                        try {
                             mVideosMerged.refreshKids();
                         } catch (IOException e) {
                             Logger.LogError("Couldn't refresh merged Videos");
@@ -2597,7 +2574,9 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             if (sub != null) {
                 int i = 0;
                 for (final OpenPath item : getClipboard().getAll()) {
-                    sub.add(Menu.CATEGORY_CONTAINER, i++, i, item.getName()).setCheckable(true)
+                    sub.add(Menu.CATEGORY_CONTAINER, i++, i, item.getName())
+                            .setIcon(ThumbnailCreator.getDefaultResourceId(item, 32, 32))
+                            .setCheckable(true)
                             .setChecked(true)
                             .setOnMenuItemClickListener(new OnMenuItemClickListener() {
                                 @Override
@@ -2605,7 +2584,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                                     getClipboard().remove(item);
                                     return true;
                                 }
-                            }).setIcon(ThumbnailCreator.getDefaultResourceId(item, 32, 32));
+                            });
                 }
             }
         }
@@ -2884,9 +2863,9 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     }
 
     private void debugTest() {
-        // startActivity(new Intent(this, Authenticator.class));
-        int divide0 = 10 / (5 - 5);
-        Logger.LogVerbose("I did it! 10 / 0 = " + divide0 + "!!!");
+        //startActivity(new Intent(this, Authenticator.class));
+        DEBUG_TOGGLE = !DEBUG_TOGGLE;
+        notifyPager();
     }
 
     public boolean isSinglePane() {
@@ -3399,18 +3378,8 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             if (f instanceof OpenPathFragmentInterface)
                 ret += ((OpenPathFragmentInterface)f).getPath().getPath();
             else
-                ret += f.getClass().toString();
+                ret += f.getClassName();
             if (i < frags.size() - 1)
-                ret += ",";
-        }
-        return ret;
-    }
-
-    private String getPagerTitles() {
-        String ret = "";
-        for (int i = 0; i < mViewPagerAdapter.getCount(); i++) {
-            ret += mViewPagerAdapter.getPageTitle(i);
-            if (i < mViewPagerAdapter.getCount() - 1)
                 ret += ",";
         }
         return ret;
@@ -4003,19 +3972,6 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
     public ShellSession getShellSession() {
         return getOpenApplication().getShellSession();
-    }
-
-    @Override
-    public GoogleAnalyticsTracker getAnalyticsTracker() {
-        if (getOpenApplication() != null)
-            return getOpenApplication().getAnalyticsTracker();
-        else
-            return null;
-    }
-
-    @Override
-    public void queueToTracker(Runnable run) {
-        getOpenApplication().queueToTracker(run);
     }
 
     @Override

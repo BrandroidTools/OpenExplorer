@@ -39,8 +39,6 @@ import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-import com.google.android.apps.analytics.Item;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -592,16 +590,6 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        if (!item.hasSubMenu()) {
-            Logger.LogInfo("Click: MenuItem: " + item.getTitle().toString());
-            queueToTracker(new Runnable() {
-                public void run() {
-                    if (getAnalyticsTracker() != null)
-                        getAnalyticsTracker().trackEvent("Clicks", "MenuItem",
-                                item.getTitle().toString(), 1);
-                }
-            });
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -700,41 +688,16 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     }
 
     public void onClick(final View v) {
-        Logger.LogInfo("Click: Other: " + v != null ? v.getClass().getSimpleName() : "Unknown",
-                ViewUtils.getText(v).toString());
-        queueToTracker(new Runnable() {
-            public void run() {
-                if (getAnalyticsTracker() != null)
-                    getAnalyticsTracker().trackEvent("Clicks",
-                            v != null ? v.getClass().getSimpleName() : "Unknown",
-                            ViewUtils.getText(v).toString(), 1);
+		Logger.LogInfo(getClassName() + ".onClick(" + v + ")");
             }
-        });
-    }
 
     public boolean onClick(final int id, final View from) {
-        Logger.LogInfo("Click: Other: " + from != null ? from.getClass().getSimpleName()
-                : "Unknown", ViewUtils.getText(from).toString());
-        queueToTracker(new Runnable() {
-            public void run() {
-                if (getAnalyticsTracker() != null)
-                    getAnalyticsTracker().trackEvent("Clicks",
-                            from != null ? from.getClass().getSimpleName() : "Unknown",
-                            ViewUtils.getText(from).toString(), 1);
-            }
-        });
+		Logger.LogInfo(getClassName() + ".onClick(0x" + Integer.toHexString(id) + ")");
         return false;
     }
 
     public boolean onLongClick(final View v) {
-        Logger.LogInfo("Long Click: Other: " + ViewUtils.getText(v).toString());
-        queueToTracker(new Runnable() {
-            public void run() {
-                if (v != null && getAnalyticsTracker() != null)
-                    getAnalyticsTracker().trackEvent("Long-Clicks", v.getClass().toString(),
-                            ViewUtils.getText(v).toString(), 1);
-            }
-        });
+		Logger.LogInfo(getClassName() + ".onLongClick(" + Integer.toHexString(v.getId()) + ") - " + v.toString());
         return false;
     }
 
@@ -792,6 +755,8 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     public Context getContext() {
         if (getExplorer() != null)
             return getExplorer().getContext();
+        else if(getActivity() != null)
+            return getActivity();
         else
             return getApplicationContext();
     }
@@ -849,20 +814,6 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     @Override
     public ShellSession getShellSession() {
         return getExplorer().getShellSession();
-    }
-
-    @Override
-    public GoogleAnalyticsTracker getAnalyticsTracker() {
-        if (getExplorer() != null)
-            return getExplorer().getAnalyticsTracker();
-        else
-            return null;
-    }
-
-    @Override
-    public void queueToTracker(Runnable run) {
-        if (getExplorer() != null)
-            getExplorer().queueToTracker(run);
     }
 
     @Override

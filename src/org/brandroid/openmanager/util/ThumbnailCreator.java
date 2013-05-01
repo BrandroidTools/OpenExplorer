@@ -364,7 +364,7 @@ public class ThumbnailCreator {
         final boolean useLarge = mWidth > 36;
         boolean hasKids = false;
         try {
-            if (!file.requiresThread() && file.isDirectory())
+            if (file.isDirectory())
                 hasKids = file.getChildCount(false) > 0;
             else if (file instanceof OpenCursor)
                 hasKids = true;

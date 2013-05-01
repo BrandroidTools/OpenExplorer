@@ -51,6 +51,8 @@ public class HeatmapAdapter extends BaseAdapter {
         OpenPath[] items = new OpenPath[0];
         try {
             items = mParent.list();
+            if(items == null)
+                items = mParent.listFiles();
         } catch (IOException e) {
             Logger.LogError("Couldn't list for Heatmap.", e);
         }

@@ -15,6 +15,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
+            
+            <include
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/abs__action_bar_default_height"
+                layout="@layout/title_bar" />
 
             <RelativeLayout
                 android:id="@+id/RelativeLayout1"
@@ -38,10 +43,7 @@
                     android:layout_below="@+id/TextView1"
                     android:layout_toLeftOf="@+id/text_port"
                     android:entries="@array/server_types"
-                    android:prompt="@string/s_pref_server_type"
-                    android:spinnerMode="dropdown" >
-
-                    <!-- Preview: listitem=@android:layout/simple_spinner_item -->
+                    android:prompt="@string/s_pref_server_type" >
                 </Spinner>
 
                 <EditText
@@ -57,14 +59,13 @@
 
                 <CheckBox
                     android:id="@id/check_port"
-                    style="@style/Text.Small.Checkbox"
+                    android:textAppearance="@style/Text.Small.Checkbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBaseline="@+id/text_port"
                     android:layout_alignParentRight="true"
                     android:layout_gravity="top"
                     android:layout_marginTop="1dp"
-                    android:layout_weight="1"
                     android:checked="true"
                     android:text="@string/s_default" />
             </RelativeLayout>
@@ -139,7 +140,7 @@
 
                     <CheckBox
                         android:id="@+id/check_password"
-                        style="@style/Text.Small.Checkbox"
+                        android:textAppearance="@style/Text.Small.Checkbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"

@@ -54,7 +54,6 @@ import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
 import com.box.androidlib.BoxAuthentication;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.stericson.RootTools.RootTools;
 
 import android.annotation.SuppressLint;
@@ -757,13 +756,6 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         // preference.getExtras().putString("value", newValue.toString());
         Logger.LogInfo("Preference: " + key + ": " + newValue.toString());
         intent.putExtra(key.replace("server_", ""), newValue.toString());
-        final OpenApp app = ((OpenApplication)activity.getApplication());
-        app.queueToTracker(new Runnable() {
-            public void run() {
-                app.getAnalyticsTracker().trackEvent("Preferences", "Change", key,
-                        newValue instanceof Integer ? (Integer)newValue : 0);
-            }
-        });
         activity.setIntent(intent);
         if (Arrays.binarySearch(new String[] {
                 "pref_fullscreen", "pref_fancy_menus", "pref_basebar", "pref_themes", "pref_stats",
@@ -929,17 +921,7 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         // TODO Auto-generated method stub
 
     }
-
-    @Override
-    public GoogleAnalyticsTracker getAnalyticsTracker() {
-        return ((OpenApplication)getApplication()).getAnalyticsTracker();
-    }
-
-    @Override
-    public void queueToTracker(Runnable run) {
-        ((OpenApplication)getApplication()).queueToTracker(run);
-    }
-
+	
     @Override
     public int getThemedResourceId(int styleableId, int defaultResourceId) {
         return ((OpenApplication)getApplication()).getThemedResourceId(styleableId,

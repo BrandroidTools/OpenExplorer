@@ -111,6 +111,20 @@ public class MenuUtils {
                     if (menu.getItem(i).hasSubMenu())
                         setMenuVisible(menu.getItem(i).getSubMenu(), visible, ids);
     }
+    
+    public static void setMenuVisible(android.view.Menu menu, boolean visible, int... ids) {
+        if (menu == null)
+            return;
+        if (ids.length == 0)
+            setMenuVisible(menu, visible, getMenuIDs(menu));
+        for (int id : ids)
+            if (menu.findItem(id) != null)
+                menu.findItem(id).setVisible(visible);
+            else
+                for (int i = 0; i < menu.size(); i++)
+                    if (menu.getItem(i).hasSubMenu())
+                        setMenuVisible(menu.getItem(i).getSubMenu(), visible, ids);
+    }
 
     public static void setMenuShowAsAction(Menu menu, int show, int... ids) {
         if (OpenExplorer.BEFORE_HONEYCOMB)
@@ -127,6 +141,13 @@ public class MenuUtils {
     }
 
     public static int[] getMenuIDs(Menu menu) {
+        int[] ret = new int[menu.size()];
+        for (int i = 0; i < ret.length; i++)
+            ret[i] = menu.getItem(i).getItemId();
+        return ret;
+    }
+
+    public static int[] getMenuIDs(android.view.Menu menu) {
         int[] ret = new int[menu.size()];
         for (int i = 0; i < ret.length; i++)
             ret[i] = menu.getItem(i).getItemId();

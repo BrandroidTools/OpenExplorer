@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Vector;
 
 import org.brandroid.openmanager.R;
@@ -211,11 +212,14 @@ public class OpenBookmarks implements OnGroupClickListener,
                 Hashtable<String, DFInfo> df = DFInfo.LoadDF(mFirstRun);
                 mAllDataSize = 0l;
                 for (String sItem : df.keySet()) {
-                    if (sItem.toLowerCase().startsWith("/dev"))
+                    String l = sItem.toLowerCase(Locale.US);
+                    if (l.startsWith("/dev"))
                         continue;
-                    if (sItem.toLowerCase().indexOf("/system") > -1)
+                    if (l.indexOf("/system") > -1)
                         continue;
-                    if (sItem.toLowerCase().indexOf("vendor") > -1)
+                    if (l.indexOf("vendor") > -1)
+                        continue;
+                    if (l.indexOf("/fuse") > -1)
                         continue;
                     OpenFile file = new OpenFile(sItem);
                     if (file.isHidden())

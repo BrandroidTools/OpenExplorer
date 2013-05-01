@@ -54,6 +54,7 @@ import org.brandroid.openmanager.data.OpenPath.ListHandler;
 import org.brandroid.openmanager.data.OpenPath.OpenContentUpdateListener;
 import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateHandler;
 import org.brandroid.openmanager.data.OpenPath.SpaceListener;
+import org.brandroid.openmanager.data.OpenPath.ThumbnailOverlayInterface;
 import org.brandroid.openmanager.data.OpenPathArray;
 import org.brandroid.openmanager.data.OpenPathMerged;
 import org.brandroid.openmanager.data.OpenRAR;
@@ -82,7 +83,6 @@ import org.kamranzafar.jtar.TarUtils;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -91,6 +91,7 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.AsyncTask.Status;
 import android.os.Build;
@@ -129,7 +130,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
@@ -388,24 +388,6 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         // OpenExplorer.getEventHandler().setOnWorkerThreadFinishedListener(this);
 
     }
-
-    @Override
-    public void onAttach(Activity activity) {
-        queueToTracker(new Runnable() {
-            @Override
-            public void run() {
-                GoogleAnalyticsTracker tracker = getAnalyticsTracker();
-                if (tracker != null) {
-                    if (mViewMode != null)
-                        tracker.setCustomVar(3, "View", mViewMode.toString(), 3);
-                    if (getSorting() != null)
-                        tracker.setCustomVar(3, "Sort", getSorting().toString(), 3);
-                }
-            }
-        });
-        super.onAttach(activity);
-    }
-
     /**
      * The Fragment's UI is just a list fragment
      */
@@ -580,8 +562,9 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                 loaded = kids.length;
             }
             Logger.LogDebug("Loaded " + loaded + " entries from cache");
-        } else
-            runUpdateTask(!allowSkips);
+        }
+        
+        runUpdateTask(!allowSkips);
 
         mRefreshReady = true;
 
@@ -610,7 +593,10 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             final OpenContentUpdateListener updateCallback = new OpenContentUpdateListener() {
                 @Override
                 public void addContentPath(final OpenPath... files) {
-                    mContentAdapter.addAll(Arrays.asList(files));
+                    OpenExplorer.getHandler().post(new Runnable() {
+                        public void run() {
+                            mContentAdapter.addAll(Arrays.asList(files));
+                        }});
                     if(OpenPath.AllowDBCache)
                     {
                         new Thread(new Runnable() {
@@ -694,6 +680,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                 public void onListReceived(final OpenPath[] list) {
                     setProgressVisibility(false);
                     mContentAdapter.updateData(list);
+                    notifyDataSetChanged();
                     ViewUtils.setViewsVisible(getView(), false, android.R.id.empty);
                     if(OpenPath.AllowDBCache)
                     {
@@ -712,6 +699,10 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                     }
                 }
             });
+            return;
+        } else if (mPath instanceof OpenFile) {
+            mContentAdapter.updateData(((OpenFile)mPath).listFiles());
+            notifyDataSetChanged();
             return;
         }
         final String sPath = mPath.getPath();
@@ -751,6 +742,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         if (re.getStatusCode() != 401)
             return false;
         if(has401occurred) return false;
+        if(((OpenDrive)mPath).getServer() == null) return false;
         has401occurred = true;
         final OpenDrive drive = (OpenDrive)mPath;
         final GoogleCredential cred = drive.getCredential();
@@ -1688,12 +1680,11 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         if (isDetached() || !isVisible())
             return;
         super.onPrepareOptionsMenu(menu);
-
-        MenuUtils
-                .setMenuVisible(menu, mPath instanceof OpenNetworkPath, R.id.menu_context_download);
-        MenuUtils.setMenuVisible(menu, !(mPath instanceof OpenNetworkPath), R.id.menu_context_edit,
-                R.id.menu_context_view);
-
+		
+		MenuUtils.setMenuEnabled(menu, getPath().canWrite(), R.id.menu_new_file, R.id.menu_new_folder);
+		MenuUtils.setMenuVisible(menu, mPath instanceof OpenNetworkPath, R.id.menu_context_download);
+		MenuUtils.setMenuVisible(menu, !(mPath instanceof OpenNetworkPath), R.id.menu_context_edit, R.id.menu_context_view);
+		
         MenuItem mMenuFF = menu.findItem(R.id.menu_sort_folders_first);
         if (mMenuFF != null) {
             if (mMenuFF.isCheckable()) {
@@ -2182,10 +2173,17 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     public Drawable getIcon() {
         if (isDetached())
             return null;
-        if (getActivity() != null && getResources() != null)
-            return getResources().getDrawable(
-                    ThumbnailCreator.getDefaultResourceId(getPath(), 96, 96));
-        return null;
+        if (getActivity() == null || getResources() == null) return null;
+        OpenPath path = getPath();
+        if (path == null) return null;
+        Drawable ret = getResources().getDrawable(
+                ThumbnailCreator.getDefaultResourceId(getPath(), 96, 96));
+        if (path instanceof OpenPath.ThumbnailOverlayInterface)
+        {
+            Drawable overlay = ((ThumbnailOverlayInterface)path).getOverlayDrawable(getActivity(), true);
+            ret = new LayerDrawable(new Drawable[]{ret,overlay});
+        }
+        return ret;
     }
 
     @Override
