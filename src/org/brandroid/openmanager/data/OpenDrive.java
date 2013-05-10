@@ -23,6 +23,7 @@ import org.brandroid.openmanager.util.IntentManager;
 import org.brandroid.openmanager.util.PrivatePreferences;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
+import org.brandroid.utils.Preferences;
 import org.brandroid.utils.Utils;
 import org.json.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -76,8 +77,8 @@ public class OpenDrive extends OpenNetworkPath implements OpenNetworkPath.CloudO
     {
         mCredential = new GoogleCredential.Builder()
                 .setClientSecrets(
-                        PrivatePreferences.getKey("oauth_drive_client_id", ""),
-                        PrivatePreferences.getKey("oauth_drive_secret", ""))
+                        PrivatePreferences.getKey("drive_key"),
+                        PrivatePreferences.getKey("drive_secret"))
                 .setTransport(mTransport)
                 .setJsonFactory(mJsonFactory)
                 .build()
@@ -96,6 +97,14 @@ public class OpenDrive extends OpenNetworkPath implements OpenNetworkPath.CloudO
         mDrive = mParent.mDrive;
         mFile = file;
         mFolderId = file.getId();
+    }
+    
+    public static boolean isEnabled(Context context) {
+        Preferences prefs = new Preferences(context);
+        if(!prefs.getBoolean("global", "pref_cloud_drive_enabled", true)) return false;
+        if(prefs.getString("global", "pref_cloud_drive_key", PrivatePreferences.getKey("drive_key")).equals("")) return false;
+        if(prefs.getString("global", "pref_cloud_drive_secret", PrivatePreferences.getKey("drive_secret")).equals("")) return false;
+        return true;
     }
 
     public GoogleCredential getCredential() {
@@ -213,7 +222,7 @@ public class OpenDrive extends OpenNetworkPath implements OpenNetworkPath.CloudO
             public void run() {
                 String url = "https://accounts.google.com/o/oauth2/auth";
                 String params = "scope=" + Uri.encode(DriveScopes.DRIVE);
-                params += "&client_id=" + Uri.encode(PrivatePreferences.getKey("oauth_drive_client_id"));
+                params += "&client_id=" + Uri.encode(PrivatePreferences.getKey("drive_key"));
                 params += "&response_type=code&redirect_uri=" + Uri.encode("urn:ietf:wg:oauth:2.0:oob");
                 HttpURLConnection uc = null;
                 OutputStreamWriter out = null;
@@ -273,8 +282,8 @@ public class OpenDrive extends OpenNetworkPath implements OpenNetworkPath.CloudO
             public void run() {
                 String url = "https://accounts.google.com/o/oauth2/token";
                 String params = "scope=" + Uri.encode(DriveScopes.DRIVE);
-                params += "&client_id=" + Uri.encode(PrivatePreferences.getKey("oauth_drive_client_id"));
-                params += "&client_secret=" + Uri.encode(PrivatePreferences.getKey("oauth_drive_secret"));
+                params += "&client_id=" + Uri.encode(PrivatePreferences.getKey("drive_key"));
+                params += "&client_secret=" + Uri.encode(PrivatePreferences.getKey("drive_secret"));
                 params += "&refresh_token=" + Uri.encode(token);
                 params += "&grant_type=authorization_code";
                 HttpURLConnection uc = null;
@@ -333,7 +342,7 @@ public class OpenDrive extends OpenNetworkPath implements OpenNetworkPath.CloudO
     {
         String url = "https://accounts.google.com/o/oauth2/auth";
         String params = "scope=" + Uri.encode(DriveScopes.DRIVE);
-        params += "&client_id=" + Uri.encode(PrivatePreferences.getKey("oauth_drive_client_id"));
+        params += "&client_id=" + Uri.encode(PrivatePreferences.getKey("drive_key"));
         params += "&response_type=code&redirect_uri=" + Uri.encode("urn:ietf:wg:oauth:2.0:oob");
         return url + "?" + params;
     }
@@ -348,8 +357,8 @@ public class OpenDrive extends OpenNetworkPath implements OpenNetworkPath.CloudO
             public void run() {
                 String url = "https://accounts.google.com/o/oauth2/token";
                 String params = "code=" + Uri.encode(authCode);
-                params += "&client_id=" + Uri.encode(PrivatePreferences.getKey("oauth_drive_client_id"));
-                params += "&client_secret=" + Uri.encode(PrivatePreferences.getKey("oauth_drive_secret"));
+                params += "&client_id=" + Uri.encode(PrivatePreferences.getKey("drive_key"));
+                params += "&client_secret=" + Uri.encode(PrivatePreferences.getKey("drive_secret"));
                 params += "&redirect_uri=" + Uri.encode("urn:ietf:wg:oauth:2.0:oob");
                 params += "&grant_type=authorization_code";
                 HttpURLConnection uc = null;

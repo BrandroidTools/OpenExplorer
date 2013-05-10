@@ -21,6 +21,7 @@ import org.brandroid.openmanager.data.OpenNetworkPath.Cancellable;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.PrivatePreferences;
 import org.brandroid.utils.Logger;
+import org.brandroid.utils.Preferences;
 import org.brandroid.utils.SimpleCrypto;
 import org.brandroid.utils.Utils;
 import org.json.JSONObject;
@@ -98,6 +99,14 @@ public class OpenDropBox extends OpenNetworkPath implements OpenNetworkPath.Clou
         mParent = parent;
         mAPI = mParent.mAPI;
         mEntry = child;
+    }
+    
+    public static boolean isEnabled(Context context) {
+        Preferences prefs = new Preferences(context);
+        if(!prefs.getBoolean("global", "pref_cloud_dropbox_enabled", true)) return false;
+        if(prefs.getString("global", "pref_cloud_dropbox_key", PrivatePreferences.getKey("dropbox_key")).equals("")) return false;
+        if(prefs.getString("global", "pref_cloud_dropbox_secret", PrivatePreferences.getKey("dropbox_secret")).equals("")) return false;
+        return true;
     }
 
     @Override

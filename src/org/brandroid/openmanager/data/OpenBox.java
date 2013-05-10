@@ -13,6 +13,7 @@ import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
 import org.brandroid.openmanager.util.PrivatePreferences;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.utils.Logger;
+import org.brandroid.utils.Preferences;
 import org.brandroid.utils.Utils;
 import com.box.androidlib.Box;
 import com.box.androidlib.BoxConfig;
@@ -69,6 +70,14 @@ public class OpenBox extends OpenNetworkPath implements OpenPath.SpaceHandler,
         mBox = parent.mBox;
         mUser = parent.mUser;
         mFile = child;
+    }
+    
+    public static boolean isEnabled(Context context) {
+        Preferences prefs = new Preferences(context);
+        if(!prefs.getBoolean("global", "pref_cloud_box_enabled", true)) return false;
+        if(prefs.getString("global", "pref_cloud_box_key", PrivatePreferences.getKey("box_key")).equals("")) return false;
+        if(prefs.getString("global", "pref_cloud_box_secret", PrivatePreferences.getKey("box_secret")).equals("")) return false;
+        return true;
     }
 
     @Override

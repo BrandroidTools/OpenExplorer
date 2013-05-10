@@ -192,6 +192,66 @@
             android:key="servers_private"
             android:summary="@string/s_pref_servers_private_summary"
             android:title="@string/s_pref_servers_private" />
+        
+        <PreferenceCategory
+            android:title="@string/s_title_cloud_box"
+            android:key="pref_cloud_box" 
+            android:icon="@drawable/icon_box"
+            >
+            <CheckBoxPreference
+                android:key="pref_cloud_box_enabled"
+                android:title="@string/s_pref_cloud_enabled"
+                android:defaultValue="true" 
+                />
+            <EditTextPreference
+                android:key="pref_cloud_box_key"
+                android:title="@string/s_pref_cloud_key"
+                />
+            <EditTextPreference
+                android:key="pref_cloud_box_secret"
+                android:title="@string/s_pref_cloud_secret"
+                />
+        </PreferenceCategory>
+        
+        <PreferenceCategory
+            android:title="@string/s_title_cloud_dropbox"
+            android:key="pref_cloud_dropbox" 
+            android:icon="@drawable/icon_dropbox"
+            >
+            <CheckBoxPreference
+                android:key="pref_cloud_dropbox_enabled"
+                android:title="@string/s_pref_cloud_enabled" 
+                android:defaultValue="true" 
+                />
+            <EditTextPreference
+                android:key="pref_cloud_dropbox_key"
+                android:title="@string/s_pref_cloud_key"
+                />
+            <EditTextPreference
+                android:key="pref_cloud_dropbox_secret"
+                android:title="@string/s_pref_cloud_secret"
+                />
+        </PreferenceCategory>
+        
+        <PreferenceCategory
+            android:title="@string/s_title_cloud_drive"
+            android:key="pref_cloud_drive" 
+            android:icon="@drawable/icon_drive"
+            >
+            <CheckBoxPreference
+                android:key="pref_cloud_drive_enabled"
+                android:title="@string/s_pref_cloud_enabled"
+                android:defaultValue="true" 
+                />
+            <EditTextPreference
+                android:key="pref_cloud_drive_key"
+                android:title="@string/s_pref_cloud_key" 
+                />
+            <EditTextPreference
+                android:key="pref_cloud_drive_secret"
+                android:title="@string/s_pref_cloud_secret" 
+                />
+        </PreferenceCategory>
     </PreferenceScreen>
     <PreferenceScreen
         android:icon="@drawable/ic_action_zip_holo_dark"

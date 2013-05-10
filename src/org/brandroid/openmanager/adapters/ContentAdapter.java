@@ -428,7 +428,11 @@ public class ContentAdapter extends BaseAdapter {
             mCheck.setImageResource((mSelectedSet != null && mSelectedSet.contains(file))
                     ? checkboxOnId : checkboxOffId);
 
-        boolean mShowClip = mApp.getClipboard().contains(file);
+        boolean mShowClip = false;
+        if(mApp.getClipboard() != null)
+        {
+            mShowClip = mApp.getClipboard().contains(file);
+        }
 
         if (mShowClip) {
             ViewUtils.setViewsVisible(view, true, R.id.content_clipboard);

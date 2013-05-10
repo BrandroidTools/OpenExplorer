@@ -4,6 +4,9 @@ package org.brandroid.openmanager.adapters;
 import java.util.Date;
 
 import org.brandroid.openmanager.R;
+import org.brandroid.utils.Utils;
+
+import com.google.api.client.util.StringUtils;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -26,6 +29,11 @@ public class LinesAdapter extends BaseAdapter {
         mContext = c;
         inflater = (LayoutInflater)c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mLines = lines;
+    }
+    
+    public String getAllLines()
+    {
+        return Utils.joinArray(mLines, "\n");
     }
 
     /*

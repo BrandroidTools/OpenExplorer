@@ -22,8 +22,8 @@
     <string name="s_menu_grid">Сетка</string>
     <string name="s_menu_list">Список</string>
     <string name="s_menu_carousel">Карусель</string>
-    <string name="s_menu_hidden">Скрытые файлы</string>
-    <string name="s_menu_thumbs">Миниатюры изображений</string>
+    <string name="s_menu_hidden">Показ. скрыт. файлы</string>
+    <string name="s_menu_thumbs">Показывать миниатюры изображений</string>
     <string name="s_menu_new_folder">Новая папка</string>
     <string name="s_menu_other">Прочие настройки</string>
     <string name="s_menu_flush">Сохранить кэш</string>
@@ -73,7 +73,7 @@
     <string name="s_pref_server_type">Тип сервера</string>
     <string name="s_files">Файлы</string>
     <string name="s_create">Создать</string>
-    <string name="s_title_holding_x_files">Holding %s файлы</string>
+    <string name="s_title_holding_x_files" formatted="false">Holding %s файлы</string>
     <string name="s_title_newfolder">Создать новую папку</string>
     <string name="s_title_send">Отправка xxx</string>
     <string name="s_title_unzip">Распаковка xxx</string>
@@ -86,10 +86,10 @@
     <string name="s_title_zipping">Архивирование</string>
     <string name="s_title_unzipping">Распаковка</string>
     <string name="s_title_wait">Пожалуйста подождите...</string>
-    <string name="s_alert_confirm_delete">Удаление %s не может быть отменено. Вы уверены что хотите продолжить?</string>
+    <string name="s_alert_confirm_delete" formatted="false">Удаление %s не может быть отменено. Вы уверены что хотите продолжить?</string>
     <string name="s_alert_rename">Введите новое имя файла</string>
     <string name="s_alert_newfolder">Введите имя папки</string>
-    <string name="s_alert_unzip">Распаковать %s сюда или в другую папку?</string>
+    <string name="s_alert_unzip" formatted="false">Распаковать %s сюда или в другую папку?</string>
     <string name="s_button_unzip_here">Распаковать сюда</string>
     <string name="s_button_unzip_else">Распаковать в ...</string>
     <string name="s_msg_none">Файл(ы) не </string>
@@ -109,11 +109,11 @@
     <string name="s_about_version" auto="1">Версия</string>
     <string name="s_about_author" auto="1">Автор</string>
     <string name="s_about_site" auto="1">Веб-сайт</string>
-    <string name="s_about_email" auto="1">Email</string>
+    <string name="s_about_email">chaikina-natasha@mail.du</string>
     <string name="s_about_recent" auto="1">Последние изменения</string>
     <string name="s_chooser_email" auto="1">Отправить отзыв ...</string>
-    <string name="s_status_loading" auto="1">Загрузка ...</string>
-    <string name="s_menu_open" auto="1">Открыть с помощью ...</string>
+    <string name="s_status_loading">загрузки</string>
+    <string name="s_menu_open">атро</string>
     <string name="s_menu_edit">Изменить с помощью...</string>
     <string name="s_pref_stats_title" auto="1">Помогите улучшить OpenExplorer</string>
     <string name="s_pref_stats_summary">Отправлять анонимную статистику. Это  информация, не может быть,использована для идентификации пользователя.</string>
@@ -123,9 +123,9 @@
     <string name="s_pref_start_summary">Показывает, в какой папке открыть OpenExplorer при запуске</string>
     <string name="s_custom">Пользовательский ...</string>
     <string name="s_text_intro_top" auto="1">Добро пожаловать в OpenExplorer!</string>
-    <string name="s_text_intro_body">Цель OpenExplorer сделать вашу работу более продуктивной в пределах файловой системы Android и в облачных сервисах. Для работы с видео или фотографиями, находящихся в разных местах или управлении ими удаленно через FTP, OpenExplorer -  то, что вам нужно.\n \nВыберите папку, которая будет открываться при запуске программы:</string>
-    <string name="s_info_num_folders" auto="1">Количество папок:</string>
-    <string name="s_info_num_files" auto="1">Количество файлов:</string>
+    <string name="s_text_intro_body">Цель OpenExplorer сделать вашу работу более продуктивной в пределах файловой системы Android и в облачных сервисах. Для работы с видео или фотографиями, находящихся в разных местах или управлении ими удаленно через FTP, OpenExplorer -  то, что вам нужно.\n music \nВыберите папку, которая будет открываться при запуске программы: music </string>
+    <string name="s_info_num_folders">Номер папки:</string>
+    <string name="s_info_num_files">Номер файла:</string>
     <string name="s_info_last_modified" auto="1">Последнее изменение:</string>
     <string name="s_info_permissions" auto="1">Права доступа к файлам:</string>
     <string name="s_info_permission_read">Чтение:</string>
@@ -139,7 +139,7 @@
     <string name="s_menu_more"> Дополнительные опции ...</string>
     <string name="s_msg_low_memory" auto="1">Недостаточно памяти!</string>
     <string name="s_clear" auto="1">Очистить</string>
-    <string name="s_menu_delete_all" auto="1">Удалить все</string>
+    <string name="s_menu_delete_all">Удалить все</string>
     <string name="s_menu_move_all">Переместить сюда</string>
     <string name="s_menu_copy_all">Копировать сюда</string>
     <string name="s_confirm_delete">Вы уверены, что хотите удалить?</string>
@@ -155,7 +155,7 @@
     <string name="s_warn_pager_title">Новое свойство: вид страниц</string>
     <string name="s_warn_pager">Провести жест слева направо, чтобы перейти в родительский каталог и справа налево, чтобы вернуться. Эта функция облегчает навигацию.</string>
     <string name="s_warn_confirm" auto="1">Вы понимаете?</string>
-    <string name="s_warn_disable" auto="1">Отключить</string>
+    <string name="s_warn_disable">да</string>
     <string name="s_pref_intent_internal">Внутренние намерения</string>
     <string name="s_pref_intent_internal_on">Используйте OpenExplorer Intent Manager</string>
     <string name="s_pref_intent_internal_off">Используйте System Intent Manager</string>
@@ -164,7 +164,7 @@
     <string name="s_pref_show_root" auto="1">Показать корневую файловую систему (/)</string>
     <string name="s_pref_show_internal">Показать внутренние накопители</string>
     <string name="s_pref_show_external">Показать внешние накопители</string>
-    <string name="s_error_no_media">Похоже, что нет вставленого носителя информации. Пожалуйста, отключите USB обмен или повторно вставте носитель информации.</string>
+    <string name="s_error_no_media">ЖхэПохоже, что нет вставленого носителя информации. Пожалуйста, отключите USB обмен или повторно вставте носитель информации.</string>
     <string name="s_prompt_password" auto="1">Введите пароль</string>
     <string name="s_add">Добавить</string>
     <string name="s_server_ftp" auto="1">FTP</string>
@@ -199,7 +199,7 @@
     <string name="s_prompt_search" auto="1">Искать:</string>
     <string name="s_prompt_search_within" auto="1">Искать в:</string>
     <string name="s_pref_view_category">Предпочтения внешнего вида закладок</string>
-    <string name="s_pref_show_videos" auto="1">Показать видео</string>
+    <string name="s_pref_show_videos">трон</string>
     <string name="s_pref_show_photos" auto="1">Показать фотографии</string>
     <string name="s_pref_show_music">Показывать музыку</string>
     <string name="s_pref_show_downloads">Показывать загрузки</string>
@@ -211,8 +211,8 @@
     <string name="s_pref_fancy_menus">Необычное меню</string>
     <string name="s_pref_fancy_context">Необычные контекстные меню:</string>
     <string name="s_search_files" auto="1">Поиск файловой системы</string>
-    <string name="search_summary" formatted="false" auto="1">Поиск " %s " \n в " %s " (%d) ...</string>
-    <string name="search_results" formatted="false" auto="1">Найдено %d результатов для " %s " \n в " %s "</string>
+    <string name="search_summary" formatted="false" auto="1">Поиск " %s " \n в " %s " (%г) ...</string>
+    <string name="search_results" formatted="false" auto="1">Найдено%D результатов для " %s " \n в " %s "</string>
     <string name="s_menu_exit" auto="1">Выход</string>
     <string name="s_warn_wtf_message">Ой-ой-ой.Кажется возникла ошибка в программе.Такое часто случается с программами, которые находятся в тестовом состоянии.Единственный способ устранения таких ошибок, это сбор информации с различных устройств, таких как ваше например. Можем ли мы отсылать анонимные отчеты об ошибках в программе разработчикам?</string>
     <string name="s_warn_wtf_ps">Пожалуйста, обратите внимание на то, что данное приложение находится в состоянии Beta. Просьба не ставить плохую оценку из-за возможных ошибок и вылетов из программы. Просто удалите ее, если она вам не нравится. Большое спасибо!</string>
@@ -240,7 +240,7 @@
     <string name="menu_view_font_medium">Средний размер шрифта</string>
     <string name="menu_view_font_large">Большой размер шрифта</string>
     <string name="app_description">OpenExplorer - универсальное приложение для всех устройств (планшеты, телефоны, телевизоры Google)\n- Управление файлами\n- поддержка USB и других внешних носителей\n- Возможность подключения к FTP серверам\n- Текстовый редактор\n- Умные папки, содержат файлы определённых типов: видео, фото, музыка, загрузки\n- Текстовый редактор с вкладками\n\nСкоро будет реализовано:\n- Больше возможностей сети (Dropbox, Box.net, Sky диск, Samba, WiFi)\n- Автономный кэш файловой системы (хранение списка файлов и директорий без необходимости подключения к удаленному серверу)\n- Анализатор используемого места на носителях\n\n    ПРИМЕЧАНИЕ: Это приложение находится в бета-версии. Здесь еще много ошибок. Если Вы не хотите сталкиваться с возможными ошибками, пожалуйста, не загружайте это приложение. Если Вы хотите помочь найти эти ошибки, пожалуйста, напишите мне.\n</string>
-    <string name="alert_translate_google">Здравствуйте, данный перевод сделан с помощью переводчика Google. Если вы достаточно хорошо владеете английским и %s, а так же хотите помочь перевести, то нажмите сюда:</string>
+    <string name="alert_translate_google" formatted="false">Здравствуйте, данный перевод сделан с помощью переводчика Google. Если вы достаточно хорошо владеете английским и %s, а так же хотите помочь перевести, то нажмите сюда:</string>
     <string name="alert_translate_none">Здравствуйте, вы используете не поддерживаемый язык.если у вас есть знания английского языка,а так же хотите помочь сделать перевод, то нажмите сюда:</string>
     <string name="button_translate">Перевести</string>
     <string name="httpError">Произошла сетевая ошибка.</string>
@@ -313,60 +313,58 @@
     <string name="activity_resolver_use_once">Только один раз</string>
     <string name="s_pref_bookmarks_summary">Показать заклалки</string>
     <string name="s_menu_heatmap">ясность</string>
-    <string name="apply_to_all">Вы хотите выбрать все папки?</string>
+    <string name="apply_to_all">Вы хотите выбрать все паапки?</string>
     <string name="s_pref_view_folders">Настройки папок</string>
     <string name="s_pref_view_general">Основные настройки</string>
     <string name="s_pref_text_wrap">Перенести текст</string>
     <string name="s_pref_thumbs_crop">Обрезать/Центрировать миниатюру</string>
     <string name="s_pref_thumbs_cache_clear">Очистить кэш миниатюр</string>
     <string name="s_msg_folder_none">Папку невозможно создать</string>
-    <string name="msg_nook_donate2" auto="1">Здравствуйте Nook пользователя! Надеюсь, вам понравится Откройте Explorer для Nook. Я старался изо всех сил, чтобы обеспечить высокую совместимость с устройствами Nook. Благодаря последним пожертвования, я был в состоянии купить Нук цвета! Спасибо всем, кто пожертвовал! \n\n Далее, я хотел бы иметь возможность приобрести новое поколение Nook HD устройств. \n\n Если вы найдете это приложение полезным, пожалуйста, рассмотреть вопрос о внесении пожертвований, либо выбрав кнопка ниже, или путем активации "пожертвовать" меню. Спасибо и счастливого изучать!</string>
-    <string name="msg_bb_donate" auto="1">Здравствуйте BlackBerry пользователь! Надеюсь, вам понравится Открытое Explorer. Я старался изо всех сил, чтобы обеспечить высокую совместимость с устройствами BlackBerry. Однако, похоже, есть некоторые различия, которые трудно справиться без фактического устройства BlackBerry. По этой причине, я пытаюсь собрать достаточно пожертвований, чтобы купить BlackBerry 10 устройств для того, чтобы улучшить совместимость. Если вы найдете это приложение полезным, пожалуйста, рассмотреть вопрос о внесении пожертвований, либо выбрав кнопку ниже, или путем активации "пожертвовать" меню. Спасибо и счастливого изучать!</string>
+    <string name="msg_nook_donate2" auto="1">Здравствуйте Nook пользователя! Надеюсь, вам понравится Откройте Explorer для Nook. Я старался изо всех сил, чтобы обеспечить высокую совместимость с устройствами Nook. Благодаря последним пожертвования, я был в состоянии купить Нук цвета! Спасибо всем, кто пожертвовал!  П  п Далее, я хотел бы иметь возможность приобрести новое поколение Nook HD устройств.  П  п Если вы найдете это приложение полезным, пожалуйста, рассмотреть вопрос о внесении пожертвований, либо выбрав кнопка ниже, или путем активации "пожертвовать" меню. Спасибо и счастливого изучать!</string>
+    <string name="msg_bb_donate">Здравствуйте BlackBerry пользователь! Надеюсь, вам понравится Открытое Explorer. Я старался изо всех сил, чтобы обеспечить высокую совместимость с устройствами BlackBerry. Однако, похоже, есть некоторые различия, которые трудно справиться без фактического устройства BlackBerry. По этой причине, я пытаюсь собрать достаточно пожертвований, чтобы купить BlackBerry 10 устройств для того, чтобы улучшить совместимость. Если вы найдете это приложение полезным, пожалуйста, рассмотреть вопрос о внесении пожертвований, либо выбрав кнопку ниже, или путем активации "пожертвовать" меню. Спасибо и счастливого пизучать!</string>
     <string name="msg_donate" auto="1">Hello Android пользователей! Мы надеемся, вам понравится Открытое Explorer. Мы постарались наши трудное для обеспечения высокой совместимости со всеми устройствами Android. Однако, учитывая сообщения об ошибке получили, мы можем только предположить, что существуют различия между различными типами вызывают конкретные вопросы. По этой причине, мы пытаемся собрать достаточно пожертвований для того, чтобы купить Nexus устройств для того, чтобы улучшить совместимость. Если вы найдете это приложение полезным, пожалуйста, рассмотреть вопрос о внесении пожертвований, либо выбрав кнопку ниже, или путем активации "пожертвовать" меню. Спасибо и счастливого изучать!</string>
     <string name="s_privacy" auto="1">Политика конфиденциальности</string>
-    <string name="s_menu_system_mount" auto="1">Производитель / системы Записываемые - Опасные</string>
-    <string name="s_menu_system_mount_on" auto="1">Система записи!</string>
-    <string name="s_menu_system_mount_off" auto="1">Система доступна только для чтения.</string>
-    <string name="s_pref_servers_private" auto="1">Держите Серверы частные</string>
-    <string name="s_pref_servers_private_summary" auto="1">Хранить настройки сервера в частном хранилище. Это может привести настройки сервера должны быть удалены, если приложение не будет удалено. Если вы повторно установить в будущее, оставляя это будет снят предотвратить это.</string>
-    <string name="s_theme_lightdark" auto="1">Свет и Тьма</string>
-    <string name="s_theme_custom" auto="1">завитки</string>
-    
-    <string name="s_menu_rate">скорость</string>
-	<string name="s_alert_destination_exists">Направления уже существует. Что бы вы хотели сделать?</string>
-	<string name="s_overwrite">переписывать</string>
-	<string name="s_skip">пропускать</string>
-	<string name="s_msg_file_exists">Некоторые файлы могут назначения уже существуют. Для перезаписи?</string>
-	<string name="s_title_file_exists">Файл уже существует.</string>
-	<string name="s_msg_pref_archives">Хотели бы вы, чтобы просмотреть или распаковать архив?</string>
-	<string name="s_browse">просматривать</string>
-	<string name="s_extract">извлечение</string>
-	<string name="s_extracted">извлеченный</string>
-	<string name="s_extracting">извлекающий</string>
-	<string name="s_extract_with">Извлечение с ...</string>
-	<string name="s_title_archive_handler">Архив Handler</string>
-	<string name="s_ask_again">Попросите каждого времени</string>
-	<string name="s_archives">архив</string>
-	<string name="s_compress">сжимать</string>
-	<string name="s_compress_type">Тип сжатия</string>
-	<string name="s_compressed">сжатый</string>
-	<string name="s_delete_after">Удаление источника после завершения</string>
-	<string name="s_master_pass">Мастер-пароль</string>
-	<string name="s_master_pass_warning">Вы можете ввести мастер-пароль, используемый в качестве ключа шифрования для любой сохраненные пароли. Если оставить это поле пустым, пароль все равно будет зашифрован, и пароль по умолчанию мастер будет использоваться. Обратите внимание, что если вы обновляете свой ​​пароль сохраненные пароли сети, вам, вероятно, нужно сброса паролей и аутентификации удаленных серверов после сброса пароля.</string>
-	<string name="s_pass_old">Введите старый пароль:</string>
-	<string name="s_pass_new">Введите новый пароль:</string>
-	<string name="s_logout">Выйти</string>
-	<string name="s_authenticate">проверять подлинность</string>
-	<string name="s_authenticating">Аутентификация</string>
-	<string name="s_bookmark_history">история</string>
-	<string name="s_server_account_title">счет:</string>
-	<string name="s_authenticate_success">Проверка подлинности успешным</string>
-	<string name="s_authenticate_refresh">Обновить аутентификации</string>
-	<string name="s_pref_thumbs_cache">Предварительно кэшировать эскизы</string>
-	<string name="s_pref_thumbs_cache_summary">Это поможет ускорить загрузку папки, содержащие фотографии и видео.</string>
-	<string name="s_folders">папки</string>
-	<string name="s_hidden">скрытый</string>
-	<string name="s_total">общий</string>
-	<string name="s_custom_account">Пользовательский аккаунт</string>
-	    
+    <string name="s_menu_system_mount">Сделать /system доступным для записи (Опасно!)</string>
+    <string name="s_menu_system_mount_on">Система доступа в режиме записи!</string>
+    <string name="s_menu_system_mount_off">System доступен только для чтения</string>
+    <string name="s_pref_servers_private">частный сервис</string>
+    <string name="s_pref_servers_private_summary">Хранить настройки сервера на карте памяти. В случае потери данных его можно будет восстановить.</string>
+    <string name="s_theme_lightdark">Черно-белая</string>
+    <string name="s_theme_custom">Полоски</string>
+    <string name="s_menu_rate" auto="1">скорость</string>
+    <string name="s_alert_destination_exists" auto="1">Направления уже существует. Что бы вы хотели сделать?</string>
+    <string name="s_overwrite" auto="1">переписывать</string>
+    <string name="s_skip" auto="1">пропускать</string>
+    <string name="s_msg_file_exists" auto="1">Некоторые файлы могут назначения уже существуют. Для перезаписи?</string>
+    <string name="s_title_file_exists" auto="1">Файл уже существует.</string>
+    <string name="s_msg_pref_archives" auto="1">Хотели бы вы, чтобы просмотреть или распаковать архив?</string>
+    <string name="s_browse" auto="1">просматривать</string>
+    <string name="s_extract" auto="1">извлечение</string>
+    <string name="s_extracted" auto="1">извлеченный</string>
+    <string name="s_extracting">Извлекаю</string>
+    <string name="s_extract_with">Извлечение с помощью</string>
+    <string name="s_title_archive_handler" auto="1">Архив Handler</string>
+    <string name="s_ask_again" auto="1">Попросите каждого времени</string>
+    <string name="s_archives" auto="1">архив</string>
+    <string name="s_compress" auto="1">сжимать</string>
+    <string name="s_compress_type" auto="1">Тип сжатия</string>
+    <string name="s_compressed" auto="1">сжатый</string>
+    <string name="s_delete_after" auto="1">Удаление источника после завершения</string>
+    <string name="s_master_pass" auto="1">Мастер-пароль</string>
+    <string name="s_master_pass_warning" auto="1">Вы можете ввести мастер-пароль, используемый в качестве ключа шифрования для любой сохраненные пароли. Если оставить это поле пустым, пароль все равно будет зашифрован, и пароль по умолчанию мастер будет использоваться. Обратите внимание, что если вы обновляете свой ​​пароль сохраненные пароли сети, вам, вероятно, нужно сброса паролей и аутентификации удаленных серверов после сброса пароля.</string>
+    <string name="s_pass_old">dada9090</string>
+    <string name="s_pass_new">dada9090</string>
+    <string name="s_logout">ms.gul.01@mail.ru</string>
+    <string name="s_authenticate">Проводить аутентификацию</string>
+    <string name="s_authenticating" auto="1">Аутентификация</string>
+    <string name="s_bookmark_history" auto="1">история</string>
+    <string name="s_server_account_title" auto="1">счет:</string>
+    <string name="s_authenticate_success">Проверка подлинности пройдена</string>
+    <string name="s_authenticate_refresh" auto="1">Обновить аутентификации</string>
+    <string name="s_pref_thumbs_cache" auto="1">Предварительно кэшировать эскизы</string>
+    <string name="s_pref_thumbs_cache_summary">\nЭто поможет ускорить загрузку папки, содержащие фотографии и видео.</string>
+    <string name="s_folders">mail.ru</string>
+    <string name="s_hidden">P</string>
+    <string name="s_total">полный</string>
+    <string name="s_custom_account" auto="1">Пользовательский аккаунт</string>
 </resources>

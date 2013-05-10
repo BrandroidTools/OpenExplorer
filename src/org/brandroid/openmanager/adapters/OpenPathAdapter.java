@@ -94,6 +94,8 @@ public class OpenPathAdapter extends BaseAdapter {
         // Logger.LogVerbose("Content Icon Size: " +
         // mHolder.getIconView().getMeasuredWidth() + "x" +
         // mHolder.getIconView().getMeasuredHeight());
+        
+        ViewUtils.setViewsVisible(view, false, R.id.content_check);
 
         // view.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         // mHolder.setInfo(getFileDetails(file, false));

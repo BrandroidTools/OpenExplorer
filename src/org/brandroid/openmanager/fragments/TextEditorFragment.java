@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.WeakHashMap;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.FolderPickerActivity;
@@ -92,6 +93,7 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
     private ProgressBar mProgress = null;
     private SeekBarActionView mFontSizeBar = null;
     private TextView mFilename = null;
+    private static WeakHashMap<OpenPath, TextEditorFragment> mTextFrags = new WeakHashMap<OpenPath, TextEditorFragment>();
 
     private final static int REQUEST_SAVE_AS = OpenExplorer.REQ_SAVE_FILE;
 
@@ -115,11 +117,14 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
     }
 
     public static TextEditorFragment getInstance(OpenPath path, Bundle args) {
+        if(mTextFrags.containsKey(path) && mTextFrags.get(path) != null)
+            return mTextFrags.get(path);
         if (args == null)
             args = new Bundle();
         args.putParcelable("edit_path", path);
         TextEditorFragment ret = new TextEditorFragment();
         ret.setArguments(args);
+        mTextFrags.put(path, ret);
         return ret;
     }
 
@@ -598,6 +603,8 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
             mTask = new FileSaveTask(mPath);
             if (mDirty)
                 mData = mEditText.getText().toString();
+            if (mData == null || mData.length() == 0)
+                mData = mViewListAdapter.getAllLines();
             EventHandler.execute((FileSaveTask)mTask, mData);
             notifyPager();
         }
@@ -679,7 +686,9 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
                 } else if (mPath instanceof OpenStream) {
                     fos = new BufferedOutputStream(((OpenStream)mPath).getOutputStream());
                     fos.write(bytes);
-                    fos.close();
+                    try {
+                        fos.close();
+                    } catch(Exception e) { }
                 } else {
                     throw new IOException("Invalid output stream.");
                 }
@@ -711,7 +720,10 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
             setProgressVisibility(false);
             Context c = TextEditorFragment.this.getActivity();
             if (result < 0) {
-                Toast.makeText(c, R.string.httpErrorIO, Toast.LENGTH_LONG).show();
+                try {
+                    Toast.makeText(c, R.string.httpErrorIO, Toast.LENGTH_LONG).show();
+                } catch(Exception e) {
+                }
                 return;
             }
             mDirty = false;

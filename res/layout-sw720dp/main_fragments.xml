@@ -29,7 +29,6 @@
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/frag_log"
         android:baselineAligned="false"
         android:orientation="horizontal" >
 
@@ -43,7 +42,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_toLeftOf="@+id/frag_log"
             android:layout_toRightOf="@+id/list_frag" >
 
             <FrameLayout
@@ -58,15 +56,6 @@
                 android:layout="@layout/viewpager" />
         </RelativeLayout>
 
-        <FrameLayout
-            android:id="@+id/frag_log"
-            android:layout_width="@dimen/bookmarks_width"
-            android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignWithParentIfMissing="true" >
-        </FrameLayout>
     </RelativeLayout>
 
 </RelativeLayout>

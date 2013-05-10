@@ -10,6 +10,7 @@ import org.brandroid.openmanager.data.OpenPath.*;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Utils;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.UserInfo;
@@ -129,6 +130,11 @@ public abstract class OpenNetworkPath extends OpenPath implements NeedsTempFile,
             return;
         }
         copyFrom(tmp, task);
+    }
+    
+    public static boolean isEnabled(Context context)
+    {
+        return true;
     }
     
     @Override

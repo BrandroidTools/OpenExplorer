@@ -25,6 +25,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnLongClickListener;
 
 public class ArrayPagerAdapter extends FragmentStatePagerAdapter implements TitleProvider {
@@ -52,7 +53,16 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter implements Titl
             return null;
         while (pos < 0)
             pos += mFrags.size();
-        return mFrags.get(pos % mFrags.size());
+        OpenFragment frag = mFrags.get(pos % mFrags.size());
+        if(frag instanceof ContentFragment)
+        {
+            ContentFragment cf = (ContentFragment)frag;
+            if(pos == mFrags.size() - 1)
+            {
+                Logger.LogWarning("Fragment: " + cf.getPath() + " (" + cf.isDestroyed() + "," + cf.isAdded() + "," + cf.isDetached() + "," + cf.isHidden() + "," + cf.isInLayout() + "," + cf.isRemoving() + "," + cf.isResumed() + "," + cf.isVisible() + ")");
+            }
+        }
+        return frag;
     }
 
     public OpenFragment getLastItem() {
@@ -62,6 +72,15 @@ public class ArrayPagerAdapter extends FragmentStatePagerAdapter implements Titl
     @Override
     public int getCount() {
         return mFrags.size();
+    }
+    
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        try {
+            super.destroyItem(container, position, object);
+        } catch(Exception e) {
+            Logger.LogError("Unable to destroy fragment.", e);
+        }
     }
 
     /*

@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/abs__action_bar_default_height"
+    android:id="@+id/title_bar"
     android:orientation="horizontal" >
 
     <ImageView

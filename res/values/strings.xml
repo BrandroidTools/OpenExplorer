@@ -430,5 +430,14 @@
     <string name="s_hidden">hidden</string>
     <string name="s_total">total</string>
     <string name="s_custom_account">Custom Account</string>
+    
+    <string name="s_title_cloud">Cloud Services</string>
+    <string name="s_title_cloud_box">Box</string>
+    <string name="s_title_cloud_dropbox">Dropbox</string>
+    <string name="s_title_cloud_drive">Google Drive</string>
+    <string name="s_pref_cloud_enabled">Enable Service</string>
+    <string name="s_pref_cloud_key">OAuth client Key override</string>
+    <string name="s_pref_cloud_secret">OAuth client Secret override</string>
+    
 
 </resources>

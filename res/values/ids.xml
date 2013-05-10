@@ -28,5 +28,6 @@
     <item name="text_port" type="id"/>
     <item name="label_port" type="id"/>
     <item name="server_texts" type="id"/>
+    <item name="frag_log" type="id"/>
 
 </resources>

@@ -183,6 +183,7 @@ import org.brandroid.openmanager.util.IntentManager;
 import org.brandroid.openmanager.util.MimeTypes;
 import org.brandroid.openmanager.util.MimeTypeParser;
 import org.brandroid.openmanager.util.FileManager;
+import org.brandroid.openmanager.util.PrivatePreferences;
 import org.brandroid.openmanager.util.ShellSession;
 import org.brandroid.openmanager.util.SimpleHostKeyRepo;
 import org.brandroid.openmanager.util.SimpleUserInfo;
@@ -360,6 +361,17 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         Preferences.Run_Count = prefs.getInt("stats", "runs", Preferences.Run_Count) + 1;
         prefs.setSetting("stats", "runs", Preferences.Run_Count);
         Preferences.UID = prefs.getString("stats", "uid", Preferences.UID);
+        for(String cloud : new String[]{"box","dropbox","drive"})
+        {
+            if(!prefs.getSetting("global", "pref_cloud_" + cloud + "_enabled", true)) continue;
+            String key = prefs.getSetting("global", "pref_cloud_" + cloud + "_key", (String)null);
+            String secret = prefs.getSetting("global", "pref_cloud_" + cloud + "_secret", (String)null);
+            if(key != null && !key.equals("") && secret != null && !secret.equals(""))
+            {
+                PrivatePreferences.putKey(cloud + "_key", key);
+                PrivatePreferences.putKey(cloud + "_secret", secret);
+            }
+        }
         if (Preferences.UID == null) {
             Preferences.UID = UUID.randomUUID().toString();
             prefs.setSetting("stats", "uid", Preferences.UID);
@@ -484,7 +496,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
         OpenFile.setTempFileRoot(new OpenFile(getFilesDir()).getChild("temp"));
         setupLogviewHandlers();
-        handleExceptionHandler();
+        //handleExceptionHandler();
         getMimeTypes();
         setupFilesDb();
 
@@ -576,7 +588,8 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             fragmentManager.addOnBackStackChangedListener(this);
         }
 
-        mLogFragment = new LogViewerFragment();
+        if(mLogFragment == null)
+        	mLogFragment = new LogViewerFragment();
 
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
@@ -1486,7 +1499,8 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             }
         }
         SpannableString srLeft = new SpannableString(left);
-        srLeft.setSpan(new ForegroundColorSpan(Color.GRAY), 0, left.length(),
+        if(left.length() > 0)
+            srLeft.setSpan(new ForegroundColorSpan(Color.GRAY), 0, left.length(),
                 Spanned.SPAN_COMPOSING);
         ssb.append(srLeft);
         // ssb.setSpan(new ForegroundColorSpan(Color.GRAY), 0, left.length(),
@@ -1556,7 +1570,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         if (IS_DEBUG_BUILD)
             Logger.LogVerbose("OpenExplorer.onStart");
         if (findViewById(R.id.frag_log) != null) {
-            fragmentManager.beginTransaction().add(R.id.frag_log, mLogFragment, "log").commit();
+            fragmentManager.beginTransaction().replace(R.id.frag_log, mLogFragment, "log").commit();
             findViewById(R.id.frag_log).setVisibility(View.GONE);
         } else {
             initLogPopup();

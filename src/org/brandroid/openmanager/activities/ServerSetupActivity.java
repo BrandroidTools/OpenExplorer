@@ -10,6 +10,7 @@ import java.util.Locale;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.OpenClipboard;
+import org.brandroid.openmanager.data.OpenBox;
 import org.brandroid.openmanager.data.OpenDrive;
 import org.brandroid.openmanager.data.OpenDrive.TicketResponseCallback;
 import org.brandroid.openmanager.data.OpenDrive.TokenResponseCallback;
@@ -70,18 +71,23 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.SingleLineTransformationMethod;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.*;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
@@ -139,6 +145,7 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
     private boolean mAuthTokenFound = false;
     private WebView mLoginWebView;
     private static boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
+    private final boolean mUseDialog = Build.VERSION.SDK_INT > 10;
 
     public static class ServerTypeAdapter extends BaseAdapter
     {
@@ -148,6 +155,7 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
         private final PackageManager mPackageManager;
         private final Resources mResources;
         private final String[] mServerLabels;
+        private final Boolean[] mEnableds;
 
         public ServerTypeAdapter(OpenApp app)
         {
@@ -159,6 +167,12 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
                     .getStringArray(R.array.server_types_values);
             mServerLabels = app.getContext().getResources().getStringArray(R.array.server_types);
             mResources = app.getResources();
+            mEnableds = new Boolean[mServerTypes.length + mResolves.size()];
+            for(int i = 0; i < mServerTypes.length; i++)
+                mEnableds[i] = ServerSetupActivity.isServerTypeEnabled(
+                        app.getContext(), i);
+            for(int i = mServerTypes.length; i < mEnableds.length; i++)
+                mEnableds[i] = true;
         }
 
         @Override
@@ -178,6 +192,11 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
         public long getItemId(int position) {
             return position;
         }
+        
+        @Override
+        public boolean isEnabled(int position) {
+            return mEnableds[position];
+        }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -192,9 +211,21 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
                 String type = mServerTypes[position];
                 int iType = getServerTypeFromString(type);
                 if (iType > -1)
+                {
+                    boolean isEnabled = ServerSetupActivity.isServerTypeEnabled(
+                            parent.getContext(), iType);
+                    ViewUtils.setAlpha(isEnabled ? 1.0f : 0.5f,
+                            convertView, android.R.id.icon, android.R.id.text1);
+                    if(!isEnabled)
+                    {
+                        SpannableString invalid = new SpannableString(" (disabled)");
+                        invalid.setSpan(new StyleSpan(Typeface.ITALIC),
+                                0, invalid.length(), Spannable.SPAN_COMPOSING);
+                        text = new SpannableStringBuilder(text).append(invalid);
+                    }
                     icon = parent.getResources().getDrawable(
                             ServerSetupActivity.getServerTypeDrawable(iType));
-                else
+                } else
                     ViewUtils.setViewsVisible(convertView, false, android.R.id.icon);
 
             } else {
@@ -319,14 +350,14 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
         String themeName = new Preferences(this)
                 .getString("global", "pref_themes", "dark");
         if (themeName.equals("dark"))
-            return R.style.AppTheme_Dialog;
+            return mUseDialog ? R.style.AppTheme_Dialog : R.style.AppTheme_Dark;
         else if (themeName.equals("light"))
-            return R.style.AppTheme_Dialog_Light;
+            return mUseDialog ? R.style.AppTheme_Dialog_Light : R.style.AppTheme_Light;
         else if (themeName.equals("lightdark"))
-            return R.style.AppTheme_Dialog_Light;
+            return mUseDialog ? R.style.AppTheme_Dialog_Light : R.style.AppTheme_LightAndDark;
         else if (themeName.equals("custom"))
-            return R.style.AppTheme_Dialog;
-        return R.style.AppTheme_Dialog;
+            return mUseDialog ? R.style.AppTheme_Dialog : R.style.AppTheme_Custom;
+        return mUseDialog ? R.style.AppTheme_Dialog : R.style.AppTheme_Dark;
     }
 
     @Override
@@ -389,16 +420,17 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
 
         mBaseView = getLayoutInflater().inflate(R.layout.server, null);
         
-        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-        
-        setContentView(mBaseView);
-        
-        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title_bar_dialog);
+        if(Build.VERSION.SDK_INT > 10)
+        {
+	        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+	        setContentView(mBaseView);
+	        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title_bar_dialog);
+	        ViewUtils.setViewsVisible(mBaseView, false, R.id.title_bar, R.id.title_divider);
+        } else
+        	setContentView(mBaseView);
         
         getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        
-        ViewUtils.setViewsVisible(mBaseView, false, R.id.title_bar);
 
         mLoginWebView = (WebView)mBaseView.findViewById(R.id.server_webview);
 
@@ -621,6 +653,19 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
                 return R.drawable.sm_ftp;
         }
     }
+    
+    public static boolean isServerTypeEnabled(Context context, int serverType) {
+        switch(serverType)
+        {
+            case 3:
+                return OpenBox.isEnabled(context);
+            case 4:
+                return OpenDropBox.isEnabled(context);
+            case 5:
+                return OpenDrive.isEnabled(context);
+            default: return true;
+        }
+    }
 
     public void setIcon(int res)
     {
@@ -646,7 +691,7 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
             MenuBuilder2 mb = new MenuBuilder2(this);
             onCreateOptionsMenu(mb);
             onPrepareOptionsMenu(mb);
-        } else
+        } else if(Build.VERSION.SDK_INT > 10)
             super.invalidateOptionsMenu();
     }
 
@@ -767,7 +812,7 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
                         }
                     });
                 } else if (t2.startsWith("db")) {
-                    if (checkDropBoxAppKeySetup())
+                    //if (!checkDropBoxAppKeySetup())
                     {
                         enableAuthenticateButton(false);
                         mLoginWebView.getSettings().setJavaScriptEnabled(true);
@@ -795,8 +840,8 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
                                     return false;
                                 }
                             });
-                            mLoginWebView.loadUrl(AuthActivity.getConnectUrl(PrivatePreferences.getKey("dropbox_key"),
-                                    OpenDropBox.getConsumerSig(PrivatePreferences.getKey("dropbox_secret"))));
+                            mLoginWebView.loadUrl(AuthActivity.getConnectUrl(getCloudSetting("dropbox_key"),
+                                    OpenDropBox.getConsumerSig(getCloudSetting("dropbox_secret"))));
                             mLoginWebView.setVisibility(View.VISIBLE);
                         }
                         
@@ -1001,8 +1046,23 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
         mLoginWebView.loadUrl(loginUrl);
     }
     
+    private String getCloudSetting(String key)
+    {
+        String ret = PrivatePreferences.getKey(key);
+        Preferences prefs = new Preferences(this);
+        if(prefs != null)
+        {
+            String pref = prefs.getSetting("global", "pref_cloud_" + key, ret);
+            if(pref != null && !pref.equals(""))
+            	ret = pref;
+        }
+        return ret;
+    }
+    
     private void loadDBLoginWebview() {
-        String url = AuthActivity.getConnectUrl(PrivatePreferences.getKey("dropbox_key"), PrivatePreferences.getKey("dropbox_secret"));
+        String url = AuthActivity.getConnectUrl(
+                getCloudSetting("dropbox_key"),
+                getCloudSetting("dropbox_secret"));
         mLoginWebView.setWebViewClient(new WebViewClient(){
             @Override
             public void onPageFinished(WebView view, String url) {

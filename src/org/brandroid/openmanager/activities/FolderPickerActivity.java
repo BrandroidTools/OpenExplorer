@@ -9,6 +9,8 @@ import org.brandroid.openmanager.fragments.PickerFragment.OnOpenPathPickedListen
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.utils.ViewUtils;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -23,7 +25,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class FolderPickerActivity extends FragmentActivity implements OnItemClickListener,
+public class FolderPickerActivity extends SherlockFragmentActivity implements OnItemClickListener,
         OnClickListener, TextWatcher {
     private OpenPath mPath;
     private boolean pickDirOnly = false;
@@ -80,9 +82,13 @@ public class FolderPickerActivity extends FragmentActivity implements OnItemClic
         if (path == null)
             path = OpenFile.getExternalMemoryDrive(true);
         mPath = path;
-        mTitle.setText(path.getPath());
-        mTitle.setVisibility(View.VISIBLE);
-        mSelection.setText(path.getPath());
+        if(mTitle != null)
+        {
+            mTitle.setText(path.getPath());
+            mTitle.setVisibility(View.VISIBLE);
+        }
+        if(mSelection != null)
+            mSelection.setText(path.getPath());
         if (mPath.isFile()) {
             mDefaultName = mPath.getName();
             mPickName.setText(mDefaultName);
