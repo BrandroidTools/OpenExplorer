@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 import org.brandroid.utils.Logger;
+import org.brandroid.openmanager.data.OpenPath.*;
 
 import android.net.Uri;
 import android.os.Environment;
@@ -102,10 +103,6 @@ public class OpenSmartFolder extends OpenPath {
     }
 
     @Override
-    public void setPath(String path) {
-    }
-
-    @Override
     public long length() {
         return mChildren.size();
     }
@@ -176,13 +173,17 @@ public class OpenSmartFolder extends OpenPath {
 
     public OpenPath getFirstDir() {
         for (SmartSearch s : mSearches)
-            if (s.mParent instanceof OpenFile)
+            if (s.mParent instanceof OpenFile && !s.mParent.isHidden())
                 return s.mParent;
         if (mSearches.size() > 0)
-            return mSearches.get(0).mParent;
-        else
-            return new OpenFile(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+        {
+            for(int i = 0; i < mSearches.size(); i++)
+                if(mSearches.get(i).mParent instanceof OpenFile &&
+                        !mSearches.get(i).mParent.isHidden())
+                    return mSearches.get(i).mParent;
+        }
+        return new OpenFile(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
     }
 
     @Override
@@ -243,16 +244,6 @@ public class OpenSmartFolder extends OpenPath {
     @Override
     public Boolean mkdir() {
         return getFirstDir().mkdir();
-    }
-
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return getFirstDir().getInputStream();
-    }
-
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-        return getFirstDir().getOutputStream();
     }
 
     @Override

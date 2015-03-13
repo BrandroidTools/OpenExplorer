@@ -1,16 +1,18 @@
 
 package org.brandroid.utils;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.fragments.DialogHandler;
-import org.brandroid.openmanager.util.FileManager;
 import org.json.JSONArray;
 
 import android.annotation.SuppressLint;
@@ -30,6 +32,33 @@ public class Logger {
                                                    // preferences
     public final static Integer MIN_DB_LEVEL = Log.INFO;
     public final static String LOG_KEY = "OpenExplorer";
+
+    private static Handler mDefaultHandler;
+    private final static List<String> mLogsHandled = new ArrayList<String>();
+    public static void setDefaultHandler(Handler handler) { mDefaultHandler = handler; }
+    public static void setHandler() {
+        LogManager man = LogManager.getLogManager();
+        Enumeration<String> names = man.getLoggerNames();
+        String name;
+        while(names.hasMoreElements() && (name = names.nextElement()) != null)
+        {
+            if(Utils.isNullOrEmpty(name)) continue;
+            if(name.equalsIgnoreCase("global")) continue;
+            if(name.toLowerCase(Locale.US).contains("android")) continue;
+            if(name.startsWith("org.apache")) continue;
+            setHandler(name);
+        }
+    }
+    public static void setHandler(String name) {
+        if(mLogsHandled.contains(name)) return;
+        mLogsHandled.add(name);
+        java.util.logging.Logger log = java.util.logging.Logger.getLogger(name);
+        log.setLevel(Level.FINE);
+        log.addHandler(mDefaultHandler);
+        if(OpenExplorer.IS_DEBUG_BUILD)
+            Logger.LogVerbose("Logger added to " + name);
+    }
+    
     private static LoggerDbAdapter dbLog;
 
     @Override
@@ -40,7 +69,7 @@ public class Logger {
     }
 
     public static Boolean isLoggingEnabled() {
-        return bLoggingEnabled && DO_LOG;
+        return false; //bLoggingEnabled && DO_LOG;
     }
 
     public static void setLoggingEnabled(Boolean enable) {
@@ -156,9 +185,11 @@ public class Logger {
         return dbLog.countLevel(level);
     }
 
-    public static void clearDb() {
+    public static boolean clearDb() {
         if (dbLog != null)
             dbLog.clear();
+	else return false;
+	return true;
     }
 
     public static int LogError(String msg) {
@@ -168,7 +199,7 @@ public class Logger {
         return Log.e(LOG_KEY, msg);
     }
 
-    public static int LogError(String msg, Error ex) {
+    public static int LogError(String msg, Throwable ex) {
         if (CheckLastLog(ex.getMessage(), Log.ERROR))
             return 0;
         StackTraceElement[] trace = getMyStackTrace(ex);
@@ -270,11 +301,15 @@ public class Logger {
                 Logger.LogWarning("Crash file written, but we can't find it!");
         } else
             Logger.LogWarning("Crash file is null!");
-        return Log.wtf(
-                LOG_KEY,
-                msg
-                        + (trace.length > 0 ? " (" + trace[0].getFileName() + ":"
-                                + trace[0].getLineNumber() + ")" : ""), ex);
+        try {
+            return Log.wtf(
+                    LOG_KEY,
+                    msg
+                            + (trace.length > 0 ? " (" + trace[0].getFileName() + ":"
+                                    + trace[0].getLineNumber() + ")" : ""), ex);
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     public static int LogWarning(String msg) {
@@ -417,5 +452,8 @@ public class Logger {
     public static void closeDb() {
         if (hasDb())
             dbLog.close();
+    }
+    public static Handler getDefaultHandler() {
+        return mDefaultHandler;
     }
 }

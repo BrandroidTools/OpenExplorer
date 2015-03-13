@@ -32,11 +32,11 @@
         android:showAsAction="ifRoom"
         android:title="@string/s_menu_bookmark"/>
     <item
-        android:id="@+id/menu_context_heatmap"
-        android:icon="@drawable/ic_menu_heatmap"
-        android:orderInCategory="10"
+        android:id="@+id/menu_context_zip"
+        android:icon="?attr/actionIconZip"
+        android:orderInCategory="9"
         android:showAsAction="ifRoom"
-        android:title="@string/s_menu_heatmap"/>
+        android:title="@string/s_menu_zip"/>
     <item
         android:id="@+id/menu_context_rename"
         android:icon="?attr/actionIconRename"
@@ -55,11 +55,5 @@
         android:showAsAction="never|withText"
         android:title="@string/s_menu_download"
         android:visible="false"/>
-    <item
-        android:id="@+id/menu_context_zip"
-        android:icon="?attr/actionIconZip"
-        android:orderInCategory="16"
-        android:showAsAction="ifRoom"
-        android:title="@string/s_menu_zip"/>
 
 </menu>

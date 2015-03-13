@@ -117,7 +117,9 @@ public class OpenViewPager extends ViewPager {
     }
 
     public void notifyDataSetChanged() {
-        getAdapter().notifyDataSetChanged();
+        try {
+            getAdapter().notifyDataSetChanged();
+        } catch(Exception e) { }
         if (mIndicator != null)
             mIndicator.notifyDataSetChanged();
     }

@@ -1,7 +1,7 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <header
-        android:fragment="org.brandroid.openmanager.activities.SettingsActivity$PreferenceFragmentV11"
+        android:fragment="org.brandroid.openmanager.fragments.PreferenceFragmentV11"
         android:icon="@drawable/ic_menu_view"
         android:title="@string/s_pref_display" >
         <extra
@@ -9,15 +9,7 @@
             android:value="display" />
     </header>
     <header
-        android:fragment="org.brandroid.openmanager.activities.SettingsActivity$PreferenceFragmentV11"
-        android:icon="@drawable/ic_paper"
-        android:title="@string/s_text_editor_title" >
-        <extra
-            android:name="key"
-            android:value="text_editor" />
-    </header>
-    <header
-        android:fragment="org.brandroid.openmanager.activities.SettingsActivity$PreferenceFragmentV11"
+        android:fragment="org.brandroid.openmanager.fragments.PreferenceFragmentV11"
         android:icon="@drawable/ic_menu_star"
         android:title="@string/s_pref_view_category" >
         <extra
@@ -25,20 +17,44 @@
             android:value="bookmarks" />
     </header>
     <header
-        android:fragment="org.brandroid.openmanager.activities.SettingsActivity$PreferenceFragmentV11"
+        android:fragment="org.brandroid.openmanager.fragments.PreferenceFragmentV11"
+        android:icon="@drawable/ic_pipe"
+        android:title="@string/s_bookmark_servers" >
+        <extra
+            android:name="key"
+            android:value="networking" />
+    </header>
+    <header
+        android:fragment="org.brandroid.openmanager.fragments.PreferenceFragmentV11"
+        android:icon="@drawable/ic_paper"
+        android:title="@string/s_text_editor_title" >
+        <extra
+            android:name="key"
+            android:value="text_editor" />
+    </header>
+    <header
+        android:fragment="org.brandroid.openmanager.fragments.PreferenceFragmentV11"
+        android:icon="@drawable/ic_action_zip_holo_dark"
+        android:title="@string/s_archives" >
+        <extra
+            android:name="key"
+            android:value="archives" />
+    </header>
+    <header
+        android:fragment="org.brandroid.openmanager.fragments.PreferenceFragmentV11"
+        android:icon="@drawable/ic_menu_help"
+        android:title="@string/s_menu_about" >
+        <extra
+            android:name="key"
+            android:value="about" />
+    </header>
+    <header
+        android:fragment="org.brandroid.openmanager.fragments.PreferenceFragmentV11"
         android:icon="@drawable/ic_menu_preferences"
         android:title="@string/s_pref_advanced" >
         <extra
             android:name="key"
             android:value="advanced" />
-    </header>
-    <header
-        android:fragment="org.brandroid.openmanager.activities.SettingsActivity$PreferenceFragmentV11"
-        android:icon="@drawable/ic_folder_pipe"
-        android:title="@string/s_pref_servers" >
-        <extra
-            android:name="key"
-            android:value="servers" />
     </header>
 
 </preference-headers>

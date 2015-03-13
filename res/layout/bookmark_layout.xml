@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-	OpenExplorer, an open source file manager for the Android system
-    Copyright (C) 2011  Brandon Bowles <brandroid64@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
--->
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layout"
     android:layout_width="match_parent"
@@ -26,23 +7,9 @@
     android:background="?attr/drawerListSelector"
     android:gravity="center|left"
     android:paddingLeft="8dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
     android:paddingRight="8dp" >
-
-    <ProgressBar
-        android:id="@+id/size_bar"
-        style="@android:style/Widget.ProgressBar.Horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/bookmark_icon"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="2dp"
-        android:layout_toRightOf="@+id/bookmark_icon"
-        android:alpha="0.5"
-        android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
-        android:max="100"
-        android:progress="50"
-        android:progressDrawable="@drawable/progress_horizontal"
-        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/bookmark_icon"
@@ -50,6 +17,7 @@
         android:layout_height="32dp"
         android:layout_centerVertical="true"
         android:layout_marginRight="8dp"
+        android:contentDescription="@string/s_bookmarks"
         android:src="@drawable/icon" />
 
     <TextView
@@ -58,12 +26,9 @@
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
         android:layout_toRightOf="@+id/bookmark_icon"
-        android:drawablePadding="16dp"
         android:gravity="center_vertical"
-        android:paddingBottom="8dp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:paddingTop="8dp"
         android:text="@string/s_bookmarks"
         android:textAppearance="?android:attr/textAppearance"
         android:textColor="?attr/drawerTextColorPrimary"
@@ -79,8 +44,7 @@
         android:ellipsize="none"
         android:lines="1"
         android:maxLines="1"
-        android:singleLine="true"
-        android:text="(0)" />
+        android:singleLine="true" />
 
     <ImageView
         android:id="@+id/eject"
@@ -96,20 +60,38 @@
     <RelativeLayout
         android:id="@+id/size_layout"
         android:layout_width="fill_parent"
-        android:layout_height="20dp"
+        android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/content_text"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/content_text"
-        android:gravity="right"
-        android:visibility="gone" >
+        android:layout_toRightOf="@+id/bookmark_icon"
+        android:gravity="right" >
+
+        <ProgressBar
+            android:id="@+id/size_bar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:alpha="0.5"
+            android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
+            android:max="100"
+            android:progress="50"
+            android:progressDrawable="@drawable/progress_horizontal" />
 
         <TextView
             android:id="@+id/size_text"
             style="@style/Text.Small.Dialog"
-            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/size_bar"
+            android:layout_alignTop="@+id/size_bar"
+            android:layout_alignBottom="@+id/size_bar"
+            android:gravity="center_vertical"
             android:layout_marginRight="4dp"
-            android:text="@string/s_size"
-            android:visibility="gone" />
+            android:lines="1"
+            android:text="@string/s_size" />
     </RelativeLayout>
 
 </RelativeLayout>

@@ -84,47 +84,14 @@
                 android:dependency="pref_thumbs"
                 android:key="pref_thumbs_cache_clear"
                 android:title="@string/s_pref_thumbs_cache_clear" />
-            <!--
-             <PreferenceScreen
-            android:key="pref_reset_views"
-            android:title="@string/s_pref_reset" 
-            android:summary="@string/s_pref_reset_summary"
-            />
-            -->
+
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:dependency="pref_thumbs"
+                android:key="pref_thumbs_cache"
+                android:summary="@string/s_pref_thumbs_cache_summary"
+                android:title="@string/s_pref_thumbs_cache" />
         </PreferenceCategory>
-        <!--
-             <ListPreference
-		    android:key="pref_basebar_split"
-		    android:title="@string/s_pref_basebar"
-		    android:entries="@array/basebar_split"
-		    android:entryValues="@array/basebar_split_values"
-		    android:enabled="@bool/prehoneycomb"
-		    />
-        -->
-    </PreferenceScreen>
-    <PreferenceScreen
-        android:icon="@drawable/ic_paper"
-        android:key="text_editor"
-        android:title="@string/s_text_editor_title" >
-        <PreferenceScreen
-            android:key="text_size"
-            android:summary="10"
-            android:title="@string/s_view_font_size" />
-
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="text_lines"
-            android:title="@string/s_menu_view_line_numbers" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="text_wrap"
-            android:title="@string/s_pref_text_wrap" />
-
-        <ListPreference
-            android:entries="@array/text_max_size"
-            android:entryValues="@array/text_max_size_values"
-            android:key="text_max"
-            android:title="@string/s_pref_text_max_size" />
     </PreferenceScreen>
     <PreferenceScreen
         android:icon="@drawable/ic_menu_star"
@@ -189,6 +156,161 @@
         </PreferenceCategory>
     </PreferenceScreen>
     <PreferenceScreen
+        android:icon="@drawable/ic_paper"
+        android:key="text_editor"
+        android:title="@string/s_text_editor_title" >
+        <PreferenceScreen
+            android:key="text_size"
+            android:summary="10"
+            android:title="@string/s_view_font_size" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="text_lines"
+            android:title="@string/s_menu_view_line_numbers" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="text_wrap"
+            android:title="@string/s_pref_text_wrap" />
+
+        <ListPreference
+            android:entries="@array/text_max_size"
+            android:entryValues="@array/text_max_size_values"
+            android:key="text_max"
+            android:title="@string/s_pref_text_max_size" />
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:icon="@drawable/ic_pipe"
+        android:key="networking"
+        android:title="@string/s_bookmark_servers" >
+        <PreferenceScreen
+            android:key="pref_master_pass"
+            android:title="@string/s_master_pass" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="servers_private"
+            android:summary="@string/s_pref_servers_private_summary"
+            android:title="@string/s_pref_servers_private" />
+        
+        <PreferenceCategory
+            android:title="@string/s_title_cloud_box"
+            android:key="pref_cloud_box" 
+            android:icon="@drawable/icon_box"
+            >
+            <CheckBoxPreference
+                android:key="pref_cloud_box_enabled"
+                android:title="@string/s_pref_cloud_enabled"
+                android:defaultValue="true" 
+                />
+            <EditTextPreference
+                android:key="pref_cloud_box_key"
+                android:title="@string/s_pref_cloud_key"
+                />
+            <EditTextPreference
+                android:key="pref_cloud_box_secret"
+                android:title="@string/s_pref_cloud_secret"
+                />
+        </PreferenceCategory>
+        
+        <PreferenceCategory
+            android:title="@string/s_title_cloud_dropbox"
+            android:key="pref_cloud_dropbox" 
+            android:icon="@drawable/icon_dropbox"
+            >
+            <CheckBoxPreference
+                android:key="pref_cloud_dropbox_enabled"
+                android:title="@string/s_pref_cloud_enabled" 
+                android:defaultValue="true" 
+                />
+            <EditTextPreference
+                android:key="pref_cloud_dropbox_key"
+                android:title="@string/s_pref_cloud_key"
+                />
+            <EditTextPreference
+                android:key="pref_cloud_dropbox_secret"
+                android:title="@string/s_pref_cloud_secret"
+                />
+        </PreferenceCategory>
+        
+        <PreferenceCategory
+            android:title="@string/s_title_cloud_drive"
+            android:key="pref_cloud_drive" 
+            android:icon="@drawable/icon_drive"
+            >
+            <CheckBoxPreference
+                android:key="pref_cloud_drive_enabled"
+                android:title="@string/s_pref_cloud_enabled"
+                android:defaultValue="true" 
+                />
+            <EditTextPreference
+                android:key="pref_cloud_drive_key"
+                android:title="@string/s_pref_cloud_key" 
+                />
+            <EditTextPreference
+                android:key="pref_cloud_drive_secret"
+                android:title="@string/s_pref_cloud_secret" 
+                />
+        </PreferenceCategory>
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:icon="@drawable/ic_action_zip_holo_dark"
+        android:key="archives"
+        android:title="@string/s_archives" >
+        <ListPreference
+            android:defaultValue="Zip"
+            android:entries="@array/compression_types"
+            android:entryValues="@array/compression_types"
+            android:key="pref_archive_type"
+            android:title="@string/s_compress_type" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_archive_postdelete"
+            android:title="@string/s_delete_after" />
+
+        <PreferenceCategory android:title="@string/s_title_archive_handler" >
+            <ListPreference
+                android:defaultValue="ask"
+                android:entries="@array/archive_handler_options"
+                android:entryValues="@array/archive_handler_values"
+                android:key="pref_archives_zip"
+                android:title="Zip" />
+            <ListPreference
+                android:defaultValue="ask"
+                android:entries="@array/archive_handler_options"
+                android:entryValues="@array/archive_handler_values"
+                android:key="pref_archives_tar"
+                android:title="Tar,TGZip,TBZip2" />
+            <ListPreference
+                android:defaultValue="ask"
+                android:entries="@array/archive_handler_options"
+                android:entryValues="@array/archive_handler_values"
+                android:key="pref_archives_gzip"
+                android:title="GZip" />
+            <ListPreference
+                android:defaultValue="ask"
+                android:entries="@array/archive_handler_options"
+                android:entryValues="@array/archive_handler_values"
+                android:key="pref_archives_bzip2"
+                android:title="BZip2" />
+        </PreferenceCategory>
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:icon="@drawable/ic_menu_help"
+        android:key="about"
+        android:title="@string/s_menu_about" >
+        <PreferenceScreen
+            android:key="pref_privacy"
+            android:title="@string/s_privacy" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_stats"
+            android:summary="@string/s_pref_stats_summary"
+            android:title="@string/s_pref_stats_title" />
+    </PreferenceScreen>
+    <PreferenceScreen
         android:icon="@drawable/ic_menu_preferences"
         android:key="advanced"
         android:title="@string/s_pref_advanced" >
@@ -199,10 +321,9 @@
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_system_mount"
-            android:title="@string/s_menu_system_mount"
-            android:summaryOn="@string/s_menu_system_mount_on"
             android:summaryOff="@string/s_menu_system_mount_off"
-            />
+            android:summaryOn="@string/s_menu_system_mount_on"
+            android:title="@string/s_menu_system_mount" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_intent_internal"
@@ -211,47 +332,13 @@
             android:title="@string/s_pref_intent_internal" />
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="pref_zip_internal"
-            android:summaryOff="@string/s_pref_zip_internal_off"
-            android:summaryOn="@string/s_pref_zip_internal_on"
-            android:title="@string/s_pref_zip_internal" />
-        <CheckBoxPreference
-            android:defaultValue="true"
             android:key="pref_text_internal"
             android:title="@string/s_pref_text_internal" />
-        <PreferenceScreen
-            android:key="pref_privacy"
-            android:title="@string/s_privacy"
-            />
-        <CheckBoxPreference
-            android:key="servers_private"
-            android:title="@string/s_pref_servers_private"
-            android:summary="@string/s_pref_servers_private_summary"
-            android:defaultValue="false" 
-            />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_stats"
-            android:summary="@string/s_pref_stats_summary"
-            android:title="@string/s_pref_stats_title" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_autowtf"
-            android:summary="@string/s_pref_autowtf_summary"
-            android:title="@string/s_pref_autowtf" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:enabled="@bool/honeycomb"
             android:key="pref_hardware_accel"
             android:title="@string/s_pref_hardware_accel" />
-    </PreferenceScreen>
-    <PreferenceScreen
-        android:icon="@drawable/ic_folder_pipe"
-        android:key="servers"
-        android:title="@string/s_pref_servers" >
-        <PreferenceScreen
-            android:key="server_add"
-            android:title="@string/s_pref_server_add" />
     </PreferenceScreen>
 
 </PreferenceScreen>

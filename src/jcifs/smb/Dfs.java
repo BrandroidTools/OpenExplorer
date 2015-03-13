@@ -50,7 +50,7 @@ public class Dfs {
     protected CacheEntry referrals = null;
 
     public HashMap getTrustedDomains(NtlmPasswordAuthentication auth) throws SmbAuthException {
-        if (DISABLED || auth.domain == "?")
+        if (DISABLED || "".equals(auth.domain))
             return null;
 
         if (_domains != null && System.currentTimeMillis() > _domains.expiration) {

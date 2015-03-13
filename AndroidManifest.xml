@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 	OpenExplorer, an open source file manager for the Android system
-    Copyright (C) 2011, 2012  Brandon Bowles <brandroid64@gmail.com>
+    Copyright (C) 2011-2013 Brandon Bowles <brandroid64@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,13 +14,13 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.brandroid.openmanager"
     android:installLocation="auto"
-    android:versionCode="209"
-    android:versionName="0.209" >
+    android:versionCode="254"
+    android:versionName="0.254" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -31,14 +31,11 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- Disable for BB: -->
+    <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
-    <!-- <uses-permission android:name="android.permission.READ_LOGS" /> -->
-    <!--
-    Not using donations for now:
-	<uses-permission android:name="com.android.vending.BILLING" />
-    -->
+    <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
 
     <uses-feature
         android:name="com.google.android.tv"
@@ -55,19 +52,23 @@
     <uses-feature
         android:name="android.hardware.usb.accessory"
         android:required="false" />
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="false" />
 
     <application
-        android:name=".activities.OpenApplication"
+        android:name="org.brandroid.openmanager.activities.OpenApplication"
+        android:allowBackup="true"
         android:icon="@drawable/icon_flat"
-        android:label="@string/app_name"
+		android:label="@string/app_name"
         android:largeHeap="true"
-        android:theme="@style/AppTheme.Dark"
-        android:uiOptions="splitActionBarWhenNarrow" >
+        android:theme="@style/AppTheme.Dark" >
         <activity
-            android:name=".activities.OpenExplorer"
+            android:name="org.brandroid.openmanager.activities.OpenExplorer"
             android:configChanges="screenSize|keyboard|keyboardHidden"
             android:label="@string/app_name"
             android:launchMode="singleTop"
+            android:uiOptions="splitActionBarWhenNarrow"
             android:theme="@style/AppTheme.Dark" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -93,11 +94,15 @@
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/tar" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.ALTERNATIVE" />
-                <!--
-                <data android:scheme="content" />
-				<data android:scheme="file" />
-                -->
+
                 <data android:mimeType="text/*" />
             </intent-filter>
             <intent-filter>
@@ -109,54 +114,93 @@
                 <data android:scheme="file" />
                 <data android:mimeType="text/*" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".activities.ServerSetupActivity"
-            android:configChanges="screenSize|keyboard|keyboardHidden"
-            android:theme="@style/Dialog" >
-        </activity>
-        <activity
-            android:name=".activities.FolderPickerActivity"
-            android:configChanges="screenSize|keyboard|keyboardHidden"
-            android:label="@string/s_title_picker"
-            android:theme="@style/Dialog" >
             <intent-filter>
-                <action android:name="android.intent.action.PICK" />
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:scheme="file" />
-                <data android:mimeType="*/*" />
+                <data android:mimeType="application/vnd.org.brandroid.beam" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.box.androidlib.BoxAuthentication"
+            android:configChanges="screenSize|keyboard|keyboardHidden"
+            android:launchMode="singleTop" />
+        <activity
+            android:name="org.brandroid.openmanager.activities.ServerSetupActivity"
+      		android:uiOptions="none"
+            android:theme="@style/AppTheme.Dialog"
+            android:exported="true"
+            android:configChanges="screenSize|keyboard|keyboardHidden" >
+        </activity>
+        <activity
+            android:name="org.brandroid.openmanager.data.OpenFTP$Server" 
+            android:label="@string/s_server_ftp"
+            android:icon="@drawable/sm_ftp"
+            >
+            <intent-filter>
+                <action android:name="org.brandroid.openmanager.server_type" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.dropbox.client2.android.AuthActivity"
+            android:configChanges="orientation|keyboard"
+            android:launchMode="singleTask" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="db-vajaedmhzkkp3sw" />
+			</intent-filter>
+        </activity>
+        <activity
+            android:name="org.brandroid.openmanager.activities.FolderPickerActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden"
+            android:exported="true" >
+			<intent-filter>
+				<action android:name="android.intent.action.GET_CONTENT" />
+				<category android:name="android.intent.category.OPENABLE" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="*/*" />
+			</intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+		        <category android:name="android.intent.category.BROWSABLE" />
+		        <data android:scheme="file" />
+		        <data android:scheme="folder" />
+		        <data android:scheme="directory" />
             </intent-filter>
             <intent-filter>
                 <action android:name="org.openintents.action.PICK_FILE" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:scheme="file" />
-                <data android:mimeType="*/*" />
+		        <category android:name="android.intent.category.BROWSABLE" />
+		        <data android:scheme="file" />
+		        <data android:scheme="folder" />
+		        <data android:scheme="directory" />
             </intent-filter>
         </activity>
 
         <meta-data
             android:name="android.app.default_searchable"
-            android:value=".activities.OpenExplorer" />
+            android:value="org.brandroid.openmanager.activities.OpenExplorer" />
 
         <activity
-            android:name=".activities.Authenticator"
-            android:label="Authenticator" />
-        <activity
-            android:name=".activities.SearchableActivity"
+            android:name="org.brandroid.openmanager.activities.SearchableActivity"
             android:launchMode="singleTop" >
         </activity>
 
-        <service android:name=".services.FileScannerService" >
+        <service android:name="org.brandroid.openmanager.services.FileScannerService" >
         </service>
 
-        <activity android:name=".activities.FileScannerProgress" >
+        <activity android:name="org.brandroid.openmanager.activities.FileScannerProgress" >
         </activity>
         <activity
-            android:name=".activities.UsbActivity"
+            android:name="org.brandroid.openmanager.activities.UsbActivity"
             android:label="@string/app_name"
             android:launchMode="singleInstance" >
             <intent-filter>
@@ -168,62 +212,33 @@
                 android:resource="@xml/device_filter" />
         </activity>
         <activity
-            android:name=".activities.IncomingMessageInterstitial"
+            android:name="org.brandroid.openmanager.activities.IncomingMessageInterstitial"
             android:excludeFromRecents="true"
             android:label="File Operations Complete"
             android:launchMode="singleInstance" >
         </activity>
-
-        <!--
-        activity android:name=".APKDecompiler" android:label="Decompile APK" android:icon="@drawable/apk">
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<data android:scheme="content" />
-				<data android:scheme="file" />
-				<data android:mimeType="application/vnd.android.package-archive" />
-			</intent-filter>
-		</activity
-        -->
-
         <activity
-            android:name=".activities.WTFSenderActivity"
-            android:theme="@style/Dialog" />
+            android:name="org.brandroid.openmanager.activities.WTFSenderActivity"
+            android:theme="@style/AppTheme.Dialog" />
         <activity
-            android:name=".activities.SettingsActivity"
-            android:label="@string/s_menu_prefs_global"
-            android:theme="@style/AppTheme.Dark" />
-        <activity
-            android:name=".activities.BluetoothActivity"
-            android:label="Bluetooth"
-            android:theme="@style/Dialog" />
-        <activity
-            android:name=".activities.SplashActivity"
-            android:theme="@style/Dialog" />
-
-        <!--
-		<service android:name="org.brandroid.billing.BillingService" />
-
-		<receiver android:name="org.brandroid.billing.BillingReceiver">
-			<intent-filter>
-				<action android:name="com.android.vending.billing.IN_APP_NOTIFY" />
-			    <action android:name="com.android.vending.billing.RESPONSE_CODE" />
-			    <action android:name="com.android.vending.billing.PURCHASE_STATE_CHANGED" />
-			</intent-filter>
-		</receiver>
-        -->
-
-        <meta-data
-            android:name="ga_code"
-            android:value="UA-20719255-4" />
-
-        <receiver
-            android:name="com.google.android.apps.analytics.AnalyticsReceiver"
-            android:exported="true" >
+            android:name="org.brandroid.openmanager.activities.SettingsActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme.Dark"
+            android:label="@string/s_menu_prefs_global" >
             <intent-filter>
-                <action android:name="com.android.vending.INSTALL_REFERRER" />
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.PREFERENCE" />
             </intent-filter>
-        </receiver>
+        </activity>
+        <activity
+            android:name="org.brandroid.openmanager.activities.BluetoothActivity"
+            android:label="Bluetooth"
+            android:theme="@style/AppTheme.Dialog" />
+        <activity
+            android:name="org.brandroid.openmanager.activities.SplashActivity"
+            android:theme="@style/AppTheme.Dialog" />
+
     </application>
 
 </manifest>

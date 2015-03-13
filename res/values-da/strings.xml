@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<resources>
+    <string name="s_photos">Billeders</string>
+    <string name="s_external">Billeder</string>
+    <string name="s_menu_new_folder">Ny Mappe gggh</string>
+    <string name="s_menu_exit">Afslut</string>
+</resources>

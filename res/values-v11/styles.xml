@@ -16,11 +16,13 @@
 
 <resources>
 
-    <style name="AppThemeCustom" parent="android:style/Theme.Holo">
+    <style name="AppTheme.Custom" parent="android:style/Theme.Holo">
         <item name="android:actionBarStyle">@style/ActionBar</item>
         <item name="android:windowContentOverlay">@drawable/actionbar_shadow</item>
     </style>
 
     <style name="Widget.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.ProgressBar.Horizontal"></style>
+    
+    <style name="Widget.Spinner" parent="@android:style/Widget.Spinner.DropDown" />
 
 </resources>

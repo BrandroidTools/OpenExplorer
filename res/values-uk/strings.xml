@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
-
     <string name="s_menu_sort">Сортувати</string>
     <string name="s_menu_sort_name_asc">Сортувати за іменем А-Я</string>
     <string name="s_menu_sort_name_desc">Сортувати за іменем Я-А</string>
@@ -11,19 +10,19 @@
     <string name="s_menu_sort_type">Сортувати за типом</string>
     <string name="s_menu_multi">Мульти-виділення</string>
     <string name="s_menu_list">Список</string>
-    <string name="s_menu_carousel">карусель</string>
+    <string name="s_menu_carousel">Карусель</string>
     <string name="s_menu_hidden">Показати приховані файли</string>
     <string name="s_menu_thumbs">Ескізи</string>
     <string name="s_menu_new_folder">Нова папка</string>
     <string name="s_menu_other">Інші налаштування</string>
     <string name="s_menu_prefs_folder">Властивості папки</string>
     <string name="s_menu_info">Інфо</string>
-    <string name="s_menu_copy">Копі</string>
+    <string name="s_menu_copy">Копія</string>
     <string name="s_menu_cut">Вирізати</string>
-    <string name="s_menu_paste">Пасте</string>
+    <string name="s_menu_paste">Вставити</string>
     <string name="s_menu_delete">Видалити</string>
     <string name="s_menu_share">Надіслати</string>
-    <string name="s_menu_rename">Переіменувати</string>
+    <string name="s_menu_rename">Перейменувати</string>
     <string name="s_menu_open">Відкрити програмою-»</string>
     <string name="s_menu_edit">Редагувати програмою-»</string>
     <string name="s_clear">Очистити</string>
@@ -34,10 +33,11 @@
     <string name="s_split_none">Розміщення всіх кнопок системного меню</string>
     <string name="s_about_screensize">Розмір дисплею</string>
     <string name="thanks">Дякуємо!</string>
+    <string name="alert_translate_none">Привіт, схоже, що ти використовуєш непідтримувану мову. Якщо ти володієш англійською і рідною мовою і бажаєш допомогти з перекладом, натисни тут:</string>
     <string name="button_translate">Переклад</string>
     <string name="httpError">Мережева помилка</string>
     <string name="httpErrorAuth">Аутентифікація була невдалою.</string>
-    <string name="httpErrorProxyAuth">Аутентифікаціячерез проксі-сервер була невдалою.</string>
+    <string name="httpErrorProxyAuth">Аутентифікація через проксі-сервер була невдалою.</string>
     <string name="httpErrorConnect">З\'єднання з сервером бело невдалим</string>
     <string name="httpErrorIO">Сервер не відповідаю. Спробуйте пізніше.</string>
     <string name="httpErrorTimeout">Приєднання до сервера протерміноване</string>
@@ -48,14 +48,17 @@
     <string name="keyguard_password_enter_password_code">Введіть пароль для розблокування</string>
     <string name="keyguard_password_enter_pin_password_code">Введіть ПІН для розблокування</string>
     <string name="lockscreen_password_wrong">Вибачте. Спробуйте ще</string>
+    <string name="whichApplication">Завершіть дію, використовуючи</string>
     <string name="noApplications">Відсутні програми, здатні виконати дію</string>
-    <string name="report">Звітність</string>
+    <string name="report">Звіт</string>
     <string name="sim_restart_button">Перезапуск</string>
     <string name="extmedia_format_button_format">Формат</string>
     <string name="ext_media_nofs_notification_message">Накопичувач чистий або файлова система не підтримується</string>
-    <string name="ime_action_go">Йти</string>
+    <string name="activity_list_empty">Не знайдено схожого</string>
+    <string name="ime_action_go">Перейти</string>
     <string name="ime_action_send">Надіслати</string>
     <string name="ime_action_done">Готово</string>
+    <string name="ime_action_default">Виконати</string>
     <string name="upload_file">Вибрані файли</string>
     <string name="no_file_chosen">Файли не вибрані</string>
     <string name="reset">Скинути</string>
@@ -71,5 +74,18 @@
     <string name="storage_usb">USB накопичувач</string>
     <string name="extract_edit_menu_button">Редагувати</string>
     <string name="activity_chooser_view_see_all">Відкрити все</string>
-
+    <string name="s_title_picker">Будь-ласка, виберіть директорію</string>
+    <string name="selected_path">Вибраний шлях</string>
+    <string name="filename">Ім\'я файлу</string>
+    <string name="s_msg_saved">збережено</string>
+    <string name="s_menu_view_line_numbers">Лінійні номери</string>
+    <string name="s_menu_new_file">Новий текстовий файл</string>
+    <string name="s_msg_created">створено</string>
+    <string name="s_title_newfile">Новий файл</string>
+    <string name="s_alert_newfile_folder">Створіть новий файл в:</string>
+    <string name="s_alert_newfile">Назвіть новий файл:</string>
+    <string name="s_alert_exit">Ви впевнені, що хочете вийти?</string>
+    <string name="s_alert_clipboard">Скопійовано в буфер</string>
+    <string name="s_alert_restart">Рестарт. Будь-ласка зачекайте.</string>
+    <string name="language">Мова</string>
 </resources>

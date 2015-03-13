@@ -22,25 +22,49 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
+import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.brandroid.openmanager.R;
+import org.brandroid.openmanager.activities.OpenApplication;
 import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.activities.ServerSetupActivity;
 import org.brandroid.openmanager.adapters.ContentAdapter;
 import org.brandroid.openmanager.adapters.OpenClipboard;
+import org.brandroid.openmanager.adapters.OpenPathAdapter;
+import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
 import org.brandroid.openmanager.data.OpenCursor;
+import org.brandroid.openmanager.data.OpenDrive;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenFileRoot;
+import org.brandroid.openmanager.data.OpenLZMA;
+import org.brandroid.openmanager.data.OpenLZMA.OpenLZMAEntry;
 import org.brandroid.openmanager.data.OpenNetworkPath;
+import org.brandroid.openmanager.data.OpenNetworkPath.Cancellable;
+import org.brandroid.openmanager.data.OpenNetworkPath.CloudOpsHandler;
+import org.brandroid.openmanager.data.OpenNetworkPath.CloudProgressListener;
 import org.brandroid.openmanager.data.OpenPath;
-import org.brandroid.openmanager.data.OpenPath.OpenContentUpdater;
-import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateListener;
+import org.brandroid.openmanager.data.OpenPath.ListHandler;
+import org.brandroid.openmanager.data.OpenPath.OpenContentUpdateListener;
+import org.brandroid.openmanager.data.OpenPath.OpenPathUpdateHandler;
+import org.brandroid.openmanager.data.OpenPath.SpaceListener;
+import org.brandroid.openmanager.data.OpenPath.ThumbnailOverlayInterface;
 import org.brandroid.openmanager.data.OpenPathArray;
 import org.brandroid.openmanager.data.OpenPathMerged;
+import org.brandroid.openmanager.data.OpenRAR;
+import org.brandroid.openmanager.data.OpenServers;
+import org.brandroid.openmanager.data.OpenTar;
+import org.brandroid.openmanager.data.OpenTar.OpenTarEntry;
 import org.brandroid.openmanager.data.OpenZip;
+import org.brandroid.openmanager.interfaces.OnAuthTokenListener;
 import org.brandroid.openmanager.util.EventHandler;
+import org.brandroid.openmanager.util.EventHandler.CompressionType;
 import org.brandroid.openmanager.util.EventHandler.EventType;
 import org.brandroid.openmanager.util.EventHandler.OnWorkerUpdateListener;
 import org.brandroid.openmanager.util.FileManager;
@@ -50,33 +74,29 @@ import org.brandroid.openmanager.util.NetworkIOTask;
 import org.brandroid.openmanager.util.NetworkIOTask.OnTaskUpdateListener;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.openmanager.util.ThumbnailCreator;
-import org.brandroid.openmanager.views.SpriteAnimatorSurfaceView;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.MenuUtils;
 import org.brandroid.utils.Preferences;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
+import org.kamranzafar.jtar.TarUtils;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.AsyncTask.Status;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.MessageQueue;
 import android.support.v4.app.FragmentManager;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -84,18 +104,22 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -106,18 +130,22 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 
 @SuppressLint("NewApi")
 public class ContentFragment extends OpenFragment implements OnItemLongClickListener,
         OnItemClickListener, OnWorkerUpdateListener, OpenPathFragmentInterface,
-        OnTaskUpdateListener, ContentAdapter.Callback {
+        OnTaskUpdateListener, ContentAdapter.SelectionCallback {
 
     // private static MultiSelectHandler mMultiSelect;
     // private LinearLayout mPathView;
     // private SlidingDrawer mMultiSelectDrawer;
     // private GridView mMultiSelectView;
     protected GridView mGrid = null;
+    private TextView mStatus = null;
+    private View mStatusBar = null;
     // private View mProgressBarLoading = null;
 
     // private ArrayList<OpenPath> mData2 = null; //the data that is bound to
@@ -129,11 +157,13 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     public static int mGridImageSize = 128;
     public static int mListImageSize = 36;
     public Boolean mShowLongDate = false;
+    private boolean isCancelled = false;
     private int mTopIndex = 0;
     private OpenPath mTopPath = null;
     protected OpenPath mPath = null;
     protected int mMenuContextItemIndex = -1;
     private boolean mRefreshReady = true;
+    private static String mLoadingMessage = null;
     public static final SortType.Type[] sortTypes = new SortType.Type[] {
             SortType.Type.ALPHA, SortType.Type.ALPHA_DESC, SortType.Type.SIZE,
             SortType.Type.SIZE_DESC, SortType.Type.DATE, SortType.Type.DATE_DESC,
@@ -148,7 +178,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     private Bundle mBundle;
     private NetworkIOTask mTask;
 
-    private boolean mIsViewCreated;
+    protected boolean mIsViewCreated;
 
     protected Integer mViewMode = null;
     protected ContentAdapter mContentAdapter;
@@ -173,18 +203,18 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     public ContentFragment() {
         if (getArguments() != null && getArguments().containsKey("path")) {
             mPath = (OpenPath)getArguments().getParcelable("path");
-            Logger.LogDebug("ContentFragment Restoring to " + mPath);
+            // Logger.LogDebug("ContentFragment Restoring to " + mPath);
         }
     }
 
-    private ContentFragment(OpenPath path) {
-        mPath = path;
-    }
-
-    private ContentFragment(OpenPath path, int view) {
-        mPath = path;
-        mViewMode = view;
-    }
+    // private ContentFragment(OpenPath path) {
+    // mPath = path;
+    // }
+    //
+    // private ContentFragment(OpenPath path, int view) {
+    // mPath = path;
+    // mViewMode = view;
+    // }
 
     public static ContentFragment getInstance(OpenPath path, int mode) {
         return getInstance(path, mode, null);
@@ -198,13 +228,14 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             } catch (NullPointerException e) {
             }
         if (ret == null)
-            ret = new ContentFragment(path, mode);
+            ret = new ContentFragment();
         // if(path instanceof OpenFile) return ret;
         Bundle args = ret.getArguments();
         if (args == null)
             args = new Bundle();
         if (path != null) {
-            Logger.LogDebug("ContentFragment.getInstance(" + path + ", mode, " + fm + ")");
+            // Logger.LogDebug("ContentFragment.getInstance(" + path +
+            // ", mode, " + fm + ")");
             args.putParcelable("path", path);
             ret.setArguments(args);
         } else
@@ -219,7 +250,9 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     }
 
     public static ContentFragment getInstance(OpenPath path, Bundle args) {
-        ContentFragment ret = new ContentFragment(path);
+        ContentFragment ret = new ContentFragment();
+        if (args == null)
+            args = new Bundle();
         args.putParcelable("path", path);
         ret.setArguments(args);
         // Logger.LogVerbose("ContentFragment.getInstance(" + path.getPath() +
@@ -248,7 +281,11 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                 sort.setFoldersFirst(getViewSetting(getPath(), "ff", true));
             else
                 sort.setFoldersFirst(getSetting(null, "pref_sorting_folders", true));
-            mContentAdapter.setSorting(sort);
+            try {
+                mContentAdapter.setSorting(sort);
+            } catch(Exception e) {
+                Logger.LogWarning("Unable to set sorting!", e);
+            }
         }
         return mContentAdapter;
     }
@@ -267,8 +304,6 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             return OpenExplorer.VIEW_LIST;
         if (pref.equals("grid"))
             return OpenExplorer.VIEW_GRID;
-        if (pref.equals("carousel"))
-            return OpenExplorer.VIEW_CAROUSEL;
         return OpenExplorer.VIEW_LIST;
     }
 
@@ -288,20 +323,20 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         if (mGrid.getAdapter() == null || !mGrid.getAdapter().equals(adapter))
             mGrid.setAdapter(adapter);
 
-        mGrid.setColumnWidth(getViewMode() == OpenExplorer.VIEW_GRID ? OpenExplorer.COLUMN_WIDTH_GRID
-                : OpenExplorer.COLUMN_WIDTH_LIST);
+        mGrid.setColumnWidth(getResources().getDimensionPixelSize(
+                    getViewMode() == OpenExplorer.VIEW_GRID ? R.dimen.grid_width : R.dimen.list_width
+                ));
         if (adapter != null && adapter.equals(mContentAdapter)) {
-            Logger.LogDebug("ContentFragment.setListAdapter updateData()");
+            // Logger.LogDebug("ContentFragment.setListAdapter updateData()");
             mContentAdapter.updateData();
-            if (mContentAdapter.getCount() == 0 && !isDetached()) {
-                ViewUtils.setText(
-                        getView(),
-                        getResources().getString(
-                                !mPath.isLoaded() ? R.string.s_status_loading : R.string.no_items),
+            if (mPath != null && mContentAdapter.getCount() == 0 && !isDetached()) {
+                ViewUtils.setText(getView(), getResources().getString(
+                        !mPath.isLoaded() ? R.string.s_status_loading : R.string.no_items),
                         android.R.id.empty);
                 ViewUtils.setViewsVisible(getView(), true, android.R.id.empty);
             } else
                 ViewUtils.setViewsVisible(getView(), false, android.R.id.empty);
+            updateStatus();
         }
     }
 
@@ -314,18 +349,12 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         mViewMode = mode;
         setViewSetting(mPath, "view", mode);
         Logger.LogVerbose("Content View Mode: " + mode);
-        if (mContentAdapter != null) {
-            setListAdapter(null);
-            // mContentAdapter = new ContentAdapter(getExplorer(), this,
-            // mViewMode, mPath);
-            getContentAdapter();
-            // mContentAdapter = new OpenPathAdapter(mPath, mode,
-            // getExplorer());
-            setListAdapter(mContentAdapter);
-        } else {
-            mContentAdapter.setViewMode(mode);
-            refreshData(null, false);
-        }
+        setListAdapter(null);
+        mContentAdapter = null;
+        setListAdapter(getContentAdapter());
+        mContentAdapter.setViewMode(mode);
+        setListAdapter(mContentAdapter);
+        refreshData(null, false);
     }
 
     // @Override
@@ -346,34 +375,19 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             mViewMode = mBundle.getInt("view");
         else
             mViewMode = getSetting(mPath, "view", getGlobalViewMode());
+        
+        if(mLoadingMessage == null)
+            mLoadingMessage = getString(R.string.s_status_loading);
 
-        if (mPath == null)
-            Logger.LogDebug("Creating empty ContentFragment", new Exception(
-                    "Creating empty ContentFragment"));
-        else
-            Logger.LogDebug("Creating ContentFragment @ " + mPath);
+        // if (mPath == null)
+        // Logger.LogDebug("Creating empty ContentFragment", new Exception(
+        // "Creating empty ContentFragment"));
+        // else
+        // Logger.LogDebug("Creating ContentFragment @ " + mPath);
 
         // OpenExplorer.getEventHandler().setOnWorkerThreadFinishedListener(this);
 
     }
-
-    @Override
-    public void onAttach(Activity activity) {
-        queueToTracker(new Runnable() {
-            @Override
-            public void run() {
-                GoogleAnalyticsTracker tracker = getAnalyticsTracker();
-                if (tracker != null) {
-                    if (mViewMode != null)
-                        tracker.setCustomVar(3, "View", mViewMode.toString(), 3);
-                    if (getSorting() != null)
-                        tracker.setCustomVar(3, "Sort", getSorting().toString(), 3);
-                }
-            }
-        });
-        super.onAttach(activity);
-    }
-
     /**
      * The Fragment's UI is just a list fragment
      */
@@ -381,7 +395,8 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.content_layout, container, false);
         mGrid = (GridView)v.findViewById(R.id.content_grid);
-
+        mStatus = (TextView)v.findViewById(R.id.content_status);
+        mStatusBar = v.findViewById(R.id.content_status_bar);
         mIsViewCreated = true;
         return v;
     }
@@ -436,11 +451,11 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             return;
         }
         if (!isVisible()) {
-            Logger.LogDebug("I'm invisible! " + mPath);
+            // Logger.LogDebug("I'm invisible! " + mPath);
             // return;
         }
         if (isDetached()) {
-            Logger.LogDebug("I'm detached! " + mPath);
+            // Logger.LogDebug("I'm detached! " + mPath);
             return;
         }
 
@@ -462,8 +477,16 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             return;
         }
 
-        if (DEBUG)
-            Logger.LogDebug("refreshData running...");
+        try {
+            if (path instanceof OpenFile && !path.canRead()
+                    && OpenApplication.hasRootAccess(true))
+                path = new OpenFileRoot(path);
+        } catch (Exception e) {
+            Logger.LogWarning("Unable to convert File to Root. " + getPath(), e);
+        }
+
+        // if (DEBUG)
+        // Logger.LogDebug("refreshData running...");
 
         mRefreshReady = false;
 
@@ -482,34 +505,36 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                 path = OpenExplorer.getDownloadParent();
         }
 
-        if (path instanceof OpenFile
-                && (((path.getName().equalsIgnoreCase("data") || sPath.indexOf("/data") > -1) && !sPath
-                        .startsWith(OpenFile.getExternalMemoryDrive(true).getParent().getPath()))
-                        || sPath.startsWith("/mnt/shell")
-                        || (sPath.indexOf("/emulated/") > -1 && sPath.indexOf("/emulated/0") == -1) || sPath
-                            .startsWith("/system")))
-            path = new OpenFileRoot(path);
+        /*
+         * if (path instanceof OpenFile &&
+         * (((path.getName().equalsIgnoreCase("data") || sPath.indexOf("/data")
+         * > -1) && !sPath
+         * .startsWith(OpenFile.getExternalMemoryDrive(true).getParent
+         * ().getPath())) || sPath.startsWith("/mnt/shell") ||
+         * (sPath.indexOf("/emulated/") > -1 && sPath.indexOf("/emulated/0") ==
+         * -1) || sPath .startsWith("/system"))) path = new OpenFileRoot(path);
+         */
 
         mPath = path;
 
         getContentAdapter();
 
-        if (DEBUG)
-            Logger.LogDebug("Refreshing Data for " + mPath);
+        // if (DEBUG)
+        // Logger.LogDebug("Refreshing Data for " + mPath);
 
         SortType sort = SortType.ALPHA;
         if (getExplorer() != null) {
             String ds = getExplorer().getSetting(null, "pref_sorting", SortType.ALPHA.toString());
-            Logger.LogVerbose("Default Sort String: " + ds);
+            // Logger.LogVerbose("Default Sort String: " + ds);
 
             SortType defSort = new SortType(ds);
             defSort.setFoldersFirst(getExplorer().getSetting(null, "pref_sorting_folders", true));
 
-            Logger.LogVerbose("Default Sort: " + defSort.toString());
+            // Logger.LogVerbose("Default Sort: " + defSort.toString());
 
             sort = new SortType(getViewSetting(path, "sort", defSort.toString()));
 
-            Logger.LogVerbose("Path Sort: " + sort.toString());
+            // Logger.LogVerbose("Path Sort: " + sort.toString());
         }
         try {
             mContentAdapter.mShowThumbnails = getViewSetting(path, "thumbs",
@@ -530,41 +555,20 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         // mShowThumbnails = true;
 
         if (getActivity() != null && getActivity().getWindow() != null)
-            mShowLongDate = getResources().getBoolean(R.bool.show_long_date) // getActivity().getWindow().getWindowManager().getDefaultDisplay().getRotation()
-                    // %
-                    // 180
-                    // !=
-                    // 0
+            mShowLongDate = getResources().getBoolean(R.bool.show_long_date)
                     && mPath != null;
 
-        if (path instanceof OpenFileRoot) {
-            runUpdateTask();
-        } else if (!path.requiresThread() && (!allowSkips || path.getListLength() < 300))
-            try {
-                updateData(path.listFiles());
-            } catch (IOException e) {
-                Logger.LogError("Error getting children from FileManager for " + path, e);
+        if (path.listFromDb(mContentAdapter.getSorting())) {
+            int loaded = mContentAdapter.getCount();
+            if (path instanceof OpenNetworkPath) {
+                OpenNetworkPath[] kids = ((OpenNetworkPath)path).getChildren();
+                mContentAdapter.updateData(kids);
+                loaded = kids.length;
             }
-        else {
-            if (path.listFromDb(mContentAdapter.getSorting())) {
-                int loaded = mContentAdapter.getCount();
-                if (path instanceof OpenNetworkPath) {
-                    OpenNetworkPath[] kids = ((OpenNetworkPath)path).getChildren();
-                    mContentAdapter.updateData(kids);
-                    loaded = kids.length;
-                }
-                Logger.LogDebug("Loaded " + loaded + " entries from cache");
-                runUpdateTask();
-            } else if (path instanceof OpenFile)
-                ((OpenFile)path).listFiles();
-            else
-                runUpdateTask();
-            // updateData(mData, allowSkips);
-            // cancelAllTasks();
-
+            Logger.LogDebug("Loaded " + loaded + " entries from cache");
         }
-
-        notifyDataSetChanged();
+        
+        runUpdateTask(!allowSkips);
 
         mRefreshReady = true;
 
@@ -586,36 +590,131 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             Logger.LogWarning("ContentFragment.runUpdateTask warning: mPath is null!");
             return;
         }
-        if (mPath instanceof OpenPathUpdateListener) {
-            try {
-                mContentAdapter.clearData();
+        if (mPath instanceof OpenPathUpdateHandler) {
+            mContentAdapter.clearData();
+            setProgressVisibility(true);
 
-                ((OpenPathUpdateListener)mPath).list(new OpenContentUpdater() {
-                    @Override
-                    public void addContentPath(OpenPath file) {
-                        if (!mContentAdapter.contains(file))
-                            mContentAdapter.add(file);
+            final OpenContentUpdateListener updateCallback = new OpenContentUpdateListener() {
+                @Override
+                public void addContentPath(final OpenPath... files) {
+                    if(OpenExplorer.IS_DEBUG_BUILD)
+                    	Logger.LogVerbose("ContentFragment.OpenContentUpdateListener.addContentPath");
+                    mContentAdapter.addAll(Arrays.asList(files));
+                    if(OpenPath.AllowDBCache)
+                    {
+                        new Thread(new Runnable() {
+                            public void run() {
+                                OpenPathDbAdapter db = OpenPath.getDb();
+                                if (db != null)
+                                    db.createItem(files);
+                                else
+                                    for (OpenPath kid : files)
+                                        if (kid != null)
+                                            kid.addToDb();
+                                OpenPath.closeDb();
+                            }
+                        }).start();
                     }
+                }
 
-                    @Override
-                    public void doneUpdating() {
-                        mContentAdapter.sort();
-                        notifyDataSetChanged();
-                        ViewUtils.setViewsVisible(getView(), false, android.R.id.empty);
+                @Override
+                public void doneUpdating() {
+                    if(OpenExplorer.IS_DEBUG_BUILD)
+                    	Logger.LogVerbose("ContentFragment.OpenContentUpdateListener.doneUpdating");
+                    getHandler().post(new Runnable() {
+                        public void run() {
+                            setProgressVisibility(false);
+                            notifyDataSetChanged();
+                            ViewUtils.setViewsVisible(getView(), false, android.R.id.empty);
+                        }
+                    });
+                }
+
+                @Override
+                public void onException(final Exception e) {
+                    setProgressVisibility(false);
+                    if (e instanceof UserRecoverableAuthIOException)
+                    {
+                        UserRecoverableAuthIOException ue = (UserRecoverableAuthIOException)e;
+                        Intent intent = ue.getIntent();
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        return;
+                    } else if (interceptOldToken(e))
+                        return;
+                    Logger.LogError("Unable to run Task!", e);
+                    getHandler().post(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            };
+
+            final Cancellable mUpdateTask = ((OpenPathUpdateHandler)mPath).list(updateCallback);
+
+            final Cancellable cancellor = new Cancellable() {
+                public boolean cancel() {
+                    updateCallback.doneUpdating();
+                    return mUpdateTask.cancel();
+                }
+            };
+
+            setProgressClickHandler(new View.OnClickListener() {
+                public void onClick(View v) {
+                    cancellor.cancel();
+                }
+            });
+            
+            return;
+        } else if (mPath instanceof OpenPath.ListHandler) {
+            setProgressVisibility(true);                
+            ListHandler lh = (ListHandler)mPath;
+            lh.list(new OpenPath.ListListener() {
+                public void onException(final Exception e) {
+                    if (interceptOldToken(e))
+                        return;
+                    Logger.LogWarning("Unable to list.", e);
+                    try {
+                        Toast.makeText(getContext(), "Unable to list. " + e,
+                                Toast.LENGTH_LONG).show();
+                    } catch (Exception e2) {
                     }
-                });
-                return;
-            } catch (IOException e) {
-                Logger.LogError("Couldn't list with ContentUpdater");
-            }
+                }
+
+                public void onListReceived(final OpenPath[] list) {
+                    setProgressVisibility(false);
+                    mContentAdapter.updateData(list);
+                    notifyDataSetChanged();
+                    ViewUtils.setViewsVisible(getView(), false, android.R.id.empty);
+                    if(OpenPath.AllowDBCache)
+                    {
+                        new Thread(new Runnable() {
+                            public void run() {
+                                OpenPathDbAdapter db = OpenPath.getDb();
+                                if (db != null)
+                                    db.createItem(list);
+                                else
+                                    for (OpenPath kid : list)
+                                        if (kid != null)
+                                            kid.addToDb();
+                                OpenPath.closeDb();
+                            }
+                        }).start();
+                    }
+                }
+            });
+            return;
+        } else if (mPath instanceof OpenFile) {
+            mContentAdapter.updateData(((OpenFile)mPath).listFiles());
+            notifyDataSetChanged();
+            return;
         }
         final String sPath = mPath.getPath();
         // NetworkIOTask.cancelTask(sPath);
         if (mTask != null)
             mTask.cancel(true);
         mTask = new NetworkIOTask(this);
-        if (NetworkIOTask.isTaskRunning(sPath))
-            return;
         setProgressVisibility(true);
         /*
          * if(reconnect && (mPath instanceof OpenNetworkPath))
@@ -625,7 +724,6 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         NetworkIOTask.addTask(sPath, mTask);
         EventHandler.executeNetwork(mTask, mPath);
         new Thread(new Runnable() {
-            @Override
             public void run() {
                 try {
                     Thread.sleep(30000);
@@ -636,47 +734,51 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             }
         }).start();
     }
+    
+    private boolean has401occurred = false;
 
-    /*
-     * //@Override public View onCreateView(LayoutInflater inflater, ViewGroup
-     * container, Bundle savedInstanceState) { View v =
-     * inflater.inflate(R.layout.fragment_pager_list, container, false);
-     * mIsViewCreated = true; View v = inflater.inflate(R.layout.content_layout,
-     * container, false); mGrid = (GridView)v.findViewById(R.id.content_grid);
-     * final OpenFragment me = this; mGrid.setOnKeyListener(new OnKeyListener()
-     * {
-     * @Override public boolean onKey(View v, int keyCode, KeyEvent event) {
-     * if(event.getAction() != KeyEvent.ACTION_DOWN) return false; int col = 0;
-     * int cols = 1; try { if(!OpenExplorer.BEFORE_HONEYCOMB) { Method m =
-     * GridView.class.getMethod("getNumColumns", new Class[0]); Object tmp =
-     * m.invoke(mGrid, new Object[0]); if(tmp instanceof Integer) { cols =
-     * (Integer)tmp; col = mGrid.getSelectedItemPosition() % cols; } } }
-     * catch(Exception e) { } Logger.LogDebug("ContentFragment.mGrid.onKey(" +
-     * keyCode + "," + event + ")@" + col); if(!OpenExplorer.BEFORE_HONEYCOMB)
-     * cols = (Integer)mGrid.getNumColumns(); if(keyCode ==
-     * KeyEvent.KEYCODE_DPAD_LEFT && col == 0) return onFragmentDPAD(me, false);
-     * else if(keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && col == cols - 1) return
-     * onFragmentDPAD(me, true); else if(MenuUtils.getMenuShortcut(event) !=
-     * null) { MenuItem item = MenuUtils.getMenuShortcut(event);
-     * if(onOptionsItemSelected(item)) { Toast.makeText(v.getContext(),
-     * item.getTitle(), Toast.LENGTH_SHORT).show(); return true; } } return
-     * false; } }); v.setOnLongClickListener(this);
-     * mGrid.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-     * @Override public void onCreateContextMenu(ContextMenu menu, View v,
-     * ContextMenuInfo menuInfo) {
-     * getMenuInflater().inflate(R.menu.context_file, menu);
-     * onPrepareOptionsMenu(menu); } }); //if(mProgressBarLoading == null) //
-     * mProgressBarLoading = v.findViewById(R.id.content_progress);
-     * setProgressVisibility(false); super.onCreateView(inflater, container,
-     * savedInstanceState); //v.setBackgroundResource(R.color.lightgray); if
-     * (savedInstanceState != null &&
-     * savedInstanceState.containsKey("location")) { String location =
-     * savedInstanceState.getString("location"); if(location != null &&
-     * !location.equals("") && location.startsWith("/")) {
-     * Logger.LogDebug("Content location restoring to " + location); mPath = new
-     * OpenFile(location); mData = getManager().getChildren(mPath);
-     * updateData(mData); } //setContentPath(path, false); } return v; }
-     */
+    private boolean interceptOldToken(Exception e)
+    {
+        if (!(mPath instanceof OpenDrive))
+            return false;
+        if (!(e instanceof GoogleJsonResponseException))
+            return false;
+        GoogleJsonResponseException re = (GoogleJsonResponseException)e;
+        if (re.getStatusCode() != 401)
+            return false;
+        if(has401occurred) return false;
+        if(((OpenDrive)mPath).getServer() == null) return false;
+        has401occurred = true;
+        final OpenDrive drive = (OpenDrive)mPath;
+        final GoogleCredential cred = drive.getCredential();
+        final String refresh = drive.getServer().get("refresh"); 
+        if(DEBUG)
+            Logger.LogDebug("Refreshing drive token with [" + refresh + "]");
+        return ServerSetupActivity.interceptOldToken(e, cred.getAccessToken(), refresh,
+                drive.getServer().getUser(), getExplorer(), new OnAuthTokenListener() {
+
+            @Override
+            public void onException(Exception e) {
+                Logger.LogWarning("Unable to intercept bad token.", e);
+            }
+
+            @Override
+            public void onDriveAuthTokenReceived(String account, String token) {
+                if(token.equals("")) {
+                    Logger.LogWarning("Refresh token empty! :(");
+                    return;
+                }
+                Toast.makeText(getContext(), "Token for " + account + " refreshed! " + token,
+                        Toast.LENGTH_SHORT).show();
+                cred.setAccessToken(token);
+                drive.setCredential(cred);
+                drive.getServer().setPassword(token);
+                ServerSetupActivity.SaveToDefaultServers(OpenServers.getDefaultServers(),
+                        getContext());
+                runUpdateTask(true);
+            }
+        });
+    }
 
     /**
      * @return true if the content view is created and not destroyed yet. (i.e.
@@ -703,13 +805,99 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         onItemClick(list, view, position, id);
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> list, View view, int position, long id) {
-        OpenPath file = (OpenPath)list.getItemAtPosition(position);
-        Logger.LogInfo("ContentFragment.onItemClick (" + file.getPath() + ")");
+    private void untarAll(final OpenPath tar, final OpenPath dest, final String... includes)
+    {
+        if (TarUtils.checkUntar(tar.getPath(), dest.getPath(), includes))
+            DialogHandler.showConfirmationDialog(getContext(),
+                    getResources().getString(R.string.s_msg_file_exists),
+                    getResources().getString(R.string.s_title_file_exists),
+                    new OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (dialog != null)
+                                dialog.dismiss();
+                            getEventHandler().extractSet(tar, dest, getContext(), includes);
+                        }
+                    });
+        else
+            getEventHandler().extractSet(tar, dest, getContext(), includes);
+    }
 
-        if (file.isArchive() && file instanceof OpenFile && Preferences.Pref_Zip_Internal)
-            file = new OpenZip((OpenFile)file);
+    private void extractSet(final OpenPath archive, final OpenPath dest, final String... includes)
+    {
+        getEventHandler().extractSet(archive, dest, getContext(), includes);
+    }
+
+    private void browseArchive(OpenPath archive)
+    {
+        String mime = archive.getMimeType();
+        String ext = archive.getExtension();
+        if (mime.equals("application/zip"))
+            getExplorer().changePath(new OpenZip((OpenFile)archive));
+        else if (mime.endsWith("rar"))
+            getExplorer().changePath(new OpenRAR((OpenFile)archive));
+        else if (mime.contains("7z") || mime.contains("lzma"))
+            getExplorer().changePath(new OpenLZMA((OpenFile)archive));
+        else
+            getExplorer().changePath(new OpenTar((OpenFile)archive));
+    }
+
+    private void extractArchive(OpenPath archive)
+    {
+        if (archive.getMimeType().contains("tar"))
+            untarAll(archive, archive.getParent());
+        else
+        {
+            OpenPath into = archive.getParent();
+            if (archive.getMimeType().contains("tar"))
+                into = into.getChild(archive.getName().replace("." + archive.getExtension(), ""));
+            getEventHandler().extractSet(archive, into, getContext());
+        }
+    }
+
+    @Override
+    public void onItemClick(final AdapterView<?> list, final View view, final int position,
+            final long id) {
+        OpenPath file = (OpenPath)list.getItemAtPosition(position);
+        Logger.LogInfo("ContentFragment.onItemClick");
+
+        if (getActionMode() == null)
+        {
+            if (file instanceof OpenFile
+                    && (file.getMimeType().contains("tar")
+                            || file.getMimeType().endsWith("rar")
+                            || file.getMimeType().endsWith("compressed")
+                            || file.getMimeType().contains("bz")
+                            || file.getMimeType().contains("gz")
+                            || file.getMimeType().endsWith("zip")))
+            {
+                final OpenPath archive = file;
+                final String prefType = file.getMimeType()
+                        .replace("application/", "")
+                        .replace("x-", "")
+                        .replace("-compressed", "");
+                DialogHandler.showExtractDialog(
+                        getExplorer(),
+                        getString(R.string.s_extract) + " " + prefType,
+                        archive,
+                        "pref_archives_" + prefType,
+                        new OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which)
+                                {
+                                    case R.string.s_browse:
+                                        browseArchive(archive);
+                                        break;
+                                    case R.string.s_extract:
+                                        extractArchive(archive);
+                                        break;
+                                }
+                                if (dialog != null)
+                                    dialog.dismiss();
+                            }
+                        });
+                return;
+            }
+        }
 
         if (getActionMode() != null) {
             if (mLastSelectionModeCallback != null) {
@@ -749,7 +937,9 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             }
         }
 
-        if ((file.isDirectory() || (file.isArchive() && Preferences.Pref_Zip_Internal))
+        if ((file.isDirectory()
+                || (file.isArchive() && Preferences.Pref_Zip_Internal)
+                || file.getMimeType().contains("tar"))
                 && getActionMode() == null) {
             /*
              * if (mThumbnail != null) { mThumbnail.setCancelThumbnails(true);
@@ -757,7 +947,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
              */
 
             // setContentPath(file, true);
-            getExplorer().onChangeLocation(file);
+            getExplorer().changePath(file);
 
         } else {
 
@@ -999,10 +1189,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                 DialogHandler.showFileHeatmap(getExplorer(), getPath());
                 return true;
             case R.id.menu_new_file:
-                EventHandler.createNewFile(getPath(), getActivity());
-                return true;
-            case R.id.menu_new_folder:
-                EventHandler.createNewFolder(getPath(), getActivity());
+                DialogHandler.showNewFileDialog(getPath(), getActivity(), this, 1);
                 return true;
             case R.id.menu_sort_name_asc:
                 onSortingChanged(SortType.Type.ALPHA);
@@ -1042,6 +1229,8 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     }
 
     public void downloadFile(OpenPath... paths) {
+        if(DEBUG)
+            Logger.LogDebug("ContentFragment.downloadFile: " + Utils.joinArray(paths, ", "));
         OpenPath dl = OpenExplorer.getDownloadParent().getFirstDir();
         if (dl == null)
             dl = OpenFile.getExternalMemoryDrive(true);
@@ -1049,13 +1238,13 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             getExplorer().showToast(R.string.s_error_ftp);
             return;
         }
-        List<OpenPath> files = new ArrayList<OpenPath>();
-        for (OpenPath path : paths)
-            files.add(path);
-        getEventHandler().copyFile(files, dl, getActivity());
+        for(OpenPath p : paths)
+        {
+            getEventHandler().copyFile(p, dl, getContext());
+        }
         refreshOperations();
     }
-
+    
     public boolean executeMenu(final int id, final ActionMode mode, final OpenPath file) {
         Logger.LogInfo("ContentFragment.executeMenu(0x" + Integer.toHexString(id) + ") on " + file);
         final String path = file != null ? file.getPath() : null;
@@ -1064,42 +1253,33 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             parent = OpenFile.getExternalMemoryDrive(true);
         final OpenPath folder = parent;
         String name = file != null ? file.getName() : null;
-        CopyOnWriteArrayList<OpenPath> selection = mContentAdapter.getSelectedSet();
+        List<OpenPath> selection = mContentAdapter.getSelectedSet();
 
         final boolean fromPasteMenu = file.equals(mPath);
 
         switch (id) {
+            case R.id.menu_refresh2:
             case R.id.menu_refresh:
                 if (DEBUG)
                     Logger.LogDebug("Refreshing " + getPath().getPath());
-                getPath().clearChildren();
+                //getPath().clearChildren();
                 FileManager.removeOpenCache(getPath().getPath());
                 getPath().deleteFolderFromDb();
-                runUpdateTask(true);
                 refreshData(new Bundle(), false);
                 return true;
 
             case R.id.menu_context_download:
                 if (selection != null && selection.size() > 0)
+                {
                     downloadFile(selection.toArray(new OpenPath[selection.size()]));
-                else
-                    downloadFile(file);
-                finishMode(mode);
-                return true;
-
+                    finishMode(mode);
+                    return true;
+                }
+                break;
             case R.id.menu_context_selectall:
                 if (getContentAdapter() == null)
                     return false;
-                boolean hasAll = true;
-                for (OpenPath p : getContentAdapter().getAll())
-                    if (!getClipboard().contains(p)) {
-                        hasAll = false;
-                        break;
-                    }
-                if (!hasAll)
-                    getClipboard().addAll(getContentAdapter().getAll());
-                else
-                    getClipboard().removeAll(getContentAdapter().getAll());
+                getContentAdapter().selectAll();
                 return true;
 
             case R.id.menu_context_view:
@@ -1153,12 +1333,12 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
             case R.id.menu_context_delete:
                 // fileList.add(file);
-                getHandler().deleteFile(file, this, true);
+                getEventHandler().deleteFile(file, this, true);
                 finishMode(mode);
                 return true;
 
             case R.id.menu_context_rename:
-                getHandler().renameFile(file, true, getActivity());
+                getEventHandler().renameFile(file, true, getActivity());
                 finishMode(mode);
                 return true;
 
@@ -1182,11 +1362,13 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                 OpenClipboard cb = getClipboard();
                 if (cb != null) {
                     cb.setCurrentPath(into);
+                    checkClipboardForTar(cb, into);
+                    checkClipboardForLZMA(cb, into);
                     if (cb.size() > 0) {
                         if (cb.DeleteSource)
-                            getHandler().cutFile(cb, into, getActivity());
+                            getEventHandler().cutFile(cb, into, getActivity());
                         else
-                            getHandler().copyFile(cb, into, getActivity());
+                            getEventHandler().copyFile(cb, into, getActivity());
                         refreshOperations();
                     }
 
@@ -1212,54 +1394,46 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
                 getClipboard().ClearAfter = true;
                 String zname = getClipboard().get(0).getName()
-                        .replace("." + file.getExtension(), "")
-                        + ".zip";
+                        + "." + EventHandler.DefaultCompressionType
+                                .toString().toLowerCase(Locale.US);
                 if (getClipboard().size() > 1) {
                     OpenPath last = getClipboard().get(getClipboard().getCount() - 1);
                     if (last != null && last.getParent() != null) {
                         if (last.getParent() instanceof OpenCursor)
                             zname = folder.getPath();
-                        zname = last.getParent().getName() + ".zip";
+                        zname = last.getParent().getName() + ".";
+                        if (EventHandler.DefaultCompressionType == CompressionType.BZ2
+                                || EventHandler.DefaultCompressionType == CompressionType.GZ)
+                            zname += "t";
+                        zname += EventHandler.DefaultCompressionType.toString().toLowerCase();
                     }
                 }
                 final String def = zname;
-
-                final InputDialog dZip = new InputDialog(getExplorer()).setIcon(R.drawable.sm_zip)
-                        .setTitle(R.string.s_menu_zip).setMessageTop(R.string.s_prompt_path)
-                        .setDefaultTop(intoPath.getPath()).setMessage(R.string.s_prompt_zip)
-                        .setCancelable(true)
-                        .setNegativeButton(android.R.string.no, new OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                showZipDialog(intoPath, def, folder, getClipboard(), new OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (dialog != null)
+                            dialog.dismiss();
+                        switch (which)
+                        {
+                            case DialogInterface.BUTTON_NEGATIVE:
                                 if (!fromPasteMenu && getClipboard().size() <= 1)
                                     getClipboard().clear();
-                            }
-                        });
-                dZip.setOnCancelListener(new OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        if (fromPasteMenu && getClipboard().size() <= 1)
-                            getClipboard().clear();
+                                break;
+                            case DialogInterface.BUTTON_NEUTRAL:
+                                if (fromPasteMenu && getClipboard().size() <= 1)
+                                    getClipboard().clear();
+                                break;
+                            case DialogInterface.BUTTON_POSITIVE:
+                                finishMode(mode);
+                                break;
+                        }
                     }
-                }).setPositiveButton(android.R.string.ok, new OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        OpenPath zFolder = new OpenFile(dZip.getInputTopText());
-                        if (zFolder == null || !zFolder.exists())
-                            zFolder = folder;
-                        OpenPath zipFile = zFolder.getChild(dZip.getInputText());
-                        Logger.LogVerbose("Zipping " + getClipboard().size() + " items to "
-                                + zipFile.getPath());
-                        getHandler().zipFile(zipFile, getClipboard(), getExplorer());
-                        refreshOperations();
-                        finishMode(mode);
-                    }
-                }).setDefaultText(def);
-                dZip.create().show();
+                });
+
                 return true;
 
                 // case R.id.menu_context_unzip:
-                // getHandler().unzipFile(file, getExplorer());
+                // getEventHandler().unzipFile(file, getExplorer());
                 // return true;
 
             case R.id.menu_context_info:
@@ -1296,11 +1470,177 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
                 // this is for bluetooth
                 // files.add(path);
-                // getHandler().sendFile(files);
+                // getEventHandler().sendFile(files);
                 // mode.finish();
                 // return true;
         }
         return false;
+    }
+
+    private void showZipDialog(OpenPath intoPath, final String defaultName, final OpenPath folder,
+            final List<OpenPath> files, final DialogInterface.OnClickListener onClick)
+    {
+        final InputDialog dZip = new InputDialog(getExplorer()).setIcon(R.drawable.sm_zip)
+                .setTitle(R.string.s_menu_zip).setMessageTop(R.string.s_prompt_path)
+                .setDefaultTop(intoPath.getPath()).setMessage(R.string.s_prompt_zip)
+                .setCancelable(true)
+                .setNegativeButton(android.R.string.no, new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        onClick.onClick(dialog, which);
+                    }
+                });
+        final Context context = getContext();
+        ViewGroup mCompressLayout = (ViewGroup)LayoutInflater.from(getContext())
+                .inflate(R.layout.compression_spinner, null);
+        Spinner mCompressType = (Spinner)mCompressLayout
+                .findViewById(R.id.compression_type);
+        ViewGroup view = (ViewGroup)dZip.getView();
+
+        View v = new View(context);
+        LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, 2);
+        v.setLayoutParams(lp);
+        v.setBackgroundColor(context.getResources().getColor(R.color.blue));
+        view.addView(v);
+
+        mCompressType.setSelection(EventHandler.DefaultCompressionType.ordinal());
+        mCompressType.setOnItemSelectedListener(new OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> parent, View view, int position,
+                    long id) {
+                String name = dZip.getInputText()
+                        .replace(".zip", "").replace(".tar", "")
+                        .replace(".tgz", "").replace(".tbz2", "")
+                        .replace(".gz", "").replace(".bz2", "");
+                switch (position)
+                {
+                    case 0:
+                        name += ".zip";
+                        dZip.setDefaultText(name);
+                        EventHandler.DefaultCompressionType = CompressionType.ZIP;
+                        break;
+                    case 1:
+                        name += ".tar";
+                        dZip.setDefaultText(name);
+                        EventHandler.DefaultCompressionType = CompressionType.TAR;
+                        break;
+                    case 2:
+                        name += "." + (files.size() > 1 ? "t" : "") + "gz";
+                        dZip.setDefaultText(name);
+                        EventHandler.DefaultCompressionType = CompressionType.GZ;
+                        break;
+                    case 3:
+                        name += "." + (files.size() > 1 ? "t" : "") + "bz2";
+                        dZip.setDefaultText(name);
+                        EventHandler.DefaultCompressionType = CompressionType.BZ2;
+                        break;
+                }
+            }
+
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        view.addView(mCompressLayout);
+        CheckBox mDeleteAfter = new CheckBox(getContext());
+        mDeleteAfter.setText(R.string.s_delete_after);
+        if (getPreferences().getBoolean("global", "pref_archive_postdelete", false))
+            mDeleteAfter.setChecked(true);
+        mDeleteAfter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                getPreferences().setSetting("global", "pref_archive_postdelete", isChecked);
+            }
+        });
+        view.addView(mDeleteAfter);
+        dZip.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                onClick.onClick(dialog, DialogInterface.BUTTON_NEUTRAL);
+            }
+        }).setPositiveButton(android.R.string.ok, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                OpenPath zFolder = new OpenFile(dZip.getInputTopText());
+                if (zFolder == null || !zFolder.exists())
+                    zFolder = folder;
+                OpenPath zipFile = zFolder.getChild(dZip.getInputText());
+                Logger.LogVerbose("Zipping " + files.size() + " items to "
+                        + zipFile.getPath());
+                getEventHandler().zipFile(zipFile, files, getExplorer());
+                refreshOperations();
+                onClick.onClick(dialog, which);
+            }
+        }).setDefaultText(defaultName);
+        dZip.create().show();
+    }
+
+    private boolean checkClipboardForTar(final OpenClipboard cb, final OpenPath into) {
+        final Hashtable<OpenTar, Vector<OpenTarEntry>> tarKids = new Hashtable<OpenTar, Vector<OpenTar.OpenTarEntry>>();
+        for (OpenPath p : cb)
+            if (p instanceof OpenTarEntry)
+            {
+                OpenTarEntry kid = (OpenTarEntry)p;
+                OpenTar tar = kid.getTar();
+                if (!tarKids.containsKey(tar))
+                    tarKids.put(tar, new Vector<OpenTar.OpenTarEntry>());
+                Vector<OpenTarEntry> kids = tarKids.get(tar);
+                kids.add(kid);
+                tarKids.put(tar, kids);
+            }
+        if (tarKids.size() == 0)
+            return false;
+        for (Vector<OpenTarEntry> kids : tarKids.values())
+            for (OpenTarEntry kid : kids)
+                cb.remove(kid);
+        new Thread(new Runnable() {
+            public void run() {
+                for (OpenTar tar : tarKids.keySet())
+                {
+                    Vector<OpenTarEntry> kids = tarKids.get(tar);
+                    String[] includes = new String[kids.size()];
+                    for (int i = 0; i < kids.size(); i++)
+                    {
+                        OpenTarEntry kid = kids.get(i);
+                        includes[i] = kid.getRelativePath();
+                    }
+                    untarAll(tar, into, includes);
+                }
+            }
+        }).start();
+        return true;
+    }
+
+    private boolean checkClipboardForLZMA(final OpenClipboard cb, final OpenPath into) {
+        final Hashtable<OpenLZMA, Vector<OpenLZMAEntry>> lzKids = new Hashtable<OpenLZMA, Vector<OpenLZMA.OpenLZMAEntry>>();
+        for (OpenPath p : cb)
+            if (p instanceof OpenLZMAEntry)
+            {
+                OpenLZMAEntry kid = (OpenLZMAEntry)p;
+                OpenLZMA lz = kid.getLZMA();
+                if (!lzKids.containsKey(lz))
+                    lzKids.put(lz, new Vector<OpenLZMA.OpenLZMAEntry>());
+                Vector<OpenLZMAEntry> kids = lzKids.get(lz);
+                kids.add(kid);
+                lzKids.put(lz, kids);
+            }
+        if (lzKids.size() == 0)
+            return false;
+        for (Vector<OpenLZMAEntry> kids : lzKids.values())
+            for (OpenLZMAEntry kid : kids)
+                cb.remove(kid);
+        new Thread(new Runnable() {
+            public void run() {
+                for (OpenLZMA tar : lzKids.keySet())
+                {
+                    Vector<OpenLZMAEntry> kids = lzKids.get(tar);
+                    String[] includes = new String[kids.size()];
+                    for (int i = 0; i < kids.size(); i++)
+                    {
+                        OpenLZMAEntry kid = kids.get(i);
+                        includes[i] = kid.getRelativePath();
+                    }
+                    extractSet(tar, into, includes);
+                }
+            }
+        }).start();
+        return true;
     }
 
     @Override
@@ -1324,8 +1664,9 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (DEBUG)
-            Logger.LogDebug(getClassName() + ".onCreateOptionsMenu (" + getPath() + ")");
+        // if (DEBUG)
+        // Logger.LogDebug(getClassName() + ".onCreateOptionsMenu (" + getPath()
+        // + ")");
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.content_full, menu);
         MenuUtils.setMenuEnabled(menu, true, R.id.menu_view);
@@ -1335,7 +1676,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        Logger.LogVerbose("ContentFragment.onPrepareOptionsMenu");
+        // Logger.LogVerbose("ContentFragment.onPrepareOptionsMenu");
         if (getActivity() == null)
             return;
         if (menu == null)
@@ -1343,12 +1684,11 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         if (isDetached() || !isVisible())
             return;
         super.onPrepareOptionsMenu(menu);
-
-        MenuUtils
-                .setMenuVisible(menu, mPath instanceof OpenNetworkPath, R.id.menu_context_download);
-        MenuUtils.setMenuVisible(menu, !(mPath instanceof OpenNetworkPath), R.id.menu_context_edit,
-                R.id.menu_context_view);
-
+		
+		MenuUtils.setMenuEnabled(menu, getPath().canWrite(), R.id.menu_new_file);
+		MenuUtils.setMenuVisible(menu, mPath instanceof OpenNetworkPath, R.id.menu_context_download);
+		MenuUtils.setMenuVisible(menu, !(mPath instanceof OpenNetworkPath), R.id.menu_context_edit, R.id.menu_context_view);
+		
         MenuItem mMenuFF = menu.findItem(R.id.menu_sort_folders_first);
         if (mMenuFF != null) {
             if (mMenuFF.isCheckable()) {
@@ -1368,8 +1708,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         if (mPath != null)
             MenuUtils.setMenuEnabled(menu,
                     !mPath.requiresThread() && mPath.canWrite() && !mPath.isArchive(),
-                    R.id.menu_multi_all_copy, R.id.menu_multi_all_move, R.id.menu_new_file,
-                    R.id.menu_new_folder);
+                    R.id.menu_multi_all_copy, R.id.menu_multi_all_move, R.id.menu_new_file);
 
         SortType.Type st = getSorting().getType();
         int sti = Utils.getArrayIndex(sortTypes, st);
@@ -1458,12 +1797,14 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
         if (mGrid != null) {
             if (mBundle.containsKey("scroll") && mBundle.getInt("scroll") > 0) {
-                Logger.LogDebug("Returning Scroll to " + mBundle.getInt("scroll"));
+                // Logger.LogDebug("Returning Scroll to " +
+                // mBundle.getInt("scroll"));
                 mGrid.scrollTo(0, mBundle.getInt("scroll"));
             } else if (mBundle.containsKey("grid"))
                 mGrid.onRestoreInstanceState(mBundle.getParcelable("grid"));
             if (mBundle.containsKey("first")) {
-                Logger.LogDebug("Returning first item #" + mBundle.getInt("first"));
+                // Logger.LogDebug("Returning first item #" +
+                // mBundle.getInt("first"));
                 mGrid.setSelection(mBundle.getInt("first"));
             }
         }
@@ -1478,7 +1819,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
     @TargetApi(11)
     public void updateGridView() {
-        Logger.LogDebug("updateGridView() @ " + mPath);
+        // Logger.LogDebug("updateGridView() @ " + mPath);
         if (mGrid == null)
             mGrid = (GridView)getView().findViewById(R.id.content_grid);
         if (mGrid == null) {
@@ -1495,29 +1836,19 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             return;
         }
 
-        // mSorting = FileManager.parseSortType(getExplorer().getSetting(mPath,
-        // "sort", getExplorer().getPreferences().getSetting("global",
-        // "pref_sorting", mSorting.toString())));
-        // mShowHiddenFiles = !getExplorer().getSetting(mPath, "hide",
-        // getExplorer().getPreferences().getSetting("global", "pref_hide",
-        // true));
-        // mShowThumbnails = getExplorer().getSetting(mPath, "thumbs",
-        // getExplorer().getPreferences().getSetting("global", "pref_thumbs",
-        // true));
-
         invalidateOptionsMenu();
 
-        setListAdapter(mContentAdapter);
-        refreshData(getArguments(), false);
         setupGridView();
+        refreshData(getArguments(), false);
     }
 
     public void setupGridView() {
         mGrid.setVisibility(View.VISIBLE);
         mGrid.setOnItemClickListener(this);
         mGrid.setOnItemLongClickListener(this);
-        mGrid.setColumnWidth(getViewMode() == OpenExplorer.VIEW_GRID ? OpenExplorer.COLUMN_WIDTH_GRID
-                : OpenExplorer.COLUMN_WIDTH_LIST);
+        mGrid.setColumnWidth(getResources().getDimensionPixelSize(
+                    getViewMode() == OpenExplorer.VIEW_GRID ? R.dimen.grid_width : R.dimen.list_width
+                ));
         mGrid.setOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -1575,47 +1906,45 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     @Override
     public void onWorkerThreadComplete(EventType type, String... results) {
         Logger.LogVerbose("Need to refresh!");
-        if (type == EventType.SEARCH) {
-            if (results == null || results.length < 1) {
-                Toast.makeText(getApplicationContext(), "Sorry, zero items found",
-                        Toast.LENGTH_LONG).show();
-                return;
-            }
-
-            ArrayList<OpenPath> files = new ArrayList<OpenPath>();
-            for (String s : results)
-                files.add(new OpenFile(s));
-
-            Toast.makeText(getActivity(), "Unimplemented", Toast.LENGTH_LONG).show();
-
-        } else if (type == EventHandler.UNZIPTO_TYPE && results != null) {
-            String name = new OpenFile(results[0]).getName();
-
-            getClipboard().add(new OpenFile(results[0]));
-            getExplorer().updateTitle("Holding " + name);
-
-        } else {
-            Logger.LogDebug("Worker thread complete (" + type + ")?");
-            if (!mPath.requiresThread() || FileManager.hasOpenCache(mPath.getAbsolutePath()))
-                try {
-                    if (mPath.requiresThread())
-                        mPath = FileManager.getOpenCache(mPath.getPath());
-                    if (mPath != null)
-                        updateData(mPath.list());
-                } catch (IOException e) {
-                    Logger.LogWarning("Couldn't update data after thread completion", e);
+        switch (type)
+        {
+            case SEARCH:
+                if (results == null || results.length < 1) {
+                    Toast.makeText(getApplicationContext(), "Sorry, zero items found",
+                            Toast.LENGTH_LONG).show();
+                    return;
                 }
-            else {
-                // if(mProgressBarLoading == null) mProgressBarLoading =
-                // getView().findViewById(R.id.content_progress);
-                EventHandler.executeNetwork(new NetworkIOTask(this), mPath);
-            }
 
-            // changePath(mPath, false);
-            notifyDataSetChanged();
+                ArrayList<OpenPath> files = new ArrayList<OpenPath>();
+                for (String s : results)
+                    files.add(new OpenFile(s));
 
-            refreshData(new Bundle(), false);
-            // changePath(getManager().peekStack(), false);
+                Toast.makeText(getActivity(), "Unimplemented", Toast.LENGTH_LONG).show();
+                break;
+            default:
+                if (results.length == 1)
+                    Toast.makeText(getContext(), results[0], Toast.LENGTH_LONG).show();
+                // Logger.LogDebug("Worker thread complete (" + type + ")?");
+                if (!mPath.requiresThread() || FileManager.hasOpenCache(mPath.getAbsolutePath()))
+                    try {
+                        if (mPath.requiresThread())
+                            mPath = FileManager.getOpenCache(mPath.getPath());
+                        if (mPath != null)
+                            updateData(mPath.list());
+                    } catch (IOException e) {
+                        Logger.LogWarning("Couldn't update data after thread completion", e);
+                    }
+                else {
+                    // if(mProgressBarLoading == null) mProgressBarLoading =
+                    // getView().findViewById(R.id.content_progress);
+                    EventHandler.executeNetwork(new NetworkIOTask(this), mPath);
+                }
+
+                // changePath(mPath, false);
+                notifyDataSetChanged();
+
+                refreshData(new Bundle(), false);
+                // changePath(getManager().peekStack(), false);
         }
         setProgressVisibility(false);
     }
@@ -1638,13 +1967,14 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
     private Boolean restoreTopPath() {
         if (mTopPath != null) {
-            Logger.LogDebug("Looking for top path (" + mTopPath.getName() + ")");
+            // Logger.LogDebug("Looking for top path (" + mTopPath.getName() +
+            // ")");
             for (int i = 0; i < mContentAdapter.getCount(); i++)
                 if (mContentAdapter.getItem(i).getName().equals(mTopPath.getName()))
                     return restoreTopPath(i);
         }
         if (mTopIndex > 0) {
-            Logger.LogDebug("Falling back to top index (" + mTopIndex + ")");
+            // Logger.LogDebug("Falling back to top index (" + mTopIndex + ")");
             return restoreTopPath(mTopIndex);
         } else
             return true;
@@ -1720,26 +2050,6 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     // @Override
     public void onViewChanged(int state) {
         setViewMode(state);
-        // getExplorer().setViewMode(state);
-
-        View v = getView();
-        if (v != null) {
-            // if(mPathView == null)
-            // mPathView = (LinearLayout)v.findViewById(R.id.scroll_path);
-            if (mGrid == null)
-                mGrid = (GridView)v.findViewById(R.id.content_grid);
-            /*
-             * if(mMultiSelectView == null) mMultiSelectView =
-             * (GridView)v.findViewById(R.id.multiselect_path);
-             * if(mMultiSelectView != null) setupMultiSelectView();
-             */
-        }
-
-        if (mGrid == null)
-            Logger.LogError("WTF, where is it?");
-        else
-            updateGridView();
-        // refreshData(null);
     }
 
     @Override
@@ -1750,8 +2060,22 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         // if(mProgressBarLoading != null && mData.length == 0)
         // mProgressBarLoading.setVisibility(visible ? View.VISIBLE :
         // View.GONE);
+        ViewUtils.setViewsVisible(getView(), visible, R.id.content_cancel);
+        if(visible)
+            setStatus(mLoadingMessage);
+        else {
+            updateStatus();
+            ViewUtils.setViewsVisible(getView(), false, android.R.id.empty);
+        }
         if (getExplorer() != null)
             getExplorer().setProgressVisibility(visible);
+    }
+
+    private void setProgressClickHandler(android.view.View.OnClickListener listener)
+    {
+        ViewUtils.setOnClicks(getView(), listener, R.id.content_cancel);
+        if (getExplorer() != null)
+            getExplorer().setProgressClickHandler(listener);
     }
 
     public SortType getSorting() {
@@ -1773,17 +2097,78 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         return mContentAdapter != null ? mContentAdapter.mShowThumbnails : true;
     }
 
+    public void updateStatus()
+    {
+        ViewUtils.setViewsVisible(mStatusBar, false);
+        new Thread(new Runnable() {
+            public void run() {
+                final CharSequence cs = getContentAdapter().getStatus();
+                getHandler().post(new Runnable() {
+                    public void run() {
+                        setStatus(cs);
+                    }
+                });
+            }}).start();
+        getContentAdapter().getStatus2(new SpaceListener() {
+            public void onException(Exception e) {
+                ViewUtils.setViewsVisible(getView(), false, R.id.content_status_right);
+            }
+            
+            @Override
+            public void onSpaceReturned(long total, long used, long third) {
+                String txt = "";
+                if(used > 0)
+                {
+                    txt = OpenPath.formatSize(used);
+                    if(total > 0)
+                        txt += "/";
+                }
+                if(total > 0)
+                    txt += OpenPath.formatSize(total);
+                if(third > 0)
+                    txt += "(" + OpenPath.formatSize(third) + ")";
+                if(txt.equals(""))
+                {
+                    ViewUtils.setViewsVisible(getView(), false, R.id.content_status_right);
+                    return;
+                }
+                txt += " " + getContext().getString(R.string.s_total);
+                ViewUtils.setText(getView(), txt, R.id.content_status_right);
+                ViewUtils.setViewsVisible(getView(), true, R.id.content_status_bar, R.id.content_status_right);
+            }
+        });        
+    }
+
+    public void setStatus(CharSequence status)
+    {
+        boolean empty = status == null || status.length() == 0 || status.toString().startsWith("Loading");
+        ViewUtils.setViewsVisible(mStatusBar, !empty);
+        if(!empty)
+            ViewUtils.setText(mStatus, status);
+    }
+
     @Override
     public CharSequence getTitle() {
         if (mPath == null)
             return "???";
-        return mPath.getName()
-                + ((mPath instanceof OpenFile || mPath instanceof OpenNetworkPath)
-                        && mPath.isDirectory() && !mPath.getName().endsWith("/") ? "/" : "");
+        CharSequence tit = mPath.getTitle(getContext());
+        if(!Utils.isNullOrEmpty(tit))
+            return tit;
+        String ret = mPath.getName();
+        if (Utils.isNullOrEmpty(ret) && mPath != null && mPath.getUri() != null)
+            ret = mPath.getUri().getLastPathSegment();
+        if ((ret == null || ret.equals("")) && mPath != null)
+            ret = mPath.toString();
+        if ((mPath instanceof OpenFile || mPath instanceof OpenNetworkPath)
+                && mPath.isDirectory() && !ret.endsWith("/"))
+            ret += "/";
+        return ret;
     }
 
     @Override
     public OpenPath getPath() {
+        if (mPath == null && getArguments() != null && getArguments().containsKey("path"))
+            return mPath = (OpenPath)getArguments().getParcelable("path");
         return mPath;
     }
 
@@ -1791,10 +2176,17 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     public Drawable getIcon() {
         if (isDetached())
             return null;
-        if (getActivity() != null && getResources() != null)
-            return getResources().getDrawable(
-                    ThumbnailCreator.getDefaultResourceId(getPath(), 96, 96));
-        return null;
+        if (getActivity() == null || getResources() == null) return null;
+        OpenPath path = getPath();
+        if (path == null) return null;
+        Drawable ret = getResources().getDrawable(
+                ThumbnailCreator.getDefaultResourceId(getPath(), 96, 96));
+        if (path instanceof OpenPath.ThumbnailOverlayInterface)
+        {
+            Drawable overlay = ((ThumbnailOverlayInterface)path).getOverlayDrawable(getActivity(), true);
+            ret = new LayerDrawable(new Drawable[]{ret,overlay});
+        }
+        return ret;
     }
 
     @Override
@@ -1803,25 +2195,27 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             Logger.LogWarning("ContentFragment.updateData warning: mContentAdapter is null");
             return;
         }
+        if(OpenExplorer.IS_DEBUG_BUILD)
+        	Logger.LogVerbose("ContentFragment.updateData");
         if (Thread.currentThread().equals(OpenExplorer.UiThread)) {
             mContentAdapter.updateData(result);
             notifyDataSetChanged();
         } else {
-            mGrid.post(new Runnable() {
+            OpenExplorer.getHandler().post(new Runnable() {
                 @Override
                 public void run() {
                     mContentAdapter.updateData(result);
+                    notifyDataSetChanged();
                 }
             });
-            notifyDataSetChanged();
         }
+        updateStatus();
         // notifyDataSetChanged();
     }
 
     @Override
     public void addFiles(OpenPath[] files) {
-        for (OpenPath f : files)
-            mContentAdapter.add(f);
+        mContentAdapter.addAll(Arrays.asList(files));
     }
 
     /**
@@ -1845,7 +2239,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
              */
             if (getExplorer() != null)
                 getExplorer().startActionMode(mLastSelectionModeCallback);
-            mGrid.invalidateViews();
+            // mGrid.invalidateViews();
 
         }
     }
@@ -1864,15 +2258,19 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
     /** Update the "selection" action mode bar */
     private void updateSelectionModeView() {
-        getActionMode().invalidate();
-        notifyDataSetChanged();
+        if(isInSelectionMode())
+            getActionMode().invalidate();
+        // notifyDataSetChanged();
     }
 
     /**
      * @return the number of messages that are currently selected.
      */
     private int getSelectedCount() {
-        return mContentAdapter.getSelectedSet().size();
+        if (mContentAdapter != null && mContentAdapter.getSelectedSet() != null)
+            return mContentAdapter.getSelectedSet().size();
+        else
+            return 0;
     }
 
     /**
@@ -1943,8 +2341,11 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
             int num = getSelectedCount();
             // Set title -- "# selected"
-            mode.setTitle(getExplorer().getResources().getQuantityString(R.plurals.num_selected,
+            if(num > 1)
+                mode.setTitle(getExplorer().getResources().getQuantityString(R.plurals.num_selected,
                     num, num));
+            else
+                mode.setTitle(mContentAdapter.getSelectedSet().get(0).getName());
 
             if (mShareActionProvider != null) {
                 Intent shareIntent = null;
@@ -1953,7 +2354,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                 OpenPath first = mContentAdapter.getSelectedSet().get(0);
                 if (cnt > 1) {
                     shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-                    String type = first.getMimeType();
+                    String type = Utils.ifNull(first.getMimeType(), "*/*");
                     ArrayList<Uri> uris = new ArrayList<Uri>();
                     for (OpenPath sel : mContentAdapter.getSelectedSet()) {
                         if (!type.equals(sel.getMimeType()))
@@ -1964,7 +2365,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                     shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
                 } else {
                     shareIntent = new Intent(Intent.ACTION_VIEW);
-                    shareIntent.setDataAndType(first.getUri(), first.getMimeType());
+                    shareIntent.setDataAndType(first.getUri(), Utils.ifNull(first.getMimeType(), "*/*"));
                 }
                 List<ResolveInfo> resolves = IntentManager.getResolvesAvailable(shareIntent,
                         getExplorer());
@@ -1992,17 +2393,22 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
             boolean writable = true, readable = true;
             for (OpenPath p : mContentAdapter.getSelectedSet()) {
-                if (!p.canWrite())
+                if (writable && !p.canWrite())
                     writable = false;
-                if (!p.canRead())
+                if (readable && !p.canRead())
                     readable = false;
+                if (!readable)
+                    break;
             }
             OpenPath last = mContentAdapter.getSelectedSet().get(getSelectedCount() - 1);
 
             MenuUtils.setMenuEnabled(menu, writable, R.id.menu_context_delete,
-                    R.id.menu_context_cut);
+                    R.id.menu_context_cut, R.id.menu_context_rename);
             MenuUtils.setMenuEnabled(menu, readable, R.id.menu_context_copy, R.id.menu_context_cut,
-                    R.id.menu_context_download, R.id.menu_context_rename, R.id.menu_context_zip);
+                    R.id.menu_context_download, R.id.menu_context_zip, R.id.menu_context_share);
+            
+            if(last instanceof CloudOpsHandler)
+                MenuUtils.setMenuShowAsAction(menu, MenuItem.SHOW_AS_ACTION_ALWAYS, R.id.menu_context_download);
 
             if (num == 1) {
                 MenuUtils.setMenuVisible(menu, true, R.id.menu_context_bookmark);
@@ -2011,9 +2417,11 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                             R.id.menu_context_bookmark);
                 if (last.isFile())
                     mRename.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-            } else
+            } else {
                 mRename.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM
                         | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+                MenuUtils.setMenuVisible(menu, false, R.id.menu_context_heatmap);
+            }
 
             mRename.setVisible(num == 1);
             mInfo.setVisible(num == 1);
@@ -2029,64 +2437,12 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             final OpenPath last = selections.get(selections.size() - 1);
             switch (item.getItemId()) {
                 case R.id.menu_context_selectall:
-                    for (OpenPath path : mContentAdapter.getAll())
-                        mContentAdapter.addSelection(path);
-                    mContentAdapter.notifyDataSetChanged();
+                    mContentAdapter.selectAll();
                     mode.invalidate();
                     break;
                 case R.id.menu_context_copy:
                     getClipboard().addAll(selections);
-
-                    View clipboard = getExplorer().findViewById(R.id.title_paste_icon);
-                    int medAnim = getResources()
-                            .getInteger(android.R.integer.config_mediumAnimTime);
-                    boolean doAnimation = false;
-
-                    if (clipboard != null && doAnimation) // &&
-                    // Build.VERSION.SDK_INT
-                    // > 11)
-                    {
-                        Rect rect = new Rect();
-                        clipboard.getGlobalVisibleRect(rect);
-                        final ViewGroup root = (ViewGroup)getView().getRootView();
-                        final ArrayList<ImageView> nvs = new ArrayList<ImageView>();
-                        final SpriteAnimatorSurfaceView sv = new SpriteAnimatorSurfaceView(
-                                root.getContext());
-                        sv.setDestination(new Point(rect.centerX(), rect.centerY()));
-                        sv.setAnimationTime(medAnim);
-                        for (OpenPath path : selections) {
-                            View v = mContentAdapter.getView(path, null, mGrid);
-                            if (v == null)
-                                continue;
-                            if (v.findViewById(R.id.content_icon) == null)
-                                continue;
-                            ImageView nv = (ImageView)v.findViewById(R.id.content_icon);
-                            if (nv.getDrawable() instanceof BitmapDrawable)
-                                nvs.add(nv);
-                        }
-                        if (nvs.size() > 0) {
-                            sv.setSprites(nvs.toArray(new ImageView[nvs.size()]));
-                            // getExplorer().getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                            // WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-                            root.addView(sv);
-                            sv.setLayerType(View.LAYER_TYPE_HARDWARE, new Paint(
-                                    Paint.ANTI_ALIAS_FLAG));
-                            sv.start();
-                            getView().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (sv != null) {
-                                        // sv.stop();
-                                        root.removeView(sv);
-                                    }
-                                    deselectAll();
-                                    root.invalidate();
-                                }
-                            }, medAnim);
-                        } else
-                            deselectAll();
-                    } else
-                        deselectAll();
+                    deselectAll();
                     break;
                 case R.id.menu_context_delete:
                     getEventHandler().deleteFile(selections, ContentFragment.this, true);
@@ -2101,39 +2457,27 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                     final OpenPath[] toZip = selections.toArray(new OpenPath[selections.size()]);
                     if (toZip.length == 0)
                         return false;
-                    String zname = toZip[0].getName().replace("." + toZip[0].getExtension(), "")
-                            + ".zip";
+                    String zname = toZip[0].getName();
+                    String type = EventHandler.DefaultCompressionType.toString().toLowerCase();
                     if (toZip.length > 1) {
                         if (last != null && last.getParent() != null)
                             zname = last.getParent().getName() + "-"
-                                    + new SimpleDateFormat("yyyyMMdd-HHmm").format(new Date())
-                                    + ".zip";
+                                    + new SimpleDateFormat("yyyyMMdd-HHmm").format(new Date());
+                        if (type.equals("gz") || type.equals("bz2"))
+                            type = "t" + type;
                     }
+                    zname += "." + type;
                     final String def = zname;
 
-                    final InputDialog dZip = new InputDialog(getExplorer())
-                            .setIcon(R.drawable.sm_zip).setTitle(R.string.s_menu_zip)
-                            .setMessageTop(R.string.s_prompt_path)
-                            .setDefaultTop(intoPath.getPath()).setMessage(R.string.s_prompt_zip)
-                            .setCancelable(true);
-                    dZip.setPositiveButton(android.R.string.ok, new OnClickListener() {
-                        @Override
+                    showZipDialog(intoPath, def, folder, selections, new OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            OpenPath zFolder = new OpenFile(dZip.getInputTopText());
-                            if (zFolder == null || !zFolder.exists())
-                                zFolder = folder;
-                            OpenPath zipFile = zFolder.getChild(dZip.getInputText());
-                            Logger.LogVerbose("Zipping " + getClipboard().size() + " items to "
-                                    + zipFile.getPath());
-                            getHandler().zipFile(zipFile, toZip, getExplorer());
-                            refreshOperations();
-                            deselectAll();
+                            if (which != DialogInterface.BUTTON_NEUTRAL)
+                                deselectAll();
                         }
-                    }).setDefaultText(def);
-                    dZip.create().show();
+                    });
                     break;
                 case R.id.menu_context_rename:
-                    getHandler().renameFile(last, last.isDirectory(), getActivity());
+                    getEventHandler().renameFile(last, last.isDirectory(), getActivity());
                     finishMode(mode);
                     break;
                 case R.id.menu_context_info:
@@ -2171,32 +2515,37 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        if(position == 0 && Preferences.Pref_ShowUp) return false;
+        Logger.LogInfo(getClassName() + ".onItemLongClick");
         OpenPath path = getContentAdapter().getItem(position);
         toggleSelection(view, path);
         return true;
     }
 
     private void toggleSelection(View view, OpenPath path) {
-        view.invalidate();
-        mContentAdapter.toggleSelected(path);
+        // view.invalidate();
+        mContentAdapter.toggleSelected(path, view);
     }
 
     public void notifyDataSetChanged() {
         if (getExplorer() == null)
             return;
+        if(OpenExplorer.IS_DEBUG_BUILD)
+        	Logger.LogVerbose("ContentFragment.notifyDataSetChanged");
         if (!Thread.currentThread().equals(OpenExplorer.UiThread)) {
-            if (getView() != null)
-                getView().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyDataSetChanged();
-                    }
-                });
+            OpenExplorer.getHandler().post(new Runnable() {
+                public void run() {
+                    notifyDataSetChanged();
+                }
+            });
             return;
         }
         if (mContentAdapter == null) {
             mContentAdapter = getContentAdapter();
         }
+
+        //mContentAdapter.finalize();
+
         if (mGrid != null
                 && (mGrid.getAdapter() == null || !mGrid.getAdapter().equals(mContentAdapter)))
             mGrid.setAdapter(mContentAdapter);
@@ -2207,12 +2556,12 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
         boolean empty = mContentAdapter == null || mContentAdapter.getCount() == 0;
         if (empty)
-            ViewUtils
-                    .setText(
-                            getView(),
-                            getString(!mPath.isLoaded() ? R.string.s_status_loading
-                                    : R.string.no_items, ""), android.R.id.empty);
+            ViewUtils.setText(getView(),
+                    getString(!mPath.isLoaded() ? R.string.s_status_loading
+                            : R.string.no_items, ""), android.R.id.empty);
         ViewUtils.setViewsVisibleNow(getView(), empty, android.R.id.empty);
+
+        updateStatus();
 
         // TODO check to see if this is the source of inefficiency
         // if(mGrid != null)

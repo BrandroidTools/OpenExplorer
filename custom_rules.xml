@@ -17,9 +17,6 @@
 
     <!-- Custom tasks -->
     <taskdef resource="anttasks.properties" classpathref="android.antlibs" />
-    <taskdef name="xpath"
-        classname="com.android.ant.XPathTask"
-        classpathref="android.antlibs" />
 
     <property name="out.release.dir" location="releases" />
 
@@ -194,12 +191,12 @@
                         in.package="${out.unaligned.file}"
                         out.package="${out.final.file}" />
                 <echo level="info">Release Package: ${out.final.file}</echo>
-		<echo level="info">Uploading to release server</echo>
+		<!--<echo level="info">Uploading to release server</echo>
 		<ftp server="${ftp.server}" port="21" remotedir="www/releases/" userid="${ftp.user}" password="${ftp.password}" binary="yes" verbose="yes">
 		    <fileset dir="releases">
 			<include name="**/${ant.project.name}${mymanifest.manifest.android:versionCode}.apk" />
 		    </fileset>
-		</ftp>
+		</ftp>-->
             </sequential>
         </do-only-if-not-library>
         <record-build-info />

@@ -20,6 +20,8 @@ package org.brandroid.openmanager.util;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.WeakHashMap;
 import java.io.File;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -34,8 +36,12 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.net.ftp.FTPFile;
 import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.activities.ServerSetupActivity;
 import org.brandroid.openmanager.data.FTPManager;
+import org.brandroid.openmanager.data.OpenBox;
 import org.brandroid.openmanager.data.OpenContent;
+import org.brandroid.openmanager.data.OpenDrive;
+import org.brandroid.openmanager.data.OpenDropBox;
 import org.brandroid.openmanager.data.OpenFTP;
 import org.brandroid.openmanager.data.OpenFileRoot;
 import org.brandroid.openmanager.data.OpenNetworkPath;
@@ -47,16 +53,26 @@ import org.brandroid.openmanager.data.OpenSMB;
 import org.brandroid.openmanager.data.OpenSearch;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
+import org.brandroid.openmanager.data.OpenTar;
 import org.brandroid.openmanager.data.OpenZip;
+import org.brandroid.openmanager.data.OpenPath.OpenStream;
 import org.brandroid.openmanager.data.OpenSearch.SearchProgressUpdateListener;
+import org.brandroid.openmanager.data.OpenZip.OpenZipVirtualPath;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
 
+import com.box.androidlib.User;
+import com.dropbox.client2.DropboxAPI;
+import com.dropbox.client2.android.AndroidAuthSession;
+import com.dropbox.client2.session.AccessTokenPair;
+import com.dropbox.client2.session.AppKeyPair;
+import com.dropbox.client2.session.Session.AccessType;
 import com.jcraft.jsch.UserInfo;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.StatFs;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class FileManager {
@@ -65,7 +81,7 @@ public class FileManager {
     private boolean mShowHiddenFiles = false;
     private SortType mSorting = SortType.ALPHA;
     private long mDirSize = 0;
-    private static Hashtable<String, OpenPath> mOpenCache = new Hashtable<String, OpenPath>();
+    private static WeakHashMap<String, OpenPath> mOpenCache = new WeakHashMap<String, OpenPath>();
     public static UserInfo DefaultUserInfo;
     private OnProgressUpdateCallback mCallback = null;
 
@@ -87,87 +103,6 @@ public class FileManager {
      * this class uses a stack to handle the navigation of directories.
      */
     public FileManager() {
-    }
-
-    /**
-     * @param old the file to be copied
-     * @param newDir the directory to move the file to
-     * @return
-     */
-    /*
-     * public int copyToDirectory(String old, String newDir) { final File
-     * old_file = new File(old); final File temp_dir = new File(newDir); final
-     * byte[] data = new byte[BUFFER]; int read = 0; if(old_file.isFile() &&
-     * temp_dir.isDirectory() && temp_dir.canWrite()){ String file_name =
-     * old.substring(old.lastIndexOf("/"), old.length()); File cp_file = new
-     * File(newDir + file_name); if(cp_file.equals(old_file)) return 0; try {
-     * BufferedInputStream i_stream = new BufferedInputStream( new
-     * FileInputStream(old_file)); BufferedOutputStream o_stream = new
-     * BufferedOutputStream( new FileOutputStream(cp_file)); while((read =
-     * i_stream.read(data, 0, BUFFER)) != -1) o_stream.write(data, 0, read);
-     * o_stream.flush(); i_stream.close(); o_stream.close(); } catch
-     * (FileNotFoundException e) { Log.e("FileNotFoundException",
-     * e.getMessage()); return -1; } catch (IOException e) {
-     * Log.e("IOException", e.getMessage()); return -1; } }else
-     * if(old_file.isDirectory() && temp_dir.isDirectory() &&
-     * temp_dir.canWrite()) { String files[] = old_file.list(); String dir =
-     * newDir + old.substring(old.lastIndexOf("/"), old.length()); int len =
-     * files.length; if(!new File(dir).mkdir()) return -1; for(int i = 0; i <
-     * len; i++) copyToDirectory(old + "/" + files[i], dir); } else
-     * if(!temp_dir.canWrite()) return -1; return 0; }
-     */
-
-    /**
-     * @param zipName
-     * @param toDir
-     * @param fromDir
-     */
-    public void extractZipFilesFromDir(OpenPath zip, OpenPath directory) {
-        if (!directory.mkdir() && directory.isDirectory())
-            return;
-        extractZipFiles(zip, directory);
-    }
-
-    /**
-     * @param zip_file
-     * @param directory
-     */
-    public void extractZipFiles(OpenPath zip, OpenPath directory) {
-        byte[] data = new byte[BUFFER];
-        ZipEntry entry;
-        ZipInputStream zipstream;
-
-        directory.mkdir();
-
-        try {
-            zipstream = new ZipInputStream(zip.getInputStream());
-
-            while ((entry = zipstream.getNextEntry()) != null) {
-                OpenPath newFile = directory.getChild(entry.getName());
-                if (!newFile.mkdir())
-                    continue;
-
-                int read = 0;
-                FileOutputStream out = null;
-                try {
-                    out = (FileOutputStream)newFile.getOutputStream();
-                    while ((read = zipstream.read(data, 0, BUFFER)) != -1)
-                        out.write(data, 0, read);
-                } catch (Exception e) {
-                    Logger.LogError("Error unzipping " + zip.getAbsolutePath(), e);
-                } finally {
-                    zipstream.closeEntry();
-                    if (out != null)
-                        out.close();
-                }
-            }
-
-        } catch (FileNotFoundException e) {
-            Logger.LogError("Couldn't find file.", e);
-
-        } catch (IOException e) {
-            Logger.LogError("Couldn't extract zip.", e);
-        }
     }
 
     /**
@@ -220,13 +155,14 @@ public class FileManager {
         byte[] data = new byte[BUFFER];
         int read;
 
-        if (file.isFile()) {
+        if (file.isFile() && file instanceof OpenStream) {
             String name = file.getPath();
             if (relativePath != null && name.startsWith(relativePath))
                 name = name.substring(relativePath.length());
             ZipEntry entry = new ZipEntry(name);
             zout.putNextEntry(entry);
-            BufferedInputStream instream = new BufferedInputStream(file.getInputStream());
+            BufferedInputStream instream = new BufferedInputStream(
+                    ((OpenStream)file).getInputStream());
             // Logger.LogVerbose("zip_folder file name = " + entry.getName());
             int size = (int)file.length();
             int pos = 0;
@@ -287,6 +223,8 @@ public class FileManager {
             OpenPath[] file_list = null;
             try {
                 file_list = target.list();
+                if(file_list == null)
+                	file_list = target.listFiles();
             } catch (IOException e) {
                 Logger.LogError("Error listing children to delete.", e);
             }
@@ -352,11 +290,15 @@ public class FileManager {
             return null;
         OpenPath ret = null;
         if (path.startsWith("/"))
+        {
             ret = new OpenFile(path);
-        else if (path.startsWith("ftp:/"))
+            if (path.equals("/data") || path.startsWith("/data/"))
+                ret = new OpenFileRoot(ret);
+        } else if (path.startsWith("ftp:/"))
             ret = new OpenFTP(path, null, new FTPManager());
         else if (path.startsWith("sftp:/"))
             ret = new OpenSFTP(path);
+        // ret = new OpenVFS(path);
         else if (path.startsWith("smb:/"))
             try {
                 ret = new OpenSMB(path);
@@ -417,31 +359,33 @@ public class FileManager {
             return null;
         // Logger.LogDebug("Checking cache for " + path);
         if (mOpenCache == null)
-            mOpenCache = new Hashtable<String, OpenPath>();
+            mOpenCache = new WeakHashMap<String, OpenPath>();
         OpenPath ret = mOpenCache.get(path);
+        OpenServers servers = OpenServers.getDefaultServers();
         if (ret == null) {
-            if (path.startsWith("ftp:/") && OpenServers.DefaultServers != null) {
+            if (path.startsWith("ftp:/") && servers != null) {
                 Logger.LogDebug("Checking cache for " + path);
                 FTPManager man = new FTPManager(path);
                 FTPFile file = new FTPFile();
                 file.setName(path.substring(path.lastIndexOf("/") + 1));
                 Uri uri = Uri.parse(path);
-                OpenServer server = OpenServers.DefaultServers.findByHost("ftp", uri.getHost());
+                OpenServer server = servers.findByHost("ftp", uri.getHost());
                 man.setUser(server.getUser());
                 man.setPassword(server.getPassword());
                 ret = new OpenFTP(null, file, man);
             } else if (path.startsWith("scp:/")) {
                 Uri uri = Uri.parse(path);
                 ret = new OpenSCP(uri.getHost(), uri.getUserInfo(), uri.getPath(), null);
-            } else if (path.startsWith("sftp:/") && OpenServers.DefaultServers != null) {
+            } else if (path.startsWith("sftp:/") && servers != null) {
                 Uri uri = Uri.parse(path);
-                OpenServer server = OpenServers.DefaultServers.findByHost("sftp", uri.getHost());
+                OpenServer server = servers.findByHost("sftp", uri.getHost());
+                // ret = new OpenVFS(path);
                 ret = new OpenSFTP(uri);
                 SimpleUserInfo info = new SimpleUserInfo();
                 if (server != null)
                     info.setPassword(server.getPassword());
                 ((OpenSFTP)ret).setUserInfo(info);
-            } else if (path.startsWith("smb:/") && OpenServers.DefaultServers != null) {
+            } else if (path.startsWith("smb:/") && servers != null) {
                 try {
                     Uri uri = Uri.parse(path);
                     String user = uri.getUserInfo();
@@ -449,13 +393,15 @@ public class FileManager {
                         user = user.substring(0, user.indexOf(":"));
                     else
                         user = "";
-                    OpenServer server = OpenServers.DefaultServers.findByPath("smb", uri.getHost(),
+                    OpenServer server = servers.findByPath("smb", uri.getHost(),
                             user, uri.getPath());
                     if (server == null)
-                        server = OpenServers.DefaultServers.findByUser("smb", uri.getHost(), user);
+                        server = servers.findByUser("smb", uri.getHost(), user);
                     if (server == null)
-                        server = OpenServers.DefaultServers.findByHost("smb", uri.getHost());
-                    if (user == "")
+                        server = servers.findByHost("smb", uri.getHost());
+                    if (server == null)
+                    	server = servers.findByType("smb").size() > 0 ? servers.findByType("smb").get(0) : null;
+                    if(server != null && user.equals(""))
                         user = server.getUser();
                     if (server != null && server.getPassword() != null
                             && server.getPassword() != "")
@@ -467,10 +413,103 @@ public class FileManager {
                 } catch (Exception e) {
                     Logger.LogError("Couldn't get samba from cache.", e);
                 }
-            } else if (path.startsWith("/data") || path.startsWith("/system")
-                    || path.startsWith("/mnt/shell")
-                    || (path.indexOf("/emulated/") > -1 && path.indexOf("/emulated/0") == -1))
-                ret = new OpenFileRoot(new OpenFile(path));
+            } else if (path.startsWith("box")) {
+                try {
+                    Uri uri = Uri.parse(path);
+                    String us = uri.getUserInfo();
+                    String pw = us;
+                    if (pw != null && pw.indexOf(":") > -1)
+                    {
+                        us = us.substring(0, us.indexOf(":"));
+                        pw = pw.substring(pw.indexOf(":") + 1);
+                    }
+                    OpenServer server = servers.findByUser("box", null, us);
+                    if (server != null)
+                        pw = server.getPassword();
+                    User token = new User();
+                    token.setAuthToken(pw);
+                    ret = new OpenBox(token);
+                    try {
+                        if (uri.getPathSegments().size() > 0)
+                            ((OpenBox)ret).setId(Long.parseLong(uri.getLastPathSegment()));
+                    } catch (Exception e) {
+                    }
+                } catch (Exception e) {
+                    Logger.LogError("Couldn't get Box.com from cache.", e);
+                }
+            } else if (path.startsWith("drive")) {
+
+                try {
+                    Uri uri = Uri.parse(path);
+                    if(OpenExplorer.IS_DEBUG_BUILD)
+                        Logger.LogVerbose("Drive path (from " + path + "): " + TextUtils.join(", ", uri.getPathSegments()));
+                    String pw = uri.getUserInfo();
+                    if (pw != null && pw.indexOf(":") > -1)
+                        pw = pw.substring(pw.indexOf(":") + 1);
+                    String refresh = "";
+                    if (servers != null) {
+                        OpenServer server = servers.findByUser("drive", null, pw);
+                        if (server != null)
+                        {
+                            ret = (OpenDrive)server.getOpenPath();
+                            if (uri.getPathSegments().size() > 0)
+                                ret = ((OpenDrive)ret).setId(uri.getLastPathSegment());
+                            return ret;
+                        }
+                    }
+                    ret = new OpenDrive(pw, refresh).setId(uri.getLastPathSegment());
+                } catch (Exception e) {
+                    Logger.LogError("Couldn't get Drive item from cache.", e);
+                }
+            } else if (path.startsWith("db")) {
+                try {
+                    Uri uri = Uri.parse(path);
+                    String user = uri.getUserInfo();
+                    String pw = "";
+                    AccessTokenPair access = null;
+                    if (user == null || user.equals(""))
+                    {
+                        List<OpenServer> dbservers = servers.findByType("dropbox");
+                        if (dbservers.size() > 0)
+                        {
+                            OpenServer server = dbservers.get(0);
+                            if (!server.getUser().equals("") && !server.getPassword().equals(""))
+                            {
+                                user = server.getUser();
+                                pw = server.getPassword();
+                            }
+                        }
+                    }
+                    if (user != null)
+                    {
+                        if (user.indexOf(":") > -1)
+                        {
+                            user = Uri.decode(user.substring(0, user.indexOf(":")));
+                            pw = Uri.decode(pw.substring(pw.indexOf(":") + 1));
+                        }
+
+                        OpenServer server = servers.findByUser("dropbox", null, user);
+                        if (server != null)
+                            pw = server.getPassword();
+                        access = new AccessTokenPair(user, pw);
+                    }
+                    AppKeyPair app = new AppKeyPair(
+                            PrivatePreferences.getKey("dropbox_key"),
+                            PrivatePreferences.getKey("dropbox_secret"));
+                    DropboxAPI<AndroidAuthSession> api = new DropboxAPI<AndroidAuthSession>(
+                            new AndroidAuthSession(app, AccessType.DROPBOX, access)
+                            );
+                    ret = new OpenDropBox(api);
+                    ((OpenDropBox)ret).setPath(uri.getPath());
+                } catch (Exception e) {
+                    Logger.LogError("Couldn't get dropbox from cache.", e);
+                }
+            } /*
+               * else if (path.startsWith("/data") || path.startsWith("/system")
+               * || path.startsWith("/mnt/shell") || (path.indexOf("/emulated/")
+               * > -1 && path.indexOf("/emulated/0") == -1)) ret = new
+               * OpenFileRoot(new OpenFile(path));
+               */
             else if (path.startsWith("/"))
                 ret = new OpenFile(path);
             else if (path.startsWith("file://"))
@@ -487,6 +526,30 @@ public class FileManager {
                 return ret;
             if (ret instanceof OpenFile && ret.isArchive() && Preferences.Pref_Zip_Internal)
                 ret = new OpenZip((OpenFile)ret);
+            else if (ret instanceof OpenFile && path.toLowerCase().indexOf(".zip/") > -1)
+            {
+            	String pp = path.substring(0, path.toLowerCase().indexOf(".zip/") + 4);
+            	String cp = path.substring(pp.length() + 1);
+            	OpenZip pz = new OpenZip(new OpenFile(pp));
+            	pz.listFiles();
+            	ret = null;
+            	if(cp.endsWith("/"))
+            		ret = pz.findVirtualPath(cp);
+            	else if(cp.indexOf("/") > -1) {
+            		OpenZip.OpenZipVirtualPath vp = (OpenZipVirtualPath) pz.findVirtualPath(cp.substring(0, cp.lastIndexOf("/")));
+            		if(vp != null)
+            			ret = vp.getChild(cp.substring(cp.lastIndexOf("/") + 1));
+            	} else ret = pz.getChild(cp);
+            	if(ret == null)
+            		ret = new OpenFile(path);
+            	else
+            		setOpenCache(path, ret);
+            }
+            // if (ret instanceof OpenFile
+            // && (ret.getMimeType().contains("tar")
+            // || ret.getExtension().equalsIgnoreCase("tar")
+            // || ret.getExtension().equalsIgnoreCase("win")))
+            // ret = new OpenTar((OpenFile)ret);
             if (ret.requiresThread() && bGetNetworkedFiles) {
                 if (ret.listFiles() != null)
                     setOpenCache(path, ret);
@@ -499,6 +562,11 @@ public class FileManager {
         // ret = setOpenCache(path, new OpenFile(path));
         // else setOpenCache(path, ret);
         return ret;
+    }
+    
+    public static OpenPath setOpenCache(OpenPath file) {
+    	mOpenCache.put(file.getPath(), file);
+    	return file;
     }
 
     public static OpenPath setOpenCache(String path, OpenPath file) {

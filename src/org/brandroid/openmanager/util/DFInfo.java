@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Locale;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.utils.Logger;
@@ -62,18 +63,18 @@ public class DFInfo {
 
     public static int getSize(String s) {
         int level = 0;
-        if (s.endsWith("B"))
+        if (s.toUpperCase(Locale.US).endsWith("B"))
             level = 0;
-        else if (s.endsWith("K"))
+        else if (s.toUpperCase(Locale.US).endsWith("K"))
             level = 1;
-        else if (s.endsWith("M"))
+        else if (s.toUpperCase(Locale.US).endsWith("M"))
             level = 2;
-        else if (s.endsWith("G"))
+        else if (s.toUpperCase(Locale.US).endsWith("G"))
             level = 3;
-        else if (s.endsWith("T"))
+        else if (s.toUpperCase(Locale.US).endsWith("T"))
             level = 4;
         else
-            level = 1;
+            level = 3;
         try {
             double sz = Double.parseDouble(s.replaceAll("[^0-9\\.]", ""));
             sz *= (1024 ^ level);
@@ -124,6 +125,8 @@ public class DFInfo {
                 if (sl.indexOf("/asec") > -1)
                     continue;
                 if (sl.indexOf("/obb") > -1)
+                    continue;
+                if (sl.indexOf("/sys/") > -1)
                     continue;
                 try {
                     String[] slParts = sl.split(" ");

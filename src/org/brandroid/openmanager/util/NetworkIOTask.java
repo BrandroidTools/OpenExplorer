@@ -2,31 +2,22 @@
 package org.brandroid.openmanager.util;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Hashtable;
 
 import jcifs.smb.SmbAuthException;
 import jcifs.smb.SmbException;
 
-import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
-import org.brandroid.openmanager.data.OpenFTP;
-import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenSMB;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
-import org.brandroid.openmanager.fragments.ContentFragment;
-import org.brandroid.openmanager.util.RootManager.UpdateCallback;
 import org.brandroid.utils.Logger;
 
-import android.content.Context;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 
@@ -86,11 +77,11 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
         if (params != null)
             for (OpenPath path : params) {
                 try {
-                    if (path instanceof OpenNetworkPath && ((OpenNetworkPath)path).isConnected())
-                        ((OpenNetworkPath)path).disconnect();
+                    if (path instanceof OpenNetworkPath.PipeNeeded && ((OpenNetworkPath.PipeNeeded)path).isConnected())
+                        ((OpenNetworkPath.PipeNeeded)path).disconnect();
                 } catch (IOException e) {
                 }
-                mFileTasks.remove(path.getPath());
+                mFileTasks.remove(path.getAbsolutePath());
             }
     }
 
@@ -119,7 +110,7 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
         instanceRunning = true;
         this.params = params;
         publishProgress();
-        Logger.LogDebug("Beginning #" + (++instanceNumber) + ". Listing " + params[0].getPath());
+        Logger.LogDebug("Beginning #" + (++instanceNumber) + ". Listing " + params[0].getAbsolutePath());
         ArrayList<OpenPath> ret = new ArrayList<OpenPath>();
         for (OpenPath path : params) {
             Logger.LogVerbose("FileIOTask on " + path.getPath());
@@ -127,9 +118,9 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
                 SimpleUserInfo info = new SimpleUserInfo();
                 OpenServer server = null;
                 if (path instanceof OpenNetworkPath) {
-                    int si = ((OpenNetworkPath)path).getServersIndex();
+                    int si = ((OpenNetworkPath)path).getServerIndex();
                     if (si > -1)
-                        server = OpenServers.DefaultServers.get(si);
+                        server = OpenServers.getDefaultServers().get(si);
                     if (server != null && server.getPassword() != null
                             && server.getPassword() != "")
                         info.setPassword(server.getPassword());
@@ -139,8 +130,9 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
                 OpenPath[] list = null;
                 boolean success = false;
                 try {
-                    cachePath = FileManager.getOpenCache(path.getPath(), true, null);
+                    cachePath = FileManager.getOpenCache(path.getAbsolutePath(), true, null);
                     if (cachePath != null) {
+                        cachePath.clearChildren();
                         if (cachePath instanceof OpenNetworkPath)
                             list = ((OpenNetworkPath)cachePath).getChildren();
                         if (list == null)
@@ -149,7 +141,7 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
                     success = list != null;
                 } catch (SmbException ae) {
                     cachePath = path;
-                    Uri uri = Uri.parse(cachePath.getPath());
+                    Uri uri = Uri.parse(cachePath.getAbsolutePath());
                     ((OpenNetworkPath)cachePath).setUserInfo(info);
                     try {
                         list = cachePath.listFiles();
@@ -174,9 +166,10 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
                 }
                 if (!success || list == null || list.length == 0)
                     try {
+                        cachePath.clearChildren();
                         list = cachePath.listFiles();
                         if (list != null)
-                            FileManager.setOpenCache(cachePath.getPath(), cachePath);
+                            FileManager.setOpenCache(cachePath.getAbsolutePath(), cachePath);
                     } catch (SmbAuthException e) {
                         Logger.LogWarning("Couldn't connect to SMB using: "
                                 + ((OpenSMB)cachePath).getFile().getCanonicalPath());
@@ -195,6 +188,7 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
                 }
             } else {
                 try {
+                    path.clearChildren();
                     for (OpenPath f : path.listFiles())
                         ret.add(f);
                 } catch (IOException e) {
@@ -220,17 +214,20 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
     }
 
     @Override
-    protected void onProgressUpdate(OpenPath... values) {
+    protected void onProgressUpdate(final OpenPath... values) {
         super.onProgressUpdate(values);
-        mListener.setProgressVisibility(true);
-        mListener.addFiles(values);
+        OpenExplorer.post(new Runnable() {
+            public void run() {
+                mListener.setProgressVisibility(true);
+                mListener.addFiles(values);
+            }});
     }
 
     @Override
     protected void onPostExecute(final OpenPath[] result) {
         instanceRunning = false;
         if (params.length > 0)
-            mFileTasks.remove(params[0].getPath());
+            mFileTasks.remove(params[0].getAbsolutePath());
         if (result.length > 0) {
             final OpenPath mPath = result[0];
             if (OpenPath.AllowDBCache && mPath != null)
@@ -255,7 +252,10 @@ public class NetworkIOTask extends AsyncTask<OpenPath, OpenPath, OpenPath[]> imp
                 }).start();
             mListener.updateData(result);
         }
-        mListener.setProgressVisibility(false);
+        OpenExplorer.post(new Runnable() {
+            public void run() {
+                mListener.setProgressVisibility(false);
+            }});
         // onCancelled(result);
         // mData2.clear();
     }

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.brandroid.openmanager.R;
+import org.brandroid.openmanager.activities.OpenApplication;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.activities.OpenFragmentActivity;
 import org.brandroid.openmanager.adapters.IconContextMenu;
@@ -39,11 +40,10 @@ import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-import com.google.android.apps.analytics.Item;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -56,6 +56,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
@@ -66,6 +67,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnCreateContextMenuListener;
 import android.view.View.OnKeyListener;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 
 /*
@@ -79,8 +81,9 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     // public static boolean CONTENT_FRAGMENT_FREE = true;
     // public boolean isFragmentValid = true;
     private boolean mHasOptions = false;
-    protected boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
+    protected boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
     private OnFragmentDPADListener mDPAD = null;
+    private boolean mDestroyed = false;
 
     public final void setOnFragmentDPADListener(OnFragmentDPADListener listener) {
         mDPAD = listener;
@@ -172,10 +175,23 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
 
         mShare.setVisible(true);
     }
+    
+    public void makeToast(final Context context, final CharSequence text)
+    {
+        getHandler().post(new Runnable() {
+            public void run() {
+                try {
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Logger.LogError("Unable to make toast!", e);
+                }
+            }
+        });
+    }
 
     public String getString(int resId, String mDefault) {
-        if (getExplorer() != null)
-            return getExplorer().getString(resId);
+        if (getApplication() != null)
+            return getApplication().getString(resId);
         else
             return mDefault;
     }
@@ -250,11 +266,14 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
         if (a instanceof ContentFragment && b instanceof ContentFragment) {
             OpenPath pa = ((ContentFragment)a).getPath();
             OpenPath pb = ((ContentFragment)b).getPath();
-            if (pa == null && pb != null)
+            if ((pa == null || pa.getPath() == null)
+                    && (pb != null && pb.getPath() != null))
                 return 1;
-            else if (pb == null && pa != null)
+            else if ((pb == null || pb.getPath() == null)
+                    && (pa != null && pa.getPath() != null))
                 return -1;
-            else if (pa == null || pb == null)
+            else if (pa == null || pb == null
+                    || pa.getPath() == null || pb.getPath() == null)
                 return 0;
             priA = pa.getPath().length();
             priB = pb.getPath().length();
@@ -281,17 +300,17 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
         super.startActivityForResult(intent, requestCode);
-        if (DEBUG)
-            Logger.LogDebug(getClassName() + ".startActivityForResult(" + requestCode + ","
-                    + (intent != null ? intent.toString() : "null") + ")");
+        //        if (DEBUG)
+        //            Logger.LogDebug(getClassName() + ".startActivityForResult(" + requestCode + ","
+        //                    + (intent != null ? intent.toString() : "null") + ")");
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (DEBUG)
-            Logger.LogDebug(getClassName() + ".onActivityResult(" + requestCode + "," + resultCode
-                    + "," + (data != null ? data.toString() : "null") + ")");
+        //        if (DEBUG)
+        //            Logger.LogDebug(getClassName() + ".onActivityResult(" + requestCode + "," + resultCode
+        //                    + "," + (data != null ? data.toString() : "null") + ")");
     }
 
     public boolean showMenu(final Menu menu, View anchor, CharSequence title) {
@@ -335,7 +354,7 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
                 }
             });
             pop.getMenuInflater().inflate(menuId, pop.getMenu());
-            Logger.LogDebug("PopupMenu.show()");
+            //            Logger.LogDebug("PopupMenu.show()");
             pop.show();
             return true;
         }
@@ -427,11 +446,7 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
         // super.setHasOptionsMenu(hasMenu);
         mHasOptions = hasMenu;
     }
-
-    public boolean hasOptionsMenu() {
-        return mHasOptions;
-    }
-
+    
     public boolean onBackPressed() {
         if (getExplorer() != null) {
             try {
@@ -543,8 +558,8 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
         super.onAttach(activity);
         if (activity instanceof OpenExplorer)
             setOnFragmentDPADListener((OpenExplorer)activity);
-        final OpenPath path = (this instanceof OpenPathFragmentInterface) ? ((OpenPathFragmentInterface)this)
-                .getPath() : null;
+        final OpenPath path = (this instanceof OpenPathFragmentInterface) ?
+                ((OpenPathFragmentInterface)this).getPath() : null;
         if (DEBUG)
             Logger.LogDebug("}-- onAttach :: " + getClassName() + " @ " + path);
     }
@@ -552,16 +567,17 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     @Override
     public void onDetach() {
         super.onDetach();
-        if (DEBUG)
-            Logger.LogDebug("{-- onDetach :: "
-                    + getClassName()
-                    + (this instanceof OpenPathFragmentInterface
-                            && ((OpenPathFragmentInterface)this).getPath() != null ? " @ "
-                            + ((OpenPathFragmentInterface)this).getPath().getPath() : ""));
+                if (DEBUG)
+                    Logger.LogDebug("{-- onDetach :: "
+                            + getClassName()
+                            + (this instanceof OpenPathFragmentInterface
+                                    && ((OpenPathFragmentInterface)this).getPath() != null ? " @ "
+                                    + ((OpenPathFragmentInterface)this).getPath().getPath() : ""));
     }
 
     @Override
     public void onDestroy() {
+        mDestroyed = true;
         if (DEBUG)
             Logger.LogDebug("[-- onDestroy :: "
                     + getClassName()
@@ -570,19 +586,13 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
                             + ((OpenPathFragmentInterface)this).getPath().getPath() : ""));
         super.onDestroy();
     }
+    
+    public boolean isDestroyed() {
+        return mDestroyed;
+    }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        if (!item.hasSubMenu()) {
-            Logger.LogInfo("Click: MenuItem: " + item.getTitle().toString());
-            queueToTracker(new Runnable() {
-                public void run() {
-                    if (getAnalyticsTracker() != null)
-                        getAnalyticsTracker().trackEvent("Clicks", "MenuItem",
-                                item.getTitle().toString(), 1);
-                }
-            });
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -599,14 +609,9 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     public String getClassName() {
         return this.getClass().getSimpleName();
     }
-
-    /**
-     * Get instance of Event Handler.
-     * 
-     * @return
-     */
-    protected EventHandler getHandler() {
-        return OpenExplorer.getEventHandler();
+    
+    public static Handler getHandler() {
+        return OpenExplorer.getHandler();
     }
 
     /**
@@ -631,14 +636,28 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     }
 
     public OpenExplorer getExplorer() {
-        return (OpenExplorer)getActivity();
+        if(getActivity() instanceof OpenExplorer)
+            return (OpenExplorer)getActivity();
+        else return null;
     }
 
     public Context getApplicationContext() {
         if (getSherlockActivity() != null)
             return getSherlockActivity().getApplicationContext();
+        else if(getActivity() != null)
+        	return getActivity().getApplicationContext();
         else
             return null;
+    }
+    
+    public Application getApplication() {
+    	if(getActivity() != null)
+    		return getActivity().getApplication();
+    	else return null;
+    }
+    
+    public OpenApplication getOpenApplication() {
+    	return (OpenApplication)getApplication();
     }
 
     public static EventHandler getEventHandler() {
@@ -651,23 +670,29 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
 
     @Override
     public ActionMode getActionMode() {
-        if (getExplorer() != null)
-            return getExplorer().getActionMode();
+    	if (getExplorer() != null)
+    		return getExplorer().getActionMode();
+        if (getOpenApplication() != null)
+            return getOpenApplication().getActionMode();
         else
             return null;
     }
 
     @Override
     public void setActionMode(ActionMode mode) {
-        if (getExplorer() != null)
-            getExplorer().setActionMode(mode);
+    	if (getExplorer() != null)
+    		getExplorer().setActionMode(mode);
+    	else if (getOpenApplication() != null)
+        	getOpenApplication().setActionMode(mode);
     }
 
     @Override
     public OpenClipboard getClipboard() {
-        if (getExplorer() != null)
-            return getExplorer().getClipboard();
-        else
+    	if (getExplorer() != null)
+    		return getExplorer().getClipboard();
+    	else if (getOpenApplication() != null)
+            return getOpenApplication().getClipboard();
+        else 
             return null;
     }
 
@@ -686,41 +711,16 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     }
 
     public void onClick(final View v) {
-        Logger.LogInfo("Click: Other: " + v != null ? v.getClass().getSimpleName() : "Unknown",
-                ViewUtils.getText(v).toString());
-        queueToTracker(new Runnable() {
-            public void run() {
-                if (getAnalyticsTracker() != null)
-                    getAnalyticsTracker().trackEvent("Clicks",
-                            v != null ? v.getClass().getSimpleName() : "Unknown",
-                            ViewUtils.getText(v).toString(), 1);
+		Logger.LogInfo(getClassName() + ".onClick(" + v + ")");
             }
-        });
-    }
 
     public boolean onClick(final int id, final View from) {
-        Logger.LogInfo("Click: Other: " + from != null ? from.getClass().getSimpleName()
-                : "Unknown", ViewUtils.getText(from).toString());
-        queueToTracker(new Runnable() {
-            public void run() {
-                if (getAnalyticsTracker() != null)
-                    getAnalyticsTracker().trackEvent("Clicks",
-                            from != null ? from.getClass().getSimpleName() : "Unknown",
-                            ViewUtils.getText(from).toString(), 1);
-            }
-        });
+		Logger.LogInfo(getClassName() + ".onClick(0x" + Integer.toHexString(id) + ")");
         return false;
     }
 
     public boolean onLongClick(final View v) {
-        Logger.LogInfo("Long Click: Other: " + ViewUtils.getText(v).toString());
-        queueToTracker(new Runnable() {
-            public void run() {
-                if (v != null && getAnalyticsTracker() != null)
-                    getAnalyticsTracker().trackEvent("Long-Clicks", v.getClass().toString(),
-                            ViewUtils.getText(v).toString(), 1);
-            }
-        });
+		Logger.LogInfo(getClassName() + ".onLongClick(" + Integer.toHexString(v.getId()) + ") - " + v.toString());
         return false;
     }
 
@@ -776,79 +776,65 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
 
     @Override
     public Context getContext() {
-        if (getExplorer() != null)
-            return getExplorer().getContext();
+        if(getActivity() != null)
+            return getActivity();
         else
             return getApplicationContext();
     }
 
     @Override
     public DataManager getDataManager() {
-        return getExplorer().getDataManager();
+        return getOpenApplication().getDataManager();
     }
 
     @Override
     public DiskLruCache getDiskCache() {
-        return getExplorer().getDiskCache();
+        return getOpenApplication().getDiskCache();
     }
 
     @Override
     public DownloadCache getDownloadCache() {
-        return getExplorer().getDownloadCache();
+        return getOpenApplication().getDownloadCache();
     }
 
     @Override
     public ImageCacheService getImageCacheService() {
-        return getExplorer().getImageCacheService();
+        return getOpenApplication().getImageCacheService();
     }
 
     @Override
     public ContentResolver getContentResolver() {
-        return getExplorer().getContentResolver();
+        return getOpenApplication().getContentResolver();
     }
 
     @Override
     public Looper getMainLooper() {
-        return getExplorer().getMainLooper();
+        return getOpenApplication().getMainLooper();
     }
 
     @Override
     public LruCache<String, Bitmap> getMemoryCache() {
-        return getExplorer().getMemoryCache();
+        return getOpenApplication().getMemoryCache();
     }
 
     @Override
     public Preferences getPreferences() {
-        return getExplorer().getPreferences();
+        return getOpenApplication().getPreferences();
     }
 
     @Override
     public void refreshBookmarks() {
-        getExplorer().refreshBookmarks();
+        getOpenApplication().refreshBookmarks();
     }
 
     @Override
     public ThreadPool getThreadPool() {
-        return getExplorer().getThreadPool();
+        return getOpenApplication().getThreadPool();
     }
 
     @Override
     public ShellSession getShellSession() {
-        return getExplorer().getShellSession();
-    }
-
-    @Override
-    public GoogleAnalyticsTracker getAnalyticsTracker() {
-        if (getExplorer() != null)
-            return getExplorer().getAnalyticsTracker();
-        else
-            return null;
-    }
-
-    @Override
-    public void queueToTracker(Runnable run) {
-        if (getExplorer() != null)
-            getExplorer().queueToTracker(run);
+        return getOpenApplication().getShellSession();
     }
 
     @Override

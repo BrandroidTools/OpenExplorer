@@ -1,49 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
-	OpenExplorer, an open source file manager for the Android system
-    Copyright (C) 2011  Brandon Bowles <brandroid64@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:foreground="?attr/listColumnBackground"
     android:orientation="vertical" >
-    
-	<GridView
-	    android:id="@+id/content_grid"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:columnWidth="@dimen/grid_width"	    
-	    android:fastScrollEnabled="true"
-	    android:gravity="center"
-	    android:numColumns="auto_fit"
-	    android:stretchMode="columnWidth"
-	    android:listSelector="@drawable/list_selector"
-	    android:drawSelectorOnTop="false"
-	    android:scrollingCache="false"
-	    >
-	</GridView>
-	
-	<TextView
-	    android:id="@android:id/empty"
-	    android:text="@string/no_items"
-	    android:layout_width="wrap_content" 
-	    android:layout_height="wrap_content"
-	    android:layout_margin="5dp"
-	    android:visibility="gone"
-	    />
-         
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@android:id/empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="@string/no_items"
+            android:visibility="gone" />
+
+        <GridView
+            android:id="@+id/content_grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/content_status_bar"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_weight="1"
+            android:columnWidth="@dimen/grid_width"
+            android:drawSelectorOnTop="false"
+            android:fastScrollEnabled="true"
+            android:gravity="center"
+            android:listSelector="@drawable/list_selector"
+            android:numColumns="auto_fit"
+            android:scrollingCache="false"
+            android:stretchMode="columnWidth" >
+        </GridView>
+
+        <Button
+            android:id="@+id/content_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:text="@string/s_cancel"
+            android:textAppearance="@style/Text.Small.Dialog" />
+
+        <LinearLayout
+            android:id="@+id/content_status_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_toRightOf="@+id/content_cancel"
+            android:orientation="vertical" >
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="?attr/drawerBackgroundColor" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/content_status"
+                    style="@style/Text.Small"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|left"
+                    android:layout_weight="1"
+                    android:background="?attr/dialogBackgroundColorPrimary"
+                    android:padding="4dp"
+                    android:text="@string/s_status_loading"
+                    android:textColor="?attr/dialogTextColorPrimary" />
+
+                <TextView
+                    android:id="@+id/content_status_right"
+                    style="@style/Text.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|right"
+                    android:background="?attr/dialogBackgroundColorPrimary"
+                    android:padding="4dp"
+                    android:text="@string/s_status_loading"
+                    android:textColor="?attr/dialogTextColorPrimary" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+
 </FrameLayout>

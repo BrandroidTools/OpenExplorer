@@ -35,6 +35,8 @@
         <attr name="actionIconOperations" format="reference" />
         <attr name="actionIconRefresh" format="reference" />
         <attr name="actionIconSearch" format="reference" />
+        <attr name="actionIconCheck" format="reference" />
+        <attr name="actionIconCancel" format="reference" />
 
         <!-- Action Mode Icons -->
         <attr name="actionIconRename" format="reference" />
@@ -58,11 +60,11 @@
         <attr name="listIconBackground" format="reference" />
 
         <!-- Style Colors -->
-        <attr name="actionBarTextColorPrimary" format="color" />
+        <attr name="actionBarTextColorPrimary" format="color|reference" />
         <attr name="actionBarTextColorSecondary" format="color" />
         <attr name="actionBarTextColorHighlight" format="color" />
         <attr name="actionBarTextColorInverse" format="color" />
-        <attr name="appTextColorPrimary" format="color" />
+        <attr name="appTextColorPrimary" format="color|reference" />
         <attr name="appTextColorSecondary" format="color" />
         <attr name="appTextColorHighlight" format="color" />
         <attr name="appTextColorInverse" format="color" />
@@ -74,6 +76,7 @@
         <attr name="dialogTextColorInverse" format="color" />
         <attr name="dialogAccentColorPrimary" format="color" />
         <attr name="dialogBackgroundColorPrimary" format="color" />
+        <attr name="dialogTitleUnderline" format="color" />
         
         <!-- Sliding Drawer -->
         <attr name="drawerTextColorPrimary" format="color" />
@@ -82,6 +85,8 @@
         <attr name="drawerListSelector" format="reference" />
         <attr name="drawerListCategorySelector" format="reference" />
         <attr name="drawerBackgroundColor" format="color" />
+        
+        <attr name="dialog" format="integer" />
         
     </declare-styleable>
     <declare-styleable name="BezelImageView">

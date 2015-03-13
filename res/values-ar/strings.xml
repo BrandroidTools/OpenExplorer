@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
-
     <string name="app_name">مستعرض الملفات</string>
     <string name="s_photos">الصور</string>
     <string name="s_videos">الفيديو</string>
@@ -9,7 +8,7 @@
     <string name="s_external">الذاكرة الخارجية</string>
     <string name="s_internal">الذاكرة الداخلية</string>
     <string name="s_view">عرض</string>
-    <string name="s_bookmarks">علامات</string>
+    <string name="s_bookmarks">العلامات</string>
     <string name="s_menu_favorites">ثبت العلامات</string>
     <string name="s_menu_sort">ترتيب</string>
     <string name="s_menu_sort_name_asc">حسب الإسم تصاعديا</string>
@@ -54,8 +53,7 @@
     <string name="s_pref_thumbs">عرض مصغرات الصور</string>
     <string name="s_pref_thumbs_summary">عرض مصغرات للصور والفيديو والبرامج </string>
     <string name="s_pref_view">طريقة العرض</string>
-    <string name="s_pref_view_summary">عرض الملفات على شكل شبكة أو قائمة أو دائري 
-\nفقط في نظام أندرويد هوني كومب</string>
+    <string name="s_pref_view_summary">عرض الملفات على شكل شبكة أو قائمة أو دائري \nفقط في نظام أندرويد هوني كومب</string>
     <string name="s_pref_sort">ترتيب</string>
     <string name="s_pref_sort_summary">إختر كيف يتم ترتيب الملفات والمجلدات</string>
     <string name="s_pref_advanced">خيارات متقدمة</string>
@@ -75,7 +73,7 @@
     <string name="s_pref_server_type">نوع السيرفر</string>
     <string name="s_files">الملفات</string>
     <string name="s_create">إنشاء</string>
-    <string name="s_title_holding_x_files">معالجة % ملف</string>
+    <string name="s_title_holding_x_files" formatted="false">معالجة % ملف</string>
     <string name="s_title_newfolder">إنشاء مجلد جديد</string>
     <string name="s_title_send">إرسال xxx</string>
     <string name="s_title_unzip">فك ضغط xxx</string>
@@ -88,10 +86,10 @@
     <string name="s_title_zipping">جاري الضغط</string>
     <string name="s_title_unzipping">جاري فك الضغط</string>
     <string name="s_title_wait">الرجاء الإنتظار ...</string>
-    <string name="s_alert_confirm_delete">حذف % لا يمكن التراجع عنه, هل أنت متأكد من أختيارك هذا؟</string>
+    <string name="s_alert_confirm_delete" formatted="false">حذف % لا يمكن التراجع عنه, هل أنت متأكد من أختيارك هذا؟</string>
     <string name="s_alert_rename">إدخل إسم جديد لهذا الملف</string>
     <string name="s_alert_newfolder">أكتب إسم المجلد الذي تريد إنشاءه</string>
-    <string name="s_alert_unzip">هل ترغب في فك ضغط % هنا أو في مجلد آخر</string>
+    <string name="s_alert_unzip" formatted="false">هل ترغب في فك ضغط % هنا أو في مجلد آخر</string>
     <string name="s_button_unzip_here">فك الضغط هنا</string>
     <string name="s_button_unzip_else">فك الضغط في مجلد آخر</string>
     <string name="s_msg_none">لايمكن إجراء الـ</string>
@@ -125,8 +123,6 @@
     <string name="s_pref_start_summary">يحدد ماهو المجلد الإفتراضي للبرنامج</string>
     <string name="s_custom">مخصص</string>
     <string name="s_text_intro_top">مرحبا بك في  OpenExplorer</string>
-    <string name="s_text_intro_body">الرجاء أختيار مسار البدء
-\nترجمة: شمسان العماري</string>
     <string name="s_info_num_folders">عدد المجلدات</string>
     <string name="s_info_num_files">عدد الملفات</string>
     <string name="s_info_last_modified">آخر تعديل</string>
@@ -145,7 +141,7 @@
     <string name="s_menu_delete_all">حذف الكل</string>
     <string name="s_menu_move_all">تحريك إلى هنا</string>
     <string name="s_menu_copy_all">نسخ إلى هنا</string>
-    <string name="s_confirm_delete">هل أنت متأكد أنك تريد حذف %s</string>
+    <string name="s_confirm_delete" formatted="false">هل أنت متأكد أنك تريد حذف %s</string>
     <string name="s_error_same_destination">المجلد الوجهة نفس المصدر</string>
     <string name="s_sample_notification">نسخ للذاكرة</string>
     <string name="s_pref_fullscreen">ملء الشاشة</string>
@@ -183,7 +179,7 @@
     <string name="s_pref_honeyplus">فقط في أندرويد 3 أو ما فوق</string>
     <string name="s_pref_actionmode">إسلوب الأداء</string>
     <string name="s_pref_actionmode_enabled">إستخدم أسلوب الأداء</string>
-    <string name="s_pref_actionmode_disabled">إستخدم قوائم إفتراضية</string>
+    <string name="s_pref_actionmode_disabled">استخدم القوائم العاديه</string>
     <string name="s_server_smb">SMB/Windows</string>
     <string name="s_bookmark_drives">الأقراص</string>
     <string name="s_bookmark_smart">ملفات ذكية</string>
@@ -214,12 +210,9 @@
     <string name="s_pref_fancy_menus">قوائم جميلة</string>
     <string name="s_pref_fancy_context">القوائم الجميلة</string>
     <string name="s_search_files">بحث في ملفات النظام</string>
-    <string name="search_summary" formatted="false">جاري البحث عن %s في (%d)...</string>
-    <string name="search_results" formatted="false">تم إيجاد %d نتيجة عن &quot;%s&quot; \n في &quot;%s&quot;</string>
     <string name="s_menu_exit">خروج</string>
     <string name="s_warn_wtf_message">أوووبز! يبدو أن هناك أخطاء غير متوقعة قد حصلت! ولأن هذا أمر قد يحدث في أي تطبيق تحت التجربة .. نرجوا منك مساعدتنا بإرسال تقرير لنا عن هذا الخطأ علماً أنه معلوماتك الشخصية لن تصل إلينا.</string>
-    <string name="s_warn_wtf_ps">الرجاء ملاحظة أن هذا البرنامج مازال تجريبي وتحت التطوير.
-\nنرجوا منكم عدم وضع تقييم سيء . إذا أزعجك البرنامج قم بإزالته من جهازك</string>
+    <string name="s_warn_wtf_ps">الرجاء ملاحظة أن هذا البرنامج مازال تجريبي وتحت التطوير.\nنرجوا منكم عدم وضع تقييم سيء . إذا أزعجك البرنامج قم بإزالته من جهازك</string>
     <string name="s_yes">نعم</string>
     <string name="s_no">لا</string>
     <string name="s_wtf_preview">عرض معلومات التقرير</string>
@@ -243,24 +236,9 @@
     <string name="menu_view_font_small">خط صغير الحجم</string>
     <string name="menu_view_font_medium">خط متوسط الحجم</string>
     <string name="menu_view_font_large">خط كبير الحجم</string>
-    <string name="app_description">OpenExplorer - افتح إدارة ملف مصدر لجميع الأجهزة! (أقراص، هواتف، وأجهزة تلفاز جوجل، والسندويشات!)
-\n- استكمال نظام إدارة الملف
-\n- USB، والتنمية المستدامة وغيرها من وسائل الإعلام الخارجية
-\n- للربط الشبكة (FTP، SFTP، SMB / سامبا / ويندوز / LAN / WIFI)
-\n- نص محرر
-\n- سمارت المجلدات التي تفحص لأنواع مختلفة من وسائل الاعلام (فيديو، صور، موسيقى، التحميل)
-\n- مشاهدة بيجر دليل الملاحة (انتقاد حق لترتفع دليل)
-\n- المستعملين المتميزين / الجذر القدرة على قائمة / قراءة مجلدات النظام (أي نظام الكتابة حتى الآن)
-\n
-\nميزات ليأتي:
-\n- كلفه محرر النص
-\n- القدرة على المزيد من الشبكات (دروببوإكس، Box.net، السماء محرك الأقراص)
-\n- غير متصل مخبأ بنية الملف، وسوف تذكر الملفات التي لديك في أماكن مختلفة دون الحاجة للاتصال
-\n- خريطة مساحة القرص حرارة يظهر فيها الملفات الخاصة بك هي أكبر
-\n
-\n* يرجى ملاحظة: هذا التطبيق هو في بيتا. لا تزال هناك العديد من البق. إذا كنت لا ترغب في أن تشهد هذه الأخطاء، من فضلك لا تحميل هذا التطبيق. إذا كنت ترغب في مساعدتي في العثور على هذه الحشرات، يرجى الكتابة لي أو تعاون معي على GitHub (https://github.com/BrandoCommando/OpenExplorer/). يرجى تذكر تقييمات سيئة مساعدة أحد.</string>
-    <string name="alert_translate_google">مرحبا، وتقدم هذه الترجمة بواسطة مترجم جوجل. إذا كنت تعرف اللغة الإنجليزية، فضلا عن%s، وترغب في المساعدة في تقديم أفضل ترجمة، يرجى النقر على هذا الزر:</string>
-    <string name="alert_translate_none">مرحبا، يبدو أنك تستخدم لغة غير مدعومة. هل تعرف ق الإنجليزية %s إذا كنت تريد أن تساعد في توفير الترجمة الصحيحة، انقر هنا:</string>
+    <string name="app_description">OpenExplorer - افتح إدارة ملف مصدر لجميع الأجهزة! (أقراص، هواتف، وأجهزة تلفاز جوجل، والسندويشات!)\n- استكمال نظام إدارة الملف\n- USB، والتنمية المستدامة وغيرها من وسائل الإعلام الخارجية\n- للربط الشبكة (FTP، SFTP، SMB / سامبا / ويندوز / LAN / WIFI)\n- نص محرر\n- سمارت المجلدات التي تفحص لأنواع مختلفة من وسائل الاعلام (فيديو، صور، موسيقى، التحميل)\n- مشاهدة بيجر دليل الملاحة (انتقاد حق لترتفع دليل)\n- المستعملين المتميزين / الجذر القدرة على قائمة / قراءة مجلدات النظام (أي نظام الكتابة حتى الآن)\n\nميزات ليأتي:\n- كلفه محرر النص\n- القدرة على المزيد من الشبكات (دروببوإكس، Box.net، السماء محرك الأقراص)\n- غير متصل مخبأ بنية الملف، وسوف تذكر الملفات التي لديك في أماكن مختلفة دون الحاجة للاتصال\n- خريطة مساحة القرص حرارة يظهر فيها الملفات الخاصة بك هي أكبر\n\n* يرجى ملاحظة: هذا التطبيق هو في بيتا. لا تزال هناك العديد من البق. إذا كنت لا ترغب في أن تشهد هذه الأخطاء، من فضلك لا تحميل هذا التطبيق. إذا كنت ترغب في مساعدتي في العثور على هذه الحشرات، يرجى الكتابة لي أو تعاون معي على GitHub (https://github.com/BrandoCommando/OpenExplorer/). يرجى تذكر تقييمات سيئة مساعدة أحد.</string>
+    <string name="alert_translate_google" formatted="false">مرحبا، وتقدم هذه الترجمة بواسطة مترجم جوجل. إذا كنت تعرف اللغة الإنجليزية، فضلا عن%s، وترغب في المساعدة في تقديم أفضل ترجمة، يرجى النقر على هذا الزر:</string>
+    <string name="alert_translate_none" formatted="false">مرحبا، يبدو أنك تستخدم لغة غير مدعومة. هل تعرف ق الإنجليزية %s إذا كنت تريد أن تساعد في توفير الترجمة الصحيحة، انقر هنا:</string>
     <string name="button_translate">ترجمة</string>
     <string name="httpError">حدث خطأ في الشبكة</string>
     <string name="httpErrorAuth">نجحت المصادقة</string>
@@ -317,5 +295,51 @@
     <string name="s_alert_clipboard">تم النسخ للذاكرة المؤقتة</string>
     <string name="s_alert_restart">إعادة التشغيل. الرجاء الإنتظار</string>
     <string name="language">اللغة</string>
-
+    <string name="s_menu_download">تنزيل</string>
+    <string name="scan">مسح</string>
+    <string name="test">تجربة</string>
+    <string name="test_success">اتصل بنجاح</string>
+    <string name="theme">نمط</string>
+    <string name="theme_dark">معتم</string>
+    <string name="theme_light">مضيئ</string>
+    <string name="chooser_remember">تذكر اختياري</string>
+    <string name="use_system">؟استخدم النظام &gt;&gt;</string>
+    <string name="activity_resolver_use_always">دائماَ</string>
+    <string name="activity_resolver_use_once">فقط لمرة</string>
+    <string name="s_pref_bookmarks_summary">اظهر العلامات</string>
+    <string name="apply_to_all">هل تريد تطبيقه على كافة المجلدات</string>
+    <string name="s_pref_view_folders">تفضيلات المجلدات</string>
+    <string name="s_pref_view_general">تفضيلات عامة</string>
+    <string name="s_msg_folder_none">لايمكن انشاء المجلد</string>
+    <string name="s_privacy">سياسة الخصوصية</string>
+    <string name="s_menu_system_mount">اجعل ملف النظام قابل للكتابة (خطر) </string>
+    <string name="s_menu_system_mount_on">النظام قابل للكتابة</string>
+    <string name="s_menu_system_mount_off">النظام للقراءة فقط</string>
+    <string name="s_pref_servers_private_summary">تخزين إعدادات السيرفر في في منطقة تخزين خاصةهذا سيتسبب في مسح الاعدادات عند مسح التطبيق لاتختر هذا الخيار اذا كنت ستثبت التطبيق مرة اخرى وترغب في استعادة اعداداتك.</string>
+    <string name="s_menu_rate">قَيّمْ</string>
+    <string name="s_alert_destination_exists">الدليل موجود مسبقاً .ماذا تريد ان تفعل؟</string>
+    <string name="s_overwrite">إعادة الكتابة</string>
+    <string name="s_skip">تخطي</string>
+    <string name="s_msg_file_exists">بعض المل\nفات موجودة مسبقاَ .هل ترغب بالكتابة فوقها ؟</string>
+    <string name="s_title_file_exists">الملف تم استخراجة مسبقاَ</string>
+    <string name="s_msg_pref_archives">هل تريد تصفح السجل او استخراجه؟</string>
+    <string name="s_browse">تصفح مواقع النت</string>
+    <string name="s_extracted">تم الاستخراج</string>
+    <string name="s_extracting">استخراجززنتعفغججع</string>
+    <string name="s_extract_with">استخرج نت</string>
+    <string name="s_ask_again">اسأل كل مرة</string>
+    <string name="s_archives">السجلات</string>
+    <string name="s_compress">اضغط</string>
+    <string name="s_compress_type">نوع الضغط</string>
+    <string name="s_compressed">مضغوط</string>
+    <string name="s_delete_after">امسح المصدر بعد الانتهاء</string>
+    <string name="s_pass_old">ادخل كلمة المرور القديمة</string>
+    <string name="s_pass_new">188877776666</string>
+    <string name="s_logout">تسجيل الخروج</string>
+    <string name="s_bookmark_history">سجل</string>
+    <string name="s_server_account_title">حساب</string>
+    <string name="s_folders">مجلداتforex</string>
+    <string name="s_hidden">مخفي</string>
+    <string name="s_total">مجمل</string>
+    <string name="s_custom_account">حساب مخصص</string>
 </resources>

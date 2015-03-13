@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<resources>
+    <string name="app_name">Open Explorer</string>
+    <string name="s_menu_favorites">Isključi/uključi oznake</string>
+    <string name="s_menu_sort">Poredaj</string>
+    <string name="s_menu_sort_name_asc">Poredaj po imenu (A-Z)</string>
+    <string name="s_menu_sort_name_desc">Poredaj po imenu (Z-A)</string>
+    <string name="s_menu_sort_date_asc">Poredaj od najnovijih</string>
+    <string name="s_menu_sort_date_desc">Poredaj od nastarijih</string>
+    <string name="s_menu_sort_size_asc">Poredaj od najvećih</string>
+    <string name="s_menu_sort_size_desc">Poredaj od najmanjih</string>
+    <string name="s_menu_sort_type">Poredaj po vrsti datoteke</string>
+    <string name="s_menu_multi">Višestruko označavanje</string>
+    <string name="s_menu_grid">Prikaz kao rešetka</string>
+    <string name="s_menu_list">Prikaz kao lista</string>
+    <string name="s_menu_hidden">Prikaži skrivene datoteke</string>
+    <string name="s_menu_new_folder">Nova mapa</string>
+    <string name="s_menu_other">Druge postavke</string>
+    <string name="back_button_label">Vrati </string>
+    <string name="next_button_label">Slijedeće</string>
+    <string name="no_matches">Nema podudaranja</string>
+    <string name="find_on_page">Traži na stranici</string>
+    <string name="find">Traži</string>
+    <string name="extract_edit_menu_button">Izmijeni</string>
+    <string name="activity_chooser_view_see_all">Pogledaj sve</string>
+    <string name="s_title_picker">Molimo odaberite direktorij</string>
+    <string name="selected_path">Odabrana putanja</string>
+    <string name="filename">Ime datoteke</string>
+    <string name="s_msg_saved">Spremljeno</string>
+    <string name="s_menu_view_line_numbers">Brojevi linija</string>
+    <string name="warn_text_editor">Dobrodošli u uređivač teksta. Molimo dulje držite pritisnut tekst kako bi ušli u podsustav Uređivanje.</string>
+    <string name="warn_networking">Dobrodošli u mrežnu komunikaciju. Molimo imajte na umu da je ova značajka još u razvoju pa će možda biti pogrešaka. Molimo Vas da na stranici trgovine ne označavate lošom ocjenom ukoliko naiđete na jednu od grešaka.</string>
+    <string name="s_menu_new_file">Nova tekstualna datoteka</string>
+    <string name="s_msg_created">Stvoreno</string>
+    <string name="s_title_newfile">Nova datoteka</string>
+    <string name="language">Jezik</string>
+</resources>

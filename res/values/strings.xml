@@ -92,6 +92,7 @@
     <string name="s_alert_confirm_delete">Deleting %s cannot be undone. Are you sure you want to continue?</string>
     <string name="s_alert_rename">Please type the new name this file</string>
     <string name="s_alert_newfolder">Type the name of the new folder:</string>
+    <string name="s_newfile_prompt">File Type</string>
     <string name="s_alert_unzip">Would you like to unzip %s here or some other folder?</string>
     <string name="s_button_unzip_here">Unzip here</string>
     <string name="s_button_unzip_else">Unzip elsewhere…</string>
@@ -189,7 +190,7 @@
     <string name="s_bookmark_drives">Drives</string>
     <string name="s_bookmark_smart">Smart Folders</string>
     <string name="s_bookmark_favorites">Favorites</string>
-    <string name="s_bookmark_servers">Servers</string>
+    <string name="s_bookmark_servers">Networking</string>
     <string name="s_bookmark_cache">Cache</string>
     <string name="s_info_totalspace">Disk Total Space:</string>
     <string name="s_info_freespace">Disk Free Space:</string>
@@ -311,7 +312,7 @@
     <string name="s_pref_text_max_size">Maximum Editable Text Filesize</string>
     <string name="warn_text_editor">Welcome to Text Editor. Please long press the text to enter Edit mode.</string>
     <string name="warn_networking">Welcome to Networking. Please note that this feature is still under development and may contain bugs. Please do not give a bad market rating if you find any of these bugs.</string>
-    <string name="s_menu_new_file">New Text File</string>
+    <string name="s_menu_new_file">New File/Folder</string>
     <string name="s_msg_created">created</string>
     <string name="s_title_newfile">New File</string>
     <string name="s_alert_newfile_folder">Create new file in:</string>
@@ -327,6 +328,11 @@
     <string name="no_items">No items.</string>
     <string name="clipboard">Clipboard</string>
     <string name="theme">Theme</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+    <string name="menu_view_font_small">Small</string>
+    <string name="menu_view_font_medium">Medium</string>
+    <string name="menu_view_font_large">Large</string>
     <string name="s_pref_theme">Select Theme</string>
     <string name="s_theme_dark">Dark</string>
     <string name="s_theme_light">Light</string>
@@ -388,5 +394,54 @@
     <string name="help_systemroot_title">Rooted System Mount</string>
     
     <string name="s_menu_rate">Rate App</string>
+    <string name="s_alert_destination_exists">Destination already exists. What would you like to do?</string>
+    <string name="s_overwrite">Overwrite</string>
+    <string name="s_skip">Skip</string>
+    <string name="s_untar">unTARed</string>
+    <string name="s_untarring">unTARing</string>
+    <string name="s_msg_file_exists">Some destination files may already exist. Ok to overwrite?</string>
+    <string name="s_title_file_exists">File already exists.</string>
+    <string name="s_msg_pref_archives">Would you like to browse or extract the archive?</string>
+    <string name="s_browse">Browse</string>
+    <string name="s_extract">Extract</string>
+    <string name="s_extracted">extracted</string>
+    <string name="s_extracting">Extracting</string>
+    <string name="s_extract_with">Extract with…</string>
+    <string name="s_title_archive_handler">Archive Handler</string>
+    <string name="s_ask_again">Ask each time</string>
+    <string name="s_archives">Archives</string>
+    <string name="s_compress">Compress</string>
+    <string name="s_compress_type">Compression Type</string>
+    <string name="s_compressed">compressed</string>
+    <string name="s_delete_after">Delete source after completion</string>
+    <string name="s_master_pass">Master Password</string>
+    <string name="s_master_pass_warning">You may enter a master password, used as the encryption key for any stored passwords. If you leave this blank, passwords will still be encrypted, and the default master password will be used. Please note that if you update your password with stored network passwords, you will probably need to reset passwords and authenticate cloud servers after resetting this password.</string>
+    <string name="s_pass_old">Enter old password:</string>
+    <string name="s_pass_new">Enter new password:</string>
+    <string name="s_logout">Log out</string>
+    <string name="s_authenticate">Authenticate</string>
+    <string name="s_authenticating">Authenticating</string>
+    <string name="s_bookmark_history">History</string>
+    <string name="s_server_account_title">Account:</string>
+    <string name="s_authenticate_success">Authentication successful</string>
+    <string name="s_authenticate_refresh">Refresh Authentication</string>
+    <string name="s_pref_thumbs_cache">Pre-Cache Thumbnails</string>
+    <string name="s_pref_thumbs_cache_summary">This will help speed up loading folders containing Pictures and Videos.</string>
+    <string name="s_folders">folders</string>
+    <string name="s_hidden">hidden</string>
+    <string name="s_total">total</string>
+    <string name="s_custom_account">Custom Account</string>
+    
+    <string name="s_title_cloud">Cloud Services</string>
+    <string name="s_title_cloud_box">Box</string>
+    <string name="s_title_cloud_dropbox">Dropbox</string>
+    <string name="s_title_cloud_drive">Google Drive</string>
+    <string name="s_pref_cloud_enabled">Enable Service</string>
+    <string name="s_pref_cloud_key">OAuth client Key override</string>
+    <string name="s_pref_cloud_secret">OAuth client Secret override</string>
+    
+    <string name="s_title_uploading">Uploading</string>
+    <string name="s_title_downloading">Downloading</string>
+    
 
 </resources>

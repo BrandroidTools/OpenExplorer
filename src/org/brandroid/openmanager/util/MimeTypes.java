@@ -79,6 +79,7 @@ public class MimeTypes {
         // extension-to-MIME map.
         // Be sure to remove the first character from the extension, which is
         // the "." character.
+        if(extension == null) return null;
         if (extension.length() > 0) {
             String webkitMimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
                     extension.substring(1));

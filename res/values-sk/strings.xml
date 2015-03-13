@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
-
     <string name="app_name">Open Explorer</string>
     <string name="s_photos">Fotky</string>
     <string name="s_videos">Videá</string>
@@ -90,7 +89,7 @@
     <string name="s_alert_confirm_delete">Mazanie nemožno vrátiť. Ste si istí, že chcete pokračovať?</string>
     <string name="s_alert_rename">Prosím zadajte nový názov tohoto súboru</string>
     <string name="s_alert_newfolder" auto="1">Zadajte názov priečinka, ktorú chcete vytvoriť.</string>
-    <string name="s_alert_unzip" auto="1">Chceli by ste rozbalit %s tu alebo inú zložku?</string>
+    <string name="s_alert_unzip" formatted="false" auto="1">Chceli by ste rozbalit %s tu alebo inú zložku?</string>
     <string name="s_button_unzip_here" auto="1">Rozbaľte tu</string>
     <string name="s_button_unzip_else" auto="1">Rozbaľte inde ...</string>
     <string name="s_msg_none" auto="1">Súbor (y) nemôže byť</string>
@@ -113,8 +112,8 @@
     <string name="s_about_recent" auto="1">Nedávne aktualizácia</string>
     <string name="s_chooser_email" auto="1">Poslať komentár ...</string>
     <string name="s_status_loading" auto="1">Loading ...</string>
-    <string name="s_menu_open" auto="1">Otvoriť pomocou ...</string>
-    <string name="s_menu_edit" auto="1">Úpravy sa ...</string>
+    <string name="s_menu_open">Otvoriť s...</string>
+    <string name="s_menu_edit">Upraviť s</string>
     <string name="s_pref_stats_title" auto="1">Zlepšiť OpenExplorer</string>
     <string name="s_pref_stats_summary" auto="1">Poslať anonymný štatistiku. To nezahŕňa žiadne informácie, ktoré by mohli byť použité na identifikáciu používateľa.</string>
     <string name="s_error_no_intents" auto="1">Žiadne nainštalované aplikácie môže čítať tento typ súboru.</string>
@@ -142,7 +141,7 @@
     <string name="s_menu_delete_all" auto="1">Odstrániť všetko</string>
     <string name="s_menu_move_all" auto="1">Presunúť sem</string>
     <string name="s_menu_copy_all" auto="1">Kopírovať sem</string>
-    <string name="s_confirm_delete" auto="1">Ste si istí, že chcete vymazať %s?</string>
+    <string name="s_confirm_delete" formatted="false" auto="1">Ste si istí, že chcete vymazať %s?</string>
     <string name="s_error_same_destination" auto="1">Cieľový adresár je rovnaký.</string>
     <string name="s_sample_notification" auto="1">Kopírovanie -&gt; SDCard:  n 3 súbory</string>
     <string name="s_pref_fullscreen" auto="1">Celá obrazovka</string>
@@ -211,7 +210,9 @@
     <string name="s_pref_fancy_menus" auto="1">Efektné menu</string>
     <string name="s_pref_fancy_context" auto="1">Efektné Kontextové menu</string>
     <string name="s_search_files" auto="1">Hľadať súborového systému</string>
-    <string name="s_menu_exit" auto="1">Výstup</string>
+    <string name="search_summary" formatted="false" auto="1">Vyhľadávanie &quot; %s&quot;  n do &quot; %s&quot; ( %d) ...</string>
+    <string name="search_results" formatted="false" auto="1">Nájdených %d výsledky pre &quot; %s&quot;  n do &quot; %s&quot;</string>
+    <string name="s_menu_exit">Ukončiť</string>
     <string name="s_warn_wtf_message" auto="1">Jejda! Zdá sa, že neošetrené chybe! Pretože sa jedná o obyčajný problém v mnohých beta aplikácie, jediný spôsob, ako tieto problémy vyriešiť, je prijímať správy z rôznych zariadení, ako je tá vaša, za účelom zistenia, ako problém vyriešiť. Môžeme poslať takú správu, ktorá obsahuje len anonymné údaje, pre vývojárov?</string>
     <string name="s_warn_wtf_ps" auto="1">*** Pozor, táto aplikácia je vo verzii beta. Prosím, aby túto aplikáciu zlé hodnotenie len preto, že spadne. Stačí odinštalovať, či to naozaj vadí. Vďaka!</string>
     <string name="s_yes" auto="1">Áno</string>
@@ -238,8 +239,8 @@
     <string name="menu_view_font_medium" auto="1">Veľkosť písma strednej</string>
     <string name="menu_view_font_large" auto="1">Veľkosť písma veľké</string>
     <string name="app_description" auto="1">Otvorené Explorer - Open source správca súborov pre všetky zariadenia! (Tablety, telefóny, televízory Google, sendviče!)  N-Kompletný súborový systém riadenia  n-USB, SD a ďalšie externé média  n-Network Pripojiteľné (FTP, SFTP, SMB / Samba / Windows / LAN / WiFi)  n - textový editor  n-Smart Zložky skenovanie pre rôzne typy médií (videá, fotografie, hudba, na stiahnutie)  n-View Pager adresára navigácie (listovanie právo ísť až adresár)  n-superpoužívateľ / Root schopnosť zoznamu / čítať systémové zložky v žiadny systém napísať ešte)  n  nFeatures prísť:  n-záložkách textový editor  n-viac sieťové funkcie (Dropbox, Box.net, Sky disk)  n-Offline štruktúra súboru cache, si bude pamätať, ktoré súbory Máte na rôznych miestach bez nutnosti pripojenia  n-Miesto na disku tepla mapa ukazuje, kde sa vaše najväčšie súbory sú  n  n * POZNÁMKA: Táto aplikácia je v beta verzii. Existuje ešte veľa chýb. Ak nechcete zažiť tieto chyby, prosím nesťahujte tejto aplikácie. Ak by ste chceli, aby mi pomohol nájsť tieto chyby, prosím, napíšte mi, alebo so mnou spolupracovať na GitHub ods https://github.com/BrandoCommando/OpenExplorer/). Majte na pamäti, zlé hodnotenia pomoci nikto.</string>
-    <string name="alert_translate_google" auto="1">Dobrý deň, je tento preklad za predpokladu, Google Translate. Ak viete, anglicky, rovnako ako %s, a chceli by ste pomôcť pri vytváraní lepší preklad, kliknite na toto tlačítko:</string>
-    <string name="alert_translate_none" auto="1">Dobrý deň, zdá sa, že používate nepodporovaný jazyk. Viete, anglické a %s? Ak by ste chceli pomôcť pri poskytovaní správny preklad, kliknite tu:</string>
+    <string name="alert_translate_google" formatted="false" auto="1">Dobrý deň, je tento preklad za predpokladu, Google Translate. Ak viete, anglicky, rovnako ako %s, a chceli by ste pomôcť pri vytváraní lepší preklad, kliknite na toto tlačítko:</string>
+    <string name="alert_translate_none" formatted="false" auto="1">Dobrý deň, zdá sa, že používate nepodporovaný jazyk. Viete, anglické a %s? Ak by ste chceli pomôcť pri poskytovaní správny preklad, kliknite tu:</string>
     <string name="button_translate" auto="1">Preložiť</string>
     <string name="httpError">Vyskytla sa chyba siete.</string>
     <string name="httpErrorAuth">Overenie nebolo úspešné.</string>
@@ -280,5 +281,46 @@
     <string name="storage_usb">Karta SD</string>
     <string name="extract_edit_menu_button">Ukladací priestor USB</string>
     <string name="activity_chooser_view_see_all">Upraviť...</string>
-
+    <string name="language">Jazyk</string>
+    <string name="apply_to_all">Želáte si použiť na všetky zložky?</string>
+    <string name="s_pref_text_wrap">Zalomenie textu</string>
+    <string name="s_privacy">Ochrana súkromia</string>
+    <string name="s_menu_system_mount_off">Len na čítanie</string>
+    <string name="s_theme_lightdark">svetle a tmave </string>
+    <string name="s_menu_rate" auto="1">sadzba</string>
+    <string name="s_alert_destination_exists" auto="1">Destinácia už existuje. Čo chcete urobiť?</string>
+    <string name="s_overwrite" auto="1">prepísať</string>
+    <string name="s_skip" auto="1">preskočiť</string>
+    <string name="s_msg_file_exists" auto="1">Niektoré cieľové súbory môžu už existovať. Ok prepísať?</string>
+    <string name="s_title_file_exists" auto="1">Súbor už existuje.</string>
+    <string name="s_msg_pref_archives" auto="1">Chceli by ste prechádzať alebo rozbaliť archív?</string>
+    <string name="s_browse" auto="1">Prehliadať</string>
+    <string name="s_extract" auto="1">výpis</string>
+    <string name="s_extracted" auto="1">extrahované</string>
+    <string name="s_extracting" auto="1">extrahovanie</string>
+    <string name="s_extract_with">extrahovat</string>
+    <string name="s_title_archive_handler" auto="1">Archív Handler</string>
+    <string name="s_ask_again" auto="1">Opýtajte sa zakaždým</string>
+    <string name="s_archives" auto="1">Archív</string>
+    <string name="s_compress" auto="1">komprimovať</string>
+    <string name="s_compress_type" auto="1">typ kompresie</string>
+    <string name="s_compressed" auto="1">stlačený</string>
+    <string name="s_delete_after" auto="1">Odstrániť zdroj po dokončení</string>
+    <string name="s_master_pass" auto="1">Master Password</string>
+    <string name="s_master_pass_warning" auto="1">Môžete zadať hlavné heslo, používané ako šifrovacie kľúče pre všetky uložené heslá. Ak necháte toto pole prázdne, bude hesla stále šifrovaná, a predvolené hlavné heslo bude použité. Vezmite prosím na vedomie, že ak ste aktualizovať svoje heslo uložené siete hesiel, budete pravdepodobne potrebovať reset hesla a overenie cloud servery po resete tohto hesla.</string>
+    <string name="s_pass_old" auto="1">Zadajte staré heslo:</string>
+    <string name="s_pass_new" auto="1">Zadajte nové heslo:</string>
+    <string name="s_logout" auto="1">Odhlásiť</string>
+    <string name="s_authenticate" auto="1">overiť</string>
+    <string name="s_authenticating" auto="1">overovanie</string>
+    <string name="s_bookmark_history" auto="1">História</string>
+    <string name="s_server_account_title" auto="1">účet:</string>
+    <string name="s_authenticate_success" auto="1">autentizácia úspešná</string>
+    <string name="s_authenticate_refresh" auto="1">obnoviť overovanie</string>
+    <string name="s_pref_thumbs_cache" auto="1">Pre-Cache Náhľady</string>
+    <string name="s_pref_thumbs_cache_summary" auto="1">To vám pomôže urýchliť načítanie zložky obsahujúce obrázky a videá.</string>
+    <string name="s_folders" auto="1">zložky</string>
+    <string name="s_hidden" auto="1">skrytý</string>
+    <string name="s_total">celkom</string>
+    <string name="s_custom_account" auto="1">vlastný účet</string>
 </resources>

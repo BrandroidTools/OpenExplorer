@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="text_editor"
+    android:icon="@drawable/ic_paper"
+    android:title="@string/s_text_editor_title">
+    <PreferenceScreen
+        android:key="text_size"
+        android:title="@string/s_view_font_size"
+        android:summary="10"
+        />
+    <CheckBoxPreference
+        android:key="text_lines"
+        android:title="@string/s_menu_view_line_numbers"
+        android:defaultValue="true" 
+        />
+    <CheckBoxPreference
+        android:key="text_wrap"
+        android:title="@string/s_pref_text_wrap"
+        android:defaultValue="true" 
+        />
+    <ListPreference
+        android:key="text_max"
+        android:title="@string/s_pref_text_max_size"
+        android:entries="@array/text_max_size"
+        android:entryValues="@array/text_max_size_values"
+        />
+</PreferenceScreen>

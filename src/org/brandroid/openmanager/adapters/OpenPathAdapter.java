@@ -9,7 +9,6 @@ import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenPath;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.openmanager.views.RemoteImageView;
@@ -95,6 +94,8 @@ public class OpenPathAdapter extends BaseAdapter {
         // Logger.LogVerbose("Content Icon Size: " +
         // mHolder.getIconView().getMeasuredWidth() + "x" +
         // mHolder.getIconView().getMeasuredHeight());
+        
+        ViewUtils.setViewsVisible(view, false, R.id.content_check);
 
         // view.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         // mHolder.setInfo(getFileDetails(file, false));
@@ -133,7 +134,7 @@ public class OpenPathAdapter extends BaseAdapter {
             else
                 mIcon.setAlpha(255);
             if (file.isTextFile())
-                mIcon.setImageBitmap(ThumbnailCreator.getFileExtIcon(file.getExtension(), mContext,
+                mIcon.setImageDrawable(ThumbnailCreator.getFileExtIcon(file.getExtension(), mContext,
                         mWidth > 72));
             else if (!mShowThumbnails || !file.hasThumbnail())
                 mIcon.setImageDrawable(mContext.getResources().getDrawable(
@@ -160,7 +161,7 @@ public class OpenPathAdapter extends BaseAdapter {
                 e.printStackTrace();
             }
         } else if (file.isFile()) {
-            deets = DialogHandler.formatSize(file.length()) + " | ";
+            deets = OpenPath.formatSize(file.length()) + " | ";
         }
 
         DateFormat df = new SimpleDateFormat(longDate ? "MM-dd-yyyy HH:mm" : "MM-dd-yy");

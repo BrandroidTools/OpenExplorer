@@ -1,15 +1,11 @@
 
 package org.brandroid.utils;
 
-import java.io.File;
-import java.io.StringReader;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.brandroid.openmanager.R;
-import org.brandroid.openmanager.R.xml;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +14,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.util.JsonReader;
 
 public class Preferences {
     private static Preferences preferences;
@@ -31,8 +26,11 @@ public class Preferences {
      */
     public static boolean Pref_Zip_Internal = true;
     public static boolean Pref_ShowUp = false;
+    public static boolean Pref_ShowThumbs = true;
+    public static boolean Pref_CacheThumbs = false;
     public static boolean Warn_TextEditor = false;
     public static boolean Warn_Networking = false;
+    public static boolean Pref_RealSizes = true;
     public static int Pref_Text_Max_Size = 500000;
     public static boolean Pref_Analytics = true;
     public static String Pref_Language = ""; // Default

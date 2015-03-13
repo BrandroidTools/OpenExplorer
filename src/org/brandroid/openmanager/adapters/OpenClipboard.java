@@ -13,7 +13,6 @@ import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenPath;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.openmanager.views.RemoteImageView;
 import org.brandroid.utils.Logger;
@@ -43,7 +42,7 @@ import android.widget.Toast;
  * @author BrandoCommando
  */
 @SuppressLint("NewApi")
-public class OpenClipboard extends BaseAdapter implements Set<OpenPath> {
+public class OpenClipboard extends BaseAdapter implements List<OpenPath> {
     private static final long serialVersionUID = 8847538312028343319L;
     public boolean DeleteSource = false;
     public boolean ClearAfter = true;
@@ -240,7 +239,7 @@ public class OpenClipboard extends BaseAdapter implements Set<OpenPath> {
                 info.setText(file.getListLength() + " "
                         + info.getContext().getResources().getString(R.string.s_files));
             else
-                info.setText(DialogHandler.formatSize(file.length()));
+                info.setText(OpenPath.formatSize(file.length()));
             if (file != null) {
                 if (file.getName() != null)
                     text.setText(file.getName());

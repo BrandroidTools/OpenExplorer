@@ -52,12 +52,6 @@ public class OpenPathMerged extends OpenPath {
     }
 
     @Override
-    public void setPath(String path) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public long length() {
         return mKids.size();
     }
@@ -112,7 +106,7 @@ public class OpenPathMerged extends OpenPath {
     public Uri getUri() {
         String s = "content://org.brandroid.openmanager/merge/";
         for (OpenPath p : mParents)
-            s += p.getPath() + ":";
+            s += Uri.encode(p.getPath()) + ":";
         s = s.substring(0, s.length() - 1);
         Uri ret = null;
         ret = Uri.parse(s);
@@ -160,16 +154,6 @@ public class OpenPathMerged extends OpenPath {
     @Override
     public Boolean mkdir() {
         return false;
-    }
-
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return null;
-    }
-
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-        return null;
     }
 
     public void setName(String string) {

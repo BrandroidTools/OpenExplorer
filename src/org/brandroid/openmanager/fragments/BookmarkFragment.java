@@ -21,8 +21,10 @@ package org.brandroid.openmanager.fragments;
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.OpenBookmarks;
 import org.brandroid.openmanager.data.OpenPath;
-import org.brandroid.openmanager.util.OpenInterfaces.OnBookMarkChangeListener;
+import org.brandroid.openmanager.interfaces.OpenApp;
+import org.brandroid.openmanager.interfaces.OpenApp.OnBookMarkChangeListener;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -30,8 +32,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
 
-public class BookmarkFragment extends OpenFragment implements OnBookMarkChangeListener {
+public class BookmarkFragment extends OpenFragment implements OpenApp.OnBookMarkChangeListener {
 
     private static OpenBookmarks mBookmarks;
 
@@ -42,7 +45,10 @@ public class BookmarkFragment extends OpenFragment implements OnBookMarkChangeLi
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.bookmarks_fragment, container, false);
+        LinearLayout layout = new LinearLayout(container.getContext());
+        // inflater.inflate(R.layout.bookmarks_fragment, container, false);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        return layout;
         // return super.onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -70,15 +76,15 @@ public class BookmarkFragment extends OpenFragment implements OnBookMarkChangeLi
 
         // Logger.LogDebug("Bookmark Fragment Created");
 
-        final ExpandableListView lv = getListView();
-        lv.setDividerHeight(0);
+        //final ExpandableListView lv = getListView();
+        //lv.setDividerHeight(0);
         if (mBookmarks == null)
-            mBookmarks = new OpenBookmarks(getExplorer(), lv);
+            mBookmarks = new OpenBookmarks(getExplorer(), getView());
         // mBookmarks.setupListView(lv); //redundant?
-        final ExpandableListAdapter adapter = mBookmarks.getListAdapter();
-        setListAdapter(adapter);
-        registerForContextMenu(lv);
-        expandAll();
+        //final ExpandableListAdapter adapter = mBookmarks.getListAdapter();
+        //setListAdapter(adapter);
+        //registerForContextMenu(mBaseView);
+        //expandAll();
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -91,15 +97,14 @@ public class BookmarkFragment extends OpenFragment implements OnBookMarkChangeLi
     }
 
     @Override
-    public void onBookMarkAdd(OpenPath path) {
+    public void onBookMarkAdd(OpenApp app, OpenPath path) {
         if (mBookmarks != null)
-            mBookmarks.onBookMarkAdd(path);
+            mBookmarks.onBookMarkAdd(app, path);
     }
 
-    @Override
-    public void scanBookmarks() {
+    public void scanBookmarks(OpenApp app) {
         if (mBookmarks != null)
-            mBookmarks.scanBookmarks();
+            mBookmarks.refresh(app);
     }
 
     @Override

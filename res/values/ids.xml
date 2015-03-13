@@ -14,7 +14,7 @@
   limitations under the License.
 -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item name="actionbar_compat" type="id"/>
     <item name="actionbar_compat_title" type="id"/>
@@ -23,5 +23,11 @@
     <item name="menu_refresh" type="id"/>
     <item name="fake_content_id" type="id"/>
     <item name="content_pager" type="id"/>
+    <item name="server_type" type="id"/>
+    <item name="check_port" type="id"/>
+    <item name="text_port" type="id"/>
+    <item name="label_port" type="id"/>
+    <item name="server_texts" type="id"/>
+    <item name="frag_log" type="id"/>
 
 </resources>

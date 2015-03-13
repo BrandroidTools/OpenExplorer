@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="5dp" >
+    android:orientation="vertical" >
+            
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/abs__action_bar_default_height"
+        layout="@layout/title_bar_dialog" />
+
+	<View
+	    android:background="?attr/dialogTitleUnderline"
+	    android:id="@+id/title_divider"
+	    android:layout_height="1dp"
+	    android:layout_width="match_parent"
+	    android:layout_marginTop="2dp"
+	    android:layout_marginBottom="3dp" 
+	    />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbarAlwaysDrawVerticalTrack="true"
         android:scrollbarStyle="outsideOverlay"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
         android:scrollbars="vertical" >
 
         <LinearLayout
@@ -31,21 +47,18 @@
                     android:text="@string/s_pref_server_type" />
 
                 <Spinner
-                    android:id="@+id/server_type"
+                    android:id="@id/server_type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_below="@+id/TextView1"
                     android:layout_toLeftOf="@+id/text_port"
                     android:entries="@array/server_types"
-                    android:prompt="@string/s_pref_server_type"
-                    android:spinnerMode="dropdown" >
-
-                    <!-- Preview: listitem=@android:layout/simple_spinner_item -->
+                    android:prompt="@string/s_pref_server_type" >
                 </Spinner>
 
                 <EditText
-                    android:id="@+id/text_port"
+                    android:id="@id/text_port"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@+id/server_type"
@@ -56,68 +69,96 @@
                     android:inputType="number" />
 
                 <CheckBox
-                    android:id="@+id/check_port"
+                    android:id="@id/check_port"
+                    android:textAppearance="@style/Text.Small.Checkbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBaseline="@+id/text_port"
                     android:layout_alignParentRight="true"
                     android:layout_gravity="top"
                     android:layout_marginTop="1dp"
-                    android:layout_weight="1"
                     android:checked="true"
-                    android:text="@string/s_default"
-                    android:textAppearance="@style/Text.Small" />
+                    android:text="@string/s_default" />
             </RelativeLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" >
-
-                    <include
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        layout="@layout/server_host" />
-                </FrameLayout>
-
-                <EditText
-                    android:id="@+id/text_path"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="@string/s_pref_server_path"
-                    android:inputType="textNoSuggestions|text|textWebEditText"
-                    android:singleLine="true" >
-                </EditText>
-            </LinearLayout>
-
-            <LinearLayout
+            <include
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                layout="@layout/server_auth_stub" />
 
-                <EditText
-                    android:id="@+id/text_user"
+            <LinearLayout
+                android:id="@id/server_texts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" >
+
+                        <include
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            layout="@layout/server_host" />
+                    </FrameLayout>
+
+                    <EditText
+                        android:id="@+id/text_path"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="@string/s_pref_server_path"
+                        android:inputType="textNoSuggestions|text|textWebEditText"
+                        android:singleLine="true" >
+                    </EditText>
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/s_pref_server_user"
-                    android:inputType="textNoSuggestions"
-                    android:singleLine="true" />
+                    android:orientation="horizontal" >
 
-                <EditText
-                    android:id="@+id/text_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/s_pref_server_password"
-                    android:inputType="textPassword"
-                    android:singleLine="true" />
+                    <EditText
+                        android:id="@+id/text_user"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/s_pref_server_user"
+                        android:inputType="textNoSuggestions"
+                        android:singleLine="true" />
+                    
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        >
+
+                    <EditText
+                        android:id="@+id/text_password"
+                        android:layout_alignParentLeft="true"
+                        android:layout_toLeftOf="@+id/check_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/s_pref_server_password"
+                        android:inputType="textPassword"
+                        android:singleLine="true" />
+
+                    <CheckBox
+                        android:id="@+id/check_password"
+                        android:textAppearance="@style/Text.Small.Checkbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:lines="1"
+                        android:text="@string/s_show_password" />
+                    </RelativeLayout>
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -133,17 +174,8 @@
                     android:hint="@string/s_pref_server_name"
                     android:inputType="textNoSuggestions"
                     android:singleLine="true" />
-
-                <CheckBox
-                    android:id="@+id/check_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:lines="1"
-                    android:text="@string/s_show_password"
-                    android:textAppearance="@style/Text.Small" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
-</FrameLayout>
+</LinearLayout>

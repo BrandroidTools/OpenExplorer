@@ -4,36 +4,29 @@ package org.brandroid.openmanager.data;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
-import org.brandroid.openmanager.R;
-import org.brandroid.openmanager.data.OpenNetworkPath.NetworkListener;
-import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.fragments.TextEditorFragment;
-import org.brandroid.openmanager.fragments.TextEditorFragment.FileLoadTask;
+import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.data.OpenPath.*;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Utils;
 
+import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Environment;
-import android.widget.Toast;
-
 import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.UserInfo;
 
-public abstract class OpenNetworkPath extends OpenPath implements OpenPath.NeedsTempFile {
+public abstract class OpenNetworkPath extends OpenPath implements NeedsTempFile, OpenStream {
     /**
 	 * 
 	 */
     private static final long serialVersionUID = -3829590216951441869L;
     protected UserInfo mUserInfo;
-    private int mServersIndex = -1;
     public static final JSch DefaultJSch = new JSch();
     public static int Timeout = 20000;
     protected String mName = null;
     protected int mPort = -1;
+    private final boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
+    private OpenServer mServer;
 
     public interface NetworkListener {
         public static final NetworkListener DefaultListener = new NetworkListener() {
@@ -66,6 +59,23 @@ public abstract class OpenNetworkPath extends OpenPath implements OpenPath.Needs
 
         public void OnAuthenticated(OpenPath path);
     }
+    
+    public final void setServer(OpenServer server)
+    {
+        mServer = server;
+    }
+    
+    public final OpenServer getServer()
+    {
+        return mServer;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if(o == null) return false;
+        if(!(o instanceof OpenNetworkPath)) return false;
+        return super.equals(o);
+    }
 
     @Override
     public Boolean canWrite() {
@@ -75,14 +85,6 @@ public abstract class OpenNetworkPath extends OpenPath implements OpenPath.Needs
     @Override
     public final Boolean requiresThread() {
         return true;
-    }
-
-    public void connect() throws IOException {
-        Logger.LogVerbose("Connecting OpenNetworkPath");
-    }
-
-    public void disconnect() {
-        Logger.LogVerbose("Disconnecting OpenNetworkPath");
     }
 
     public String getTempFileName() {
@@ -98,7 +100,8 @@ public abstract class OpenNetworkPath extends OpenPath implements OpenPath.Needs
     }
 
     public OpenFile tempDownload(AsyncTask task) throws IOException {
-        Logger.LogDebug("tempDownload() on " + getPath());
+        if(DEBUG)
+            Logger.LogDebug("tempDownload() on " + getPath());
         OpenFile tmp = getTempFile();
         if (tmp == null)
             throw new IOException("Unable to download Temp file");
@@ -114,7 +117,8 @@ public abstract class OpenNetworkPath extends OpenPath implements OpenPath.Needs
     }
 
     public void tempUpload(AsyncTask task) throws IOException {
-        Logger.LogDebug("tempUpload() on " + getPath());
+        if(DEBUG)
+            Logger.LogDebug("tempUpload() on " + getPath());
         OpenFile tmp = getTempFile();
         if (tmp == null)
             throw new IOException("Unable to download Temp file");
@@ -126,6 +130,16 @@ public abstract class OpenNetworkPath extends OpenPath implements OpenPath.Needs
             return;
         }
         copyFrom(tmp, task);
+    }
+    
+    public static boolean isEnabled(Context context)
+    {
+        return true;
+    }
+    
+    @Override
+    public boolean hasThumbnail() {
+        return false;
     }
 
     /**
@@ -191,8 +205,67 @@ public abstract class OpenNetworkPath extends OpenPath implements OpenPath.Needs
             }
         });
     }
+    
+    public interface PipeNeeded {
+        public boolean isConnected() throws IOException;
+        public void connect() throws IOException;
+        public void disconnect();
+    }
 
-    public abstract boolean isConnected() throws IOException;
+    public interface CloudCompletionListener extends OpenPath.ExceptionListener {
+        public void onCloudComplete(String status);
+    }
+    public interface CloudProgressListener extends CloudCompletionListener {
+        public void onProgress(long bytes);
+    }
+    
+    public interface CloudDeleteListener extends OpenPath.ExceptionListener {
+        public void onDeleteComplete(String status);
+    }
+    
+    public interface Cancellable {
+        public boolean cancel();
+    }
+    
+    public interface CloudOpsHandler extends ListHandler {
+        public boolean copyTo(OpenNetworkPath folder, CloudCompletionListener callback);
+        public boolean delete(CloudDeleteListener callback);
+        public Cancellable uploadToCloud(OpenFile file, CloudProgressListener callback);
+        public Cancellable downloadFromCloud(OpenFile file, CloudProgressListener callback);
+        public boolean touch(CloudCompletionListener callback);
+    }
+    
+    public static Cancellable runCloud(final Runnable r, final CloudCompletionListener listener)
+    {
+        return getThreadCancellor(thread(new Runnable() {
+            public void run() {
+                try {
+                    r.run();
+                    post(new Runnable() {
+                        public void run() {
+                            listener.onCloudComplete("Complete");
+                        }
+                    });
+                } catch(Exception e) {
+                    postException(e, listener);
+                }
+            }
+        }));
+    }
+    
+    public static Cancellable getThreadCancellor(final Thread thread)
+    {
+        return new Cancellable() {
+            public boolean cancel() {
+                if(thread.isAlive())
+                {
+                    thread.interrupt();
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
 
     /**
      * This does not change the actual path of the underlying object, just what
@@ -211,7 +284,7 @@ public abstract class OpenNetworkPath extends OpenPath implements OpenPath.Needs
     public String getName(String defaultName) {
         return mName != null ? mName : defaultName;
     }
-
+    
     public final String getRemotePath() {
         String name = getName();
         if (!name.endsWith("/") && !name.startsWith("/"))
@@ -228,12 +301,24 @@ public abstract class OpenNetworkPath extends OpenPath implements OpenPath.Needs
         return mUserInfo;
     }
 
-    public int getServersIndex() {
-        return mServersIndex;
+    public int getServerIndex() {
+        if(mServer != null)
+            return mServer.getServerIndex();
+        return -1;
     }
 
-    public void setServersIndex(int index) {
-        mServersIndex = index;
+    public Thread list(final ListListener listener) {
+        return thread(new Runnable() {
+            public void run() {
+                try {
+                    listFiles();
+                    postListReceived(getChildren(), listener);
+                    getParent(); // just make sure we have parents
+                } catch(final Exception e) {
+                    postException(e, listener);
+                }
+            }
+        });
     }
 
     public abstract OpenNetworkPath[] getChildren();
@@ -256,17 +341,15 @@ public abstract class OpenNetworkPath extends OpenPath implements OpenPath.Needs
         String deets = "";
 
         if (!isDirectory())
-            deets += DialogHandler.formatSize(length());
+            deets += OpenPath.formatSize(length());
 
         return deets;
     }
 
-    @Override
     public InputStream getInputStream() throws IOException {
         return tempDownload(null).getInputStream();
     }
 
-    @Override
     public OutputStream getOutputStream() throws IOException {
         return tempDownload(null).getOutputStream();
     }

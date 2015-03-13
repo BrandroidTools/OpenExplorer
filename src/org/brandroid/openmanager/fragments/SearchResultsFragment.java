@@ -14,7 +14,11 @@ import org.brandroid.openmanager.data.OpenPath.OpenPathThreadUpdater;
 import org.brandroid.openmanager.data.OpenSearch;
 import org.brandroid.openmanager.data.OpenSearch.SearchProgressUpdateListener;
 import org.brandroid.openmanager.util.FileManager;
+import org.brandroid.openmanager.util.SortType;
 import org.brandroid.utils.Logger;
+import org.brandroid.utils.ViewUtils;
+
+import com.actionbarsherlock.view.ActionMode;
 
 import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
@@ -35,8 +39,7 @@ import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
-public class SearchResultsFragment extends ContentFragment implements OnItemLongClickListener,
-        SearchProgressUpdateListener {
+public class SearchResultsFragment extends ContentFragment implements SearchProgressUpdateListener {
     private TextView mTextSummary;
     private ProgressBar mProgressBar;
     private Button mCancel;
@@ -45,8 +48,14 @@ public class SearchResultsFragment extends ContentFragment implements OnItemLong
     private String lastTitle = "";
     private boolean mStopped = false;
 
-    private SearchResultsFragment(Bundle b) {
-        setArguments(b);
+    public SearchResultsFragment() {
+        super();
+    }
+    
+    public static SearchResultsFragment getInstance(Bundle b) {
+        SearchResultsFragment ret = new SearchResultsFragment();
+        ret.setArguments(b);
+        return ret;
     }
 
     private class SearchTask extends AsyncTask<Void, Void, Void> {
@@ -95,7 +104,7 @@ public class SearchResultsFragment extends ContentFragment implements OnItemLong
         if (basePath instanceof OpenSearch)
             basePath = ((OpenSearch)basePath).getBasePath();
         data.putParcelable("search_in", basePath);
-        SearchResultsFragment ret = new SearchResultsFragment(data);
+        SearchResultsFragment ret = SearchResultsFragment.getInstance(data);
         ret.setArguments(data);
         return ret;
     }
@@ -113,6 +122,7 @@ public class SearchResultsFragment extends ContentFragment implements OnItemLong
 
     @SuppressLint("NewApi")
     private void executeMyTask() {
+    	if(myTask.getStatus() == Status.FINISHED) return;
         if (Build.VERSION.SDK_INT > 10)
             myTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         else
@@ -189,8 +199,7 @@ public class SearchResultsFragment extends ContentFragment implements OnItemLong
             if (myTask != null)
                 executeMyTask();
         }
-        mContentAdapter = new ContentAdapter(getExplorer(), this, OpenExplorer.VIEW_LIST,
-                getSearch());
+        mContentAdapter = getContentAdapter();
     }
 
     @Override
@@ -208,12 +217,20 @@ public class SearchResultsFragment extends ContentFragment implements OnItemLong
         mTextSummary = (TextView)ret.findViewById(R.id.search_summary);
         mProgressBar = (ProgressBar)ret.findViewById(android.R.id.progress);
         mCancel = (Button)ret.findViewById(R.id.search_cancel);
-        // mGrid.setOnItemClickListener(this);
-        mGrid.setOnItemLongClickListener(this);
-        if (!OpenExplorer.USE_PRETTY_CONTEXT_MENUS) // || !USE_ACTIONMODE)
-            registerForContextMenu(mGrid);
+        mIsViewCreated = true;
         updateGridView();
         return ret;
+    }
+    
+    @Override
+    protected ContentAdapter getContentAdapter() {
+        if (mContentAdapter == null) {
+            mContentAdapter = new ContentAdapter(getExplorer(), this, OpenExplorer.VIEW_LIST,
+                    getSearch());
+            mContentAdapter.setShowHiddenFiles(getViewSetting(getPath(), "show",
+                    getViewSetting(null, "pref_show", false)));
+        }
+    	return mContentAdapter;
     }
 
     @Override
@@ -285,9 +302,7 @@ public class SearchResultsFragment extends ContentFragment implements OnItemLong
 
     @Override
     public void onFinish() {
-        if (getView() == null)
-            return;
-        getView().post(new Runnable() {
+        OpenExplorer.post(new Runnable() {
             public void run() {
                 setProgressVisibility(false);
                 mContentAdapter.notifyDataSetChanged();
@@ -302,13 +317,13 @@ public class SearchResultsFragment extends ContentFragment implements OnItemLong
                     else
                         te.setText(R.string.no_items);
                 }
+                ViewUtils.setViewsVisible(getView(), false, R.id.content_status_bar);
             }
         });
     }
 
     @Override
-    public void onAddResults(OpenPath[] results) {
-        for (OpenPath p : results)
-            mContentAdapter.add(p);
+    public void onAddResults(List<OpenPath> results) {
+        mContentAdapter.addAll(results);
     }
 }
