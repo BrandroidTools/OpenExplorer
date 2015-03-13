@@ -41,7 +41,7 @@ public class OpenSMB extends OpenNetworkPath implements OpenNetworkPath.PipeNeed
     public OpenSMB(String urlString) throws MalformedURLException {
         URL url = new URL(null, urlString, Handler.SMB_HANDLER);
         NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(url.getUserInfo());
-        if (auth.getPassword() == null || auth.getPassword() == "") {
+        if (auth.getPassword() == null || "".equals(auth.getPassword())) {
             OpenServers servers = OpenServers.getDefaultServers();
             OpenServer s = servers.findByUser("smb", url.getHost(), auth.getUsername());
             if (s != null) {
@@ -77,8 +77,8 @@ public class OpenSMB extends OpenNetworkPath implements OpenNetworkPath.PipeNeed
     public OpenSMB(String urlString, long size, long modified) throws MalformedURLException {
         URL url = new URL(null, urlString, Handler.SMB_HANDLER);
         NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(url.getUserInfo());
-        if (auth.getUsername() == null || auth.getUsername() == "" || auth.getPassword() == null
-                || auth.getPassword() == "") {
+        if (auth.getUsername() == null || "".equals(auth.getUsername()) || auth.getPassword() == null
+                || "".equals(auth.getPassword())) {
             OpenServers servers = OpenServers.getDefaultServers();
             OpenServer s = servers.findByUser("smb", url.getHost(), auth.getUsername());
             if (s == null)
@@ -92,6 +92,11 @@ public class OpenSMB extends OpenNetworkPath implements OpenNetworkPath.PipeNeed
         mParent = null;
         mSize = size;
         mModified = modified;
+    }
+    
+    public String getHost()
+    {
+    	return mFile.getURL().getHost();
     }
 
     @Override
@@ -159,7 +164,7 @@ public class OpenSMB extends OpenNetworkPath implements OpenNetworkPath.PipeNeed
         String ret = "smb://";
         if(getServer() != null)
             ret = getServer().getAbsolutePath();
-        if(!ret.endsWith("/"))
+        if(!ret.endsWith("/") && !mFile.getURL().getPath().startsWith("/"))
             ret += "/";
         ret += mFile.getURL().getPath();
         return ret;

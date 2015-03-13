@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<resources>
+    <string name="s_downloads">ดาวโหลด</string>
+    <string name="s_view">วิว</string>
+    <string name="s_menu_copy">ก๊อปปี้</string>
+    <string name="s_text_intro_body">The goal of OpenExplorer is to make you more productive within the Android filesystem and in the cloud. Whether you need to manage videos or photos from multiple locations or manage your webserver remotely via FTP, OpenExplorer can suit your needs.</string>
+    <string name="s_menu_exit">ทางออก</string>
+    <string name="warn_text_editor">Welcome to Text Editor. Please long press the text to enter Edit mode.</string>
+    <string name="warn_networking">Welcome to Networking. Please note that this feature is still under development and may contain bugs. Please do not give a bad market rating if you find any of these bugs.</string>
+</resources>

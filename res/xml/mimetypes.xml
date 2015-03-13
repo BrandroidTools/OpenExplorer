@@ -106,7 +106,13 @@
         extension=".zip"
         mimetype="application/zip" />
     <type
+        extension=".cbz"
+        mimetype="application/zip" />
+    <type
         extension=".rar"
+        mimetype="application/rar" />
+    <type
+        extension=".cbr"
         mimetype="application/rar" />
     <type
         extension=".gz"

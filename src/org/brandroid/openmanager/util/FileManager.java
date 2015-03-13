@@ -34,7 +34,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.impl.WeakHashtable;
 import org.apache.commons.net.ftp.FTPFile;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.activities.ServerSetupActivity;
@@ -58,6 +57,7 @@ import org.brandroid.openmanager.data.OpenTar;
 import org.brandroid.openmanager.data.OpenZip;
 import org.brandroid.openmanager.data.OpenPath.OpenStream;
 import org.brandroid.openmanager.data.OpenSearch.SearchProgressUpdateListener;
+import org.brandroid.openmanager.data.OpenZip.OpenZipVirtualPath;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
 
@@ -223,6 +223,8 @@ public class FileManager {
             OpenPath[] file_list = null;
             try {
                 file_list = target.list();
+                if(file_list == null)
+                	file_list = target.listFiles();
             } catch (IOException e) {
                 Logger.LogError("Error listing children to delete.", e);
             }
@@ -288,8 +290,11 @@ public class FileManager {
             return null;
         OpenPath ret = null;
         if (path.startsWith("/"))
+        {
             ret = new OpenFile(path);
-        else if (path.startsWith("ftp:/"))
+            if (path.equals("/data") || path.startsWith("/data/"))
+                ret = new OpenFileRoot(ret);
+        } else if (path.startsWith("ftp:/"))
             ret = new OpenFTP(path, null, new FTPManager());
         else if (path.startsWith("sftp:/"))
             ret = new OpenSFTP(path);
@@ -394,7 +399,9 @@ public class FileManager {
                         server = servers.findByUser("smb", uri.getHost(), user);
                     if (server == null)
                         server = servers.findByHost("smb", uri.getHost());
-                    if (user == "")
+                    if (server == null)
+                    	server = servers.findByType("smb").size() > 0 ? servers.findByType("smb").get(0) : null;
+                    if(server != null && user.equals(""))
                         user = server.getUser();
                     if (server != null && server.getPassword() != null
                             && server.getPassword() != "")
@@ -519,6 +526,25 @@ public class FileManager {
                 return ret;
             if (ret instanceof OpenFile && ret.isArchive() && Preferences.Pref_Zip_Internal)
                 ret = new OpenZip((OpenFile)ret);
+            else if (ret instanceof OpenFile && path.toLowerCase().indexOf(".zip/") > -1)
+            {
+            	String pp = path.substring(0, path.toLowerCase().indexOf(".zip/") + 4);
+            	String cp = path.substring(pp.length() + 1);
+            	OpenZip pz = new OpenZip(new OpenFile(pp));
+            	pz.listFiles();
+            	ret = null;
+            	if(cp.endsWith("/"))
+            		ret = pz.findVirtualPath(cp);
+            	else if(cp.indexOf("/") > -1) {
+            		OpenZip.OpenZipVirtualPath vp = (OpenZipVirtualPath) pz.findVirtualPath(cp.substring(0, cp.lastIndexOf("/")));
+            		if(vp != null)
+            			ret = vp.getChild(cp.substring(cp.lastIndexOf("/") + 1));
+            	} else ret = pz.getChild(cp);
+            	if(ret == null)
+            		ret = new OpenFile(path);
+            	else
+            		setOpenCache(path, ret);
+            }
             // if (ret instanceof OpenFile
             // && (ret.getMimeType().contains("tar")
             // || ret.getExtension().equalsIgnoreCase("tar")
@@ -536,6 +562,11 @@ public class FileManager {
         // ret = setOpenCache(path, new OpenFile(path));
         // else setOpenCache(path, ret);
         return ret;
+    }
+    
+    public static OpenPath setOpenCache(OpenPath file) {
+    	mOpenCache.put(file.getPath(), file);
+    	return file;
     }
 
     public static OpenPath setOpenCache(String path, OpenPath file) {

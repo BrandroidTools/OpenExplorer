@@ -34,6 +34,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.http.message.BasicNameValuePair;
+import org.brandroid.openmanager.util.PrivatePreferences;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -136,9 +137,11 @@ public class BoxSynchronous {
      * @throws IOException
      *             Can be thrown if there is no connection, or if some other connection problem exists.
      */
-    public final UserResponseParser getAuthToken(final String ticket) throws IOException {
+    public final UserResponseParser getAuthToken() throws IOException {
         final UserResponseParser parser = new UserResponseParser();
-        saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey).appendQueryParameter("ticket", ticket).appendQueryParameter("action", "get_auth_token").build());
+        saxRequest(parser, BoxUriBuilder.getBuilder(mApiKey).appendPath("oauth2").appendPath("authorize")
+                .appendQueryParameter("response_type", "code")
+                .appendQueryParameter("client_id", PrivatePreferences.getBoxAPIKey()).build());
         return parser;
     }
 

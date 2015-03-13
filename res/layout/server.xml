@@ -19,6 +19,13 @@
         android:layout_marginTop="2dp"
         android:layout_marginBottom="3dp" 
         />
+    
+    <WebView
+        android:id="@+id/server_webview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="visible" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -27,6 +34,7 @@
         android:scrollbarStyle="outsideOverlay"
     	android:paddingLeft="5dp"
     	android:paddingRight="5dp"
+        android:id="@+id/server_text_scroller"
         android:scrollbars="vertical" >
 
         <LinearLayout
@@ -185,11 +193,6 @@
                 android:hint="@string/s_pref_server_name"
                 android:inputType="textNoSuggestions"
                 android:singleLine="true" />
-
-            <include
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                layout="@layout/server_auth_stub" />
         </LinearLayout>
     </ScrollView>
 

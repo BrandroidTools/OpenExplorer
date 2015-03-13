@@ -165,7 +165,7 @@ public class OpenFTP extends OpenNetworkPath implements OpenNetworkPath.PipeNeed
                 && ((mAttributes != null && (mAttributes & FLAG_DIRECTORY) == FLAG_DIRECTORY) || (mChildren != null && mChildren
                         .size() > 0)))
             ret += "/";
-        if (ret == "")
+        if (ret.equals(""))
             ret = "/";
         if (!bIncludeUser)
             ret = ret.replace(getUri().getUserInfo() + "@", "");

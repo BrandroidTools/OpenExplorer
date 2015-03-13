@@ -178,7 +178,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     private Bundle mBundle;
     private NetworkIOTask mTask;
 
-    private boolean mIsViewCreated;
+    protected boolean mIsViewCreated;
 
     protected Integer mViewMode = null;
     protected ContentAdapter mContentAdapter;
@@ -477,9 +477,13 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             return;
         }
 
-        if (path instanceof OpenFile && !path.canRead())
-            if (OpenApplication.hasRootAccess(true))
+        try {
+            if (path instanceof OpenFile && !path.canRead()
+                    && OpenApplication.hasRootAccess(true))
                 path = new OpenFileRoot(path);
+        } catch (Exception e) {
+            Logger.LogWarning("Unable to convert File to Root. " + getPath(), e);
+        }
 
         // if (DEBUG)
         // Logger.LogDebug("refreshData running...");
@@ -593,10 +597,9 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             final OpenContentUpdateListener updateCallback = new OpenContentUpdateListener() {
                 @Override
                 public void addContentPath(final OpenPath... files) {
-                    OpenExplorer.getHandler().post(new Runnable() {
-                        public void run() {
-                            mContentAdapter.addAll(Arrays.asList(files));
-                        }});
+                    if(OpenExplorer.IS_DEBUG_BUILD)
+                    	Logger.LogVerbose("ContentFragment.OpenContentUpdateListener.addContentPath");
+                    mContentAdapter.addAll(Arrays.asList(files));
                     if(OpenPath.AllowDBCache)
                     {
                         new Thread(new Runnable() {
@@ -616,6 +619,8 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
                 @Override
                 public void doneUpdating() {
+                    if(OpenExplorer.IS_DEBUG_BUILD)
+                    	Logger.LogVerbose("ContentFragment.OpenContentUpdateListener.doneUpdating");
                     getHandler().post(new Runnable() {
                         public void run() {
                             setProgressVisibility(false);
@@ -824,11 +829,13 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
 
     private void browseArchive(OpenPath archive)
     {
-        if (archive.getExtension().equalsIgnoreCase("zip"))
+        String mime = archive.getMimeType();
+        String ext = archive.getExtension();
+        if (mime.equals("application/zip"))
             getExplorer().changePath(new OpenZip((OpenFile)archive));
-        else if (archive.getMimeType().endsWith("rar"))
+        else if (mime.endsWith("rar"))
             getExplorer().changePath(new OpenRAR((OpenFile)archive));
-        else if (archive.getMimeType().contains("7z") || archive.getMimeType().contains("lzma"))
+        else if (mime.contains("7z") || mime.contains("lzma"))
             getExplorer().changePath(new OpenLZMA((OpenFile)archive));
         else
             getExplorer().changePath(new OpenTar((OpenFile)archive));
@@ -851,7 +858,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     public void onItemClick(final AdapterView<?> list, final View view, final int position,
             final long id) {
         OpenPath file = (OpenPath)list.getItemAtPosition(position);
-        Logger.LogInfo("ContentFragment.onItemClick (" + file.getPath() + ")");
+        Logger.LogInfo("ContentFragment.onItemClick");
 
         if (getActionMode() == null)
         {
@@ -1182,10 +1189,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
                 DialogHandler.showFileHeatmap(getExplorer(), getPath());
                 return true;
             case R.id.menu_new_file:
-                EventHandler.createNewFile(getPath(), getActivity(), this);
-                return true;
-            case R.id.menu_new_folder:
-                EventHandler.createNewFolder(getPath(), getActivity(), this);
+                DialogHandler.showNewFileDialog(getPath(), getActivity(), this, 1);
                 return true;
             case R.id.menu_sort_name_asc:
                 onSortingChanged(SortType.Type.ALPHA);
@@ -1681,7 +1685,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             return;
         super.onPrepareOptionsMenu(menu);
 		
-		MenuUtils.setMenuEnabled(menu, getPath().canWrite(), R.id.menu_new_file, R.id.menu_new_folder);
+		MenuUtils.setMenuEnabled(menu, getPath().canWrite(), R.id.menu_new_file);
 		MenuUtils.setMenuVisible(menu, mPath instanceof OpenNetworkPath, R.id.menu_context_download);
 		MenuUtils.setMenuVisible(menu, !(mPath instanceof OpenNetworkPath), R.id.menu_context_edit, R.id.menu_context_view);
 		
@@ -1704,8 +1708,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
         if (mPath != null)
             MenuUtils.setMenuEnabled(menu,
                     !mPath.requiresThread() && mPath.canWrite() && !mPath.isArchive(),
-                    R.id.menu_multi_all_copy, R.id.menu_multi_all_move, R.id.menu_new_file,
-                    R.id.menu_new_folder);
+                    R.id.menu_multi_all_copy, R.id.menu_multi_all_move, R.id.menu_new_file);
 
         SortType.Type st = getSorting().getType();
         int sti = Utils.getArrayIndex(sortTypes, st);
@@ -2192,6 +2195,8 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             Logger.LogWarning("ContentFragment.updateData warning: mContentAdapter is null");
             return;
         }
+        if(OpenExplorer.IS_DEBUG_BUILD)
+        	Logger.LogVerbose("ContentFragment.updateData");
         if (Thread.currentThread().equals(OpenExplorer.UiThread)) {
             mContentAdapter.updateData(result);
             notifyDataSetChanged();
@@ -2398,9 +2403,9 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             OpenPath last = mContentAdapter.getSelectedSet().get(getSelectedCount() - 1);
 
             MenuUtils.setMenuEnabled(menu, writable, R.id.menu_context_delete,
-                    R.id.menu_context_cut);
+                    R.id.menu_context_cut, R.id.menu_context_rename);
             MenuUtils.setMenuEnabled(menu, readable, R.id.menu_context_copy, R.id.menu_context_cut,
-                    R.id.menu_context_download, R.id.menu_context_rename, R.id.menu_context_zip);
+                    R.id.menu_context_download, R.id.menu_context_zip, R.id.menu_context_share);
             
             if(last instanceof CloudOpsHandler)
                 MenuUtils.setMenuShowAsAction(menu, MenuItem.SHOW_AS_ACTION_ALWAYS, R.id.menu_context_download);
@@ -2511,6 +2516,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         if(position == 0 && Preferences.Pref_ShowUp) return false;
+        Logger.LogInfo(getClassName() + ".onItemLongClick");
         OpenPath path = getContentAdapter().getItem(position);
         toggleSelection(view, path);
         return true;
@@ -2524,6 +2530,8 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
     public void notifyDataSetChanged() {
         if (getExplorer() == null)
             return;
+        if(OpenExplorer.IS_DEBUG_BUILD)
+        	Logger.LogVerbose("ContentFragment.notifyDataSetChanged");
         if (!Thread.currentThread().equals(OpenExplorer.UiThread)) {
             OpenExplorer.getHandler().post(new Runnable() {
                 public void run() {
@@ -2536,7 +2544,7 @@ public class ContentFragment extends OpenFragment implements OnItemLongClickList
             mContentAdapter = getContentAdapter();
         }
 
-        mContentAdapter.finalize();
+        //mContentAdapter.finalize();
 
         if (mGrid != null
                 && (mGrid.getAdapter() == null || !mGrid.getAdapter().equals(mContentAdapter)))

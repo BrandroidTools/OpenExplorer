@@ -2,12 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/menu_search"
-        android:icon="?attr/actionIconSearch"
-        android:showAsAction="ifRoom|collapseActionView"
-        android:actionViewClass="com.actionbarsherlock.widget.SearchView"
-        android:title="@android:string/search_go"/>
-    <item
         android:id="@+id/menu_context_share"
         android:icon="?attr/actionIconShare"
         android:showAsAction="always"
@@ -103,16 +97,6 @@
         android:title="@string/s_title_operations">
         <menu>
             <item
-                android:id="@+id/menu_new_folder"
-                android:alphabeticShortcut="c"
-                android:icon="@drawable/ic_menu_new_folder"
-                android:title="@string/s_menu_new_folder"/>
-            <item
-                android:id="@+id/menu_new_file"
-                android:alphabeticShortcut="v"
-                android:icon="@drawable/ic_menu_new_file"
-                android:title="@string/s_menu_new_file"/>
-            <item
                 android:id="@+id/menu_context_info"
                 android:alphabeticShortcut="i"
                 android:icon="@drawable/ic_menu_info_details"
@@ -148,10 +132,17 @@
         </menu>
     </item>
     <item
-        android:id="@+id/menu_refresh"
-        android:alphabeticShortcut="r"
-        android:icon="?attr/actionIconRefresh"
+        android:id="@+id/menu_new_file"
+        android:icon="@drawable/ic_menu_add"
         android:showAsAction="ifRoom"
-        android:title="@string/s_menu_refresh"/>
+        android:title="@string/s_menu_new_file"
+        />
+    
+    <item
+        android:id="@+id/menu_search"
+        android:icon="?attr/actionIconSearch"
+        android:showAsAction="ifRoom|collapseActionView"
+        android:actionViewClass="com.actionbarsherlock.widget.SearchView"
+        android:title="@android:string/search_go"/>
 
 </menu>

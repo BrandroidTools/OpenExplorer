@@ -912,6 +912,8 @@ public class OpenDrive extends OpenNetworkPath implements OpenNetworkPath.CloudO
         return true;
     }
     
+    private boolean hasSpaceRequested = false;
+    
     @Override
     public void getSpace(final SpaceListener callback) {
         final OpenServer server = getServer();
@@ -921,6 +923,8 @@ public class OpenDrive extends OpenNetworkPath implements OpenNetworkPath.CloudO
                     server.get("agg", 0), 0);
             return;
         }
+        if(hasSpaceRequested) return;
+        hasSpaceRequested = true;
         thread(new Runnable() {
             public void run() {
                 try {

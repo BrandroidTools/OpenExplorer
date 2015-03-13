@@ -106,11 +106,6 @@ public class OperationsFragment extends OpenFragment implements Poppable {
     }
 
     @Override
-    public boolean hasOptionsMenu() {
-        return true;
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         menu.clear();

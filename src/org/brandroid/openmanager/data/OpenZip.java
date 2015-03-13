@@ -21,7 +21,7 @@ import org.brandroid.utils.Preferences;
 
 import android.net.Uri;
 
-public class OpenZip extends OpenPath implements OpenStream {
+public class OpenZip extends OpenPath implements OpenStream, OpenPath.ListHandler {
     private final OpenFile mFile;
     private ZipFile mZip = null;
     private OpenPath[] mChildren = null;
@@ -39,6 +39,26 @@ public class OpenZip extends OpenPath implements OpenStream {
         } catch (IOException e) {
             Logger.LogError("Couldn't open zip file (" + zipFile + ")");
         }
+    }
+    
+    @Override
+    public Thread list(final ListListener listener) {
+    	return thread(new Runnable() {
+			public void run() {
+				try {
+					OpenPath[] kids = listFiles();
+					postListReceived(kids, listener);
+		        	//FileManager.setOpenCache(getPath(), OpenZip.this);
+				} catch (Exception e) {
+					postException(e, listener);
+				}
+			}
+		});
+    }
+    
+    @Override
+    public void clearChildren() {
+    	mEntries = new ArrayList<OpenZip.OpenZipEntry>();
     }
 
     @Override
@@ -147,7 +167,7 @@ public class OpenZip extends OpenPath implements OpenStream {
         return mEntries;
     }
 
-    private OpenPath findVirtualPath(String name) {
+    public OpenPath findVirtualPath(String name) {
         if (mVirtualPaths.containsKey(name))
             return mVirtualPaths.get(name);
         OpenZipVirtualPath path = null;
@@ -300,14 +320,59 @@ public class OpenZip extends OpenPath implements OpenStream {
     public OutputStream getOutputStream() throws IOException {
         return new ZipOutputStream(mFile.getOutputStream());
     }
+    
+    public OpenPath getZipChild(String path)
+    {
+    	if(path.endsWith("/"))
+    		return new OpenZipVirtualPath(path);
+    	else {
+    		OpenZipVirtualPath p = null;
+    		if(path.indexOf("/") > -1)
+    			p = new OpenZipVirtualPath(path.substring(0, path.lastIndexOf("/") + 1));
+    		return new OpenZipEntry(p, mZip.getEntry(path));
+    	}
+    }
 
-    public class OpenZipVirtualPath extends OpenPath {
+    public class OpenZipVirtualPath extends OpenPath implements ListHandler {
         private final String path;
         private final OpenPath mParent;
+        private boolean mFinal = false;
 
         public OpenZipVirtualPath(OpenPath parent, String path) {
             mParent = parent;
             this.path = path;
+            mFinal = true;
+        }
+        
+        public OpenZipVirtualPath(String fullpath)
+        {
+        	if(fullpath.endsWith("/"))
+        		fullpath = fullpath.substring(0, fullpath.length() - 1);
+        	path = fullpath;
+        	if(path.indexOf("/") > -1)
+        		mParent = new OpenZipVirtualPath(path.substring(0, path.lastIndexOf("/")));
+        	else mParent = OpenZip.this;
+        	mFinal = false;
+        }
+        
+        @Override
+        public Thread list(final ListListener listener) {
+        	if(DEBUG)
+        		Logger.LogVerbose("OpenZipVirtualPath.list(" + mParent + "," + path + ")");
+        	return thread(new Runnable() {
+				public void run() {
+					try {
+						OpenPath[] kids = listFiles();
+						postListReceived(kids, listener);
+					} catch(Exception e) {
+						postException(e, listener);
+					}
+				}
+			});
+        }
+        
+        @Override
+        public void clearChildren() {
         }
 
         @Override
@@ -358,12 +423,14 @@ public class OpenZip extends OpenPath implements OpenStream {
 
         @Override
         public OpenPath[] list() throws IOException {
-            return OpenZip.this.listFiles(path);
+        	return OpenZip.this.listFiles(path);
         }
 
         @Override
         public OpenPath[] listFiles() throws IOException {
-            return list();
+        	OpenPath[] ret = list();
+        	//FileManager.setOpenCache(getPath(), this);
+        	return ret;
         }
 
         @Override
@@ -413,7 +480,7 @@ public class OpenZip extends OpenPath implements OpenStream {
 
         @Override
         public Boolean requiresThread() {
-            return false;
+            return true;
         }
 
         @Override
@@ -428,7 +495,7 @@ public class OpenZip extends OpenPath implements OpenStream {
 
     }
 
-    public class OpenZipEntry extends OpenPath {
+    public class OpenZipEntry extends OpenPath implements OpenStream {
         private final OpenPath mParent;
         private final ZipEntry ze;
         private OpenPath[] mChildren = null;
@@ -442,6 +509,16 @@ public class OpenZip extends OpenPath implements OpenStream {
                 } catch (IOException e) {
                 }
             }
+        }
+        
+        @Override
+        public InputStream getInputStream() throws IOException {
+        	return mZip.getInputStream(ze);
+        }
+        
+        @Override
+        public OutputStream getOutputStream() throws IOException {
+        	return null;
         }
 
         @Override

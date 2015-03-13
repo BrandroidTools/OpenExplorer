@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/abs__action_bar_default_height"
     android:id="@+id/title_bar"
+    android:background="?attr/dialogBackgroundColorPrimary"
     android:orientation="horizontal" >
 
     <ImageView
@@ -14,7 +15,8 @@
         android:padding="3dp"
         android:paddingRight="8dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/icon" />
+        android:src="@drawable/icon"
+        android:contentDescription="@string/app_name"/>
 
     <TextView
         android:id="@+id/title_text"
@@ -32,14 +34,6 @@
         android:layout_height="match_parent"
         android:orientation="horizontal" >
 
-        <ImageView
-            android:id="@+id/menu_close"
-            style="@style/ActionBarCompatHomeItem"
-            android:layout_width="@dimen/abs__action_bar_default_height"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:scaleType="center"
-            android:src="?attr/actionIconCancel" />
     </LinearLayout>
 
 </LinearLayout>

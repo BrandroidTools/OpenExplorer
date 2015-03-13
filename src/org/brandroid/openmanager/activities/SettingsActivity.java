@@ -18,11 +18,15 @@
 
 package org.brandroid.openmanager.activities;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeoutException;
 
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.OpenClipboard;
@@ -32,6 +36,7 @@ import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.fragments.DialogHandler;
+import org.brandroid.openmanager.fragments.PreferenceFragmentV11;
 import org.brandroid.openmanager.interfaces.OpenApp;
 import org.brandroid.openmanager.util.InputDialog;
 import org.brandroid.openmanager.util.PrivatePreferences;
@@ -55,6 +60,7 @@ import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
 import com.box.androidlib.BoxAuthentication;
 import com.stericson.RootTools.RootTools;
+import com.stericson.RootTools.exceptions.RootDeniedException;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -83,6 +89,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.text.Spannable;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Toast;
@@ -162,6 +169,8 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         if (data == null || (data.size() == 1 && data.containsKey("path"))) {
 
         }
+        if(data.toString().indexOf("key=advanced") > -1)
+            updateSystemMount(getPreferenceScreen());
         if (DEBUG)
             Logger.LogDebug("SettingsActivity.onResume(" + data + ")");
         super.onResume();
@@ -171,6 +180,10 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         if (DEBUG)
             Logger.LogDebug("SettingsActivity.onRestoreInstanceState(" + state + ")");
         super.onRestoreInstanceState(state);
+    }
+    
+    protected boolean isValidFragment(String fragmentName) {
+    	  return PreferenceFragmentV11.class.getName().equals(fragmentName);
     }
 
     public void onCreate(Bundle savedInstanceState) {
@@ -217,10 +230,6 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         PreferenceManager.setDefaultValues(this, pathSafe, PreferenceActivity.MODE_PRIVATE,
                 R.xml.preferences, false);
 
-        CheckBoxPreference pSystem = (CheckBoxPreference)findPreference("pref_system_mount");
-        if (pSystem != null)
-            pSystem.setChecked(RootManager.isSystemMounted());
-
         // getPreferences(MODE_PRIVATE);
         prefs = new Preferences(getApplicationContext());
 
@@ -240,6 +249,17 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
             } else { // global preferences
                 addPreferencesFromResource(R.xml.preferences);
 
+                CheckBoxPreference pSystem = (CheckBoxPreference)findPreference("pref_system_mount");
+                if (pSystem != null)
+                {
+                    pSystem.setChecked(false);
+                    try {
+                        String sysrw = RootTools.getMountedAs("/system");
+                        pSystem.setChecked(sysrw.equals("rw"));
+                    } catch(Exception e) {
+                    }
+                }
+                
                 final PreferenceActivity pa = this;
 
                 Preference pLanguage = pm.findPreference("pref_language");
@@ -364,6 +384,21 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
          * //showDialog(DIALOG_CANNOT_CONNECT_ID); }
          */
     }
+    
+    private void updateSystemMount(Preference parent)
+    {
+        Logger.LogVerbose("Looking for mount pref...");
+        if(parent == null) return;
+        if(!(parent instanceof PreferenceScreen)) return;
+        PreferenceScreen ps = (PreferenceScreen)parent;
+        Preference pref = ps.findPreference("pref_system_mount");
+        if(pref == null) {
+            updateSystemMount(ps.findPreference("advanced"));
+            return;
+        }
+        Logger.LogVerbose("Found system mount preference.");
+        ((CheckBoxPreference)pref).setChecked(RootManager.isSystemMounted());
+    }
 
     protected void onDestroy() {
         super.onDestroy();
@@ -424,6 +459,8 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
                 setOnChange(ps.getPreference(i), forceSummaries);
             return;
         }
+        
+        updateSystemMount(p);
 
         p.setOnPreferenceChangeListener(this);
 
@@ -577,10 +614,33 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
         return onPreferenceTreeClick(preferenceScreen, preference, this);
     }
+    
+    private void requestRoot() {
+        if(!Preferences.Pref_Root) return;
+        new Thread(new Runnable() {
+            public void run() {
+                Preferences.Pref_Root = false;
+                if (RootTools.isAccessGiven())
+                    try {
+                        RootTools.getShell(true);
+                        Preferences.Pref_Root = true;
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (TimeoutException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (RootDeniedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+            }
+        }).start();
+    }
 
     public static boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
-            Preference preference, Activity activity) {
-        final String key = preference.getKey();
+            Preference preference, final Activity activity) {
+        final String key = preference.getKey();    
         if (key.equals("pref_global")) {
             Intent intentGlobal = new Intent(activity, SettingsActivity.class);
             activity.startActivity(intentGlobal);
@@ -598,18 +658,68 @@ public class SettingsActivity extends SherlockPreferenceActivity implements
         } else if (key.equals("pref_thumbs_cache_clear")) {
             Toast.makeText(activity, "Cache cleared!", Toast.LENGTH_SHORT).show();
             return true;
+        } else if (key.equals("pref_root")) {
+            final CheckBoxPreference pRoot = (CheckBoxPreference)preference;
+            Preferences.Pref_Root = pRoot.isChecked();
+            if(Preferences.Pref_Root)
+                new Thread(new Runnable() {
+                    public void run() {
+                        Preferences.Pref_Root = false;
+                        if (RootTools.isAccessGiven())
+                            try {
+                                RootTools.getShell(true);
+                                Preferences.Pref_Root = true;
+                            } catch (IOException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            } catch (TimeoutException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            } catch (RootDeniedException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                    }
+                }).start();
         } else if (key.equals("pref_system_mount")) {
             final CheckBoxPreference pSystem = (CheckBoxPreference)preference;
+            if(!Preferences.Pref_Root)
+            {
+                pSystem.setChecked(false);
+                return true;
+            }
+            pSystem.setEnabled(false);
+            final Handler handler = new Handler();
             final boolean checked = pSystem.isChecked();
+            RootManager.Default.setHandler();
             new Thread(new Runnable() {
                 public void run() {
                     String mode;
                     try {
-                        mode = !checked ? "ro" : "rw";
+                        mode = checked ? "rw" : "ro";
                         RootTools.remount("/system", mode);
-                        if (DEBUG)
-                            Logger.LogDebug("New /system: " + RootTools.getMountedAs("/system"));
-                        // pSystem.setChecked(RootTools.getMountedAs("/system").equalsIgnoreCase("rw"));
+                        final boolean success = RootManager.isSystemMounted() == checked;
+                        if(!success) // fall back to my version
+                        {
+                            final boolean startMounted = RootManager.isSystemMounted();
+                            RootManager.mountSystem(checked);
+                            final boolean isMounted = RootManager.isSystemMounted();
+                            handler.post(new Runnable() {
+                                public void run() {
+                                    if(pSystem != null)
+                                    {
+                                        pSystem.setEnabled(true);
+                                        pSystem.setChecked(isMounted);
+                                    }
+                                    if(isMounted != startMounted)
+                                        Toast.makeText(activity, "Unable to remount system.", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } else
+                            handler.post(new Runnable() {
+                                public void run() {
+                                    pSystem.setEnabled(true);
+                                }});
                     } catch (Exception e) {
                         Logger.LogError("Unable to remount system", e);
                     }

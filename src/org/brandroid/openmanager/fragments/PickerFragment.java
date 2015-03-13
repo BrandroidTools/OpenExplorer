@@ -4,40 +4,38 @@ package org.brandroid.openmanager.fragments;
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.adapters.ContentAdapter;
-import org.brandroid.openmanager.adapters.OpenPathPagerAdapter;
-import org.brandroid.openmanager.data.OpenFile;
+import org.brandroid.openmanager.adapters.ContentAdapter.SelectionCallback;
+import org.brandroid.openmanager.adapters.OpenPathAdapter;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.views.OpenViewPager;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.ViewUtils;
-
-import com.viewpagerindicator.PageIndicator;
-import com.viewpagerindicator.TabPageIndicator;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
 
 public class PickerFragment extends OpenFragment implements OnItemClickListener,
-        OpenPathFragmentInterface {
+        OpenPathFragmentInterface, SelectionCallback {
     private OnOpenPathPickedListener mPickListener;
     private View view;
-    private OpenViewPager mPager;
-    private PickerPagerAdapter mPagerAdapter;
+//    private OpenViewPager mPager;
+//    private PickerPagerAdapter mPagerAdapter;
+    private GridView mGrid;
+    private ContentAdapter mAdapter;
     private TextView mSelection;
     private EditText mPickName;
     private OpenPath mPath;
@@ -80,42 +78,43 @@ public class PickerFragment extends OpenFragment implements OnItemClickListener,
         view = inflater.inflate(R.layout.picker_pager, container, false);
         ViewUtils.setViewsVisible(view, false, android.R.id.button1, android.R.id.button2,
                 android.R.id.title, R.id.pick_filename);
-        mPager = (OpenViewPager)view.findViewById(R.id.picker_pager);
-        mPager.setOnPageChangeListener(new OnPageChangeListener() {
-
-            @Override
-            public void onPageSelected(int position) {
-                OpenPath path = ((PickerPagerAdapter)mPagerAdapter).getItemPath(position);
-                if (mPickListener != null)
-                    mPickListener.onOpenPathShown(path);
-            }
-
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                // TODO Auto-generated method stub
-
-            }
-        });
+//        mPager = (OpenViewPager)view.findViewById(R.id.picker_pager);
+//        mPager.setOnPageChangeListener(new OnPageChangeListener() {
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//                OpenPath path = ((PickerPagerAdapter)mPagerAdapter).getItemPath(position);
+//                if (mPickListener != null)
+//                    mPickListener.onOpenPathShown(path);
+//            }
+//
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//                // TODO Auto-generated method stub
+//
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//                // TODO Auto-generated method stub
+//
+//            }
+//        });
         mSelection = (TextView)view.findViewById(R.id.pick_path);
 
-        // mGrid = (GridView)view.findViewById(android.R.id.list);
-        // mGrid.setNumColumns(mContext.getResources().getInteger(R.integer.max_grid_columns));
-        // mSelection = (TextView)view.findViewById(R.id.pick_path);
-        // mPickName = (EditText)view.findViewById(R.id.pick_filename);
-        return view;
+		Context mContext = getContext();
+		mGrid = (GridView) view.findViewById(android.R.id.list);
+		mGrid.setNumColumns(mContext.getResources().getInteger(R.integer.max_grid_columns));
+		mSelection = (TextView) view.findViewById(R.id.pick_path);
+		mPickName = (EditText) view.findViewById(R.id.pick_filename);
+		return view;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mPagerAdapter = new PickerPagerAdapter(getFragmentManager()).setContext(getContext());
-        // mGrid.setOnItemClickListener(this);
+        //mPagerAdapter = new PickerPagerAdapter(getFragmentManager()).setContext(getContext());
+        mGrid.setOnItemClickListener(this);
         if (savedInstanceState != null && savedInstanceState.containsKey("start"))
             mPath = (OpenPath)savedInstanceState.getParcelable("start");
         setPath(mPath);
@@ -133,26 +132,26 @@ public class PickerFragment extends OpenFragment implements OnItemClickListener,
 
     public void setPath(final OpenPath path) {
         mPath = path;
-        ((PickerPagerAdapter)mPagerAdapter).setOnItemClickListener(this).setPath(path);
-        mPager.postDelayed(new Runnable() {
-            public void run() {
-                mPager.setCurrentItem(path.getDepth() - 1);
-            }
-        }, 200);
-        /*
-         * mAdapter = new ContentAdapter(mContext, OpenExplorer.VIEW_LIST,
-         * mPath); mAdapter.setShowPlusParent(path.getParent() != null);
-         * mAdapter.setShowFiles(false); mAdapter.setShowDetails(false);
-         * mAdapter.updateData(); mGrid.setAdapter(mAdapter);
-         */
-        if (mSelection != null && mShowSelection)
+        //((PickerPagerAdapter)mPagerAdapter).setOnItemClickListener(this).setPath(path);
+//        mPager.postDelayed(new Runnable() {
+//            public void run() {
+//                mPager.setCurrentItem(path.getDepth() - 1);
+//            }
+//        }, 200);
+		mAdapter = new ContentAdapter(this, this, OpenExplorer.VIEW_LIST, mPath);
+		mAdapter.setShowPlusParent(path.getParent() != null);
+		mAdapter.setShowFiles(true);
+		mAdapter.setShowDetails(true);
+		mAdapter.updateData();
+		mGrid.setAdapter(mAdapter);
+		if (mSelection != null && mShowSelection)
             mSelection.setText(mPath.getPath());
-        if (mPager != null && mPagerAdapter != null && mPager.getAdapter() == null)
-            try {
-                mPager.setAdapter(mPagerAdapter);
-            } catch (IllegalStateException e) {
-                Logger.LogError("Illegal State in PickerFragment?", e);
-            }
+//        if (mPager != null && mPagerAdapter != null && mPager.getAdapter() == null)
+//            try {
+//                mPager.setAdapter(mPagerAdapter);
+//            } catch (IllegalStateException e) {
+//                Logger.LogError("Illegal State in PickerFragment?", e);
+//            }
     }
 
     public interface OnOpenPathPickedListener {
@@ -241,5 +240,12 @@ public class PickerFragment extends OpenFragment implements OnItemClickListener,
         }
 
     }
+
+	@Override
+	public void onAdapterSelectedChanged(OpenPath path, boolean newSelected,
+			int mSelectedCount) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

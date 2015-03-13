@@ -1,13 +1,7 @@
 
 package org.brandroid.utils;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -19,7 +13,6 @@ import java.util.logging.LogManager;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.fragments.DialogHandler;
-import org.brandroid.openmanager.util.FileManager;
 import org.json.JSONArray;
 
 import android.annotation.SuppressLint;
@@ -39,100 +32,7 @@ public class Logger {
                                                    // preferences
     public final static Integer MIN_DB_LEVEL = Log.INFO;
     public final static String LOG_KEY = "OpenExplorer";
-    public static final org.apache.commons.logging.Log VFSLogger = new org.apache.commons.logging.Log() {
-        
-        @Override
-        public void warn(Object arg0, Throwable arg1) {
-            Logger.LogWarning(arg0.toString(), arg1);
-        }
-        
-        @Override
-        public void warn(Object arg0) {
-            Logger.LogWarning(arg0.toString());
-        }
-        
-        @Override
-        public void trace(Object arg0, Throwable arg1) {
-            Logger.LogVerbose(arg0.toString(), arg1);
-        }
-        
-        @Override
-        public void trace(Object arg0) {
-            Logger.LogVerbose(arg0.toString());
-        }
-        
-        @Override
-        public boolean isWarnEnabled() {
-            return true;
-        }
-        
-        @Override
-        public boolean isTraceEnabled() {
-            // TODO Auto-generated method stub
-            return false;
-        }
-        
-        @Override
-        public boolean isInfoEnabled() {
-            return true;
-        }
-        
-        @Override
-        public boolean isFatalEnabled() {
-            return true;
-        }
-        
-        @Override
-        public boolean isErrorEnabled() {
-            return true;
-        }
-        
-        @Override
-        public boolean isDebugEnabled() {
-            return OpenExplorer.IS_DEBUG_BUILD;
-        }
-        
-        @Override
-        public void info(Object arg0, Throwable arg1) {
-            Logger.LogInfo(arg0.toString(), arg1);
-        }
-        
-        @Override
-        public void info(Object arg0) {
-            Logger.LogInfo(arg0.toString());
-        }
-        
-        @Override
-        public void fatal(Object arg0, Throwable arg1) {
-            Logger.LogError(arg0.toString(), arg1);
-        }
-        
-        @Override
-        public void fatal(Object arg0) {
-            Logger.LogError(arg0.toString());
-        }
-        
-        @Override
-        public void error(Object arg0, Throwable arg1) {
-            Logger.LogError(arg0.toString(), arg1);
-        }
-        
-        @Override
-        public void error(Object arg0) {
-            Logger.LogError(arg0.toString());
-        }
-        
-        @Override
-        public void debug(Object arg0, Throwable arg1) {
-            Logger.LogDebug(arg0.toString(), arg1);
-        }
-        
-        @Override
-        public void debug(Object arg0) {
-            Logger.LogDebug(arg0.toString());
-        }
-    };
-    
+
     private static Handler mDefaultHandler;
     private final static List<String> mLogsHandled = new ArrayList<String>();
     public static void setDefaultHandler(Handler handler) { mDefaultHandler = handler; }
@@ -169,7 +69,7 @@ public class Logger {
     }
 
     public static Boolean isLoggingEnabled() {
-        return bLoggingEnabled && DO_LOG;
+        return false; //bLoggingEnabled && DO_LOG;
     }
 
     public static void setLoggingEnabled(Boolean enable) {
@@ -285,9 +185,11 @@ public class Logger {
         return dbLog.countLevel(level);
     }
 
-    public static void clearDb() {
+    public static boolean clearDb() {
         if (dbLog != null)
             dbLog.clear();
+	else return false;
+	return true;
     }
 
     public static int LogError(String msg) {

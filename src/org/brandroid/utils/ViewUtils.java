@@ -323,6 +323,37 @@ public class ViewUtils {
         }
     }
 
+    public static void setViewsChecked(final Activity parent, final boolean checked, final int... ids) {
+        boolean ui = Thread.currentThread().equals(OpenExplorer.UiThread);
+        if (!ui)
+            OpenExplorer.post(new Runnable() {
+                public void run() {
+                    setViewsChecked(parent, checked, ids);
+                }
+            });
+        for (int id : ids) {
+            final View v = parent.findViewById(id);
+            if (v != null) {
+                if (v instanceof CheckedTextView)
+                    ((CheckedTextView)v).setChecked(checked);
+                else if (v instanceof CheckBox)
+                    ((CheckBox)v).setChecked(checked);
+                else if (v instanceof ImageView)
+                    ((ImageView)v)
+                            .setImageResource(checked ? android.R.drawable.checkbox_on_background
+                                    : android.R.drawable.checkbox_off_background);
+                else if (v instanceof TextView)
+                    ((TextView)v).setCompoundDrawables(
+                            parent
+                                    .getResources()
+                                    .getDrawable(
+                                            checked ? android.R.drawable.checkbox_on_background
+                                                    : android.R.drawable.checkbox_off_background),
+                            null, null, null);
+            }
+        }
+    }
+
     public static void setViewsVisibleNow(final View parent, final boolean visible,
             final int... ids) {
         if (parent == null)

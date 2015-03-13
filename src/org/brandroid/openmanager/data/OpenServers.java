@@ -83,7 +83,7 @@ public class OpenServers implements Iterable<OpenServer> {
             OpenServer server = mData.get(i);
             if ((host == null || server.getHost().equalsIgnoreCase(host))
                     && server.getType().equalsIgnoreCase(type)
-                    && (user == null || user == ""
+                    && (user == null || "".equals(user)
                     || server.getUser().equalsIgnoreCase(user)))
                 return server;
         }
@@ -108,8 +108,12 @@ public class OpenServers implements Iterable<OpenServer> {
     public OpenServer findByHost(String type, String host) {
         for (int i = 0; i < mData.size(); i++) {
             OpenServer server = mData.get(i);
-            if (server.getType().equalsIgnoreCase(type) && server.getHost().equalsIgnoreCase(host))
-                return server;
+            if (server.getType().equalsIgnoreCase(type))
+            {
+            	if(server.getHost().equalsIgnoreCase(host))
+            		return server;
+            	else Logger.LogWarning("Server type (" + server.getType() + ") but not host (" + server.getHost() + " != " + host + ")");
+            }
         }
         return null;
     }

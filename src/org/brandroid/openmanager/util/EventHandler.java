@@ -166,8 +166,11 @@ public class EventHandler {
 
     public static void cancelRunningTasks() {
         for (BackgroundWork bw : mTasks)
+        {
+        	Logger.LogVerbose("Cancelling " + bw.getTitle());
             if (bw.getStatus() == Status.RUNNING)
                 bw.cancel(true);
+        }
         if (mNotifier != null)
             mNotifier.cancelAll();
     }
@@ -227,7 +230,7 @@ public class EventHandler {
     public static String getResourceString(Context mContext, int... resIds) {
         String ret = "";
         for (int resId : resIds)
-            ret += (ret == "" ? "" : " ") + mContext.getText(resId);
+            ret += ("".equals(ret) ? "" : " ") + mContext.getText(resId);
         return ret;
     }
 
@@ -317,91 +320,6 @@ public class EventHandler {
         }).create().show();
     }
 
-    /**
-     * @param directory directory path to create the new folder in.
-     */
-    public static void createNewFolder(final OpenPath folder, final Context context,
-            final OnWorkerUpdateListener threadListener) {
-        final InputDialog dlg = new InputDialog(context).setTitle(R.string.s_title_newfolder)
-                .setIcon(R.drawable.ic_menu_folder_add_dark).setMessage(R.string.s_alert_newfolder)
-                .setMessageTop(R.string.s_alert_newfolder_folder)
-                .setDefaultTop(folder.getPath(), false).setCancelable(true)
-                .setNegativeButton(R.string.s_cancel, DialogHandler.OnClickDismiss);
-        dlg.setPositiveButton(R.string.s_create, new OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                String name = dlg.getInputText();
-                if (name.length() > 0) {
-                    if (!folder.getChild(name).exists()) {
-                        if (!createNewFolder(folder, name, context)) {
-                            // new folder wasn't created, and since we've
-                            // already ruled out an existing folder, the folder
-                            // can't be created for another reason
-                            OpenPath path = folder.getChild(name);
-                            Logger.LogError("Unable to create folder (" + path + ")");
-                            if (threadListener != null)
-                                threadListener.onWorkerThreadFailure(MKDIR_TYPE);
-                            Toast.makeText(context, R.string.s_msg_folder_none, Toast.LENGTH_LONG)
-                                    .show();
-                        } else {
-                            if (threadListener != null)
-                                threadListener.onWorkerThreadComplete(MKDIR_TYPE);
-                        }
-                    } else {
-                        // folder exists, so let the user know
-                        Toast.makeText(context,
-                                getResourceString(context, R.string.s_msg_folder_exists),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    dialog.dismiss();
-                }
-            }
-        });
-        dlg.create().show();
-    }
-
-    protected static boolean createNewFolder(OpenPath folder, String folderName, Context context) {
-        return folder.getChild(folderName).mkdir();
-    }
-
-    public static void createNewFile(final OpenPath folder, final Context context,
-            final OnWorkerUpdateListener threadListener) {
-        final InputDialog dlg = new InputDialog(context).setTitle(R.string.s_title_newfile)
-                .setIcon(R.drawable.ic_menu_new_file).setMessage(R.string.s_alert_newfile)
-                .setMessageTop(R.string.s_alert_newfile_folder).setDefaultTop(folder.getPath())
-                .setCancelable(true).setNegativeButton(R.string.s_cancel, new OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-        dlg.setPositiveButton(R.string.s_create, new OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                String name = dlg.getInputText();
-                if (name.length() > 0) {
-                    createNewFile(folder, name, threadListener);
-                } else {
-                    dialog.dismiss();
-                }
-            }
-        });
-        dlg.create().show();
-    }
-
-    public static void createNewFile(final OpenPath folder, final String filename,
-            final OnWorkerUpdateListener threadListener) {
-        new Thread(new Runnable() {
-            public void run() {
-                if (folder.getChild(filename).touch())
-                    threadListener.onWorkerThreadComplete(TOUCH_TYPE);
-                else
-                    threadListener.onWorkerThreadFailure(TOUCH_TYPE);
-            }
-        }).start();
-        // BackgroundWork bw = new BackgroundWork(TOUCH_TYPE, context, folder,
-        // filename);
-        // bw.execute();
-    }
-
     public void sendFile(final Collection<OpenPath> path, final Context mContext) {
         String name;
         CharSequence[] list = {
@@ -458,6 +376,11 @@ public class EventHandler {
         Collection<OpenPath> files = new ArrayList<OpenPath>();
         files.add(source);
         copyFile(files, destPath, mContext);
+    }
+    
+    public BackgroundWork getWorker(EventType type, Context context, OpenPath intoPath, String... params)
+    {
+    	return new BackgroundWork(type, context, intoPath, params);
     }
 
     public void copyFile(final Collection<OpenPath> files, final OpenPath newPath,
@@ -630,7 +553,26 @@ public class EventHandler {
      * toDir).execute(zipFile); }
      */
 
-    public class BackgroundWork extends AsyncTask<OpenPath, Integer, Integer> implements
+    public static void createNewFile(final OpenPath folder, final String filename,
+	        final OnWorkerUpdateListener threadListener) {
+	    new Thread(new Runnable() {
+	        public void run() {
+	            if (folder.getChild(filename).touch())
+	                threadListener.onWorkerThreadComplete(TOUCH_TYPE);
+	            else
+	                threadListener.onWorkerThreadFailure(TOUCH_TYPE);
+	        }
+	    }).start();
+	    // BackgroundWork bw = new BackgroundWork(TOUCH_TYPE, context, folder,
+	    // filename);
+	    // bw.execute();
+	}
+
+	public static boolean createNewFolder(OpenPath folder, String folderName, Context context) {
+	    return folder.getChild(folderName).mkdir();
+	}
+
+	public class BackgroundWork extends AsyncTask<OpenPath, Integer, Integer> implements
             OnProgressUpdateCallback {
         private final EventType mType;
         private final Context mContext;
@@ -660,6 +602,8 @@ public class EventHandler {
         public void setWorkerUpdateListener(OnWorkerUpdateListener listener) {
             mListener = listener;
         }
+        
+        public OnWorkerUpdateListener getWorkerUpdateListener() { return mListener; }
 
         public void OnWorkerThreadComplete(EventType type, String... results) {
             if (mListener != null)
@@ -702,6 +646,10 @@ public class EventHandler {
                 case SEARCH:
                     return getResourceString(mContext, R.string.s_title_searching).toString();
                 case COPY:
+                	if(mIntoPath != null && mIntoPath instanceof OpenNetworkPath)
+                		return getResourceString(mContext, R.string.s_title_uploading).toString();
+                	else if (mCurrentPath != null && mCurrentPath instanceof OpenNetworkPath)
+                		return getResourceString(mContext,  R.string.s_title_downloading).toString();
                     return getResourceString(mContext, R.string.s_title_copying).toString();
                 case CUT:
                     return getResourceString(mContext, R.string.s_title_moving).toString();
@@ -720,7 +668,7 @@ public class EventHandler {
         public String getTitle() {
             String title = getOperation();
             if (mCurrentPath != null) {
-                title += " " + '\u2192' + " " + mCurrentPath.getName();
+                title += " " + mCurrentPath.getName();
             }
             return title;
         }
@@ -836,6 +784,7 @@ public class EventHandler {
                     showDialog = showNotification = false;
                     break;
             }
+            Logger.LogVerbose("Showing notification for " + getTitle());
             if (showDialog)
                 try {
                     mPDialog = ProgressDialog.show(mContext, getTitle(),
@@ -904,12 +853,13 @@ public class EventHandler {
                 mBuilder.setAutoCancel(true);
                 NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle();
                 style.bigText(getDetailedText());
-                style.setBigContentTitle(getOperation() + " " + mCurrentPath.getName());
+                style.setBigContentTitle(getTitle());
                 mBuilder.setStyle(style);
-                mBuilder.addAction(R.drawable.ic_menu_close_clear_cancel,
+                if(isCancellable)
+                	mBuilder.addAction(R.drawable.ic_menu_close_clear_cancel,
                                 mContext.getResources().getText(R.string.s_cancel),
-                                makePendingIntent(OpenExplorer.REQ_EVENT_CANCEL))
-                        .addAction(R.drawable.ic_menu_info_details,
+                                makePendingIntent(OpenExplorer.REQ_EVENT_CANCEL));
+                mBuilder.addAction(R.drawable.ic_menu_info_details,
                                 mContext.getText(R.string.s_menu_info),
                                 makePendingIntent(OpenExplorer.REQ_EVENT_VIEW));
                 if (Build.VERSION.SDK_INT < 11) {
@@ -936,7 +886,7 @@ public class EventHandler {
         }
 
         private PendingIntent makePendingIntent(int reqIntent) {
-            Intent intent = new Intent();
+            Intent intent = new Intent(mContext, OpenExplorer.class);
             intent.putExtra("TaskId", taskId);
             intent.putExtra("RequestId", reqIntent);
             return PendingIntent.getActivity(mContext, reqIntent, intent, 0);
@@ -1252,27 +1202,28 @@ public class EventHandler {
             if (source.getPath().equals(into.getPath()))
                 return false;
             final OpenFile dest = (OpenFile)into;
-            final boolean[] running = new boolean[] {
-                    true
-            };
             final long size = source.length();
-            if (size > 50000)
-                new Thread(new Runnable() {
+            Thread t = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        while ((int)dest.length() < total || running[0]) {
+                        while ((int)dest.length() < total && !Thread.currentThread().isInterrupted()) {
                             long pos = dest.length();
                             publish((int)pos, (int)size, total);
                             try {
                                 Thread.sleep(500);
+                                if(Thread.currentThread().isInterrupted())
+                                	break;
                             } catch (InterruptedException e) {
-                                running[0] = false;
+                                break;
                             }
                         }
                     }
-                }).start();
+                });
+            t.start();
+            publish(0, (int)size, total);
             boolean ret = dest.copyFrom(source);
-            running[0] = false;
+            if(t != null && !t.isInterrupted())
+            	t.interrupt();
             return ret;
         }
 
@@ -1396,11 +1347,8 @@ public class EventHandler {
                 }
             }
             OpenPath newDir = intoDir;
-            if (intoDir instanceof OpenSmartFolder) {
+            if (intoDir instanceof OpenSmartFolder)
                 newDir = ((OpenSmartFolder)intoDir).getFirstDir();
-                if (old instanceof OpenFile && newDir instanceof OpenFile)
-                    return copyFileToDirectory((OpenFile)old, (OpenFile)newDir, total);
-            }
             Logger.LogDebug("EventHandler.copyToDirectory : Trying to copy [" + old.getPath()
                     + "] to [" + intoDir.getPath() + "]...");
             if (old.getPath().equals(intoDir.getPath())) {
@@ -1417,6 +1365,9 @@ public class EventHandler {
 
             if (old.isDirectory() && newDir.isDirectory() && newDir.canWrite()) {
                 OpenPath[] files = old.list();
+                
+                if(files == null)
+                	files = old.listFiles();
 
                 for (OpenPath file : files)
                     if (file != null)
@@ -1456,7 +1407,7 @@ public class EventHandler {
                 boolean success = false;
                 if (old instanceof OpenStream && newFile instanceof OpenStream)
                 {
-
+                	Logger.LogDebug("Copying Stream -> Stream");
                     int size = (int)old.length();
                     int pos = 0;
 
@@ -1468,12 +1419,12 @@ public class EventHandler {
                         o_stream = new BufferedOutputStream(((OpenStream)newFile).getOutputStream());
 
                         while ((read = i_stream.read(data, 0,
-                                Math.min(size - pos, FileManager.BUFFER))) != -1) {
+                                size > 0 ? Math.min(size - pos, FileManager.BUFFER) : FileManager.BUFFER)) != -1) {
                             o_stream.write(data, 0, read);
                             pos += read;
-                            if (pos >= size)
+                            if (size > 0 && pos >= size)
                                 break;
-                            publishMyProgress(pos, size);
+                            publishMyProgress(pos, Math.max(pos, size));
                         }
 
                         o_stream.flush();
@@ -1505,6 +1456,7 @@ public class EventHandler {
             }
 
             Logger.LogWarning("Couldn't copy file for unknown reason.");
+            OnWorkerThreadFailure(mType, old);
             return false;
         }
 
@@ -1738,9 +1690,8 @@ public class EventHandler {
             // publish(current, size, total);
             OnWorkerProgressUpdate(current, total);
 
-            // Logger.LogInfo("onProgressUpdate(" + current + ", " + size + ", "
-            // + total + ")-("
-            // + progA + "," + progB + ")-> " + mRemain + "::" + mLastRate);
+            Logger.LogInfo("onProgressUpdate(" + current + ", " + size + ", " + total +
+            		")-(" + progA + "," + progB + ")-> " + mRemain + "::" + mLastRate);
 
             // mNote.setLatestEventInfo(mContext, , contentText, contentIntent)
 

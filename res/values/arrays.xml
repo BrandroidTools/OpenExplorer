@@ -165,5 +165,9 @@
         <item>GZip</item>
         <item>BZip2</item>
     </string-array>
+    <string-array name="file_types">
+        <item>@string/s_menu_new_folder</item>
+        <item>Text File (txt)</item>
+    </string-array>
 
 </resources>

@@ -37,8 +37,9 @@ import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
 import org.brandroid.utils.ViewUtils;
 
-import com.stericson.RootTools.Mount;
 import com.stericson.RootTools.RootTools;
+import com.stericson.RootTools.containers.Mount;
+
 import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -125,6 +126,7 @@ public class OpenBookmarks implements OnGroupClickListener,
     }
 
     public void scanRoot() {
+        if(!Preferences.Pref_Root) return;
         // Logger.LogDebug("Trying to get roots");
         if (mBlkids == null && mProcMounts == null) {
             mProcMounts = new ArrayList<String>();
@@ -134,7 +136,7 @@ public class OpenBookmarks implements OnGroupClickListener,
                 @Override
                 public void run() {
                     try {
-                        if (Preferences.Pref_Root && RootTools.isAccessRequested()
+                        if (RootTools.isAccessRequested()
                                 && RootTools.isAccessGiven()) {
                             mBlkids = RootTools.sendShell("blkid", 1000);
                             mProcMounts = RootTools.sendShell("cat /proc/mounts", 1000);
@@ -149,8 +151,8 @@ public class OpenBookmarks implements OnGroupClickListener,
                     }
                 }
             }).start();
-        } else
-            Logger.LogWarning("No root, can't get roots");
+        } //else
+          //  Logger.LogWarning("No root, can't get roots");
     }
 
     public enum BookmarkType {
@@ -553,7 +555,7 @@ public class OpenBookmarks implements OnGroupClickListener,
             Logger.LogDebug("Looking for " + path + " in procmounts");
             for (String m : mProcMounts) {
                 String[] parts = m.split("  *");
-                if (path.getPath().startsWith(parts[1].toString())) {
+                if (parts.length > 1 && path.getPath().startsWith(parts[1].toString())) {
                     String dev = parts[0];
                     for (String blk : mBlkids)
                         if (blk.indexOf(dev) > -1 && blk.toLowerCase().indexOf("label=") > -1) {

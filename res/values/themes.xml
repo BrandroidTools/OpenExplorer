@@ -30,7 +30,7 @@
         <!-- Action Mode icons -->
         <item name="actionIconClipboard">@drawable/ic_menu_clipboard</item>
         <item name="actionIconClipboardChecked">@drawable/ic_menu_clipboard_checked</item>
-        <item name="actionIconHomeUp">@drawable/ic_ab_back_holo_dark</item>
+        <item name="actionIconHomeUp">@drawable/ic_drawer</item>
         <item name="actionIconRename">@drawable/ic_rename</item>
         <item name="actionIconPaste">@drawable/ic_action_paste_holo_dark</item>
         <item name="actionIconCopy">@drawable/ic_action_copy_holo_dark</item>
@@ -188,7 +188,7 @@
         <!-- Action Mode icons -->
         <item name="actionIconClipboard">@drawable/ic_menu_clipboard</item>
         <item name="actionIconClipboardChecked">@drawable/ic_menu_clipboard_checked</item>
-        <item name="actionIconHomeUp">@drawable/ic_ab_back_holo_dark</item>
+        <item name="actionIconHomeUp">@drawable/ic_drawer</item>
         <item name="actionIconRename">@drawable/ic_rename</item>
         <item name="actionIconPaste">@drawable/ic_action_paste_holo_dark</item>
         <item name="actionIconCopy">@drawable/ic_action_copy_holo_dark</item>
@@ -203,7 +203,7 @@
         <item name="checkboxButtonOff">@drawable/btn_check_off_holo_light</item>
         <item name="popupBackground">@drawable/contextmenu_square_gray</item>
         <item name="popupArrow">@drawable/contextmenu_arrow_gray</item>
-        <item name="pagerBackground">@drawable/ab_stacked_solid_light_holo</item>
+        <item name="pagerBackground">@color/darkGray</item>
         <item name="listDivider">@drawable/divider_horizontal_bright</item>
         <item name="listBackground">@drawable/list_background_light</item>
         <item name="listColumnBackground">@drawable/list_column_background_light</item>
@@ -319,7 +319,8 @@
     </style>
     
 
-    <style name="AppTheme.Dialog" parent="Theme.Sherlock.Dialog">
+    <style name="AppTheme.Dialog" parent="Theme.Sherlock.DialogWhenLarge">
+    
         <item name="absForceOverflow">true</item>
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>
@@ -399,7 +400,7 @@
         
         <item name="dialog">0</item>
     </style>
-    <style name="AppTheme.Dialog.Light" parent="Theme.Sherlock.Light.Dialog">
+    <style name="AppTheme.Dialog.Light" parent="Theme.Sherlock.Light.DialogWhenLarge">
         <item name="absForceOverflow">true</item>
         <item name="vpiCirclePageIndicatorStyle">@style/Widget.CirclePageIndicator</item>
         <item name="vpiTitlePageIndicatorStyle">@style/Widget.TitlePageIndicator</item>

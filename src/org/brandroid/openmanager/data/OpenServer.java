@@ -384,7 +384,7 @@ public class OpenServer extends OpenPath {
     public int getPort() {
         try {
             String p = get("port", "-1");
-            if (p == null || p.equals("null"))
+            if (p == null || "null".equals(p) || "".equals(p))
                 return -1;
             return Integer.parseInt(p);
         } catch (NumberFormatException e) {
@@ -432,7 +432,7 @@ public class OpenServer extends OpenPath {
         String p = getPath();
         if(p != null)
         {
-            if(!ret.endsWith("/") || !p.startsWith("/"))
+            if(!ret.endsWith("/") && !p.startsWith("/"))
                 ret += "/";
             ret += p;
             ret = ret.replace("//", "/");

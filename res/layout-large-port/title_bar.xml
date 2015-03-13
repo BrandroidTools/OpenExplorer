@@ -38,7 +38,7 @@
 
     <TextView
         android:id="@+id/title_title"
-        style="@style/Text.Large"
+        style="@style/Text.Large.Dialog"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/title_icon_holder"
         android:layout_alignParentTop="true"
@@ -107,6 +107,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:nextFocusRight="@+id/title_icon_holder"
+        android:orientation="horizontal"
         android:showDividers="middle" >
     </LinearLayout>
 

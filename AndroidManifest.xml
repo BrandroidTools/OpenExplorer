@@ -19,8 +19,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.brandroid.openmanager"
     android:installLocation="auto"
-    android:versionCode="228"
-    android:versionName="0.228" >
+    android:versionCode="254"
+    android:versionName="0.254" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -60,7 +60,7 @@
         android:name="org.brandroid.openmanager.activities.OpenApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon_flat"
-	android:label="@string/app_name"
+		android:label="@string/app_name"
         android:largeHeap="true"
         android:theme="@style/AppTheme.Dark" >
         <activity
@@ -129,6 +129,8 @@
         <activity
             android:name="org.brandroid.openmanager.activities.ServerSetupActivity"
       		android:uiOptions="none"
+            android:theme="@style/AppTheme.Dialog"
+            android:exported="true"
             android:configChanges="screenSize|keyboard|keyboardHidden" >
         </activity>
         <activity
@@ -158,22 +160,28 @@
         <activity
             android:name="org.brandroid.openmanager.activities.FolderPickerActivity"
             android:configChanges="screenSize|keyboard|keyboardHidden"
-            android:label="@string/s_title_picker" >
+            android:exported="true" >
+			<intent-filter>
+				<action android:name="android.intent.action.GET_CONTENT" />
+				<category android:name="android.intent.category.OPENABLE" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="*/*" />
+			</intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.PICK" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:scheme="file" />
-                <data android:mimeType="*/*" />
+		        <category android:name="android.intent.category.BROWSABLE" />
+		        <data android:scheme="file" />
+		        <data android:scheme="folder" />
+		        <data android:scheme="directory" />
             </intent-filter>
             <intent-filter>
                 <action android:name="org.openintents.action.PICK_FILE" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:scheme="file" />
-                <data android:mimeType="*/*" />
+		        <category android:name="android.intent.category.BROWSABLE" />
+		        <data android:scheme="file" />
+		        <data android:scheme="folder" />
+		        <data android:scheme="directory" />
             </intent-filter>
         </activity>
 
@@ -215,6 +223,7 @@
         <activity
             android:name="org.brandroid.openmanager.activities.SettingsActivity"
             android:exported="false"
+            android:theme="@style/AppTheme.Dark"
             android:label="@string/s_menu_prefs_global" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

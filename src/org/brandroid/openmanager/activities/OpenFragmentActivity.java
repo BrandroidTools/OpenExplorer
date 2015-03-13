@@ -427,7 +427,7 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
                         if (DEBUG && blk instanceof SmbComReadAndX)
                             continue;
                         String tmp = blk.toShortString();
-                        if (tmp == null || tmp == "")
+                        if (tmp == null || "".equals(tmp))
                             continue;
                         if (tmp.indexOf("[") > -1)
                             s += " -> " + tmp.substring(0, tmp.indexOf("["));

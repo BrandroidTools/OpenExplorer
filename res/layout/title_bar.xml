@@ -132,6 +132,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:nextFocusRight="@+id/title_icon_holder"
+        android:orientation="vertical"
         android:showDividers="middle" >
     </LinearLayout>
 

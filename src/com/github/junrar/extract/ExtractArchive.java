@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.commons.logging.Log;
+import org.brandroid.utils.Logger;
 
 import com.github.junrar.Archive;
 import com.github.junrar.exception.RarException;
@@ -19,9 +19,9 @@ import com.github.junrar.rarfile.FileHeader;
  */
 public class ExtractArchive {
 
-	private Log logger;
+	private Logger logger;
 
-	public void setLogger(Log logger) {
+	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
 	
@@ -70,19 +70,19 @@ public class ExtractArchive {
 	}
 
 	private void logWarn(String warning) {
-		if(logger!=null) logger.warn(warning);
+		if(logger!=null) logger.LogWarning(warning);
 	}
 
 	private void logInfo(String info) {
-		if(logger!=null) logger.info(info);
+		if(logger!=null) logger.LogInfo(info);
 	}
 
 	private void logError(Exception e, String errorMessage) {
-		if(logger!=null) logger.error(errorMessage, e);
+		if(logger!=null) logger.LogError(errorMessage, e);
 	}
 
 	private void logError(Exception e) {
-		if(logger!=null) logger.error(e);
+		if(logger!=null) logger.LogError(e.getMessage(), e);
 	}
 
 	private File createFile(FileHeader fh, File destination) {

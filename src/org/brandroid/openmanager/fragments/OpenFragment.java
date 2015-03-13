@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.brandroid.openmanager.R;
+import org.brandroid.openmanager.activities.OpenApplication;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.activities.OpenFragmentActivity;
 import org.brandroid.openmanager.adapters.IconContextMenu;
@@ -42,6 +43,7 @@ import com.android.gallery3d.util.ThreadPool;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -79,7 +81,7 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     // public static boolean CONTENT_FRAGMENT_FREE = true;
     // public boolean isFragmentValid = true;
     private boolean mHasOptions = false;
-    protected boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
+    protected boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
     private OnFragmentDPADListener mDPAD = null;
     private boolean mDestroyed = false;
 
@@ -188,8 +190,8 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     }
 
     public String getString(int resId, String mDefault) {
-        if (getExplorer() != null)
-            return getExplorer().getString(resId);
+        if (getApplication() != null)
+            return getApplication().getString(resId);
         else
             return mDefault;
     }
@@ -444,11 +446,7 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
         // super.setHasOptionsMenu(hasMenu);
         mHasOptions = hasMenu;
     }
-
-    public boolean hasOptionsMenu() {
-        return mHasOptions;
-    }
-
+    
     public boolean onBackPressed() {
         if (getExplorer() != null) {
             try {
@@ -646,8 +644,20 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
     public Context getApplicationContext() {
         if (getSherlockActivity() != null)
             return getSherlockActivity().getApplicationContext();
+        else if(getActivity() != null)
+        	return getActivity().getApplicationContext();
         else
             return null;
+    }
+    
+    public Application getApplication() {
+    	if(getActivity() != null)
+    		return getActivity().getApplication();
+    	else return null;
+    }
+    
+    public OpenApplication getOpenApplication() {
+    	return (OpenApplication)getApplication();
     }
 
     public static EventHandler getEventHandler() {
@@ -660,23 +670,29 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
 
     @Override
     public ActionMode getActionMode() {
-        if (getExplorer() != null)
-            return getExplorer().getActionMode();
+    	if (getExplorer() != null)
+    		return getExplorer().getActionMode();
+        if (getOpenApplication() != null)
+            return getOpenApplication().getActionMode();
         else
             return null;
     }
 
     @Override
     public void setActionMode(ActionMode mode) {
-        if (getExplorer() != null)
-            getExplorer().setActionMode(mode);
+    	if (getExplorer() != null)
+    		getExplorer().setActionMode(mode);
+    	else if (getOpenApplication() != null)
+        	getOpenApplication().setActionMode(mode);
     }
 
     @Override
     public OpenClipboard getClipboard() {
-        if (getExplorer() != null)
-            return getExplorer().getClipboard();
-        else
+    	if (getExplorer() != null)
+    		return getExplorer().getClipboard();
+    	else if (getOpenApplication() != null)
+            return getOpenApplication().getClipboard();
+        else 
             return null;
     }
 
@@ -768,57 +784,57 @@ public abstract class OpenFragment extends SherlockFragment implements View.OnCl
 
     @Override
     public DataManager getDataManager() {
-        return getExplorer().getDataManager();
+        return getOpenApplication().getDataManager();
     }
 
     @Override
     public DiskLruCache getDiskCache() {
-        return getExplorer().getDiskCache();
+        return getOpenApplication().getDiskCache();
     }
 
     @Override
     public DownloadCache getDownloadCache() {
-        return getExplorer().getDownloadCache();
+        return getOpenApplication().getDownloadCache();
     }
 
     @Override
     public ImageCacheService getImageCacheService() {
-        return getExplorer().getImageCacheService();
+        return getOpenApplication().getImageCacheService();
     }
 
     @Override
     public ContentResolver getContentResolver() {
-        return getExplorer().getContentResolver();
+        return getOpenApplication().getContentResolver();
     }
 
     @Override
     public Looper getMainLooper() {
-        return getExplorer().getMainLooper();
+        return getOpenApplication().getMainLooper();
     }
 
     @Override
     public LruCache<String, Bitmap> getMemoryCache() {
-        return getExplorer().getMemoryCache();
+        return getOpenApplication().getMemoryCache();
     }
 
     @Override
     public Preferences getPreferences() {
-        return getExplorer().getPreferences();
+        return getOpenApplication().getPreferences();
     }
 
     @Override
     public void refreshBookmarks() {
-        getExplorer().refreshBookmarks();
+        getOpenApplication().refreshBookmarks();
     }
 
     @Override
     public ThreadPool getThreadPool() {
-        return getExplorer().getThreadPool();
+        return getOpenApplication().getThreadPool();
     }
 
     @Override
     public ShellSession getShellSession() {
-        return getExplorer().getShellSession();
+        return getOpenApplication().getShellSession();
     }
 
     @Override

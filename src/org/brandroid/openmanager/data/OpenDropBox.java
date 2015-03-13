@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,7 @@ public class OpenDropBox extends OpenNetworkPath implements OpenNetworkPath.Clou
     private List<OpenPath> mChildren = null;
     private String mName = null;
     private Account mAccount;
+    private String mAuthState;
 
     private final static boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
     
@@ -344,14 +346,13 @@ public class OpenDropBox extends OpenNetworkPath implements OpenNetworkPath.Clou
      *             AuthActivity in your manifest, meaning that the Dropbox app
      *             will not be able to redirect back to your app after auth.
      */
-    public static boolean startAuthentication(final Activity c, final WebView web) {
+    public static boolean startAuthentication(final Activity c, final WebView web, String state) {
         AppKeyPair appKeyPair = getAppKeyPair();
 
-        Intent intent = getOfficialIntent(c, appKeyPair.key, appKeyPair.secret);
+        Intent intent = getOfficialIntent(c, appKeyPair.key, appKeyPair.secret, state);
         if (!OpenServers.getDefaultServers().hasServerType("db")
                 && hasDropboxApp(c, intent)) {
-            c.startActivity(intent); // ,
-                                     // OpenExplorer.REQ_AUTHENTICATE_DROPBOX);
+            c.startActivityForResult(intent, OpenExplorer.REQ_AUTHENTICATE_DROPBOX);
             return true;
         } else {
             //startWebAuth(c, appKeyPair);
@@ -419,15 +420,17 @@ public class OpenDropBox extends OpenNetworkPath implements OpenNetworkPath.Clou
         return false;
     }
 
-    public static Intent getOfficialIntent(Context c, String key, String secret)
+    public static Intent getOfficialIntent(Activity a, String key, String secret, String state)
     {
         Intent officialIntent = new Intent();
         officialIntent.setClassName("com.dropbox.android",
                 "com.dropbox.android.activity.auth.DropboxAuth");
-        officialIntent.setAction(ACTION_AUTHENTICATE_V1);
+        officialIntent.setAction(ACTION_AUTHENTICATE_V2);
         officialIntent.putExtra(EXTRA_CONSUMER_KEY, key);
         officialIntent.putExtra(EXTRA_CONSUMER_SIG, getConsumerSig(secret));
-        officialIntent.putExtra(EXTRA_CALLING_PACKAGE, c.getPackageName());
+        officialIntent.putExtra(EXTRA_CALLING_PACKAGE, a.getPackageName());
+        officialIntent.putExtra(EXTRA_CALLING_CLASS, a.getClass().getName());
+        officialIntent.putExtra(EXTRA_AUTH_STATE, state);
         return officialIntent;
     }
 
@@ -513,6 +516,17 @@ public class OpenDropBox extends OpenNetworkPath implements OpenNetworkPath.Clou
                     "7e1f4776b85147be3e295714986c4a9a07183f48ea09ae4d3ea31b88d0016c65b93" +
                     "526b9c45f2967c3d28dee1aff5a5b29b9c2c8639"
     };
+
+    public static String createStateNonce() {
+        final int NONCE_BYTES = 16; // 128 bits of randomness.
+        byte randomBytes[] = new byte[NONCE_BYTES];
+        new SecureRandom().nextBytes(randomBytes);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < NONCE_BYTES; ++i) {
+            sb.append(String.format("%02x", (randomBytes[i]&0xff)));
+        }
+        return sb.toString();
+    }
 
     @Override
     public String getName() {
@@ -815,9 +829,20 @@ public class OpenDropBox extends OpenNetworkPath implements OpenNetworkPath.Clou
      */
     public static final String EXTRA_CALLING_PACKAGE = "CALLING_PACKAGE";
 
-    public static final String ACTION_AUTHENTICATE_V1 = "com.dropbox.android.AUTHENTICATE_V1";
+    /**
+     * Used for internal authentication. You won't ever have to use this.
+     */
+    public static final String EXTRA_CALLING_CLASS = "CALLING_CLASS";
 
-    public static final int AUTH_VERSION = 1;
+    /**
+     * Used for internal authentication. You won't ever have to use this.
+     */
+    public static final String EXTRA_AUTH_STATE = "AUTH_STATE";
+
+    public static final String ACTION_AUTHENTICATE_V1 = "com.dropbox.android.AUTHENTICATE_V1";
+    public static final String ACTION_AUTHENTICATE_V2 = "com.dropbox.android.AUTHENTICATE_V2";
+
+    public static final int AUTH_VERSION = 2;
 
     // For communication between AndroidAuthSesssion and this activity.
     static final String EXTRA_INTERNAL_CONSUMER_KEY = "EXTRA_INTERNAL_CONSUMER_KEY";

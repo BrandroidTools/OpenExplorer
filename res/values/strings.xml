@@ -92,6 +92,7 @@
     <string name="s_alert_confirm_delete">Deleting %s cannot be undone. Are you sure you want to continue?</string>
     <string name="s_alert_rename">Please type the new name this file</string>
     <string name="s_alert_newfolder">Type the name of the new folder:</string>
+    <string name="s_newfile_prompt">File Type</string>
     <string name="s_alert_unzip">Would you like to unzip %s here or some other folder?</string>
     <string name="s_button_unzip_here">Unzip here</string>
     <string name="s_button_unzip_else">Unzip elsewhere…</string>
@@ -311,7 +312,7 @@
     <string name="s_pref_text_max_size">Maximum Editable Text Filesize</string>
     <string name="warn_text_editor">Welcome to Text Editor. Please long press the text to enter Edit mode.</string>
     <string name="warn_networking">Welcome to Networking. Please note that this feature is still under development and may contain bugs. Please do not give a bad market rating if you find any of these bugs.</string>
-    <string name="s_menu_new_file">New Text File</string>
+    <string name="s_menu_new_file">New File/Folder</string>
     <string name="s_msg_created">created</string>
     <string name="s_title_newfile">New File</string>
     <string name="s_alert_newfile_folder">Create new file in:</string>
@@ -438,6 +439,9 @@
     <string name="s_pref_cloud_enabled">Enable Service</string>
     <string name="s_pref_cloud_key">OAuth client Key override</string>
     <string name="s_pref_cloud_secret">OAuth client Secret override</string>
+    
+    <string name="s_title_uploading">Uploading</string>
+    <string name="s_title_downloading">Downloading</string>
     
 
 </resources>

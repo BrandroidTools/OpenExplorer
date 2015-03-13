@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.http.message.BasicNameValuePair;
+import org.brandroid.openmanager.activities.OpenExplorer;
 
 /**
  * Class for retrieving configuration parameters.
@@ -29,21 +30,21 @@ public final class BoxConfig {
     /** Default API url scheme. */
     private static final String API_URL_SCHEME = "https";
     /** Default API url authority. */
-    private static final String API_URL_AUTHORITY = "www.box.net";
+    private static final String API_URL_AUTHORITY = "www.box.com";
     /** Default API url path. */
-    private static final String API_URL_PATH = "/api/1.0/rest";
+    private static final String API_URL_PATH = "/api/2.0/";
 
     /** Default Upload url scheme. */
     private static final String UPLOAD_URL_SCHEME = "https";
     /** Default Upload url authority. */
-    private static final String UPLOAD_URL_AUTHORITY = "upload.box.net";
+    private static final String UPLOAD_URL_AUTHORITY = "www.box.com";
     /** Default Upload url path. */
-    private static final String UPLOAD_URL_PATH = "/api/1.0/";
+    private static final String UPLOAD_URL_PATH = "/api/2.0/";
 
     /** Default Download url scheme. */
     private static final String DOWNLOAD_URL_SCHEME = "https";
     /** Default Download url authority. */
-    private static final String DOWNLOAD_URL_AUTHORITY = "www.box.net";
+    private static final String DOWNLOAD_URL_AUTHORITY = "www.box.com";
     /** Default Download url path. */
     private static final String DOWNLOAD_URL_PATH = "/api/1.0/download/";
     /** Default User-Agent String. */
@@ -72,7 +73,7 @@ public final class BoxConfig {
     /** User-Agent String to use. */
     private String mUserAgent = USER_AGENT;
     /** Enable Http Logging Flag NEVER ENABLE HTTP LOGGIN FOR PRODUCTION BUILDS. */
-    private boolean mEnableHttpLogging = false;
+    private boolean mEnableHttpLogging = OpenExplorer.IS_DEBUG_BUILD;
 
     /** Time to wait before connection timeout. */
     private static int mConnectionTimout = 0;

@@ -117,6 +117,7 @@ public class OpenSearch extends OpenPath {
         try {
             if (DEBUG)
                 Logger.LogVerbose("Searching DB...");
+            if(getDb() == null) return;
             Cursor c = getDb().fetchSearch(getQuery(), dir != null ? dir.getPath() : null);
             c.moveToFirst();
             while (!c.isAfterLast()) {

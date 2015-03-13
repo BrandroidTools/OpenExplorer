@@ -22,7 +22,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.NetworkInfo.State;
-import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -50,7 +49,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.database.ContentObserver;
@@ -106,11 +104,9 @@ import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
-import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow.OnDismissListener;
@@ -129,13 +125,9 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-
-import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
+import java.util.concurrent.TimeoutException;
 import org.brandroid.openmanager.R;
 import org.brandroid.openmanager.adapters.ArrayPagerAdapter;
 import org.brandroid.openmanager.adapters.OpenBookmarks;
@@ -148,7 +140,6 @@ import org.brandroid.openmanager.adapters.OpenClipboard.OnClipboardUpdateListene
 import org.brandroid.openmanager.adapters.IconContextMenu;
 import org.brandroid.openmanager.adapters.IconContextMenuAdapter;
 import org.brandroid.openmanager.data.OpenCursor;
-import org.brandroid.openmanager.data.OpenDrive;
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenNetworkPath;
@@ -157,10 +148,9 @@ import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenPathArray;
 import org.brandroid.openmanager.data.OpenPathMerged;
 import org.brandroid.openmanager.data.OpenSFTP;
-import org.brandroid.openmanager.data.OpenServer;
 import org.brandroid.openmanager.data.OpenServers;
 import org.brandroid.openmanager.data.OpenSmartFolder;
-import org.brandroid.openmanager.data.OpenVFS;
+import org.brandroid.openmanager.data.OpenURL;
 import org.brandroid.openmanager.data.OpenSmartFolder.SmartSearch;
 import org.brandroid.openmanager.fragments.DialogHandler;
 import org.brandroid.openmanager.fragments.ContentFragment;
@@ -174,9 +164,9 @@ import org.brandroid.openmanager.fragments.OpenPathFragmentInterface;
 import org.brandroid.openmanager.fragments.SearchResultsFragment;
 import org.brandroid.openmanager.fragments.TextEditorFragment;
 import org.brandroid.openmanager.interfaces.OpenApp;
-import org.brandroid.openmanager.interfaces.OpenApp.OnBookMarkChangeListener;
 import org.brandroid.openmanager.util.BetterPopupWindow;
 import org.brandroid.openmanager.util.EventHandler;
+import org.brandroid.openmanager.util.EventHandler.BackgroundWork;
 import org.brandroid.openmanager.util.EventHandler.EventType;
 import org.brandroid.openmanager.util.EventHandler.OnWorkerUpdateListener;
 import org.brandroid.openmanager.util.IntentManager;
@@ -184,11 +174,11 @@ import org.brandroid.openmanager.util.MimeTypes;
 import org.brandroid.openmanager.util.MimeTypeParser;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.PrivatePreferences;
+import org.brandroid.openmanager.util.RootManager;
 import org.brandroid.openmanager.util.ShellSession;
 import org.brandroid.openmanager.util.SimpleHostKeyRepo;
 import org.brandroid.openmanager.util.SimpleUserInfo;
 import org.brandroid.openmanager.util.SimpleUserInfo.UserInfoInteractionCallback;
-import org.brandroid.openmanager.util.SortType;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.openmanager.util.ThumbnailCreator.OnUpdateImageListener;
 import org.brandroid.openmanager.views.OpenPathList;
@@ -205,7 +195,6 @@ import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.internal.view.menu.ActionMenuPresenter;
 import com.actionbarsherlock.internal.view.menu.MenuBuilder;
 import com.actionbarsherlock.view.*;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
@@ -217,6 +206,10 @@ import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
 import com.jcraft.jsch.JSchException;
 import com.stericson.RootTools.RootTools;
+import com.stericson.RootTools.exceptions.RootDeniedException;
+import com.stericson.RootTools.execution.Command;
+import com.stericson.RootTools.execution.CommandCapture;
+import com.stericson.RootTools.execution.Shell;
 import com.viewpagerindicator.TabPageIndicator;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -246,6 +239,8 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     public static final int VIEW_LIST = 0;
     public static final int VIEW_GRID = 1;
     public static final int VIEW_CAROUSEL = 2;
+    
+    public static final String INTENT_BROADCAST_ACTION = "INTENT_BROADCAST";
 
     public static final boolean BEFORE_HONEYCOMB = Build.VERSION.SDK_INT < 11;
     public static final boolean SDK_JELLYBEAN = Build.VERSION.SDK_INT > 15;
@@ -532,6 +527,8 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                         PackageManager.GET_META_DATA).applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) == ApplicationInfo.FLAG_DEBUGGABLE;
             if (isBlackBerry())
                 IS_DEBUG_BUILD = false;
+            if(RootTools.debugMode)
+                RootTools.debugMode = IS_DEBUG_BUILD;
         } catch (NameNotFoundException e1) {
         }
 
@@ -598,10 +595,6 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             EventHandler.execute(new PeekAtGrandKidsTask(), path);
 
         initPager();
-        if (handleIntent(getIntent())) {
-            path = mLastPath = null;
-            bAddToStack = false;
-        }
 
         if (mViewPager != null && mViewPagerAdapter != null && path != null) {
             // mViewPagerAdapter.add(mContentFragment);
@@ -735,7 +728,6 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     private void checkRoot() {
         try {
             if (Preferences.Pref_Root) {
-                showToast("Root preference selected, requesting now.");
                 // && (RootManager.Default == null ||
                 // !RootManager.Default.isRoot()))
                 requestRoot();
@@ -748,17 +740,188 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     }
 
     private void requestRoot() {
+        if(!Preferences.Pref_Root) return;
+        showToast("Root preference selected, requesting now.");
         new Thread(new Runnable() {
             public void run() {
+                Preferences.Pref_Root = false;
                 if (RootTools.isAccessGiven())
                     try {
                         RootTools.getShell(true);
+                        Preferences.Pref_Root = true;
+                        checkBusybox();
                     } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (TimeoutException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (RootDeniedException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
             }
         }).start();
+    }
+    
+    private boolean checkBusybox()
+    {
+    	if(RootTools.checkUtil("busybox")) return true;
+    	post(new Runnable() {
+			public void run() {
+		    	DialogHandler.showConfirmationDialog(OpenExplorer.this,
+		    			"It appears that Busybox is not installed on your system. Would you like to install it?",
+		    			"Busybox Check", getPreferences(), "pref_busybox", false,
+		    			new OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+							    if(which != DialogInterface.BUTTON_POSITIVE)
+							        return;
+							    if(dialog != null)
+							        dialog.dismiss();
+								new Thread(new Runnable() {
+									public void run() {
+										installBusybox();
+									}
+								}).start();
+							}
+						});
+			}
+		});
+    	return false;
+    }
+    
+    private void installBusybox()
+    {
+    	try {
+    		String cpuinfo = new OpenFile("/proc/cpuinfo").readAscii();
+    		for(String arc : new String[] {"v7l", "v6l", "v5l", "v4tl", "v4l", "i686", "i586", "i486", "mips", "x86_64", "powerpc"})
+    			if(cpuinfo.indexOf(arc) > -1)
+    				if(installBusybox((arc.startsWith("v") ? "arm" : "") + arc))
+    					return;
+    		RootTools.getShell(false, 500).add(new Command(0, 500, "uname -m") {
+				public void output(int id, String arch) {
+					if(arch == null || arch.equals("")) return;
+					if(arch.indexOf(" ") > -1) return;
+					installBusybox(arch);
+				}
+			});
+    	} catch(IOException e) {
+    		e.printStackTrace();
+    	} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RootDeniedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    private boolean installBusybox(String arch)
+    {
+    	final String mBusyboxUrl = "http://busybox.net/downloads/binaries/latest/";
+    	final String mBusyboxFile = "busybox-" + arch;
+    	final String url = mBusyboxUrl + "busybox-" + arch;
+    	if(IS_DEBUG_BUILD)
+    	    Logger.LogVerbose("Checking for busybox for " + arch + ": " + url);
+		OpenFile dl = new OpenFile("/mnt/sdcard");
+		if(!dl.exists() || !dl.canWrite())
+		    dl = OpenFile.getExternalMemoryDrive(true);
+		if(dl != null && dl.getChild("Download") != null && dl.getChild("Download").canWrite())
+			dl = dl.getChild("Download");
+//		dl = dl.getChild(".busybox");
+//		if(dl.exists())
+//		    dl.delete();
+//		try {
+//			dl.create(); // Make sure we can write to it
+//			if(!dl.exists()) throw new IOException("WTF");
+//			dl.delete();
+//		} catch (IOException e) {
+//			Logger.LogError("Unable to create temporary busybox", e);
+//			return false;
+//		}
+		final OpenFile dlp = dl;
+		final OpenURL u = new OpenURL(url);
+        if(!u.exists())
+        {
+        	showToast("Unable to download busybox for [" + arch + "]");
+        	return false;
+        } else
+        	post(new Runnable() {
+				public void run() {
+					EventHandler eh = new EventHandler(getFileManager());
+					BackgroundWork bw = eh.getWorker(EventType.COPY, OpenExplorer.this, dlp);
+					eh.setUpdateListener(new OnWorkerUpdateListener() {
+						
+						@Override
+						public void onWorkerThreadFailure(EventType type, OpenPath... files) {
+							Logger.LogError("Busybox installation failed!");
+						}
+						
+						@Override
+						public void onWorkerThreadComplete(EventType type, String... results) {
+							for(String s : results)
+								Logger.LogDebug("BusyBox.onWorkerThreadComplete(" + s + ")");
+							if(installBusybox(dlp.getChild(mBusyboxFile)))
+								showToast("Busybox installed successfully!");
+							else
+							    showToast("Unable to install Busybox");
+						}
+						
+						@Override
+						public void onWorkerProgressUpdate(int pos, int total) {
+							// TODO Auto-generated method stub
+							
+						}
+					});
+					bw.execute(u);
+				}
+        	});
+        return true;
+    }
+    
+    private boolean installBusybox(OpenFile tmp)
+    {
+    	boolean success = false;
+    	if(!RootManager.isSystemMounted())
+    	    RootTools.remount("/system", "rw");
+    	try {
+            Command cmd = new CommandCapture(0,
+                    "cp " + tmp.getAbsolutePath() + " /system/xbin/busybox",
+                    "chmod 755 /system/xbin/busybox"
+                    );
+    	    Shell.runRootCommand(cmd);
+    	    cmd.waitForFinish();
+    	    final List<String> missings = new ArrayList<String>();
+    	    cmd = new Command(1, "busybox --list") {
+                public void output(int id, String util) {
+                    if(new File("/system/xbin/" + util).exists() ||
+                       new File("/system/bin/" + util).exists())
+                        Logger.LogWarning(util + " already exists!");
+                    else
+                    {
+                        missings.add("ln -s /system/xbin/busybox /system/xbin/" + util);
+                        Logger.LogVerbose("Need to link to busybox: " + util);
+                    }
+                }
+            };
+            Shell.runCommand(cmd);
+            cmd.waitForFinish();
+            if(missings.size() > 0)
+            {
+                for(int i = 0; i < missings.size(); i++)
+                {
+                    cmd = new CommandCapture(2 + i, missings.get(i));
+                    Shell.runRootCommand(cmd);
+                    cmd.waitForFinish();
+                }
+            }
+    	    tmp.delete();
+            success = RootTools.checkUtil("busybox");
+        } catch (Exception e) {
+            Logger.LogError("Couldn't finish Busybox install", e);
+        }
+    	RootTools.remount("/system", "ro");
+    	return success;
     }
 
     private void exitRoot() {
@@ -1165,6 +1328,8 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
             } else if (reqId == REQ_EVENT_VIEW)
             {
                 refreshOperations();
+                mOpsFragment = null;
+                initOpsPopup();
                 BetterPopupWindow pw = mOpsFragment.getPopup();
                 if(pw != null)
                     pw.showLikePopDownMenu();
@@ -1498,11 +1663,14 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                     left += "/";
             }
         }
-        SpannableString srLeft = new SpannableString(left);
-        if(left.length() > 0)
-            srLeft.setSpan(new ForegroundColorSpan(Color.GRAY), 0, left.length(),
-                Spanned.SPAN_COMPOSING);
-        ssb.append(srLeft);
+        if(!left.equals(""))
+        {
+            SpannableString srLeft = new SpannableString(left);
+            if(left.length() > 0)
+                srLeft.setSpan(new ForegroundColorSpan(Color.GRAY), 0, left.length(),
+                    Spanned.SPAN_COMPOSING);
+            ssb.append(srLeft);
+        }
         // ssb.setSpan(new ForegroundColorSpan(Color.GRAY), 0, left.length(),
         // Spanned.SPAN_COMPOSING);
         OpenFragment curr = mViewPagerAdapter.getItem(page);
@@ -1522,10 +1690,13 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                     right += "/";
             }
         }
-        SpannableString srRight = new SpannableString(right);
-        srRight.setSpan(new ForegroundColorSpan(Color.GRAY), 0, right.length(),
-                Spanned.SPAN_COMPOSING);
-        ssb.append(srRight);
+        if(!right.equals(""))
+        {
+            SpannableString srRight = new SpannableString(right);
+            srRight.setSpan(new ForegroundColorSpan(Color.GRAY), 0, right.length(),
+                    Spanned.SPAN_COMPOSING);
+            ssb.append(srRight);
+        }
         updateTitle(ssb);
     }
 
@@ -1697,22 +1868,26 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     {
         if (!Logger.isLoggingEnabled())
             return; // Disable by default
-        if (OpenExplorer.IS_DEBUG_BUILD)
+            // if (OpenExplorer.IS_DEBUG_BUILD)
+            // return;
+        if (new Date().getTime() - lastSubmit < 6000)
+        {
+            Logger.LogVerbose("Skipping stats. Not enough time has passed ("
+                    + (new Date().getTime() - lastSubmit) + ")");
             return;
-        if (new Date().getTime() - lastSubmit < 60000)
-            return;
+        }
         lastSubmit = new Date().getTime();
         if (!isNetworkConnected())
             return;
 
         String logs = Logger.getDbLogs(false);
-        if (logs == null || logs == "")
+        if (logs == null || "".equals(logs))
             logs = "[]";
         // if(logs != null && logs != "") {
         Logger.LogDebug("Found " + logs.length() + " bytes of logs.");
         EventHandler.execute(new SubmitStatsTask(this), logs);
         // } else Logger.LogWarning("Logs not found.");
-            }
+    }
 
     public void handleRefreshMedia(final String path, boolean keepChecking, final int retries) {
         if (!keepChecking || retries <= 0) {
@@ -1967,7 +2142,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
                                 }
                             }
                             mVideosMerged.refreshKids();
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             Logger.LogError("Couldn't refresh merged Videos");
                         }
                     }
@@ -2323,9 +2498,12 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         {
             SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getString(
                     R.string.app_title));
-            sb.append(cs.equals("") ? "" : " - ");
-            sb.append(cs);
-            setTitle(cs);
+            if(!cs.equals(""))
+            {
+                sb.append(cs.equals("") ? "" : " - ");
+                sb.append(cs);
+            }
+            setTitle(sb);
         }
     }
 
@@ -2353,7 +2531,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         if (editing == null)
             return;
         for (String s : editing.split(",")) {
-            if (s == null || s == "")
+            if (s == null || "".equals(s))
                 continue;
             OpenPath path = FileManager.getOpenCache(s, this);
             if (path == null)
@@ -2618,9 +2796,9 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         // if(id != R.id.title_icon_holder && id != android.R.id.home);
         // toggleBookmarks(false);
         OpenFragment f = getSelectedFragment();
+        
+        Logger.LogInfo("OpenExplorer.onOptionsItemSelected(" + item.getTitle() + ")");
 
-        if (IS_DEBUG_BUILD)
-            Logger.LogDebug("OpenExplorer.onClick(0x" + Integer.toHexString(id) + "," + item + ")");
         switch (id) {
             case R.id.menu_donate:
                 launchUri(this, Uri.parse("http://brandroid.org/donate.php?ref=app_menu"));
@@ -2740,9 +2918,6 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
         // return super.onOptionsItemSelected(item);
 
-        if (IS_DEBUG_BUILD)
-            Logger.LogDebug("OpenExplorer.onOptionsItemSelected(" + item + ")");
-
         if (item.getSubMenu() != null) {
             onPrepareOptionsMenu(item.getSubMenu());
             View anchor = findViewById(item.getItemId());
@@ -2772,16 +2947,12 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         if (f != null && f.onOptionsItemSelected(item))
             return true;
 
-        if (IS_DEBUG_BUILD)
-            Logger.LogDebug("OpenExplorer.onOptionsItemSelected(0x"
-                    + Integer.toHexString(item.getItemId()) + ")");
-
         return onClick(item.getItemId(), item, null);
     }
 
     private void showExitDialog() {
         DialogHandler.showConfirmationDialog(this, getString(R.string.s_alert_exit),
-                getString(R.string.s_menu_exit), getPreferences(), "exit",
+                getString(R.string.s_menu_exit), getPreferences(), "exit", true,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -3022,8 +3193,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (IS_DEBUG_BUILD)
-            Logger.LogInfo("OpenExplorer.onKeyUp(" + keyCode + "," + event + ")");
+        Logger.LogInfo("OpenExplorer.onKeyUp(" + keyCode + "," + event + ")");
         if (event.getAction() != KeyEvent.ACTION_UP)
             return super.onKeyUp(keyCode, event);
         if (MenuUtils.getMenuShortcut(event) != null) {
@@ -3549,15 +3719,25 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         }
         return false;
     }
+    
+    public void addBookmark(OpenPath file)
+    {
+        addBookmark(this, file, mBookmarkListener);
+    }
 
-    public void addBookmark(OpenPath file) {
+    public static void addBookmark(OpenApp app, OpenPath file, OpenApp.OnBookMarkChangeListener mBookmarkListener) {
         Logger.LogDebug("Adding Bookmark: " + file.getPath());
-        String sBookmarks = getPreferences().getSetting("bookmarks", "bookmarks", "");
+        Preferences prefs = app.getPreferences();
+        String sBookmarks = prefs.getSetting("bookmarks", "bookmarks", "");
         sBookmarks += (sBookmarks != "" ? ";" : "") + file.getPath();
         Logger.LogVerbose("Bookmarks: " + sBookmarks);
-        getPreferences().setSetting("bookmarks", "bookmarks", sBookmarks);
+        prefs.setSetting("bookmarks", "bookmarks", sBookmarks);
+        Intent intent = new Intent(OpenExplorer.INTENT_BROADCAST_ACTION);
+        intent.putExtra("action", "bookmark");
+        intent.putExtra("path", (Parcelable)file);
+        app.getContext().sendBroadcast(intent);
         if (mBookmarkListener != null)
-            mBookmarkListener.onBookMarkAdd(this, file);
+            mBookmarkListener.onBookMarkAdd(app, file);
     }
 
     public void removeBookmark(OpenPath file) {
@@ -3840,7 +4020,11 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
         else if (l.getId() == 3)
             mParent = mApkParent;
 
-        mParent.setCursor(c);
+		try {
+	        mParent.setCursor(c);
+	    } catch(android.database.CursorIndexOutOfBoundsException cex) {
+	    	Logger.LogError("Unable to set parent cursor.", cex);
+	    }
 
         if (l.getId() == 0)
             try {
@@ -4029,8 +4213,7 @@ public class OpenExplorer extends OpenFragmentActivity implements OnBackStackCha
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         if (v == null)
             return false;
-        if (IS_DEBUG_BUILD)
-            Logger.LogDebug("OpenExplorer.onKey(" + v + "," + keyCode + "," + event + ")");
+        Logger.LogInfo("OpenExplorer.onKey(" + keyCode + "," + event + ") on " + v);
         if (event.getAction() != KeyEvent.ACTION_UP)
             return false;
         if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER) {

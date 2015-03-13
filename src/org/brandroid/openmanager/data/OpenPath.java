@@ -1180,7 +1180,7 @@ public abstract class OpenPath implements Serializable, Parcelable, Comparable<O
         String deets = "";
 
         try {
-            if (isDirectory())
+            if (!requiresThread() && isDirectory())
                 deets += getListLength() + " %s";
             else if (isFile())
                 deets += formatSize(length());

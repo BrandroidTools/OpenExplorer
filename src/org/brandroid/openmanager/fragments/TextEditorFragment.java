@@ -753,8 +753,16 @@ public class TextEditorFragment extends OpenFragment implements OnClickListener,
                 Logger.LogDebug("File is " + mPath.length() + " bytes.");
                 StringBuilder sb = new StringBuilder();
                 if (mPath instanceof OpenPath.OpenPathByteIO)
-                    sb.append(new String(((OpenPath.OpenPathByteIO)mPath).readBytes()));
-                else {
+                {
+                    try {
+                        byte[] bytes = ((OpenPath.OpenPathByteIO)mPath).readBytes();
+                        if(bytes != null)
+                            sb.append(new String(bytes));
+                    } catch(Exception e) {
+                        Logger.LogError("Unable to read bytes from " + mPath, e);
+                        doClose();
+                    }
+                } else {
                     InputStream is = null;
                     try {
                         if (mPath instanceof OpenStream)

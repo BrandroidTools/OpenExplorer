@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
-    <string name="app_name">Abrir explorador</string>
+    <string name="app_name">Open Explorer</string>
     <string name="s_photos">Fotos</string>
     <string name="s_videos">Vídeos</string>
     <string name="s_music">Música s</string>
@@ -49,7 +49,7 @@
     <string name="s_pref_server_add">Adicionar novo servidor </string>
     <string name="s_pref_display">Preferências de exibição</string>
     <string name="s_pref_hidden">Mostrar ficheiros ocultos</string>
-    <string name="s_pref_hidden_summary">Mostrar pastas e ficheiros ocultos</string>
+    <string name="s_pref_hidden_summary">Mostrar pastas e arquivos ocultos</string>
     <string name="s_pref_thumbs">Mostrar miniaturas das imagens</string>
     <string name="s_pref_thumbs_summary">Mostrar miniatura das imagens/vídeos/aplicações</string>
     <string name="s_pref_view" auto="1">Modo de exibição</string>
@@ -60,15 +60,15 @@
     <string name="s_pref_server_name" auto="1">Nome do servidor</string>
     <string name="s_pref_server_name_summary" auto="1">Digite o nome do servidor</string>
     <string name="s_pref_server_url" auto="1">URL do servidor</string>
-    <string name="s_pref_server_url_summary">Digite o URL do servidor</string>
+    <string name="s_pref_server_url_summary">Digite a URL completa do servidor</string>
     <string name="s_pref_server_host">Servidor</string>
-    <string name="s_pref_server_user">Utilizador</string>
+    <string name="s_pref_server_user">Usuário</string>
     <string name="s_pref_server_user_summary">Nome de utilizador</string>
     <string name="s_pref_server_password">Senha</string>
     <string name="s_pref_server_password_summary">Senha da conta</string>
     <string name="s_pref_server_path">Subdiretório</string>
     <string name="s_pref_server_path_summary">Indique o caminho de login padrão</string>
-    <string name="s_pref_server_extras">Definições extra</string>
+    <string name="s_pref_server_extras">Configurações extra</string>
     <string name="s_pref_server_update">Adicionar/Atualizar servidor</string>
     <string name="s_pref_server_type">Tipo de servidor</string>
     <string name="s_files">ficheiros</string>
@@ -94,12 +94,12 @@
     <string name="s_button_unzip_else">Extrair para...</string>
     <string name="s_msg_none">O ficheiro não foi</string>
     <string name="s_msg_some">Alguns ficheiros não foram</string>
-    <string name="s_msg_all">Ficheiro(s) com sucesso</string>
+    <string name="s_msg_all">arquivo(s) com sucesso</string>
     <string name="s_msg_deleted">eliminado</string>
     <string name="s_msg_moved" auto="1">movido</string>
     <string name="s_msg_copied" auto="1">copiado</string>
     <string name="s_remove">Remover</string>
-    <string name="s_eject" auto="1">Ejetar</string>
+    <string name="s_eject">Ejectar</string>
     <string name="s_update" auto="1">Atualizar</string>
     <string name="s_alert_bookmark_rename">Alterar título do marcador.</string>
     <string name="s_title_bookmark_prefix">Gestor de marcadores:</string>
@@ -108,9 +108,9 @@
     <string name="s_menu_about">Sobre...</string>
     <string name="s_about_version" auto="1">Versão</string>
     <string name="s_about_author" auto="1">Autor</string>
-    <string name="s_about_site">Sítio web</string>
-    <string name="s_about_email">Email</string>
-    <string name="s_about_recent" auto="1">Atualizações recentes</string>
+    <string name="s_about_site">website</string>
+    <string name="s_about_email">smarquespt@gmail.com</string>
+    <string name="s_about_recent">Novidades</string>
     <string name="s_chooser_email">Enviar comentário...</string>
     <string name="s_status_loading">A carregar...</string>
     <string name="s_menu_open">Abrir com...</string>
@@ -125,9 +125,9 @@
     <string name="s_text_intro_top" auto="1">Bem-vindo ao OpenExplorer!</string>
     <string name="s_text_intro_body">O objetivo do OpenExplorer é que o utilizador consiga ser mais produtivo nos ambientes Android e na cloud. Se precisar de gerir vídeos ou fotos de diversas localizações ou em servidores FTP, o OpenExplorer é a aplicação indicada.\n\nPor favor escolha a localização inicial:</string>
     <string name="s_info_num_folders" auto="1">Número de pastas:</string>
-    <string name="s_info_num_files">Número de ficheiros:</string>
+    <string name="s_info_num_files">Número de arquivos:</string>
     <string name="s_info_last_modified" auto="1">Última modificação:</string>
-    <string name="s_info_permissions">Permissões:</string>
+    <string name="s_info_permissions">Permissões de arquivo:</string>
     <string name="s_info_permission_read">Leitura:</string>
     <string name="s_info_permission_write">Escrita:</string>
     <string name="s_info_permission_execute">Execução:</string>
@@ -142,28 +142,28 @@
     <string name="s_menu_delete_all">Eliminar tudo</string>
     <string name="s_menu_move_all">Mover aqui</string>
     <string name="s_menu_copy_all">Copiar aqui</string>
-    <string name="s_confirm_delete">Tem a certeza que pretende eliminar? </string>
+    <string name="s_confirm_delete" formatted="false">Tem certeza que pretende eliminar %s ? </string>
     <string name="s_error_same_destination">O diretório de destino é o mesmo.</string>
     <string name="s_sample_notification">A copiar para cartão SD:</string>
     <string name="s_pref_fullscreen">Ecrã completo</string>
-    <string name="s_pref_fullscreen_summary_on">Ocultar barra de notificações</string>
-    <string name="s_pref_fullscreen_summary_off">Mostrar barra de notificações</string>
+    <string name="s_pref_fullscreen_summary_on">Ocultar a barra de notificações</string>
+    <string name="s_pref_fullscreen_summary_off">Exibir a barra de notificações</string>
     <string name="s_pref_pagers">Ver paginadores</string>
-    <string name="s_pref_pagers_summary_on">Deslize horizontal = Navegar nos diretórios</string>
+    <string name="s_pref_pagers_summary_on">Deslize horizontalmente = Navegar nos diretórios</string>
     <string name="s_pref_pagers_summary_off">Deslize horizontal inativo</string>
     <string name="s_alert_new_media">Novo disco inserido!</string>
     <string name="s_warn_pager_title">Novo recurso: paginador</string>
     <string name="s_warn_pager">Deslize da esquerda para a direita para subir um diretório e da direita para a esquerda para voltar. Isto deve tornar mais fácil de navegar. Experimente (no disco externo)!</string>
     <string name="s_warn_confirm">Percebeu?</string>
     <string name="s_warn_disable" auto="1">Desativar</string>
-    <string name="s_pref_intent_internal">Intenções internas</string>
+    <string name="s_pref_intent_internal">Atividades</string>
     <string name="s_pref_intent_internal_on">Utilizar o gestor de intenções OpenExplorer</string>
     <string name="s_pref_intent_internal_off">Utilizar gestor de intenções do sistema</string>
     <string name="s_pref_text_internal">Utilizar editor de texto do sistema</string>
     <string name="s_text_editor_title">Editor de texto</string>
-    <string name="s_pref_show_root">Mostrar sistema de ficheiros root (/)</string>
-    <string name="s_pref_show_internal">Mostrar disco interno</string>
-    <string name="s_pref_show_external">Mostrar disco externo</string>
+    <string name="s_pref_show_root">Mostrar a raiz do sistema de arquivos (/)</string>
+    <string name="s_pref_show_internal">Exibir disco interno</string>
+    <string name="s_pref_show_external">Exibir disco externo</string>
     <string name="s_error_no_media">Parece que não existe um disco inserido. Desative a partilha USB ou introduza um disco.</string>
     <string name="s_prompt_password" auto="1">Digite a senha</string>
     <string name="s_add" auto="1">Adicionar</string>
@@ -174,46 +174,46 @@
     <string name="s_default">Padrão</string>
     <string name="s_pref_timeout">Expirado </string>
     <string name="s_pref_timeout_summary">Expira (em segundos)</string>
-    <string name="s_menu_up">Subir</string>
+    <string name="s_menu_up">Subiru</string>
     <string name="s_prompt_unzip">Indique o caminho da extração:</string>
-    <string name="s_pref_hardware_accel" auto="1">Ativar aceleração de hardware</string>
+    <string name="s_pref_hardware_accel">Ativar Aceleração de Hardware</string>
     <string name="s_pref_honeyplus">Definições para Android 3.0+</string>
     <string name="s_pref_actionmode">Modo de ação</string>
     <string name="s_pref_actionmode_enabled">Utilizar modo de ação</string>
-    <string name="s_pref_actionmode_disabled">Utilizar menus de contexto</string>
+    <string name="s_pref_actionmode_disabled">Utilizar menus de contexto iniciantes</string>
     <string name="s_server_smb">SMB/Windows</string>
     <string name="s_bookmark_drives">Unidades</string>
     <string name="s_bookmark_smart">Pastas inteligentes</string>
     <string name="s_bookmark_favorites" auto="1">Favoritos</string>
     <string name="s_bookmark_servers" auto="1">Servidores</string>
     <string name="s_bookmark_cache">Cache</string>
-    <string name="s_info_totalspace">Espaço total:</string>
-    <string name="s_info_freespace">Espaço livre:</string>
-    <string name="s_status_rate" auto="1">Taxa:</string>
+    <string name="s_info_totalspace">Espaço total em disco:</string>
+    <string name="s_info_freespace">Espaço livre no disco:</string>
+    <string name="s_status_rate">Avaliação:</string>
     <string name="s_about_hardware">Equipamento</string>
     <string name="s_menu_refresh">Atualizar pasta</string>
     <string name="s_pref_reset">Reiniciar vistas</string>
-    <string name="s_toast_complete">Operação terminada!</string>
+    <string name="s_toast_complete">Operação concluída!</string>
     <string name="s_pref_reset_summary">Clique aqui para restaurar as definições originais das pastas.</string>
     <string name="s_prompt_path">Escreva o caminho:</string>
     <string name="s_prompt_search">Procurar por:</string>
     <string name="s_prompt_search_within">Procurar em:</string>
     <string name="s_pref_view_category">Preferências de visualização</string>
     <string name="s_pref_show_videos">Mostrar vídeos</string>
-    <string name="s_pref_show_photos" auto="1">Mostrar fotos</string>
+    <string name="s_pref_show_photos">Mostrar Fotos</string>
     <string name="s_pref_show_music">Mostrar músicas</string>
     <string name="s_pref_show_downloads">Mostrar transferências</string>
     <string name="s_hide">Ocultar</string>
-    <string name="s_show" auto="1">Mostrar</string>
+    <string name="s_show">Exibir</string>
     <string name="s_msg_event_cancelled" auto="1">Evento cancelado.</string>
     <string name="s_alert_newfolder_folder">Criar nova pasta em:</string>
     <string name="s_pref_fancy_category">Definições dos efeitos</string>
     <string name="s_pref_fancy_menus">Menus elegantes</string>
     <string name="s_pref_fancy_context">Menus de contexto elegantes</string>
     <string name="s_search_files">Procurar no sistema de ficheiros</string>
-    <string name="search_summary" formatted="false">A procurar "%s" em "%s" (%d)...</string>
-    <string name="search_results" formatted="false">Encontrados %d resultados para "%s" em "%s"</string>
-    <string name="s_menu_exit" auto="1">Sair</string>
+    <string name="search_summary" formatted="false">A procurar &quot;%s&quot; em &quot;%s&quot; (%d)...</string>
+    <string name="search_results" formatted="false">Encontrados %d resultados para &quot;%s&quot; em &quot;%s&quot;</string>
+    <string name="s_menu_exit">Sair</string>
     <string name="s_warn_wtf_message">Parece que ocorreu um erro! Como este é um problema recorrente das aplicações Beta, a única forma de resolver os erros é enviando relatórios de erro. Pode enviar um relatório de erro para o programador. Não serão enviadas informações pessoais.</string>
     <string name="s_warn_wtf_ps">*** Tenha em atenção que a aplicação está na fase Beta. Não faça uma má avaliação da aplicação só porque tem erros. Obrigado!</string>
     <string name="s_yes" auto="1">Sim</string>
@@ -221,8 +221,8 @@
     <string name="s_wtf_preview">Pré-visualizar dados do relatório</string>
     <string name="s_wtf_remember" auto="1">Não perguntar novamente</string>
     <string name="s_pref_basebar">Dividir barra de ação</string>
-    <string name="s_pref_basebar_on">Botões de ação na base do ecrã (modo vertical)</string>
-    <string name="s_pref_basebar_off">Botões de ação no topo do ecrã (se disponível)</string>
+    <string name="s_pref_basebar_on">Botões de ação na base da tela (modo vertical)</string>
+    <string name="s_pref_basebar_off">Botões de ação no topo da tela (se disponível)</string>
     <string name="s_pref_autowtf">Envio automático de relatórios</string>
     <string name="s_pref_autowtf_summary">Se ocorrer um erro, enviar relatório automaticamente.</string>
     <string name="s_split_auto" auto="1">Automático</string>
@@ -230,7 +230,7 @@
     <string name="s_split_top_single">Forçar um botão no topo</string>
     <string name="s_split_bottom">Forçar botões na base</string>
     <string name="s_split_none">Colocar todos os botões no menu do sistema</string>
-    <string name="s_about_screensize">Tamanho do ecrã</string>
+    <string name="s_about_screensize">Tamanho da tela</string>
     <string name="s_about_density" auto="1">Densidade</string>
     <string name="s_menu_location_int">Caminho da memória interna</string>
     <string name="s_menu_location_ext">Caminho da memória externa</string>
@@ -255,7 +255,7 @@
     <string name="keyguard_password_enter_pin_code">Digite o PIN</string>
     <string name="keyguard_password_enter_password_code">Digite a senha para desbloquear</string>
     <string name="keyguard_password_enter_pin_password_code">Digite o PIN para desbloquear</string>
-    <string name="lockscreen_password_wrong">Tente novamente</string>
+    <string name="lockscreen_password_wrong">desculpe, tente novamente</string>
     <string name="whichApplication">Executar ação com</string>
     <string name="noApplications">Nenhuma aplicação para efetuar a operação.</string>
     <string name="report">Reportar</string>
@@ -267,8 +267,8 @@
     <string name="ime_action_send">Enviar</string>
     <string name="ime_action_done">Terminado</string>
     <string name="ime_action_default">Executar</string>
-    <string name="upload_file">Escolha o ficheiro</string>
-    <string name="no_file_chosen">Nenhum ficheiro escolhido</string>
+    <string name="upload_file">Escolha o arquivo</string>
+    <string name="no_file_chosen">Nenhum arquivo escolhido</string>
     <string name="reset">Reiniciar</string>
     <string name="back_button_label">Recuar</string>
     <string name="next_button_label">Avançar</string>
@@ -276,7 +276,7 @@
     <string name="find_on_page">Encontrado na página</string>
     <string name="find">Localizar</string>
     <string name="activitychooserview_choose_application">Escolha a aplicação</string>
-    <string name="shareactionprovider_share_with">Partilhar com</string>
+    <string name="shareactionprovider_share_with">Compartilhar com</string>
     <string name="storage_internal">Memória interna</string>
     <string name="storage_sd_card">Cartão SD</string>
     <string name="storage_usb">Disco USB</string>
@@ -284,7 +284,7 @@
     <string name="activity_chooser_view_see_all">Ver tudo...</string>
     <string name="s_title_picker">Escolha um diretório</string>
     <string name="selected_path">Caminho escolhido:</string>
-    <string name="filename">Nome do ficheiro</string>
+    <string name="filename">Nome do arquivo</string>
     <string name="s_msg_saved">gravado</string>
     <string name="s_menu_view_line_numbers">Número de linhas</string>
     <string name="warn_text_editor">Bem-vindo ao editor de texto. Toque longo no texto para entrar no modo de edição.</string>
@@ -297,7 +297,7 @@
     <string name="s_alert_exit">Tem a certeza que pretende sair?</string>
     <string name="s_alert_clipboard">Copiado para a área de transferência</string>
     <string name="s_alert_restart">A reiniciar. Aguarde...</string>
-    <string name="language">Português</string>
+    <string name="language">Idioma</string>
     <string name="s_menu_download">Transferir</string>
     <string name="scan">Analisar</string>
     <string name="test">Teste</string>
@@ -308,7 +308,7 @@
     <string name="theme_dark">Escuro</string>
     <string name="theme_light">Claro</string>
     <string name="chooser_remember">Memorizar opção</string>
-    <string name="use_system">Do sistema >></string>
+    <string name="use_system">Do sistema &gt;&gt;</string>
     <string name="activity_resolver_use_always">Sempre</string>
     <string name="activity_resolver_use_once">Apenas uma vez</string>
     <string name="s_pref_bookmarks_summary">Mostrar marcadores</string>
@@ -316,32 +316,35 @@
     <string name="apply_to_all">Aplicar a todas as pastas?</string>
     <string name="s_pref_view_folders">Preferências de pastas</string>
     <string name="s_pref_view_general">Preferências gerais</string>
-    <string name="s_pref_text_wrap">Quebrar texto</string>
+    <string name="s_pref_text_wrap">Marcar texto</string>
     <string name="s_pref_thumbs_crop">Recortar/Centrar miniaturas</string>
     <string name="s_pref_thumbs_cache_clear">Limpar cache de miniaturas</string>
-    <string name="s_msg_folder_none">A pasta não foi criada</string>
+    <string name="s_msg_folder_none">A pasta não pode ser criada</string>
+    <string name="msg_nook_donate2">Olá utilizador Nook! Esperamos que goste do Open Explorer. Estamos a tentar o nosso melhor para garantir a compatibilidade com todos os dispositivos Nook. Graças aos vossos donativos, consegui comprar um Nook Color\n\nSeguidamente, gostaria de comprar um dispositivo Nook HD\n\nSe você gosta desta aplicação e quiser ajudar no seu desenvolvimento, tenha em consideração a possibilidade de fazer um donativo. Pode fazer o donativo clicando no botão abaixo ou através da opção &quot;Donativos&quot;, existente no menu. O nosso muito obrigado.</string>
+    <string name="msg_bb_donate">Olá usuário BlackBerry! Esperamos que goste do Open Exlorer. Estamos fazendo o máximo possível para garantir a compatibilidade com todos os dispositivos BlackBerry. No entanto, tendo em conta os relatórios de erro criados, podemos afirmar que cada dispositivo tem erros específicos. Por este motivo, estamos tentando obter alguns donativos para comprar um BlackBerry 10 para melhorar a compatibilidade. Se você gosta desta aplicação e quiser ajudar no seu desenvolvimento, tenha em consideração a possibilidade de fazer um donativo. Pode fazer o donativo clicando no botão abaixo ou através da opção &quot;Donativos&quot;, existente no menu. O nosso muito obrigado.</string>
+    <string name="msg_donate">Olá utilizador Android! Esperamos que goste do Open Explorer. Estamos tentado o nosso melhor para garantir a compatibilidade com todos os dispositivos Android. No entanto, tendo em conta os relatórios de erro criados, podemos afirmar que cada um dos dispositivos tem erhros específicos. Por este motivo, estamos tentado obter alguns donativos para comprar alguns dispositivos Nexus para melhorar a compatibilidade. Se você gosta desta aplicação e quiser ajudar no seu desenvolvimento, tenha em consideração a possibilidade de fazer um donativo. Pode fazer o donativo clicando no botão abaixo ou através da opção &quot;Donativos&quot;, existente no menu. O nosso muito obrigado.</string>
     <string name="s_privacy">Política de privacidade</string>
     <string name="s_menu_system_mount">Permitir escrita em /system (perigoso!)</string>
-    <string name="s_menu_system_mount_on">Sistema de escrita!</string>
-    <string name="s_menu_system_mount_off">Sistema de leitura.</string>
+    <string name="s_menu_system_mount_on">O sistema tem permissão de escrita!</string>
+    <string name="s_menu_system_mount_off">O sistema é somente leitura.</string>
     <string name="s_pref_servers_private">Manter servidores privados</string>
     <string name="s_pref_servers_private_summary">Guardar definições do servidor na área privada. Isto fará com que as definições do servidor sejam removidas se desinstalar a aplicação. Se desmarcar esta opção e instalar novamente a aplicação impede a operação.</string>
     <string name="s_theme_lightdark">Claro e escuro</string>
     <string name="s_theme_custom">Riscas</string>
-    <string name="s_menu_rate">Taxa</string>
+    <string name="s_menu_rate">Avaliar</string>
     <string name="s_alert_destination_exists">O destino já existe. O que pretende fazer?</string>
     <string name="s_overwrite">Substituir</string>
     <string name="s_skip">Ignorar</string>
-    <string name="s_msg_file_exists">Alguns ficheiros já existem no destino. Substituir?</string>
-    <string name="s_title_file_exists">O ficheiro já existe.</string>
+    <string name="s_msg_file_exists">Alguns arquivos já existem no destino. Substituir?</string>
+    <string name="s_title_file_exists">O arquivo já existe.</string>
     <string name="s_msg_pref_archives">Pretende explorar ou extrair o arquivo?</string>
     <string name="s_browse">Explorar</string>
     <string name="s_extract">Extrair</string>
     <string name="s_extracted">extraido</string>
-    <string name="s_extracting">A extrair</string>
+    <string name="s_extracting">Extraindo</string>
     <string name="s_extract_with">Extrair com...</string>
     <string name="s_title_archive_handler">Gestor de arquivos</string>
-    <string name="s_ask_again">Perguntar</string>
+    <string name="s_ask_again">Perguntar a cada vez</string>
     <string name="s_archives">Arquivos</string>
     <string name="s_compress">Comprimir</string>
     <string name="s_compress_type" auto="1">Tipo de compressão</string>
@@ -360,8 +363,8 @@
     <string name="s_authenticate_refresh">Atualizar autenticação</string>
     <string name="s_pref_thumbs_cache">Pré-cache de miniaturas</string>
     <string name="s_pref_thumbs_cache_summary">Esta opção ajuda a acelerar o carregamento das pastas com fotos e vídeos.</string>
-    <string name="s_folders" auto="1">pastas</string>
+    <string name="s_folders">pastas</string>
     <string name="s_hidden">oculto</string>
-    <string name="s_total" auto="1">total</string>
+    <string name="s_total">Total</string>
     <string name="s_custom_account">Conta personalizada</string>
 </resources>

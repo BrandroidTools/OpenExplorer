@@ -33,6 +33,6 @@ public final class BoxConstants {
      * {@link com.box.androidlib.Box#getTicket(com.box.androidlib.ResponseListeners.GetTicketListener)}
      * ) should be appended to the URL.
      */
-    public static final String LOGIN_URL = "https://m.box.net/api/1.0/auth/";
+    public static final String LOGIN_URL = "https://app.box.com/api/1.0/auth/";
 
 }

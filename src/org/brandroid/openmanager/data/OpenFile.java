@@ -11,18 +11,18 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.brandroid.openmanager.activities.OpenApplication;
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
+import org.brandroid.openmanager.data.OpenNetworkPath.Cancellable;
 import org.brandroid.openmanager.data.OpenPath.*;
 import org.brandroid.openmanager.util.DFInfo;
 import org.brandroid.openmanager.util.SortType;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
-
-import com.stericson.RootTools.RootTools;
 
 import android.annotation.SuppressLint;
 import android.database.Cursor;
@@ -32,7 +32,7 @@ import android.os.Environment;
 import android.os.StatFs;
 
 @SuppressLint("NewApi")
-public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByteIO, OpenStream, SpaceHandler, OpenPath.OpenPathSizable {
+public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByteIO, OpenStream, SpaceHandler, OpenPath.OpenPathSizable, OpenPath.OpenPathUpdateHandler {
     private static final long serialVersionUID = 6436156952322586833L;
     private File mFile;
     private WeakReference<OpenFile[]> mChildren = null;
@@ -95,15 +95,15 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
     public long length() {
         return mFile.length();
     }
-
+    
     @Override
     public int getListLength() {
         if (mChildCount != null)
             return mChildCount;
         if (mChildren != null)
             return mChildCount = mChildren.get().length;
-        else
-            return list().length;
+        else 
+        	return list().length;
     }
 
     public long getFreeSpace() {
@@ -375,25 +375,31 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
     }
 
     public OpenFile[] listFiles(boolean grandPeek) {
-        OpenFile[] mChildren = getOpenPaths(mFile.listFiles());
+    	if(mChildren != null && mChildren.get() != null && mChildren.get().length > 0)
+    		return mChildren.get();
+    	File[] realFiles = null;
+    	try {
+    		realFiles = mFile.listFiles();
+    	} catch(Throwable e) { }
+    	OpenFile[] mChildren2 = getOpenPaths(realFiles);
         if (!grandPeek) {
             // Logger.LogDebug(mFile.getPath() + " has " + mChildren.length +
             // " children");
         } // else mChildren = listFilesNative(mFile);
 
-        if ((mChildren == null || mChildren.length == 0) && !isDirectory()
+        if ((mChildren2 == null || mChildren2.length == 0) && !isDirectory()
                 && mFile.getParentFile() != null)
-            mChildren = getParent().listFiles(grandPeek);
+            mChildren2 = getParent().listFiles(grandPeek);
 
-        if (mChildren == null)
+        if (mChildren2 == null)
             return new OpenFile[0];
 
-        if (grandPeek && !bGrandPeeked && mChildren != null && mChildren.length > 0) {
-            for (int i = 0; i < mChildren.length; i++) {
+        if (grandPeek && !bGrandPeeked && mChildren2 != null && mChildren2.length > 0) {
+            for (int i = 0; i < mChildren2.length; i++) {
                 try {
-                    if (!mChildren[i].isDirectory())
+                    if (!mChildren2[i].isDirectory())
                         continue;
-                    mChildren[i].list();
+                    mChildren2[i].list();
                 } catch (ArrayIndexOutOfBoundsException e) {
                     Logger.LogWarning("Grandchild lost!", e);
                 }
@@ -401,10 +407,10 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
             bGrandPeeked = true;
         }
         
-        mChildCount = mChildren.length;
-        this.mChildren = new WeakReference<OpenFile[]>(mChildren);
+        mChildCount = mChildren2.length;
+        this.mChildren = new WeakReference<OpenFile[]>(mChildren2);
 
-        return mChildren;
+        return mChildren2;
     }
 
     @Override
@@ -454,7 +460,7 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
 
     @Override
     public Boolean requiresThread() {
-        return false;
+        return true;
     }
 
     @Override
@@ -671,6 +677,50 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
     public boolean copyFrom(OpenStream file) {
         if (file instanceof OpenFile)
             return copyFrom((OpenFile)file);
+        try {
+			return copyFrom(file.getInputStream());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return false;
+    }
+    
+    private boolean copyFrom(InputStream in)
+    {
+    	Logger.LogVerbose("copyFrom InputStream on " + getPath());
+        int blen = 4096;
+        byte[] buffer = new byte[blen];
+        int read = 0;
+        int wrote = 0;
+        OutputStream os = null;
+        try {
+            if (!exists())
+                create();
+            os = getOutputStream();
+	        while((read = in.read(buffer, 0, blen)) > -1)
+	        {
+	        	if(read > 0)
+	        	{
+	        		os.write(buffer);
+	        		wrote += buffer.length;
+	        	}
+	        }
+            os.flush();
+            os.close();
+            Logger.LogVerbose("Wrote " + wrote + " bytes to " + getPath());
+            return true;
+        } catch (IOException e) {
+            Logger.LogError("Couldn't write to OpenFile (" + getPath() + ")", e);
+            if(OpenApplication.hasRootAccess())
+                new OpenFileRoot(this).writeBytes(buffer);
+        } finally {
+            if (os != null)
+                try {
+                    os.close();
+                } catch (IOException e) {
+                }
+        }
         return false;
     }
 
@@ -774,4 +824,28 @@ public class OpenFile extends OpenPath implements OpenPathCopyable, OpenPathByte
     public long getThirdSpace() {
         return 0;
     }
+
+	@Override
+	public Cancellable list(final OpenContentUpdateListener callback) {
+		return cancelify(thread(new Runnable() {
+			
+			@Override
+			public void run() {
+                try {
+                	ArrayList<OpenFile> files = new ArrayList<OpenFile>();
+                	for(OpenFile file : listFiles())
+                		if(ShowHiddenFiles || !file.isHidden())
+                    		files.add(file);
+                	OpenFile[] files2 = new OpenFile[files.size()];
+                	for(int i=0; i < files2.length; i++)
+                		files2[i] = files.get(i);
+                	callback.addContentPath(files2);
+                    callback.doneUpdating();
+                } catch(Exception e) {
+                	callback.onException(e);
+                	callback.doneUpdating();
+                }
+            }
+		}));
+	}
 }

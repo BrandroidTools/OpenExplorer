@@ -171,6 +171,8 @@ public class MenuUtils {
             item.setEnabled(enabled);
             if (enabled)
                 item.setVisible(true);
+            else
+                item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         }
     }
 

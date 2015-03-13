@@ -251,43 +251,6 @@ public class Box {
     }
 
     /**
-     * This method is used in the authentication process. The ticket obtained from this method is used to generate an authentication page for the user to login.
-     * Executes API action get_ticket:
-     * {@link <a href="http://developers.box.net/w/page/12923936/ApiFunction_get_ticket">http://developers.box.net/w/page/12923936/ApiFunction_get_ticket</a>}
-     * 
-     * @param listener
-     *            The callback that will run
-     */
-    public final void getTicket(final GetTicketListener listener) {
-
-        new Thread() {
-
-            @Override
-            public void run() {
-                try {
-                    final TicketResponseParser response = BoxSynchronous.getInstance(mApiKey).getTicket();
-                    mHandler.post(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            listener.onComplete(response.getTicket(), response.getStatus());
-                        }
-                    });
-                }
-                catch (final IOException e) {
-                    mHandler.post(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            listener.onIOException(e);
-                        }
-                    });
-                }
-            }
-        }.start();
-    }
-
-    /**
      * This method is used in the authorization process. You should call this method after the user has authorized oneself on the Box partner authentication
      * page. Executes API action get_auth_token:
      * {@link <a href="http://developers.box.net/w/page/12923930/ApiFunction_get_auth_token">http://developers.box.net/w/page/12923930/ApiFunction_get_auth_token</a>}
@@ -304,7 +267,7 @@ public class Box {
             @Override
             public void run() {
                 try {
-                    final UserResponseParser response = BoxSynchronous.getInstance(mApiKey).getAuthToken(ticket);
+                    final UserResponseParser response = BoxSynchronous.getInstance(mApiKey).getAuthToken();
                     mHandler.post(new Runnable() {
 
                         @Override

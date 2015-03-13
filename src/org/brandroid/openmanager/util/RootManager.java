@@ -22,16 +22,21 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.Thread.State;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.concurrent.TimeoutException;
 
 import org.brandroid.openmanager.data.OpenFile;
 import org.brandroid.utils.ByteQueue;
 import org.brandroid.utils.Logger;
+import org.brandroid.utils.Preferences;
 
 import com.stericson.RootTools.RootTools;
-import com.stericson.RootTools.RootToolsException;
+import com.stericson.RootTools.containers.Mount;
+import com.stericson.RootTools.exceptions.RootDeniedException;
+import com.stericson.RootTools.execution.Command;
+import com.stericson.RootTools.execution.CommandCapture;
+import com.stericson.RootTools.execution.Shell;
 
 import android.os.Handler;
 import android.os.Message;
@@ -54,7 +59,6 @@ public class RootManager {
     }
 
     private static boolean rootRequested = false;
-    private static boolean rootEnabled = false;
     private static final boolean singleProcess = true;
     private static String busybox = null;
     private Process myProcess = null;
@@ -77,18 +81,22 @@ public class RootManager {
     }
 
     private boolean mIsRunning = false;
-    private Handler mMsgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (!mIsRunning) {
-                Logger.LogWarning("Handler exited");
-                return;
+    private Handler mMsgHandler;
+    
+    public void setHandler() {
+        mMsgHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if (!mIsRunning) {
+                    Logger.LogWarning("Handler exited");
+                    return;
+                }
+                if (msg.what == NEW_INPUT) {
+                    readFromProcess();
+                }
             }
-            if (msg.what == NEW_INPUT) {
-                readFromProcess();
-            }
-        }
-    };
+        };
+    }
 
     @Override
     protected void finalize() throws Throwable {
@@ -153,6 +161,10 @@ public class RootManager {
             }
         };
     }
+    
+    public interface MountCallback {
+        void onMountOutput(boolean isMounted);
+    }
 
     /**
      * Mount /system as Read-Write or Read-Only. Not thoroughly tested. Use at
@@ -162,46 +174,65 @@ public class RootManager {
      *         returned.
      */
     public static boolean mountSystem(boolean rw) {
-        if (!rootEnabled)
+        if (!isRoot())
+        {
+            Logger.LogWarning("Unable to mount. No root!");
             return false;
-        String sysDev = "/dev/block/mmcblk1p23";
-        OpenFile f = new OpenFile("/proc/mounts");
-        if(f == null) return false;
-        String data = f.readAscii();
-        if(data == null) return false;
-        for (String s : data.split("\n")) {
-            if (s.indexOf("/system") > -1) {
-                sysDev = s.substring(0, s.indexOf(" "));
-                break;
-            }
         }
 
         try {
-            if (RootTools.sendShell(
-                    "mount -o " + (rw ? "rw" : "ro") + ",remount -t yaffs2 " + sysDev + " /system",
-                    1000).size() > 0)
-                return false;
+            /*
+            mount -o remount,rw `cat /proc/mounts | grep /system | sed -e 's: .*::'` /system && cat /proc/mounts | grep /system
+            mount -o remount,ro `cat /proc/mounts | grep /system | sed -e 's: .*::'` /system && cat /proc/mounts | grep /system
+            */
+            String mnt = "mount -o remount,r" + (rw?"w":"o") + " `cat /proc/mounts | grep /system | sed -e 's: .*::'` /system && cat /proc/mounts | grep /system";
+            Command cmd = new CommandCapture(0, mnt);
+            Logger.LogVerbose("RootManager.mountSystem(" + rw + "): " + mnt);
+            Shell.runRootCommand(cmd);
+            cmd.waitForFinish();
+            return true;
         } catch (Exception e) {
             Logger.LogError("Unable to mount system", e);
             return false;
         }
-        return true;
     }
 
     public static boolean isSystemMounted() {
+        if(!Preferences.Pref_Root) return false;
+        try {
+            for(String s : RootTools.sendShell("cat /proc/mounts | grep /system", 1000))
+                if(s.contains("rw"))
+                    return true;
+            return false;
+        } catch (Exception e) {
+            Logger.LogError("Unable to tell if /system is mounted.", e);
+            return false;
+        }
+    }
+    private static boolean isSystemMountedOld() {
         OpenFile f = new OpenFile("/proc/mounts");
-        if(f == null) return false;
+        if(f == null || !f.exists()) {
+            Logger.LogWarning("/proc/mounts missing!");
+            return false;
+        }
         String data = f.readAscii();
-        if(data == null) return false;
+        if(data == null) {
+            Logger.LogWarning("/proc/mounts empty!");
+            return false;
+        }
         for (String s : data.split("\n")) {
             if (s.indexOf("/system") > -1)
+            {
+                Logger.LogVerbose("RootManager.isSystemMounted: System Line: " + s);
                 return s.indexOf("rw,") > -1;
+            }
         }
+        Logger.LogWarning("/proc/mounts does not contain /system!");
         return false;
     }
 
     public String getDriveLabel(String path, String sDefault) {
-        if (!rootEnabled)
+        if (!Preferences.Pref_Root)
             return sDefault;
         HashSet<String> blkid = execute("blkid `cat /proc/mounts | grep \""
                 + sDefault.replace("\"", "\\\"") + "\"`");
@@ -247,7 +278,7 @@ public class RootManager {
     }
 
     public Process getSuProcess() throws IOException {
-        if (rootRequested && !rootEnabled)
+        if (rootRequested && !Preferences.Pref_Root)
             return null;
         if (myProcess == null || !singleProcess) {
             myProcess = new ProcessBuilder().command("su", "-c sh").redirectErrorStream(true)
@@ -303,17 +334,17 @@ public class RootManager {
         return busybox;
     }
 
-    public boolean isRoot() {
-        return rootEnabled;
+    public static boolean isRoot() {
+        return Preferences.Pref_Root;
     }
 
-    public boolean isRootRequested() {
+    public static boolean isRootRequested() {
         return rootRequested;
     }
 
     @SuppressWarnings("unused")
     public void exitRoot() {
-        rootEnabled = false;
+        Preferences.Pref_Root = false;
         rootRequested = false;
         if (myProcess != null) // exit su
         {
@@ -437,7 +468,7 @@ public class RootManager {
     @SuppressWarnings("deprecation")
     public boolean requestRoot() {
         if (rootRequested)
-            return rootEnabled;
+            return Preferences.Pref_Root;
         try {
             Process suProcess = myProcess != null ? myProcess : Runtime.getRuntime().exec("su");
 
@@ -456,19 +487,19 @@ public class RootManager {
                 String currUid = is.readLine();
                 boolean exitSu = false;
                 if (null == currUid) {
-                    rootEnabled = false;
+                    Preferences.Pref_Root = false;
                     Logger.LogDebug("Can't get root access or denied by user");
                 } else if (true == currUid.contains("uid=0")) {
-                    rootEnabled = true;
+                    Preferences.Pref_Root = true;
                     exitSu = true;
                     Logger.LogDebug("Root access granted");
                 } else {
-                    rootEnabled = false;
+                    Preferences.Pref_Root = false;
                     exitSu = true;
                     Logger.LogDebug("Root access rejected: " + currUid);
                 }
 
-                if (!rootEnabled) {
+                if (!Preferences.Pref_Root) {
                     // mPollingThread.stop();
                 }
                 if (exitSu) {
@@ -482,13 +513,13 @@ public class RootManager {
             // stream (os) after su failed, meaning that the device is not
             // rooted
 
-            rootEnabled = false;
+            Preferences.Pref_Root = false;
             Logger.LogError("Root access rejected [" + e.getClass().getName() + "]", e);
         }
 
         rootRequested = true;
 
-        return rootEnabled;
+        return Preferences.Pref_Root;
     }
 
     public static boolean tryExecute(String... commands) {

@@ -3,6 +3,7 @@ package com.dropbox.client2.android;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 import org.brandroid.utils.Logger;
 
@@ -261,13 +262,18 @@ public class AuthActivity extends Activity {
         startActivity(intent);
     }
     
-    public static String getConnectUrl(String consumerKey, String consumerSig)
+    public static String getConnectUrl(String consumerKey, String consumerSig, String state)
     {
         String path = "/connect";
+        
+        Locale locale = Locale.getDefault();
 
         String[] params = {
+                "locale", locale.getLanguage()+"_"+locale.getCountry(),
                 "k", consumerKey,
                 "s", consumerSig,
+                "api", null,
+                "state", state
         };
 
         String url = RESTUtility.buildURL("www.dropbox.com",

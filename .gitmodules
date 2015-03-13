@@ -2,3 +2,6 @@
 path = ActionBarSherlock
 url = git@github.com:BrandroidTools/ActionBarSherlock.git
 ignore = dirty
+[submodule "Volley"]
+	path = Volley
+	url = https://android.googlesource.com/platform/frameworks/volley.git

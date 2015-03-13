@@ -28,7 +28,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/content_pager_indicator_frame"
         android:baselineAligned="false"
         android:orientation="horizontal" >
 

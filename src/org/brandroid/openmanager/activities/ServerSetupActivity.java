@@ -92,6 +92,7 @@ import android.view.*;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -102,6 +103,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -141,11 +143,10 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
     private View mBaseView;
     private Spinner mTypeSpinner;
     private Bundle mArgs;
+    private String mAuthState = null;
     private int mServerType = -1;
     private boolean mAuthTokenFound = false;
-    private WebView mLoginWebView;
     private static boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
-    private final boolean mUseDialog = Build.VERSION.SDK_INT > 10;
 
     public static class ServerTypeAdapter extends BaseAdapter
     {
@@ -336,6 +337,7 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
     }
 
     public static CharSequence colorify(String txt, int color) {
+        if(txt.equals("")) return txt;
         if (color != 0) {
             color = Color.rgb(Color.red(color), Color.green(color), Color.blue(color));
             SpannableString line = new SpannableString(txt);
@@ -350,14 +352,21 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
         String themeName = new Preferences(this)
                 .getString("global", "pref_themes", "dark");
         if (themeName.equals("dark"))
-            return mUseDialog ? R.style.AppTheme_Dialog : R.style.AppTheme_Dark;
+            return R.style.AppTheme_Dialog;
         else if (themeName.equals("light"))
-            return mUseDialog ? R.style.AppTheme_Dialog_Light : R.style.AppTheme_Light;
+            return R.style.AppTheme_Dialog_Light;
         else if (themeName.equals("lightdark"))
-            return mUseDialog ? R.style.AppTheme_Dialog_Light : R.style.AppTheme_LightAndDark;
+            return R.style.AppTheme_Dialog_Light;
         else if (themeName.equals("custom"))
-            return mUseDialog ? R.style.AppTheme_Dialog : R.style.AppTheme_Custom;
-        return mUseDialog ? R.style.AppTheme_Dialog : R.style.AppTheme_Dark;
+            return R.style.AppTheme_Dialog;
+        return R.style.AppTheme_Dialog;
+    }
+    
+    private String getAuthState()
+    {
+        if(mAuthState == null)
+            mAuthState = OpenDropBox.createStateNonce();
+        return mAuthState;
     }
 
     @Override
@@ -420,19 +429,11 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
 
         mBaseView = getLayoutInflater().inflate(R.layout.server, null);
         
-        if(Build.VERSION.SDK_INT > 10)
-        {
-	        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-	        setContentView(mBaseView);
-	        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title_bar_dialog);
-	        ViewUtils.setViewsVisible(mBaseView, false, R.id.title_bar, R.id.title_divider);
-        } else
-        	setContentView(mBaseView);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(mBaseView);
         
         getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
-        mLoginWebView = (WebView)mBaseView.findViewById(R.id.server_webview);
 
         setIcon(getServerTypeDrawable(mServerType));
         setTitle(server.getName());
@@ -516,6 +517,20 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
             onClick(R.id.server_authenticate);
         invalidateOptionsMenu();
     }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if(getAuthState() != null)
+            outState.putString("state", getAuthState());
+        super.onSaveInstanceState(outState);
+    }
+    
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if(savedInstanceState != null && savedInstanceState.containsKey("state"))
+            mAuthState = savedInstanceState.getString("state");
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -561,13 +576,15 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
             enableAuthenticateButton(false);
             ViewUtils.setViewsVisible(mBaseView, false, R.id.server_webview);
             ViewUtils.setViewsVisible(mBaseView, true, R.id.server_logout);
+            onClick(android.R.string.ok);
         } else {
             if (OpenDropBox.handleIntent(data, server))
             {
-                ViewUtils.setText(mBaseView, server.getPassword(), R.id.text_password);
+                ViewUtils.setText(mBaseView, server.getPassword(), R.id.text_password); 
                 ViewUtils.setViewsVisible(mBaseView, false, R.id.server_webview,
                         R.id.server_authenticate);
                 ViewUtils.setViewsVisible(mBaseView, true, R.id.server_logout);
+                onClick(android.R.string.ok);
             }
         }
         invalidateOptionsMenu();
@@ -686,13 +703,20 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
     @SuppressLint("NewApi")
     @Override
     public void invalidateOptionsMenu() {
-        if(findViewById(R.id.title_buttons) != null)
+        if(findViewById(R.id.title_buttons) != null && findViewById(R.id.title_buttons).isShown())
         {
             MenuBuilder2 mb = new MenuBuilder2(this);
             onCreateOptionsMenu(mb);
             onPrepareOptionsMenu(mb);
-        } else if(Build.VERSION.SDK_INT > 10)
+        }
+        if(Build.VERSION.SDK_INT > 10)
             super.invalidateOptionsMenu();
+    }
+    
+    @Override
+    public void onAttachedToWindow() {
+    	super.onAttachedToWindow();
+    	invalidateOptionsMenu();
     }
 
     // @Override
@@ -719,6 +743,11 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
     @Override
     public void onClick(View v) {
         onClick(v.getId());
+    }
+    
+    @Override
+    public void onBackPressed() {
+    	onClick(android.R.string.ok);
     }
 
     public boolean onClick(int id)
@@ -801,6 +830,7 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
                             }
                             else {
                                 // onGetTicketFail();
+                                Logger.LogError("Unable to get Box Ticket");
                                 enableAuthenticateButton(true);
                             }
                         }
@@ -808,15 +838,20 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
                         @Override
                         public void onIOException(final IOException e) {
                             // onGetTicketFail();
+                            Logger.LogError("Unable to get Box Ticket", e);
                             enableAuthenticateButton(true);
                         }
                     });
                 } else if (t2.startsWith("db")) {
+                    final WebView mLoginWebView = (WebView)findViewById(R.id.server_webview);
+                    mLoginWebView.setVisibility(View.VISIBLE);
+                    findViewById(R.id.server_text_scroller).setVisibility(View.GONE);
                     //if (!checkDropBoxAppKeySetup())
                     {
                         enableAuthenticateButton(false);
                         mLoginWebView.getSettings().setJavaScriptEnabled(true);
-                        if(!OpenDropBox.startAuthentication(this, mLoginWebView))
+                        // App Auth not working, so disable for now
+                        //if(!OpenDropBox.startAuthentication(this, mLoginWebView, getAuthState()))
                         {
                             mLoginWebView.setWebViewClient(new WebViewClient(){
                                 @SuppressLint("NewApi")
@@ -828,6 +863,7 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
                                         String token = uri.getQueryParameter("oauth_token");
                                         String secret = uri.getQueryParameter("oauth_token_secret");
                                         String uid = uri.getQueryParameter("uid");
+                                        mAuthState = uri.getQueryParameter("state");
                                         server.setPassword(token + "," + secret);
                                         mLoginWebView.setVisibility(View.GONE);
                                         enableAuthenticateButton(false);
@@ -841,7 +877,8 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
                                 }
                             });
                             mLoginWebView.loadUrl(AuthActivity.getConnectUrl(getCloudSetting("dropbox_key"),
-                                    OpenDropBox.getConsumerSig(getCloudSetting("dropbox_secret"))));
+                                    OpenDropBox.getConsumerSig(getCloudSetting("dropbox_secret")),
+                                    getAuthState()));
                             mLoginWebView.setVisibility(View.VISIBLE);
                         }
                         
@@ -984,8 +1021,7 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
         } else {
             ViewUtils.setText(mBaseView, getString(R.string.s_authenticating),
                     R.id.server_authenticate);
-            ViewUtils.setText(mBaseView, getString(R.string.s_authenticate_refresh),
-                    R.id.server_authenticate);
+            ViewUtils.setViewsEnabled(mBaseView, false, R.id.server_authenticate);
         }
     }
 
@@ -1016,7 +1052,10 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
     private void loadBoxLoginWebview(final String ticket) {
         // Load the login webpage. Note how the ticket must be appended to the
         // login url.
-        String loginUrl = "https://m.box.net/api/1.0/auth/" + ticket;
+        String loginUrl = "https://api.box.com/1.0/auth/" + ticket;
+        WebView mLoginWebView = (WebView)findViewById(R.id.server_webview);
+        mLoginWebView.setVisibility(View.VISIBLE);
+        ViewUtils.setViewsVisible(mBaseView, false, R.id.server_text_scroller, R.id.server_authenticate, R.id.server_logout);
         mLoginWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         mLoginWebView.getSettings().setJavaScriptEnabled(true);
         mLoginWebView.setWebViewClient(new WebViewClient() {
@@ -1062,7 +1101,11 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
     private void loadDBLoginWebview() {
         String url = AuthActivity.getConnectUrl(
                 getCloudSetting("dropbox_key"),
-                getCloudSetting("dropbox_secret"));
+                getCloudSetting("dropbox_secret"),
+                getAuthState());
+        WebView mLoginWebView = (WebView)findViewById(R.id.server_webview);
+        mLoginWebView.setVisibility(View.VISIBLE);
+        ViewUtils.setViewsVisible(mBaseView, false, R.id.server_text_scroller, R.id.server_authenticate, R.id.server_logout);
         mLoginWebView.setWebViewClient(new WebViewClient(){
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -1139,34 +1182,42 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
         server.setSetting("dao", DAO.toJSON(authToken));
         setIntent(intent);
         onActivityResult(OpenExplorer.REQ_AUTHENTICATE_BOX, RESULT_OK, intent);
+        onClick(android.R.string.ok);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //getSupportMenuInflater().inflate(R.menu.dialog_buttons, menu);
         getMenuInflater().inflate(R.menu.dialog_buttons, menu);
-        View mTitleButtons = findViewById(R.id.title_buttons);
-        if(mTitleButtons != null)
-        {
-            ((ViewGroup)mTitleButtons).removeAllViews();
-            final LayoutInflater inflater = LayoutInflater.from(this);
-            for(int i = 0; i < menu.size(); i++)
-            {
-                final MenuItem item = menu.getItem(i);
-                ImageView btn = (ImageView)inflater.inflate(R.layout.toolbar_button, null);
-                btn.setId(item.getItemId());
-                btn.setOnClickListener(this);
-                btn.setImageDrawable(item.getIcon());
-                btn.setOnLongClickListener(new View.OnLongClickListener() {
-                    public boolean onLongClick(View v) {
-                        Toast.makeText(ServerSetupActivity.this, item.getTitle(), Toast.LENGTH_SHORT).show();
-        return true;
-    }
-                });
-                ((ViewGroup)mTitleButtons).addView(btn);
-            }
-        }
-        return true;
+		ViewGroup mTitleButtons = (ViewGroup)findViewById(R.id.title_buttons);
+		if (mTitleButtons != null) {
+			mTitleButtons.removeAllViews();
+			final LayoutInflater inflater = LayoutInflater.from(this);
+			for (int i = 0; i < menu.size(); i++) {
+				final MenuItem item = menu.getItem(i);
+				ImageView btn = (ImageView) inflater.inflate(
+						R.layout.toolbar_button, null);
+				mTitleButtons.addView(btn);
+				LayoutParams lp = btn.getLayoutParams();
+				if(lp != null)
+				{
+					lp.height = LayoutParams.MATCH_PARENT;
+					btn.setLayoutParams(lp);
+				}
+				btn.setId(item.getItemId());
+				btn.setOnClickListener(this);
+				btn.setImageDrawable(item.getIcon());
+				btn.setOnLongClickListener(new View.OnLongClickListener() {
+					public boolean onLongClick(View v) {
+						Toast.makeText(ServerSetupActivity.this,
+								item.getTitle(), Toast.LENGTH_SHORT).show();
+						return true;
+					}
+				});
+				
+			}
+		}
+		return true;
     }
 
     @Override
@@ -1185,6 +1236,7 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
                 btn.setId(item.getItemId());
                 btn.setOnClickListener(this);
                 btn.setImageDrawable(item.getIcon());
+                
             }
             ViewUtils.setViewsEnabled(btn, item.isEnabled());
             ViewUtils.setViewsVisible(btn, item.isVisible());
@@ -1631,6 +1683,7 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
         ViewUtils.setViewsVisible(mBaseView, true, R.id.server_logout);
         ViewUtils.setViewsVisible(mBaseView, false, R.id.server_authenticate);
         invalidateOptionsMenu();
+        onClick(android.R.string.ok); 
     }
 
     public static boolean interceptOldToken(final Exception e, final String authToken, final String refreshToken,
@@ -1785,8 +1838,10 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
 
     private void showDriveWebview()
     {
+        final WebView mLoginWebView = (WebView)findViewById(R.id.server_webview);
+        mLoginWebView.setVisibility(View.VISIBLE);
+        ViewUtils.setViewsVisible(mBaseView, false, R.id.server_text_scroller);
         enableAuthenticateButton(false);
-        mLoginWebView.setVisibility(View.GONE);
         mLoginWebView.getSettings().setJavaScriptEnabled(true);
         mLoginWebView.setWebChromeClient(new WebChromeClient(){
             @SuppressLint("NewApi")
@@ -1834,7 +1889,6 @@ public class ServerSetupActivity extends Activity implements OnCheckedChangeList
         });
         mLoginWebView.loadUrl(
                 OpenDrive.getTokenAuthURL());
-        mLoginWebView.setVisibility(View.VISIBLE);
     }
 
     private static boolean received401 = false;
