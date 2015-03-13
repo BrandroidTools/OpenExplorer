@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import jcifs.smb.AllocInfo;
+
+import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.SimpleUserInfo;
@@ -26,6 +29,7 @@ import com.jcraft.jsch.UserInfo;
 
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 
 /**
  * Main class for SFTP connections. Please note that as a descendent of
@@ -35,7 +39,7 @@ import android.net.Uri;
  * @author Brandon Bowles
  * @see OpenNetworkPath
  */
-public class OpenSFTP extends OpenNetworkPath {
+public class OpenSFTP extends OpenNetworkPath implements OpenNetworkPath.PipeNeeded {
     private static final long serialVersionUID = 3263112609308933024L;
     private long filesize = 0l;
     private Session mSession = null;
@@ -59,7 +63,7 @@ public class OpenSFTP extends OpenNetworkPath {
         mUserInfo = new SimpleUserInfo();
         if (user != null && user.indexOf(":") > -1) {
             String pw = Uri.decode(user.substring(user.indexOf(":") + 1));
-            mUser = Uri.decode(user.substring(0, user.indexOf(":") - 1));
+            mUser = Uri.decode(user.substring(0, user.indexOf(":")));
             ((SimpleUserInfo)mUserInfo).setPassword(pw);
         } else if (user != null)
             mUser = Uri.decode(user);
@@ -104,7 +108,6 @@ public class OpenSFTP extends OpenNetworkPath {
         mRemotePath = myUri.getPath();
         mSession = parent.mSession;
         mChannel = parent.mChannel;
-        setServersIndex(parent.getServersIndex());
     }
 
     public OpenSFTP(OpenSFTP parent, LsEntry child) {
@@ -126,7 +129,6 @@ public class OpenSFTP extends OpenNetworkPath {
         mRemotePath = myUri.getPath();
         mSession = parent.mSession;
         mChannel = parent.mChannel;
-        setServersIndex(parent.getServersIndex());
         // Logger.LogDebug("Created OpenSFTP @ " + mRemotePath);
     }
 
@@ -180,30 +182,20 @@ public class OpenSFTP extends OpenNetworkPath {
 
     @Override
     public String getAbsolutePath() {
-        String cred = "";
-        if (mUser != null && !mUser.equals("")) {
-            cred = Uri.encode(mUser);
-            if (mSession != null) {
-                UserInfo ui = mSession.getUserInfo();
-                if (ui != null) {
-                    if (ui.getPassword() != null)
-                        cred += ":" + Uri.encode(ui.getPassword());
-                }
-            }
-            cred += "@";
-        }
-        return "sftp://" + cred + mHost + ":" + getPort()
-                + (mRemotePath.startsWith("/") ? "" : "/") + mRemotePath;
+        String ret = "sftp://";
+        if(getServer() != null)
+            ret = getServer().getAbsolutePath();
+        if (ret.endsWith("/") && mRemotePath.startsWith("/"))
+            ret = ret.substring(0, ret.length() - 1);
+        else if(!ret.endsWith("/") && !mRemotePath.startsWith("/"))
+            ret += "/";
+        ret += mRemotePath;
+        return ret;
     }
 
     @Override
     public void setName(String name) {
         mName = name;
-    }
-
-    @Override
-    public void setPath(String path) {
-        // throw new T("Can't setPath on Networked Paths");
     }
 
     @Override
@@ -225,7 +217,7 @@ public class OpenSFTP extends OpenNetworkPath {
                 if (path.length() > 8) {
                     OpenSFTP par = (OpenSFTP)FileManager.getOpenCache(path);
                     if (par != null && par.getPath().length() < getPath().length()) {
-                        par.setServersIndex(getServersIndex());
+                        par.setServer(getServer());
                         par.mSession = this.mSession;
                         par.mChannel = this.mChannel;
                         return par;
@@ -249,7 +241,7 @@ public class OpenSFTP extends OpenNetworkPath {
             return 0;
         return super.getChildCount(countHidden);
     }
-
+    
     @Override
     public OpenPath[] list() throws IOException {
         if (mChildren != null)
@@ -259,6 +251,7 @@ public class OpenSFTP extends OpenNetworkPath {
 
     @Override
     public OpenPath[] listFiles() throws IOException {
+        if(Thread.currentThread().equals(OpenExplorer.UiThread)) return getChildren();
         try {
             connect();
             String lsPath = mRemotePath.replace(mChannel.pwd() + "/", "");
@@ -284,7 +277,10 @@ public class OpenSFTP extends OpenNetworkPath {
             throw new IOException("SftpException during listFiles");
         } catch (JSchException e) {
             Logger.LogError("JSchException during listFiles", e);
-            throw new IOException("JSchException during listFiles");
+            if(Build.VERSION.SDK_INT > 8)
+                throw new IOException("JSchException during listFiles", e);
+            else
+                throw new IOException("JSchException during listFiles - " + e.getMessage());
         }
         FileManager.setOpenCache(getAbsolutePath(), this);
         return mChildren;
@@ -389,7 +385,6 @@ public class OpenSFTP extends OpenNetworkPath {
     public void disconnect() {
         if (mChannel == null && mSession == null)
             return;
-        super.disconnect();
         if (mChannel != null)
             mChannel.disconnect();
         if (mSession != null)
@@ -414,7 +409,6 @@ public class OpenSFTP extends OpenNetworkPath {
             // getName());
             return;
         }
-        super.connect();
         // Logger.LogDebug("Attempting to connect to OpenSFTP " + getName());
         // disconnect();
         // Logger.LogDebug("Ready for new connection");

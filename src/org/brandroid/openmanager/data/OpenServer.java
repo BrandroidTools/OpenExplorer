@@ -1,51 +1,47 @@
 
 package org.brandroid.openmanager.data;
 
-import java.util.Hashtable;
-import java.util.Iterator;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.Locale;
 
-import org.brandroid.openmanager.R;
-import org.brandroid.openmanager.activities.SettingsActivity;
+import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbFile;
+
+import org.apache.commons.net.ftp.FTPFile;
+import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.activities.ServerSetupActivity;
+import org.brandroid.openmanager.util.SimpleUserInfo;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.SimpleCrypto;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
-import android.text.method.PasswordTransformationMethod;
-import android.text.method.SingleLineTransformationMethod;
-import android.view.View;
-import android.view.View.OnFocusChangeListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.Spinner;
+import com.box.androidlib.DAO;
+import com.box.androidlib.User;
+import com.dropbox.client2.DropboxAPI;
+import com.dropbox.client2.android.AndroidAuthSession;
 
-public class OpenServer {
+import android.content.Context;
+import android.net.Uri;
+
+public class OpenServer extends OpenPath {
     private final JSONObject mData;
+    private final static boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && false;
+    private OpenNetworkPath mPath;
+    private Integer mServerIndex = null;
+    private boolean mPasswordDecrypted = false;
+    private boolean mDirty = false;
 
     public OpenServer() {
         mData = new JSONObject();
         // mData = new Hashtable<String, String>();
     }
 
-    public OpenServer(JSONObject obj, String decryptPW) {
+    public OpenServer(JSONObject obj) {
         mData = obj;
-        if (decryptPW != null && !decryptPW.equals(""))
-            try {
-                String mPassword = mData.optString("password");
-                mPassword = SimpleCrypto.decrypt(decryptPW, mPassword);
-                mData.put("password", mPassword);
-            } catch (Exception e) {
-                Logger.LogError("Error decrypting password.", e);
-            }
+        decryptPW(true);
         /*
          * mData = new Hashtable<String, String>(); if(obj != null) { Iterator
          * keys = obj.keys(); while(keys.hasNext()) { String key =
@@ -54,17 +50,111 @@ public class OpenServer {
          */
     }
 
-    public OpenServer(String host, String path, String user, String password) {
-        mData = new JSONObject();
-        // mData = new Hashtable<String, String>();
-        setHost(host);
-        setPath(path);
-        setUser(user);
-        setPassword(password);
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof OpenServer))
+            return false;
+        OpenServer os = (OpenServer)o;
+        try {
+            if (os.getType().equals(getType()) &&
+                    os.getHost().equals(getHost()) &&
+                    os.getPassword().equals(getPassword()) &&
+                    os.getUser().equals(getUser()) &&
+                    os.getPath().equals(getPath()) &&
+                    os.getPort() == getPort())
+                return true;
+        } catch (NullPointerException npe) {
+            return false;
+        }
+        return super.equals(o);
+    }
+
+    public int getServerIndex() {
+        if (mServerIndex != null)
+            return mServerIndex;
+
+        if (OpenServers.hasDefaultServers())
+        {
+            OpenServers servers = OpenServers.getDefaultServers();
+            for (int i = 0; i < servers.size(); i++)
+                if (servers.get(i).equals(this))
+                    return mServerIndex = i;
+        }
+        return mServerIndex = -1;
+    }
+
+    public boolean isPasswordDecrypted()
+    {
+        return mPasswordDecrypted;
+    }
+
+    public void setServerIndex(int i) {
+        mServerIndex = i;
+    }
+
+    private static String getDecryptKey()
+    {
+        return OpenServers.getDecryptKey();
+    }
+
+    public void decryptPW(boolean threaded)
+    {
+        if (mPasswordDecrypted)
+            return;
+        final String mPassword = get("password");
+        Runnable decryptor = new Runnable() {
+            public void run() {
+                try {
+                    final String pw = SimpleCrypto.decrypt(getDecryptKey(), mPassword);
+                    mData.put("password", pw);
+                    mPasswordDecrypted = true;
+                } catch (Exception e) {
+                    // Logger.LogError("Error decrypting password.", e);
+                }
+            }
+        };
+        if (threaded)
+            thread(decryptor);
+        else
+            decryptor.run();
+    }
+
+    public void encryptPW(boolean threaded)
+    {
+        if (!mPasswordDecrypted)
+            return;
+        final String mPassword = get("password");
+        Runnable encryptor = new Runnable() {
+            public void run() {
+                try {
+                    final String pw = SimpleCrypto.encrypt(getDecryptKey(), mPassword);
+                    mData.put("password", pw);
+                    mPasswordDecrypted = false;
+                } catch (Exception e) {
+                    Logger.LogError("Error decrypting password.", e);
+                }
+            }
+        };
+        if (threaded)
+            new Thread(encryptor).start();
+        else
+            encryptor.run();
     }
 
     public boolean isValid() {
-        return mData != null && mData.has("host");
+        switch (ServerSetupActivity.getServerTypeFromString(getType()))
+        {
+            case 0: // FTP
+            case 1: // SFTP
+            case 2: // SMB
+                return mData != null && mData.has("host");
+            case 3: // Box
+            case 4: // Dropbox
+            case 5: // Drive
+                return mData != null && mData.has("password");
+            default:
+                return false;
+        }
     }
 
     private static String[] getNames(JSONObject o) {
@@ -83,16 +173,10 @@ public class OpenServer {
             return null;
         }
         try {
-            if (encryptPW && context != null)
-                try {
-                    String mPassword = ret.optString("password");
-                    ret.put("password", SimpleCrypto.encrypt(
-                            SettingsActivity.GetSignatureKey(context), getPassword()));
-                } catch (Exception e) {
-                    // ret.put("password", getPassword());
-                }
+            if (encryptPW && isPasswordDecrypted())
+                ret.put("password", SimpleCrypto.encrypt(getDecryptKey(), getPassword()));
             ret.put("dir", getPath());
-        } catch (JSONException e) {
+        } catch (Exception e) {
         }
         /*
          * for(String s : mData.keySet()) try { ret.put(s, mData.get(s)); }
@@ -103,12 +187,27 @@ public class OpenServer {
     }
 
     public String getType() {
-        return mData.optString("type");
+        return get("type");
+    }
+
+    public String get(String key) {
+        Object o = mData.opt(key);
+        String ret = "";
+        if (o instanceof String)
+            ret = (String)o;
+        else if (o != null)
+            ret = o.toString();
+        if (DEBUG)
+            Logger.LogDebug("OpenServer.getSetting(" + key + ") = " + ret);
+        return ret;
     }
 
     public OpenServer setSetting(String key, String value) {
         try {
             mData.put(key, value);
+            mDirty = true;
+            if (DEBUG)
+                Logger.LogDebug("OpenServer.setSetting(" + key + ", " + value + ")");
         } catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -129,26 +228,91 @@ public class OpenServer {
         return this;
     }
 
+    public OpenServer setSetting(String key, long value) {
+        try {
+            mData.put(key, value);
+            mDirty = true;
+        } catch (JSONException e) {
+        }
+        return this;
+    }
+
     public String getHost() {
-        return mData.optString("host");
+        return get("host", "");
     }
 
     public String getPath() {
-        String mPath = mData.optString("dir");
+        String mPath = get("dir", "");
+        if (!mPath.startsWith("/"))
+            mPath = "/" + mPath;
         return mPath + (mPath.equals("") || mPath.endsWith("/") ? "" : "/");
     }
 
+    public OpenNetworkPath getOpenPath()
+    {
+        if (mPath != null)
+            return mPath;
+        SimpleUserInfo info = new SimpleUserInfo();
+        info.setPassword(getPassword());
+        String t2 = getType().toLowerCase(Locale.US);
+        if (t2.startsWith("ftp")) {
+            mPath = new OpenFTP(null, new FTPFile(), new FTPManager(getHost(),
+                    getUser(), getPassword(), getPath()));
+        } else if (t2.startsWith("scp")) {
+            mPath = new OpenSCP(getHost(), getUser(), getPath(), info);
+        } else if (t2.startsWith("sftp")) {
+            mPath = new OpenSFTP(getHost(), getUser(), getPath());
+            // mPath = new OpenVFS("sftp://" + getUser() + ":" + getPassword() +
+            // "@" + getHost() + getPath());
+        } else if (t2.startsWith("smb")) {
+            try {
+                mPath = new OpenSMB(new SmbFile("smb://" + getHost() + "/" + getPath(),
+                        new NtlmPasswordAuthentication(getUser().indexOf("/") > -1 ? getUser()
+                                .substring(0, getUser().indexOf("/")) : "", getUser(),
+                                getPassword())));
+            } catch (MalformedURLException e) {
+                Logger.LogError("Couldn't add Samba share to bookmarks.", e);
+            }
+        } else if (t2.startsWith("box"))
+        {
+            User user = new User();
+            if (has("dao"))
+            {
+                try {
+                    user = (User)DAO.fromJSON(get("dao", "{}"), User.class);
+                } catch (Exception e) {
+                }
+            }
+            user.setAuthToken(getPassword());
+            user.setLogin(getName());
+            mPath = new OpenBox(user);
+        } else if (t2.startsWith("db"))
+        {
+            DropboxAPI<AndroidAuthSession> mApi = new DropboxAPI<AndroidAuthSession>(
+                    OpenDropBox.buildSession(this));
+            mPath = new OpenDropBox(mApi);
+        } else if (t2.startsWith("drive"))
+        {
+            return new OpenDrive(getPassword(), get("refresh"));
+        } else
+            return null;
+        mPath.setServer(this);
+        return mPath;
+    }
+
     public String getUser() {
-        return mData.optString("user");
+        return get("user");
     }
 
     public String getPassword() {
-        return mData.optString("password");
+        return get("password");
     }
 
     public String getName() {
-        String mName = mData.optString("name");
-        return mName != null && !mName.equals("") ? mName : getHost();
+        String mName = get("name");
+        if (mName != null && !mName.equals(""))
+            return mName;
+        return getOpenPath().getName();
     }
 
     public OpenServer setHost(String host) {
@@ -166,7 +330,7 @@ public class OpenServer {
         return this;
     }
 
-    public OpenServer setPassword(String password) {
+    public OpenServer setPassword(final String password) {
         setSetting("password", password);
         return this;
     }
@@ -190,8 +354,11 @@ public class OpenServer {
         return mData.has(name);
     }
 
-    public String get(String name, String defValue) {
-        return mData.optString(name, defValue);
+    public String get(String key, String defValue) {
+        String ret = mData.optString(key, defValue);
+        if (DEBUG)
+            Logger.LogDebug("OpenServer.getSetting(" + key + ") = " + ret);
+        return ret;
     }
 
     public String getString(String key) {
@@ -211,181 +378,17 @@ public class OpenServer {
             return getType();
         if (key.equals("port"))
             return "" + getPort();
-        return mData.optString(key);
-    }
-
-    public static boolean setupServerDialog(final OpenServer server, final int iServersIndex,
-            final View parentView) {
-        View v = parentView.findViewById(R.id.text_server);
-        if (!(v instanceof EditText))
-            return false;
-        final EditText mHost = (EditText)parentView.findViewById(R.id.text_server);
-        final EditText mUser = (EditText)parentView.findViewById(R.id.text_user);
-        final EditText mPassword = (EditText)parentView.findViewById(R.id.text_password);
-        final EditText mTextPath = (EditText)parentView.findViewById(R.id.text_path);
-        final EditText mTextName = (EditText)parentView.findViewById(R.id.text_name);
-        final CheckBox mCheckPassword = (CheckBox)parentView.findViewById(R.id.check_password);
-        final Spinner mTypeSpinner = (Spinner)parentView.findViewById(R.id.server_type);
-        final EditText mTextPort = (EditText)parentView.findViewById(R.id.text_port);
-        final CheckBox mCheckPort = (CheckBox)parentView.findViewById(R.id.check_port);
-        if (iServersIndex > -1) {
-            // mCheckPassword.setVisibility(View.GONE);
-            mHost.setText(server.getHost());
-            mUser.setText(server.getUser());
-            mPassword.setText(server.getPassword());
-            if (mTextPath != null)
-                mTextPath.setText(server.getPath());
-            if (mTextName != null)
-                mTextName.setText(server.getName());
-            if (server.getPort() > 0) {
-                if (mCheckPort != null)
-                    mCheckPort.setChecked(false);
-                if (mTextPort != null)
-                    mTextPort.setText("" + server.getPort());
-            } else if (mCheckPort != null)
-                mCheckPort.setChecked(true);
-            String[] types = mTypeSpinner.getResources()
-                    .getStringArray(R.array.server_types_values);
-            int pos = 0;
-            for (int i = 0; i < types.length; i++)
-                if (types[i].equals(server.getType())) {
-                    pos = i;
-                    break;
-                }
-            mTypeSpinner.setSelection(pos);
-        }
-
-        mHost.setOnFocusChangeListener(new OnFocusChangeListener() {
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus && server.getName().equals(""))
-                    mTextName.setText(mHost.getText());
-            }
-        });
-        mTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
-                String[] types = arg0.getResources().getStringArray(R.array.server_types_values);
-                if (position >= types.length || position < 0)
-                    return;
-                String type = types[position];
-                server.setType(type);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> arg0) {
-            }
-        });
-        if (mCheckPassword.getVisibility() == View.VISIBLE)
-            mCheckPassword.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        mPassword.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                        mPassword.setTransformationMethod(new SingleLineTransformationMethod());
-                    } else {
-                        mPassword.setRawInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                        mPassword.setTransformationMethod(new PasswordTransformationMethod());
-                    }
-                }
-            });
-        mHost.addTextChangedListener(new TextWatcher() {
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            public void afterTextChanged(Editable s) {
-                server.setHost(s.toString());
-            }
-        });
-        mUser.addTextChangedListener(new TextWatcher() {
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            public void afterTextChanged(Editable s) {
-                server.setUser(s.toString());
-            }
-        });
-        if (mPassword != null)
-            mPassword.addTextChangedListener(new TextWatcher() {
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                }
-
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                public void afterTextChanged(Editable s) {
-                    server.setPassword(s.toString());
-                }
-            });
-        if (mTextPath != null)
-            mTextPath.addTextChangedListener(new TextWatcher() {
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                }
-
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                public void afterTextChanged(Editable s) {
-                    server.setPath(s.toString());
-                }
-            });
-        if (mTextName != null)
-            mTextName.addTextChangedListener(new TextWatcher() {
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                }
-
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                public void afterTextChanged(Editable s) {
-                    server.setName(s.toString());
-                }
-            });
-        if (mTextPort != null) {
-            mTextPort.setEnabled(!mCheckPort.isChecked());
-            mTextPort.addTextChangedListener(new TextWatcher() {
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                }
-
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                public void afterTextChanged(Editable s) {
-                    if (!s.toString().equals("") && !s.toString().matches("[^0-9]"))
-                        server.setPort(Integer.parseInt(s.toString()));
-                }
-            });
-        }
-        if (mCheckPort != null) {
-            if (!mCheckPort.isChecked())
-                mCheckPort.setText("");
-            mCheckPort.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    mTextPort.setEnabled(!isChecked);
-                    if (!isChecked)
-                        server.setPort(-1);
-                    else {
-                        try {
-                            server.setPort(Integer.parseInt(mTextPort.getText().toString()));
-                        } catch (Exception e) {
-                            Logger.LogWarning("Invalid Port: " + mTextPort.getText().toString());
-                        }
-                    }
-                }
-            });
-        }
-        return true;
+        return get(key);
     }
 
     public int getPort() {
         try {
-            return Integer.parseInt(mData.optString("port"));
+            String p = get("port", "-1");
+            if (p == null || "null".equals(p) || "".equals(p))
+                return -1;
+            return Integer.parseInt(p);
         } catch (NumberFormatException e) {
+            Logger.LogError("Invalid number for port? ", e);
             return -1;
         }
     }
@@ -396,8 +399,8 @@ public class OpenServer {
         ret += "://";
         if (!getUser().equals("")) {
             ret += getUser();
-            if (!getPassword().equals(""))
-                ret += ":" + getPassword();
+            // if (!getPassword().equals(""))
+            // ret += ":" + getPassword().replaceAll(".", "*");
             ret += "@";
         }
         ret += getHost();
@@ -406,4 +409,129 @@ public class OpenServer {
         ret += getPath();
         return ret;
     }
+
+    public long get(String key, long defValue) {
+        return mData.optLong(key, defValue);
+    }
+
+    @Override
+    public String getAbsolutePath() {
+        String ret = ""; //getType() + "://";
+        if(getUser() != null || getPassword() != null)
+        {
+            if(getUser() != null)
+                ret += Uri.encode(getUser());
+            if(getPassword() != null)
+                ret += ":" + Uri.encode(getPassword());
+            ret += "@";
+        }
+        if(getHost() != null)
+            ret += getHost();
+        if(getPort() > 0)
+            ret += ":" + getPort();
+        String p = getPath();
+        if(p != null)
+        {
+            if(!ret.endsWith("/") && !p.startsWith("/"))
+                ret += "/";
+            ret += p;
+            ret = ret.replace("//", "/");
+        }
+        if(getType().equals("dropbox"))
+            return "db://" + ret;
+        else
+            return getType() + "://" + ret;
+    }
+
+    @Override
+    public long length() {
+        return 0;
+    }
+
+    @Override
+    public OpenPath getParent() {
+        return null;
+    }
+
+    @Override
+    public OpenPath getChild(String name) {
+        return null;
+    }
+
+    @Override
+    public OpenPath[] list() throws IOException {
+        return null;
+    }
+
+    @Override
+    public OpenPath[] listFiles() throws IOException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Boolean isDirectory() {
+        return true;
+    }
+
+    @Override
+    public Boolean isFile() {
+        return false;
+    }
+
+    @Override
+    public Boolean isHidden() {
+        return false;
+    }
+
+    @Override
+    public Uri getUri() {
+        return null;
+    }
+
+    @Override
+    public Long lastModified() {
+        return null;
+    }
+
+    @Override
+    public Boolean canRead() {
+        return true;
+    }
+
+    @Override
+    public Boolean canWrite() {
+        return false;
+    }
+
+    @Override
+    public Boolean canExecute() {
+        return false;
+    }
+
+    @Override
+    public Boolean exists() {
+        return true;
+    }
+
+    @Override
+    public Boolean requiresThread() {
+        return true;
+    }
+
+    @Override
+    public Boolean delete() {
+        return false;
+    }
+
+    @Override
+    public Boolean mkdir() {
+        return false;
+    }
+
+    public boolean isDirty() {
+        return mDirty;
+    }
+    
+    public void clean() { mDirty = false; }
 }

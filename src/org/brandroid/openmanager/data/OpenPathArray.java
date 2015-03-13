@@ -33,12 +33,6 @@ public class OpenPathArray extends OpenPath {
     }
 
     @Override
-    public void setPath(String path) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public long length() {
         return children.length;
     }
@@ -127,15 +121,4 @@ public class OpenPathArray extends OpenPath {
     public Boolean mkdir() {
         return false;
     }
-
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return null;
-    }
-
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-        return null;
-    }
-
 }

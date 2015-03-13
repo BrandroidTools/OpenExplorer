@@ -26,18 +26,25 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Message;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Bitmap.Config;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.text.Html;
+import android.graphics.drawable.LayerDrawable;
+import android.text.ClipboardManager;
 import android.text.util.Linkify;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -48,35 +55,37 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.ViewParent;
 import android.view.WindowManager;
-import android.view.WindowManager.BadTokenException;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.Button;
-import android.widget.GridLayout;
-import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
@@ -91,28 +100,39 @@ import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 
 import org.brandroid.openmanager.R;
+import org.brandroid.openmanager.R.drawable;
+import org.brandroid.openmanager.R.string;
 import org.brandroid.openmanager.activities.OpenExplorer;
-import org.brandroid.openmanager.activities.SettingsActivity;
+import org.brandroid.openmanager.activities.ServerSetupActivity;
 import org.brandroid.openmanager.adapters.HeatmapAdapter;
 import org.brandroid.openmanager.adapters.IconContextMenu;
-import org.brandroid.openmanager.data.BookmarkHolder;
-import org.brandroid.openmanager.data.OpenFTP;
+import org.brandroid.openmanager.adapters.IconContextMenu.IconContextItemSelectedListener;
 import org.brandroid.openmanager.data.OpenMediaStore;
-import org.brandroid.openmanager.data.OpenNetworkPath;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenFile;
+import org.brandroid.openmanager.data.OpenPath.SpaceListener;
 import org.brandroid.openmanager.data.OpenSMB;
-import org.brandroid.openmanager.data.OpenServer;
-import org.brandroid.openmanager.data.OpenServers;
+import org.brandroid.openmanager.data.OpenPath.OpenPathSizable;
+import org.brandroid.openmanager.data.OpenPath.SpaceHandler;
 import org.brandroid.openmanager.interfaces.OpenApp;
+import org.brandroid.openmanager.util.EventHandler;
+import org.brandroid.openmanager.util.EventHandler.OnWorkerUpdateListener;
+import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.openmanager.util.HelpStringHelper;
+import org.brandroid.openmanager.util.InputDialog;
+import org.brandroid.openmanager.util.IntentManager;
+import org.brandroid.openmanager.util.MimeTypes;
 import org.brandroid.openmanager.util.OpenChromeClient;
 import org.brandroid.openmanager.util.ThumbnailCreator;
 import org.brandroid.utils.Logger;
+import org.brandroid.utils.MenuBuilder2;
 import org.brandroid.utils.MenuUtils;
 import org.brandroid.utils.Preferences;
+import org.brandroid.utils.SubmitStatsTask;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.actionbarsherlock.view.MenuItem;
 
@@ -155,7 +175,9 @@ public class DialogHandler {
             @Override
             public void OnHeatmapTasksComplete(long mTotalBytes, boolean allDone) {
                 mTotalSize.setText(app.getContext().getResources().getString(R.string.s_size)
-                        + ": " + formatSize(mTotalBytes) + (allDone ? "" : "..."));
+                        + ": " + OpenPath.formatSize(mTotalBytes) + (allDone ? "" : "..."));
+                if(allDone)
+                    adapter.notifyDataSetChanged();
             }
         });
 
@@ -172,52 +194,44 @@ public class DialogHandler {
 
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                OpenPath path = adapter.getItem(position);
-                IconContextMenu icm = new IconContextMenu(app.getContext(), R.menu.context_file,
-                        view);
+                final OpenPath path = adapter.getItem(position);
+                IconContextMenu icm = new IconContextMenu(app.getContext(), R.menu.context_heatmap, view);
+                icm.setOnIconContextItemSelectedListener(new IconContextItemSelectedListener() {
+					public void onIconContextItemSelected(IconContextMenu menu, MenuItem item,
+							Object info, View view) {
+						switch(item.getItemId())
+						{
+						    case R.id.menu_context_bookmark:
+						        OpenExplorer.addBookmark(app, path, null);
+						        break;
+						    case R.id.menu_context_copy:
+						        app.getClipboard().add(path);
+						        break;
+                            case R.id.menu_context_rename:
+                                OpenExplorer.getEventHandler().renameFile(path, path.isDirectory(), app.getContext());
+                                break;
+                            case R.id.menu_context_share:
+                                Intent shareIntent = new Intent(Intent.ACTION_VIEW);
+                                shareIntent.setType(path.getMimeType());
+                                shareIntent.putExtra(Intent.EXTRA_STREAM, path.getUri());
+                                app.getContext().startActivity(shareIntent);
+                                break;
+    						case R.id.menu_context_delete:
+    							OpenExplorer.getEventHandler().deleteFile(path, app, true);
+    							break;
+						}
+					}
+				});
                 icm.show();
                 return true;
             }
         });
 
         lv.setAdapter(adapter);
+        
+        v.setTag(adapter);
 
         return v;
-    }
-
-    public static String formatSize(long size) {
-        return formatSize(size, true);
-    }
-
-    public static String formatSize(long size, boolean includeUnits) {
-        return formatSize(size, 2, includeUnits);
-    }
-
-    public static String formatSize(long size, int decimalPoints) {
-        return formatSize(size, decimalPoints, true);
-    }
-
-    public static String formatSize(long size, int decimalPoints, boolean includeUnits) {
-        int kb = 1024;
-        int mb = kb * 1024;
-        int gb = mb * 1024;
-        String ssize = "";
-
-        int factor = (10 ^ decimalPoints);
-
-        if (size < kb)
-            ssize = size + " B";
-        else if (size > kb && size < mb)
-            ssize = ((double)Math.round(((double)size / kb) * factor) / factor)
-                    + (includeUnits ? " KB" : "");
-        else if (size > mb && size < gb)
-            ssize = ((double)Math.round(((double)size / mb) * factor) / factor)
-                    + (includeUnits ? " MB" : "");
-        else if (size > gb)
-            ssize = ((double)Math.round(((double)size / gb) * factor) / factor)
-                    + (includeUnits ? " GB" : "");
-
-        return ssize;
     }
 
     public static void populateFileInfoViews(OpenApp app, View v, OpenPath file) throws IOException {
@@ -244,11 +258,24 @@ public class DialogHandler {
         // }
 
         // ((TextView)v.findViewById(R.id.info_name_label)).setText(file.getName());
+        
         ((TextView)v.findViewById(R.id.info_time_stamp)).setText(date.toString());
         ((TextView)v.findViewById(R.id.info_path_label)).setText(file.getPath());
+        v.findViewById(R.id.info_path_label).setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				ClipboardManager clip = (ClipboardManager)v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+				clip.setText(((TextView)v).getText());
+				Toast.makeText(v.getContext(), R.string.s_alert_clipboard, Toast.LENGTH_SHORT).show();
+			}
+		});
         ((TextView)v.findViewById(R.id.info_read_perm)).setText(file.canRead() + "");
         ((TextView)v.findViewById(R.id.info_write_perm)).setText(file.canWrite() + "");
         ((TextView)v.findViewById(R.id.info_execute_perm)).setText(file.canExecute() + "");
+        ViewUtils.setText(v, file.getMimeType(), R.id.info_mime);
+        
+        ViewUtils.setViewsVisible(v, file.isDirectory(), R.id.info_dirs_row1, R.id.info_dirs_row2);
 
         if (file.isDirectory())
             ((ImageView)v.findViewById(R.id.info_icon)).setImageResource(R.drawable.lg_folder);
@@ -294,11 +321,10 @@ public class DialogHandler {
                 if (bFirst)
                     firstDirs++;
                 try {
-                    for (OpenPath f : p.list())
-                        addPath(f, false);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    if(p != null)
+                        for (OpenPath f : p.list())
+                            addPath(f, false);
+                } catch (Exception e) {
                 }
             }
             if (fileCount + dirCount % 50 == 0)
@@ -308,8 +334,8 @@ public class DialogHandler {
         @Override
         protected void onProgressUpdate(Integer... values) {
             updateTexts(mTextFiles, fileCount, mTextDirs, dirCount, mTextSize,
-                    formatSize(totalSize), mTextFree, formatSize(freeSize), mTextTotal,
-                    formatSize(diskTotal));
+                    OpenPath.formatSize(totalSize), mTextFree, OpenPath.formatSize(freeSize), mTextTotal,
+                    OpenPath.formatSize(diskTotal));
         }
 
         @Override
@@ -324,29 +350,22 @@ public class DialogHandler {
 
             publishProgress();
 
-            if (path instanceof OpenFile) {
-                freeSize = ((OpenFile)path).getFreeSpace();
-                diskTotal = ((OpenFile)path).getTotalSpace();
+            if (path instanceof OpenPathSizable && ((OpenPathSizable)path).getTotalSpace() > 0) {
+                freeSize = ((OpenPathSizable)path).getTotalSpace() - ((OpenPathSizable)path).getUsedSpace();
+                diskTotal = ((OpenPathSizable)path).getTotalSpace();
                 publishProgress();
+            } else if (path instanceof SpaceHandler) {
+                ((SpaceHandler)path).getSpace(new SpaceListener() {
+                    public void onException(Exception e) {
+                    }
+                    public void onSpaceReturned(long total, long used, long third) {
+                        updateTexts(mTextTotal, OpenPath.formatSize(total), mTextFree, OpenPath.formatSize(total - used));
+                    }
+                });
             } else if (path instanceof OpenMediaStore) {
                 OpenMediaStore ms = (OpenMediaStore)path;
                 freeSize = ms.getFile().getFreeSpace();
                 diskTotal = ms.getFile().getTotalSpace();
-                publishProgress();
-            } else if (path instanceof OpenSMB) {
-                try {
-                    SmbFile smb = ((OpenSMB)path).getFile();
-                    freeSize = smb.getDiskFreeSpace();
-                    String server = smb.getServer();
-                    if (server == null)
-                        diskTotal = smb.length();
-                    else
-                        diskTotal = new SmbFile((server.startsWith("smb://") ? "" : "smb://")
-                                + server + (server.endsWith("/") ? "" : "/")).length();
-                } catch (SmbException e) {
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
                 publishProgress();
             }
 
@@ -356,7 +375,7 @@ public class DialogHandler {
             String[] ret = new String[] {
                     firstDirs + (dirCount > firstDirs ? " (" + dirCount + ")" : ""),
                     firstFiles + (fileCount > firstFiles ? " (" + fileCount + ")" : ""),
-                    formatSize(totalSize), formatSize(freeSize), formatSize(diskTotal)
+                    OpenPath.formatSize(totalSize), OpenPath.formatSize(freeSize), OpenPath.formatSize(diskTotal)
             };
             return ret;
         }
@@ -423,15 +442,24 @@ public class DialogHandler {
     public static void showFileHeatmap(final OpenApp app, final OpenPath path) {
         final Context mContext = app.getContext();
         try {
-            new AlertDialog.Builder(mContext)
-                    .setView(
-                            createFileHeatmapDialog(app, (LayoutInflater)mContext
-                                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE), path))
+        	final View mHeatmap = createFileHeatmapDialog(app, (LayoutInflater)mContext
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE), path);
+            AlertDialog dlg = new AlertDialog.Builder(mContext)
+                    .setView(mHeatmap)
                     .setTitle(path.getName())
                     .setIcon(
                             new BitmapDrawable(mContext.getResources(), path.getThumbnail(app,
                                     ContentFragment.mListImageSize, ContentFragment.mListImageSize)
-                                    .get())).create().show();
+                                    .get()))
+                    .create();
+            dlg.setOnDismissListener(new DialogInterface.OnDismissListener() {
+				public void onDismiss(DialogInterface dialog) {
+					Object o = mHeatmap.getTag();
+					if(o != null && o instanceof HeatmapAdapter)
+						((HeatmapAdapter)o).cancelTasks();
+				}
+			});
+            dlg.show();
         } catch (Exception e) {
             Logger.LogError("Couldn't show File Info.", e);
         }
@@ -498,11 +526,13 @@ public class DialogHandler {
      * @param preferences Preferences object from which to pull pref_key. This
      *            will be placed in the "warn" SharedPreference.
      * @param pref_key Preference Key holding whether or not to show warning.
+     * @param hideNo Boolean to either hide No or Yes when "Always Remember"
+     *            is checked.
      * @param onYes Callback for when Yes is chosen. This will be called
      *            automatically if "Do not ask again" is selected.
      */
     public static void showConfirmationDialog(Context context, String text, String title,
-            final Preferences preferences, final String pref_key,
+            final Preferences preferences, final String pref_key, final boolean hideNo,
             final DialogInterface.OnClickListener onYes) {
 
         if (!preferences.getBoolean("warn", pref_key, false)) {
@@ -518,12 +548,23 @@ public class DialogHandler {
                 public void onClick(View v) {
                     if (v.getId() == R.id.confirm_remember) {
                         CheckBox me = (CheckBox)v;
+                        Logger.LogInfo("Confirm." + pref_key + ": " + (me.isChecked() ? "Remember" : "Forget"));
                         preferences.setSetting("warn", pref_key, me.isChecked());
-                        ViewUtils.setViewsEnabled(layout, !me.isChecked(), R.id.confirm_no);
+                        ViewUtils.setViewsEnabled(layout, !me.isChecked(),
+                                hideNo ? R.id.confirm_no : R.id.confirm_yes);
                     } else if (v.getId() == R.id.confirm_no) {
-                        preferences.setSetting("warn", pref_key, false);
+                        Logger.LogInfo("Confirm." + pref_key + ": NO");
+                        preferences.setSetting(null, "confirm_" + pref_key, true);
+                        if(hideNo)
+                            preferences.setSetting("warn", pref_key, false);
                         dialog.dismiss();
+                        if(!hideNo)
+                            onYes.onClick(dialog, DialogInterface.BUTTON_NEGATIVE);
                     } else if (v.getId() == R.id.confirm_yes) {
+                        Logger.LogInfo("Confirm." + pref_key + ": YES");
+                        preferences.setSetting(null, "confirm_" + pref_key, true);
+                        if(!hideNo)
+                            preferences.setSetting("warn", pref_key, false);
                         onYes.onClick(dialog, DialogInterface.BUTTON_POSITIVE);
                     }
                 }
@@ -532,7 +573,185 @@ public class DialogHandler {
             if (context != null)
                 dialog.show();
         } else
-            onYes.onClick(null, DialogInterface.BUTTON_POSITIVE);
+            onYes.onClick(null, hideNo ? DialogInterface.BUTTON_POSITIVE : DialogInterface.BUTTON_NEGATIVE);
+    }
+
+    public static void showExtractDialog(final OpenExplorer app, String title, final OpenPath file,
+            final String pref_key, final DialogInterface.OnClickListener onClick) {
+
+        final Context context = app.getContext();
+        final Preferences preferences = new Preferences(context);
+        final LinearLayout view = new LinearLayout(context);
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        view.setOrientation(LinearLayout.VERTICAL);
+
+        String[] keys2 = context.getResources()
+                .getStringArray(R.array.archive_handler_options);
+        String[] vals2 = context.getResources()
+                .getStringArray(R.array.archive_handler_values);
+        LinkedHashMap<String, CharSequence> opts = new LinkedHashMap<String, CharSequence>();
+        for (int i = 0; i < keys2.length; i++)
+            opts.put(vals2[i], keys2[i]);
+        opts.remove("ask");
+        boolean hasIntents = IntentManager.getIntentsAvailable(file, app) > 0;
+        if (!hasIntents)
+            opts.remove("external");
+
+        //if(file.getMimeType().contains("gz") || file.getMimeType().contains("bz"))
+        //    opts.remove("browse");
+
+        final String[] keys = opts.keySet().toArray(new String[opts.size()]);
+        final CharSequence[] csVals = opts.values().toArray(new CharSequence[opts.size()]);
+
+        String mDefault = preferences.getString("global", pref_key, (String)null);
+        if (mDefault != null)
+        {
+            if (mDefault.equals("external"))
+                if (IntentManager.startIntent(file, app))
+                    return;
+            if (mDefault.equals("browse"))
+            {
+                onClick.onClick(null, R.string.s_browse);
+                return;
+            }
+            else if (mDefault.equals("extract"))
+            {
+                onClick.onClick(null, R.string.s_extract);
+                return;
+            }
+        }
+
+        final Preferences prefs = new Preferences(context);
+        final CheckBox cbRemember = new CheckBox(context);
+        final Builder builder = new AlertDialog.Builder(context).setTitle(title)
+                .setView(view);
+        builder.setItems(csVals, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (cbRemember != null && cbRemember.isChecked())
+                    preferences.setSetting("global", pref_key, keys[which]);
+                if (keys[which].equals("external")) {
+                    IntentManager.startIntent(file, app);
+                } else
+                    onClick.onClick(dialog, getWhichArchiveHandler(keys[which]));
+            }
+        });
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+                if (dialog != null)
+                    dialog.dismiss();
+            }
+        });
+
+        final AlertDialog dialog = builder.create();
+
+        final LinearLayout btns = new LinearLayout(context);
+        if (hasIntents)
+        {
+            btns.setOrientation(LinearLayout.HORIZONTAL);
+            int i = 0;
+            for (ResolveInfo ri : IntentManager.getResolvesAvailable(file, app))
+            {
+                String pkg = ri.activityInfo.packageName;
+                if (pkg.contains("org.brandroid.openmanager"))
+                    continue;
+                final Intent intent = IntentManager.getIntent(file, app);
+                intent.setPackage(pkg);
+                Drawable icon = ri.loadIcon(app.getPackageManager());
+                final CharSequence lbl = ri.loadLabel(app.getPackageManager());
+                ImageButton btn = new ImageButton(context);
+                if (icon instanceof BitmapDrawable)
+                {
+                    Bitmap bmp = ((BitmapDrawable)icon).getBitmap();
+                    int h = context.getResources().getDimensionPixelSize(R.dimen.list_icon_size);
+                    if (bmp.getHeight() > h || bmp.getWidth() > h)
+                        bmp = Bitmap.createScaledBitmap(bmp, h, h, true);
+                    else {
+                        Bitmap cb = Bitmap.createBitmap(h, h, Config.ARGB_8888);
+                        Canvas c = new Canvas(cb);
+                        Paint p = new Paint();
+                        c.drawBitmap(bmp, (bmp.getWidth() - h) / 2, ((bmp.getHeight() - h) / 2), p);
+                        bmp = cb;
+                    }
+                    icon = new BitmapDrawable(context.getResources(), bmp);
+                }
+                //Button btn = new Button(context);
+                btn.setBackgroundResource(android.R.drawable.list_selector_background);
+                btn.setImageDrawable(icon);
+                btn.setPadding(8, 8, 8, 8);
+                btn.setOnLongClickListener(new View.OnLongClickListener() {
+                    public boolean onLongClick(View v) {
+                        Toast.makeText(v.getContext(), lbl, Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                });
+                //btn.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
+                //btn.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+                btn.setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        try {
+                            app.startActivity(intent);
+                            dialog.dismiss();
+                        } catch (Exception e) {
+                        }
+                    }
+                });
+                //if(i++ > 0)
+                //    btns.addView(makeDivider(context, false));
+                btns.addView(btn);
+            }
+            view.addView(makeDivider(context, true));
+            view.addView(btns);
+        }
+
+        view.addView(makeDivider(context, true));
+
+        CheckBox mDeleteAfter = new CheckBox(context);
+        mDeleteAfter.setText(R.string.s_delete_after);
+        if (prefs.getBoolean("global", "pref_archive_postdelete", false))
+            mDeleteAfter.setChecked(true);
+        mDeleteAfter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                prefs.setSetting("global", "pref_archive_postdelete", isChecked);
+                if (btns != null)
+                    ViewUtils.setEnabled(btns, !isChecked);
+            }
+        });
+        view.addView(mDeleteAfter);
+        cbRemember.setText(R.string.s_wtf_remember);
+        view.addView(cbRemember);
+
+        //ViewUtils.setText(layout, text, R.id.confirm_message);
+        //ViewUtils.setViewsVisible(layout, false, R.id.confirm_buttons);
+
+        if (context != null)
+            dialog.show();
+    }
+
+    private static View makeDivider(Context context, boolean horizontal)
+    {
+        View sep = new View(context);
+        LayoutParams lp = null;
+        if (horizontal)
+            lp = new LayoutParams(LayoutParams.MATCH_PARENT, 3);
+        else
+            lp = new LayoutParams(3, LayoutParams.MATCH_PARENT);
+        sep.setLayoutParams(lp);
+        sep.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
+        return sep;
+    }
+
+    private static int getWhichArchiveHandler(String which)
+    {
+        if (which.equals("browse"))
+            return R.string.s_browse;
+        if (which.equals("extract"))
+            return R.string.s_extract;
+        if (which.equals("external"))
+            return R.string.s_external;
+        if (which.equals("ask"))
+            return R.string.s_ask_again;
+        return 0;
     }
 
     public static View inflate(Context context, int layoutId) {
@@ -666,14 +885,14 @@ public class DialogHandler {
 
     public static AlertDialog showPickerDialog(final Context context, String title, OpenPath path,
             final PickerFragment.OnOpenPathPickedListener onPickListener) {
-        final PickerFragment picker = new PickerFragment(context,
-                OpenFile.getExternalMemoryDrive(true));
+        final PickerFragment picker =
+                PickerFragment.getInstance(OpenFile.getExternalMemoryDrive(true));
         picker.setOnOpenPathPickedListener(onPickListener);
         Bundle args = new Bundle();
         args.putParcelable("start", OpenFile.getExternalMemoryDrive(true));
         View view = picker.onCreateView(
-                (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE), null,
-                args);
+                (LayoutInflater)context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE), null, args);
         picker.setDefaultName(path.getName());
         picker.onViewCreated(view, args);
         return new AlertDialog.Builder(context).setTitle(title).setView(view)
@@ -752,7 +971,7 @@ public class DialogHandler {
                 });
                 intent.putExtra(android.content.Intent.EXTRA_SUBJECT, sSubject);
                 try {
-                    OpenFile fAttach = SettingsActivity.GetDefaultServerFile(mContext).getParent()
+                    OpenFile fAttach = ServerSetupActivity.GetDefaultServerFile(mContext).getParent()
                             .getChild("oe_logs.txt");
                     ArrayList<Uri> uris = new ArrayList<Uri>();
                     uris.add(fAttach.getUri());
@@ -788,6 +1007,23 @@ public class DialogHandler {
                 mRecent.setVisibility(View.GONE);
                 mRecentLabel.setVisibility(View.GONE);
             }
+            
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if(url.toLowerCase().endsWith("apk"))
+                {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(url));
+                    if(IntentManager.getResolvesAvailable(intent, mApp).size() > 0)
+                    {
+                        mApp.getContext().startActivity(intent);
+                        return true;
+                    }
+                }
+                view.loadUrl(url);
+                return true;
+            }
+            
         });
         mRecent.setBackgroundColor(Color.TRANSPARENT);
         mRecent.loadUrl("http://brandroid.org/open/?show=recent");
@@ -948,188 +1184,131 @@ public class DialogHandler {
         return ret;
     }
 
-    public static String getLangCode() {
-        String lang = Locale.getDefault().toString().toUpperCase();
-        if (lang.length() > 2)
-            lang = lang.substring(0, 2);
-        return lang;
-    }
-
     public static String getDeviceInfo() {
         String ret = "";
         String sep = "\n";
         ret += sep + "Build Info:" + sep;
-        ret += "SDK: " + Build.VERSION.SDK_INT + sep;
-        if (OpenExplorer.SCREEN_WIDTH > -1)
-            ret += "Screen: " + OpenExplorer.SCREEN_WIDTH + "x" + OpenExplorer.SCREEN_HEIGHT + sep;
-        if (OpenExplorer.SCREEN_DPI > -1)
-            ret += "DPI: " + OpenExplorer.SCREEN_DPI + sep;
-        ret += "Lang: " + getLangCode() + sep;
+        JSONObject json = SubmitStatsTask.getDeviceInfo();
+        JSONArray keys = json.names();
+        for(int i = 0; i < keys.length(); i++)
+        {
+            String key = keys.optString(i);
+            ret += key + ": " + json.optString(key) + sep;
+        }
         ret += "Runs: " + Preferences.Run_Count + sep;
-        ret += "Fingerprint: " + Build.FINGERPRINT + sep;
-        ret += "Manufacturer: " + Build.MANUFACTURER + sep;
-        ret += "Model: " + Build.MODEL + sep;
-        ret += "Product: " + Build.PRODUCT + sep;
-        ret += "Brand: " + Build.BRAND + sep;
-        ret += "Board: " + Build.BOARD + sep;
-        ret += "Bootloader: " + Build.BOOTLOADER + sep;
-        ret += "Hardware: " + Build.HARDWARE + sep;
-        ret += "Display: " + Build.DISPLAY + sep;
-        ret += "Language: " + Locale.getDefault().getDisplayLanguage() + sep;
-        ret += "Country: " + Locale.getDefault().getDisplayCountry() + sep;
-        ret += "Tags: " + Build.TAGS + sep;
-        ret += "Type: " + Build.TYPE + sep;
-        ret += "User: " + Build.USER + sep;
-        if (Build.UNKNOWN != null)
-            ret += "Unknown: " + Build.UNKNOWN + sep;
-        ret += "ID: " + Build.ID;
         return ret;
     }
 
-    public static String formatDuration(long ms) {
-        int s = (int)(ms / 1000), m = s / 60, h = m / 60;
-        m = m % 60;
-        s = s % 60;
-        return (ms > 360000 ? h + ":" : "")
-                + (ms > 6000 ? (h == 0 || m >= 10 ? "" : "0") + m + ":" : "")
-                + (ms > 6000 ? (s >= 10 ? "" : "0") + s : (ms < 1000 ? ms + "ms" : s + "s"));
-    }
-
-    public static void showServerWarning(final Context context) {
+    public static boolean showServerWarning(final Context context) {
         if (Preferences.Warn_Networking)
-            return;
+            return false;
         Preferences.Warn_Networking = true;
         showWarning(context, R.string.warn_networking, 20, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 new Preferences(context).setSetting("warn", "networking", true);
             }
         });
-    }
-
-    public static boolean showServerDialog(final OpenApp app, final OpenFTP mPath,
-            final BookmarkHolder mHolder, final boolean allowShowPass) {
-        return DialogHandler.showServerDialog(app, mPath.getServersIndex(), -1, mHolder,
-                allowShowPass);
-    }
-
-    public static boolean showServerDialog(final OpenApp app, final OpenNetworkPath mPath,
-            final BookmarkHolder mHolder, final boolean allowShowPass) {
-        return DialogHandler.showServerDialog(app, mPath.getServersIndex(), -1, mHolder,
-                allowShowPass);
-    }
-
-    public static boolean showServerDialog(final OpenApp app, final int iServersIndex,
-            int serverType, final BookmarkHolder mHolder, final boolean allowShowPass) {
-        final Context context = app.getContext();
-        final OpenServers servers = SettingsActivity.LoadDefaultServers(context);
-        final OpenServer server = iServersIndex > -1 ? servers.get(iServersIndex)
-                : new OpenServer().setName("New Server");
-        if (serverType > -1) {
-            if (serverType == 0)
-                server.setType("ftp");
-            else if (serverType == 1)
-                server.setType("sftp");
-            else if (serverType == 2)
-                server.setType("smb");
-        } else if (server.getType().equals("ftp"))
-            serverType = 0;
-        else if (server.getType().equals("sftp"))
-            serverType = 1;
-        else if (server.getType().equals("smb"))
-            serverType = 2;
-        LayoutInflater inflater = (LayoutInflater)context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View v = inflater.inflate(R.layout.server, null);
-        if (!OpenServer.setupServerDialog(server, iServersIndex, v))
-            return false;
-        int addStrId = iServersIndex >= 0 ? R.string.s_update : R.string.s_add;
-        final AlertDialog dialog = new AlertDialog.Builder(context)
-                .setView(v)
-                .setIcon(
-                        mHolder != null && mHolder.getIcon(app) != null ? mHolder.getIcon(app)
-                                : context.getResources().getDrawable(R.drawable.sm_ftp))
-                .setNegativeButton(context.getString(R.string.s_cancel), OnClickDismiss)
-                .setNeutralButton(context.getString(R.string.s_remove),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (iServersIndex > -1)
-                                    servers.remove(iServersIndex);
-                                dialog.dismiss();
-                                app.refreshBookmarks();
-                            }
-                        })
-                .setPositiveButton(context.getString(addStrId),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (iServersIndex > -1)
-                                    servers.set(iServersIndex, server);
-                                else
-                                    servers.add(server);
-                                SettingsActivity.SaveToDefaultServers(servers, context);
-                                app.refreshBookmarks();
-                                dialog.dismiss();
-                            }
-                        }).setTitle(server.getName()).create();
-        if (iServersIndex == -1)
-            dialog.setButton(AlertDialog.BUTTON_NEUTRAL, null, (Message)null);
-        /*
-         * context.getString(R.string.test), new
-         * DialogInterface.OnClickListener() {
-         * @Override public void onClick(DialogInterface dialog, int which) {
-         * OpenPath path = FileManager.getOpenCache(server.toString()); try {
-         * ((OpenNetworkPath)path).connect(); Toast.makeText(context,
-         * R.string.test_success, Toast.LENGTH_LONG); } catch(Exception e) {
-         * Toast.makeText(context, R.string.httpError, Toast.LENGTH_LONG); } }
-         * });
-         */
-
-        final AutoCompleteTextView mServerHost = (AutoCompleteTextView)v
-                .findViewById(R.id.text_server);
-        final ArrayList<String> mHosts = new ArrayList<String>();
-        final ArrayAdapter<String> mHostAdapter = new ArrayAdapter<String>(context,
-                android.R.layout.simple_dropdown_item_1line, mHosts);
-        if (mServerHost != null)
-            mServerHost.setAdapter(mHostAdapter);
-
-        final int iServerType = serverType;
-        final int[] OnlyOnSMB = new int[] {}; // R.id.server_drop,
-                                              // R.id.server_scan};
-        final int[] NotOnSMB = new int[] {
-                R.id.text_path, R.id.text_path_label, R.id.text_port, R.id.label_port,
-                R.id.check_port
-        };
-        if (OnlyOnSMB.length > 0)
-            ViewUtils.setViewsVisible(v, serverType == 2, OnlyOnSMB);
-        if (NotOnSMB.length > 0)
-            ViewUtils.setViewsVisible(v, serverType != 2, NotOnSMB);
-
-        final Spinner mServerType = (Spinner)v.findViewById(R.id.server_type);
-        mServerType.setOnItemSelectedListener(new OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (OnlyOnSMB.length > 0)
-                    ViewUtils.setViewsVisible(v, position == 2, OnlyOnSMB);
-                if (NotOnSMB.length > 0)
-                    ViewUtils.setViewsVisible(v, position != 2, NotOnSMB);
-                server.setType("ftp");
-                if (position == 1)
-                    server.setType("sftp");
-                if (position == 2)
-                    server.setType("smb");
-            }
-
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-        mServerType.setSelection(serverType);
-
-        try {
-            dialog.show();
-            showServerWarning(context);
-        } catch (BadTokenException e) {
-            Logger.LogError("Couldn't show dialog.", e);
-            return false;
-        }
         return true;
     }
+    
+    private static Drawable getFileTypeDrawable(int type, Context context)
+    {
+    	int res = R.drawable.sm_folder;
+    	switch(type)
+    	{
+    	case 1: res = R.drawable.sm_paper; break;
+    	}
+    	return context.getResources().getDrawable(res);
+    }
+    
+    public static void showNewFileTypeDialog(final Context context, DialogInterface.OnClickListener onclick)
+    {
+    	ArrayList<CharSequence> mTypes = new ArrayList<CharSequence>();
+		for(String t : context.getResources().getStringArray(R.array.file_types))
+			mTypes.add(t);
+		ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(context,
+				android.R.layout.simple_list_item_1, mTypes) {
+			@Override
+			public View getView(int position, View convertView,
+					ViewGroup parent) {
+				View ret = super.getView(position, convertView, parent);
+				Drawable d = getFileTypeDrawable(position, context);
+				Drawable plus = context.getResources().getDrawable(R.drawable.ic_menu_add_layer);
+				LayerDrawable ld = new LayerDrawable(new Drawable[]{d, plus});
+				if(ret instanceof TextView)
+				{
+					((TextView)ret).setCompoundDrawablePadding(8);
+					((TextView)ret).setCompoundDrawablesWithIntrinsicBounds(ld, null, null, null);
+				}
+				return ret;
+			}
+		};
+		new AlertDialog.Builder(context)
+			.setTitle(R.string.s_add)
+			.setAdapter(adapter, onclick)
+			.setNegativeButton(R.string.s_cancel, onclick)
+			.create()
+			.show();
+    }
+
+	public static void showNewFileDialog(final OpenPath folder, final Context context,
+	        final OnWorkerUpdateListener threadListener, int initialType) {
+		showNewFileTypeDialog(context, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				if(which >= 0)
+					showNewFileOfTypeDialog(folder, context, threadListener, which);
+			}
+		});
+	}
+		
+	public static void showNewFileOfTypeDialog(final OpenPath folder, final Context context,
+	        final OnWorkerUpdateListener threadListener, final int type) {
+    	final InputDialog dlg = new InputDialog(context)
+				.setTitle(type == 0 ? R.string.s_title_newfolder : R.string.s_title_newfile)
+	            .setIcon(getFileTypeDrawable(type, context))
+	            .setNegativeButton(R.string.s_cancel,
+	            		new DialogInterface.OnClickListener() {
+		                public void onClick(DialogInterface dialog, int which) {
+		                    dialog.dismiss();
+		                }
+		            });
+	    dlg.setPositiveButton(R.string.s_create, new DialogInterface.OnClickListener() {
+	        public void onClick(DialogInterface dialog, int which) {
+	        	String name = dlg.getInputText();
+	            if (name.length() == 0) { dialog.dismiss(); return; }
+	            switch(type)
+	            {
+	            case 0: // new folder
+	            	if (!folder.getChild(name).exists()) {
+	                    if (!EventHandler.createNewFolder(folder, name, context)) {
+	                        // new folder wasn't created, and since we've
+	                        // already ruled out an existing folder, the folder
+	                        // can't be created for another reason
+	                        OpenPath path = folder.getChild(name);
+	                        Logger.LogError("Unable to create folder (" + path + ")");
+	                        if (threadListener != null)
+	                            threadListener.onWorkerThreadFailure(EventHandler.MKDIR_TYPE);
+	                        Toast.makeText(context, R.string.s_msg_folder_none, Toast.LENGTH_LONG)
+	                                .show();
+	                    } else {
+	                        if (threadListener != null)
+	                            threadListener.onWorkerThreadComplete(EventHandler.MKDIR_TYPE);
+	                    }
+	                } else {
+	                    // folder exists, so let the user know
+	                    Toast.makeText(context,
+	                            EventHandler.getResourceString(context, R.string.s_msg_folder_exists),
+	                            Toast.LENGTH_SHORT).show();
+	                }
+	            	break;
+	            case 1: // text file:
+	            	EventHandler.createNewFile(folder, name, threadListener);
+	            	break;
+	            }
+	            
+	        }
+	    });
+	    dlg.create().show();
+	}
 
 }

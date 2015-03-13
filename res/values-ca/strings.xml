@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<resources>
+    <string name="app_name">Obriu l\'Explorador</string>
+    <string name="s_photos" auto="1">Fotos</string>
+    <string name="s_videos" auto="1">Videos</string>
+    <string name="s_music" auto="1">Música</string>
+    <string name="s_downloads" auto="1">Descàrregues</string>
+    <string name="s_external" auto="1">Extern</string>
+    <string name="s_internal" auto="1">Intern</string>
+    <string name="s_view" auto="1">Veure</string>
+    <string name="s_bookmarks" auto="1">Marcadors</string>
+    <string name="s_menu_favorites" auto="1">Marcadors Toggle</string>
+    <string name="s_menu_sort">Ordenament</string>
+    <string name="s_menu_sort_name_asc" auto="1">Ordenar per nom (A-Z)</string>
+    <string name="s_menu_sort_name_desc" auto="1">Ordenar per Nom (Z-A)</string>
+    <string name="s_menu_sort_date_asc" auto="1">Ordena per Les més recent</string>
+    <string name="s_menu_sort_date_desc" auto="1">Ordenar per més vell</string>
+    <string name="s_menu_sort_size_asc" auto="1">Ordenar de major a</string>
+    <string name="s_menu_sort_size_desc" auto="1">Ordenar per més petit</string>
+    <string name="s_menu_sort_type" auto="1">Ordenar per tipus de fitxer</string>
+    <string name="s_menu_multi" auto="1">De selecció múltiple</string>
+    <string name="s_menu_grid">Vista de Quadricula</string>
+    <string name="s_menu_list" auto="1">Veure la llista de</string>
+    <string name="s_menu_carousel" auto="1">Carrusel</string>
+    <string name="s_menu_hidden" auto="1">Mostra fitxers ocults</string>
+    <string name="s_menu_thumbs" auto="1">Mostra miniatures d\'imatge</string>
+    <string name="s_menu_new_folder" auto="1">Carpeta nova</string>
+    <string name="s_menu_other" auto="1">Altres ajustos</string>
+    <string name="s_menu_flush" auto="1">Buidar memòria cau</string>
+    <string name="s_menu_root" auto="1">Arrel</string>
+    <string name="s_menu_prefs_folder" auto="1">Preferències de carpeta</string>
+    <string name="s_menu_prefs_global" auto="1">Preferències globals</string>
+    <string name="s_menu_info" auto="1">Info</string>
+    <string name="s_menu_copy" auto="1">Copiar</string>
+    <string name="s_menu_cut" auto="1">Tallar</string>
+    <string name="s_menu_paste" auto="1">Enganxar</string>
+    <string name="s_menu_delete" auto="1">Esborrar</string>
+    <string name="s_menu_share" auto="1">Enviar / Compartir ...</string>
+    <string name="s_menu_zip">Comprimeix amb zip els-fitxer(s) ...</string>
+    <string name="s_menu_unzip" auto="1">Descomprimir ...</string>
+    <string name="s_menu_rename" auto="1">Canviar el nom de ...</string>
+    <string name="s_menu_bookmark" auto="1">Afegir a Favorits</string>
+    <string name="s_save">Desa</string>
+    <string name="s_saveas" auto="1">Guardar com ...</string>
+    <string name="s_cancel" auto="1">Cancel · lar</string>
+    <string name="s_size" auto="1">Mida</string>
+    <string name="s_none" auto="1">Cap</string>
+    <string name="s_pref_servers" auto="1">Servidors addicionals</string>
+    <string name="s_pref_server_add" auto="1">+ Afegir nou servidor</string>
+    <string name="s_pref_display" auto="1">Preferències de visualització</string>
+    <string name="s_pref_hidden" auto="1">Mostra fitxers ocults</string>
+    <string name="s_pref_hidden_summary" auto="1">Mostra fitxers i carpetes ocults</string>
+    <string name="s_pref_thumbs" auto="1">Mostra miniatures d\'imatge</string>
+    <string name="s_pref_thumbs_summary" auto="1">Mostra una vista en miniatura dels arxius d\'imatge / vídeo i / o Aplicacions</string>
+    <string name="s_pref_view" auto="1">Mode de visualització</string>
+    <string name="s_pref_view_summary" auto="1">Mostra els fitxers en una xarxa, llista o carrusel (Bresca només)</string>
+    <string name="s_pref_sort" auto="1">Classificació</string>
+    <string name="s_pref_sort_summary" auto="1">Tria la forma d\'ordenar els arxius i carpetes</string>
+    <string name="s_pref_advanced" auto="1">Avançat</string>
+    <string name="s_pref_server_name" auto="1">Nom del servidor</string>
+    <string name="s_pref_server_name_summary" auto="1">Introduïu el nom del servidor</string>
+    <string name="s_pref_server_url" auto="1">URL del servidor</string>
+    <string name="s_pref_server_url_summary" auto="1">Escriviu la URL completa del servidor</string>
+    <string name="s_pref_server_host" auto="1">Servidor host</string>
+    <string name="s_pref_server_user" auto="1">Usuari</string>
+    <string name="s_pref_server_user_summary" auto="1">Nom d\'usuari</string>
+    <string name="s_pref_server_password" auto="1">Contrasenya</string>
+    <string name="s_pref_server_password_summary" auto="1">Inici de sessió Contrasenya</string>
+    <string name="s_pref_server_path" auto="1">Subdirectori</string>
+    <string name="s_pref_server_path_summary" auto="1">Introduïu el camí per defecte d\'inici de sessió</string>
+    <string name="s_pref_server_extras" auto="1">Configuració extra</string>
+    <string name="s_pref_server_update" auto="1">Afegir / Actualitzar servidor</string>
+    <string name="s_pref_server_type" auto="1">Tipus de servidor</string>
+    <string name="s_files" auto="1">arxius</string>
+    <string name="s_create">Crea</string>
+    <string name="s_title_holding_x_files" formatted="false" auto="1">Celebració dels arxius %s</string>
+    <string name="s_title_newfolder" auto="1">Creeu una nova carpeta</string>
+    <string name="s_title_send" formatted="false" auto="1">Enviar %s</string>
+    <string name="s_title_unzip" formatted="false" auto="1">Descomprimir %s</string>
+    <string name="s_title_zip" formatted="false" auto="1">Zip %s</string>
+    <string name="s_title_executing" auto="1">Execució</string>
+    <string name="s_title_deleting" auto="1">Eliminació de</string>
+    <string name="s_title_searching" auto="1">Cerca</string>
+    <string name="s_title_moving" auto="1">Moure</string>
+    <string name="s_title_copying" auto="1">Còpia</string>
+    <string name="s_title_zipping" auto="1">Comprimir</string>
+    <string name="s_title_unzipping" auto="1">Descomprimir</string>
+    <string name="s_title_wait" auto="1">Si us plau, espereu ...</string>
+    <string name="s_alert_confirm_delete" formatted="false" auto="1">Eliminar %s no es pot desfer. Esteu segur que voleu continuar?</string>
+    <string name="s_alert_rename" auto="1">Si us plau, escriviu el nou nom d\'aquest arxiu</string>
+    <string name="s_alert_newfolder" auto="1">Escriviu el nom de la carpeta que voleu crear.</string>
+    <string name="s_alert_unzip" formatted="false" auto="1">T\'agradaria descomprimir %s aquí o alguna altra carpeta?</string>
+    <string name="s_button_unzip_here" auto="1">Descomprimir aquí</string>
+    <string name="s_button_unzip_else" auto="1">Descomprimir en altres llocs ...</string>
+    <string name="s_msg_none" auto="1">Arxiu (s) no pot ser</string>
+    <string name="s_msg_some" auto="1">Alguns d\'arxiu (s) no pot ser</string>
+    <string name="s_msg_all" auto="1">Arxiu (s) amb èxit</string>
+    <string name="s_msg_deleted" auto="1">eliminat</string>
+    <string name="s_msg_moved" auto="1">es va traslladar</string>
+    <string name="s_msg_copied" auto="1">copiat</string>
+    <string name="s_remove" auto="1">Treure</string>
+    <string name="s_eject" auto="1">Expulsar</string>
+    <string name="s_update" auto="1">Actualitzar</string>
+    <string name="s_alert_bookmark_rename" auto="1">Canviar el títol del seu marcador.</string>
+    <string name="s_title_bookmark_prefix" auto="1">Administrar Preferits:</string>
+    <string name="s_alert_remove_safe" auto="1">Ara pot retirar de forma segura la unitat.</string>
+    <string name="s_alert_remove_error" auto="1">No es pot expulsar.</string>
+    <string name="s_menu_about" auto="1">Sobre</string>
+    <string name="s_about_version" auto="1">Versió</string>
+    <string name="s_about_author" auto="1">Autor</string>
+    <string name="s_about_site" auto="1">Lloc web</string>
+    <string name="s_about_email" auto="1">Correu electrònic</string>
+    <string name="s_about_recent" auto="1">Actualitzacions recents</string>
+    <string name="s_chooser_email" auto="1">Envieu les vostres ...</string>
+    <string name="s_status_loading" auto="1">Carregant ...</string>
+    <string name="s_menu_open" auto="1">Obre amb ...</string>
+    <string name="s_menu_edit" auto="1">Edita amb ...</string>
+    <string name="s_pref_stats_title" auto="1">Ajudar a millorar OpenExplorer</string>
+    <string name="s_pref_stats_summary" auto="1">Notificar estadístiques anònimes d\'ús. Això no inclou cap informació que pugui ser utilitzat per identificar l\'usuari.</string>
+    <string name="s_error_no_intents" auto="1">No hi ha aplicacions instal · lades poden llegir aquest tipus de fitxer.</string>
+    <string name="s_menu_root_disabled" auto="1">Arrel de discapacitats</string>
+    <string name="s_pref_start" auto="1">A partir de carpetes</string>
+    <string name="s_pref_start_summary" auto="1">Indica en quina carpeta s\'inicia en OpenExplorer</string>
+    <string name="s_custom" auto="1">Personalitza ...</string>
+    <string name="s_text_intro_top" auto="1">Benvingut a OpenExplorer!</string>
+    <string name="s_text_intro_body" auto="1">L\'objectiu de OpenExplorer és fer més productiu dins del sistema d\'arxius Android i en el núvol. Ja sigui que necessiti per gestionar vídeos o fotos des de diverses ubicacions o gestionar el seu web de forma remota via FTP, OpenExplorer pot adaptar a les seves necessitats  n  nSi us plau, seleccioneu la ruta de sortida.:</string>
+    <string name="s_info_num_folders" auto="1">Nombre de carpetes:</string>
+    <string name="s_info_num_files" auto="1">Nombre d\'arxius:</string>
+    <string name="s_info_last_modified" auto="1">Darrera modificació:</string>
+    <string name="s_info_permissions" auto="1">Els permisos d\'arxius:</string>
+    <string name="s_info_permission_read" auto="1">Llegiu:</string>
+    <string name="s_info_permission_write" auto="1">Escriu:</string>
+    <string name="s_info_permission_execute" auto="1">Executar:</string>
+    <string name="s_toggle_keyboard" auto="1">Teclat</string>
+    <string name="s_show_password" auto="1">Mostra la contrasenya</string>
+    <string name="s_error_ftp" auto="1">Error en connectar amb FTP</string>
+    <string name="s_prompt_zip" auto="1">Introduïu el nom de fitxer nou fitxer Zip:</string>
+    <string name="app_edit" auto="1">Edita amb OpenExplorer</string>
+    <string name="s_menu_more" auto="1">Més opcions ...</string>
+    <string name="s_msg_low_memory" auto="1">Poca memòria!</string>
+    <string name="s_clear" auto="1">Esborrar</string>
+    <string name="s_menu_delete_all" auto="1">Elimina tot</string>
+    <string name="s_menu_move_all" auto="1">Moure aquí</string>
+    <string name="s_menu_copy_all" auto="1">Copiar aquí</string>
+    <string name="s_confirm_delete" formatted="false" auto="1">Segur que voleu suprimir %s?</string>
+    <string name="s_error_same_destination" auto="1">El directori de destí és el mateix.</string>
+    <string name="s_sample_notification" auto="1">Còpia -&gt; sdcard:  n 3 Arxius</string>
+    <string name="s_pref_fullscreen" auto="1">Pantalla completa</string>
+    <string name="s_pref_fullscreen_summary_on" auto="1">Oculta la barra de notificació</string>
+    <string name="s_pref_fullscreen_summary_off" auto="1">Mostra la barra de notificació</string>
+    <string name="s_pref_pagers" auto="1">Veure Buscapersones</string>
+    <string name="s_pref_pagers_summary_on" auto="1">Lliscar horitzontal = Directori de Navegació</string>
+    <string name="s_pref_pagers_summary_off" auto="1">Horitzontal pispar persones de mobilitat reduïda</string>
+    <string name="s_alert_new_media" auto="1">Nous mitjans de comunicació inserit!</string>
+    <string name="s_warn_pager_title" auto="1">Nova funció: Visualització Buscapersones</string>
+    <string name="s_warn_pager" auto="1">Pas a l\'esquerra a la dreta per pujar un directori i de dreta a esquerra per anar cap enrere. Això hauria de fer que sigui més fàcil de navegar. Intenteu-ho cap a fora (en suports externs)!</string>
+    <string name="s_warn_confirm" auto="1">Ho entens?</string>
+    <string name="s_warn_disable" auto="1">Inhabilita</string>
+    <string name="s_pref_intent_internal" auto="1">Intencions interns</string>
+    <string name="s_pref_intent_internal_on" auto="1">Utilitzeu l\'Administrador de OpenExplorer Intenció</string>
+    <string name="s_pref_intent_internal_off" auto="1">Utilitzeu l\'Administrador de Sistema d\'Intenció</string>
+    <string name="s_pref_text_internal" auto="1">Utilitzeu l\'Editor de text intern</string>
+    <string name="s_text_editor_title" auto="1">Editor de text</string>
+    <string name="s_pref_show_root" auto="1">Mostra l\'arrel del sistema de fitxers (/)</string>
+    <string name="s_pref_show_internal" auto="1">Mostra Mitjans de Comunicació Interna</string>
+    <string name="s_pref_show_external" auto="1">Mostra els mitjans externs</string>
+    <string name="s_error_no_media" auto="1">Sembla que no hi ha cap mitjà inserit. Si us plau, desactivar l\'ús compartit de mitjans USB o re-inserció.</string>
+    <string name="s_prompt_password" auto="1">Introduïu la contrasenya</string>
+    <string name="s_add" auto="1">Afegir</string>
+    <string name="s_server_ftp" auto="1">FTP</string>
+    <string name="s_server_sftp" auto="1">SFTP</string>
+    <string name="s_pref_server_port" auto="1">Port</string>
+    <string name="s_about_buildtime" auto="1">Data de compilació</string>
+    <string name="s_default" auto="1">Defecte</string>
+    <string name="s_pref_timeout" auto="1">Temps d\'espera</string>
+    <string name="s_pref_timeout_summary" auto="1">Temps d\'espera en segons</string>
+    <string name="s_menu_up" auto="1">Pujar</string>
+    <string name="s_prompt_unzip" auto="1">Introduïu el camí per a descomprimir en:</string>
+    <string name="s_pref_hardware_accel" auto="1">Habilitar acceleració de maquinari</string>
+    <string name="s_pref_honeyplus" auto="1">Android 3.0 + Configuració</string>
+    <string name="s_pref_actionmode" auto="1">Mode d\'acció</string>
+    <string name="s_pref_actionmode_enabled" auto="1">Utilitzeu el mode d\'acció</string>
+    <string name="s_pref_actionmode_disabled" auto="1">L\'ús de menús estàndard de context</string>
+    <string name="s_server_smb" auto="1">SMB / Windows</string>
+    <string name="s_bookmark_drives" auto="1">Unitats</string>
+    <string name="s_bookmark_smart" auto="1">Carpetes intel · ligents</string>
+    <string name="s_bookmark_favorites" auto="1">Favorits</string>
+    <string name="s_bookmark_servers" auto="1">Servidors</string>
+    <string name="s_bookmark_cache" auto="1">Cache</string>
+    <string name="s_info_totalspace" auto="1">Espai total en disc:</string>
+    <string name="s_info_freespace" auto="1">Disc Espai lliure:</string>
+    <string name="s_status_rate" auto="1">Tarifa:</string>
+    <string name="s_about_hardware" auto="1">Maquinari</string>
+    <string name="s_menu_refresh" auto="1">Actualitzar Carpeta</string>
+    <string name="s_pref_reset" auto="1">Restablir Vistes</string>
+    <string name="s_toast_complete" auto="1">Operació completa!</string>
+    <string name="s_pref_reset_summary" auto="1">Feu clic aquí per eliminar tota la configuració de la vista de carpetes específiques, tornant a un estat predeterminat.</string>
+    <string name="s_prompt_path" auto="1">Introduïu el camí:</string>
+    <string name="s_prompt_search" auto="1">Cercar:</string>
+    <string name="s_prompt_search_within" auto="1">Allotjament a:</string>
+    <string name="s_pref_view_category" auto="1">Afegir a favorits Preferències Veure</string>
+    <string name="s_pref_show_videos" auto="1">Mostra vídeos</string>
+    <string name="s_pref_show_photos" auto="1">Mostrar fotos</string>
+    <string name="s_pref_show_music" auto="1">Mostra Música</string>
+    <string name="s_pref_show_downloads" auto="1">Mostra baixades</string>
+    <string name="s_hide" auto="1">Amaga</string>
+    <string name="s_show" auto="1">Mostra</string>
+    <string name="s_msg_event_cancelled" auto="1">Esdeveniment cancel · lat.</string>
+    <string name="s_alert_newfolder_folder" auto="1">Crear una nova carpeta a:</string>
+    <string name="s_pref_fancy_category" auto="1">Configuració de pantalla de fantasia</string>
+    <string name="s_pref_fancy_menus" auto="1">Menús de luxe</string>
+    <string name="s_pref_fancy_context" auto="1">Els menús de context de fantasia</string>
+    <string name="s_search_files" auto="1">Cerca sistema de fitxers</string>
+    <string name="search_summary" formatted="false" auto="1">La cerca de &quot; %s&quot;  n a &quot; %s&quot; ( %d) ...</string>
+    <string name="search_results" formatted="false" auto="1">Es va trobar %d resultats per a &quot; %s&quot;  n a &quot; %s&quot;</string>
+    <string name="s_menu_exit" auto="1">Sortida</string>
+    <string name="s_warn_wtf_message" auto="1">Ui! Sembla que un error no controlat ha passat! Com que aquest és un tema comú en moltes aplicacions beta, l\'única manera de resoldre aquests problemes consisteix a rebre els informes dels diversos dispositius, com la seva, amb la finalitat de determinar la forma de solucionar el problema. Podem enviar aquest informe, que conté només dades anònimes, a la promotora?</string>
+    <string name="s_warn_wtf_ps" auto="1">*** Recordeu que aquesta aplicació està en beta. Si us plau, no donar a aquesta aplicació una qualificació dolenta, simplement perquè es bloqueja. Només desinstal · lar si realment et molesta. Gràcies!</string>
+    <string name="s_yes" auto="1">Sí</string>
+    <string name="s_no" auto="1">No</string>
+    <string name="s_wtf_preview" auto="1">Vista prèvia de dades dels informes</string>
+    <string name="s_wtf_remember" auto="1">No tornar a preguntar</string>
+    <string name="s_pref_basebar" auto="1">Dividir Barra d\'acció</string>
+    <string name="s_pref_basebar_on" auto="1">Els botons d\'acció en la part inferior de la pantalla en la manera vertical</string>
+    <string name="s_pref_basebar_off" auto="1">Els botons d\'acció en la part superior de la pantalla (si està disponible)</string>
+    <string name="s_pref_autowtf" auto="1">Auto-enviar informes d\'errors</string>
+    <string name="s_pref_autowtf_summary" auto="1">Quan una excepció no controlada es produeix, automàticament enviar l\'informe.</string>
+    <string name="s_split_auto" auto="1">Automàtic</string>
+    <string name="s_split_top" auto="1">Botons de la Força a la part superior</string>
+    <string name="s_split_top_single" auto="1">Forçar un sol botó a la part superior</string>
+    <string name="s_split_bottom" auto="1">Botons de la Força cap avall</string>
+    <string name="s_split_none" auto="1">Col · loqueu tots els botons al menú del sistema</string>
+    <string name="s_about_screensize" auto="1">Mida de la pantalla</string>
+    <string name="s_about_density" auto="1">Densitat</string>
+    <string name="s_menu_location_int" auto="1">Ruta de la memòria interna</string>
+    <string name="s_menu_location_ext" auto="1">Ruta d\'accés de memòria externa</string>
+    <string name="s_wtf_context" auto="1">Si us plau, descrigui el context de l\'accident:</string>
+    <string name="thanks" auto="1">Gràcies!</string>
+    <string name="menu_view_font_small">Mida de lletra petita</string>
+    <string name="menu_view_font_medium" auto="1">Font Mitjana</string>
+    <string name="menu_view_font_large" auto="1">Mida de la Font Gran</string>
+    <string name="app_description" auto="1">Obriu l\'Explorador - gestor de fitxers de codi obert per a tots els dispositius! (Tabletes, telèfons, televisors de pantalla de Google, entrepans!)  N-complet sistema de gestió d\'arxiu  n-USB, SD i altres mitjans externs  n de la xarxa per a connexió (FTP, SFTP, SMB / Samba / Windows / LAN / Wi-Fi)  n - Editor de text  n-Smart Folders que exploren els diferents tipus de mitjans (vídeos, fotos, música, descàrregues)  n-View Pager directori de navegació (a la dreta passi per pujar un directori)  n-a root / root capacitat per a la llista / llegir les carpetes del sistema (sense sistema d\'escriptura encara)  n  nFeatures per venir:  n-amb pestanyes Editor de text  n-Més capacitat de xarxa (Dropbox, Box.net, Sky Drive)  n-memòria cau de l\'estructura d\'arxius sense connexió, es recorda que els arxius que té en diferents llocs fora de línia  n-Disk mapa de l\'espai de calor mostra on són els seus arxius són més grans  n  n * NOTA: Aquesta aplicació està en beta. Encara hi ha molts errors. Si vostè no desitja experimentar aquests errors, si us plau, no descarregar aquesta aplicació. Si li agradaria que m\'ajudés a trobar aquests errors, si us plau envieu-me un correu electrònic, o que col · laboren amb mi en GitHub (https://github.com/BrandoCommando/OpenExplorer/). Si us plau, recordeu males qualificacions ajuden a ningú.</string>
+    <string name="alert_translate_google" formatted="false" auto="1">Hola, aquesta traducció és proporcionada per Google Translate. Si saps anglès, així com %s, i m\'agradaria ajudar a proporcionar una millor traducció, si us plau feu clic en aquest botó:</string>
+    <string name="alert_translate_none" formatted="false" auto="1">Hola, sembla que vostè està utilitzant un llenguatge no compatible. Sap vostè s Anglès i %s? Si vols ajudar a proporcionar una traducció correcta, feu clic aquí:</string>
+    <string name="button_translate" auto="1">Traduir</string>
+    <string name="httpError">S\'ha produït un error de xarxa.</string>
+    <string name="httpErrorAuth">Autenticació incorrecta.</string>
+    <string name="httpErrorProxyAuth">L\'autenticació mitjançant el servidor intermediari no ha estat correcta.</string>
+    <string name="httpErrorConnect">No s\'ha pogut establir la connexió al servidor.</string>
+    <string name="httpErrorIO">El servidor no s\'ha pogut comunicar. Torna-ho a provar més tard.</string>
+    <string name="httpErrorTimeout">La connexió al servidor ha esgotat el temps d\'espera.</string>
+    <string name="httpErrorFile">No s\'ha pogut accedir al fitxer.</string>
+    <string name="httpErrorFileNotFound">No s\'ha trobat el fitxer sol·licitat.</string>
+    <string name="contentServiceSync">Sincronització</string>
+    <string name="keyguard_password_enter_pin_code">Introduïu el codi PIN</string>
+    <string name="keyguard_password_enter_password_code">Introduïu la contrasenya per desbloquejar-lo</string>
+    <string name="keyguard_password_enter_pin_password_code">Introdueix el PIN per desbloquejar</string>
+    <string name="lockscreen_password_wrong">Torna-ho a provar</string>
+    <string name="whichApplication">Completa l\'acció mitjançant</string>
+    <string name="noApplications">No hi ha cap aplicació que pugui dur a terme aquesta acció.</string>
+    <string name="report">Informe</string>
+    <string name="sim_restart_button">Reinicia</string>
+    <string name="extmedia_format_button_format">Formata</string>
+    <string name="ext_media_nofs_notification_message">Emmagatzematge USB buit o sistema de fitxers no admès.</string>
+    <string name="activity_list_empty">La targeta SD és buida o té un sistema de fitxers incompatible.</string>
+    <string name="ime_action_go">No s\'ha trobat cap activitat coincident</string>
+    <string name="ime_action_send">Vés</string>
+    <string name="ime_action_done">Envia</string>
+    <string name="ime_action_default">Fet</string>
+    <string name="upload_file">Executa</string>
+    <string name="no_file_chosen">Trieu un fitxer</string>
+    <string name="reset">No s\'ha escollit cap fitxer</string>
+    <string name="back_button_label">Reinicia</string>
+    <string name="next_button_label">Enrere</string>
+    <string name="no_matches">Següent</string>
+    <string name="find_on_page">Cap coincidència</string>
+    <string name="find">Troba-ho a la pàgina</string>
+    <string name="activitychooserview_choose_application">Cerca</string>
+    <string name="shareactionprovider_share_with">Selecciona una aplicació</string>
+    <string name="storage_internal">Comparteix amb</string>
+    <string name="storage_sd_card">Emmagatzematge intern</string>
+    <string name="storage_usb">Targeta SD</string>
+    <string name="extract_edit_menu_button">Emmagatzematge USB</string>
+    <string name="activity_chooser_view_see_all">Edita...</string>
+    <string name="s_title_picker">Si us plau, escull un directori</string>
+    <string name="selected_path">Camí sel·leccionat:</string>
+    <string name="filename">Nom d\'arxiu:</string>
+    <string name="s_msg_saved">guardat</string>
+    <string name="s_menu_view_line_numbers">Números de línia</string>
+    <string name="warn_text_editor">Benvingut a l\'editor de texte. Si us plau, pressiona i manté per entrar a mode d\'edició.</string>
+    <string name="warn_networking">Benvingut a Xarxa.Si us plau, tingues en compte que aquesta funció encara s\'està desenvolupant i pot contenir errors. Si us plau, no ens penalitzis al mercat si en trobes un.</string>
+    <string name="s_menu_new_file">Nou arxiu de texte</string>
+    <string name="s_msg_created">creat</string>
+    <string name="s_title_newfile">Nou arxiu</string>
+    <string name="s_alert_newfile_folder">Crea el nou arxiu a:</string>
+    <string name="s_alert_newfile">Escriu el nom del nou arxiu:</string>
+    <string name="s_alert_exit">Estas segur que vols-tancar el-programa?</string>
+    <string name="s_alert_clipboard">Copiat al porta retalls</string>
+    <string name="s_alert_restart">Reiniciant. Sigues tant amable d\'esperar un xic ...</string>
+    <string name="language">Idioma</string>
+    <string name="s_menu_download">Descarregar</string>
+    <string name="scan">Escanejar</string>
+    <string name="test">Provar</string>
+    <string name="test_success">Connexió amb èxit!</string>
+    <string name="no_items">Sense elements.</string>
+    <string name="clipboard">Portapapers</string>
+    <string name="theme">Tema</string>
+    <string name="theme_dark">IU Fosca</string>
+    <string name="theme_light">IU Clara</string>
+    <string name="chooser_remember">Recordar la meva elecció</string>
+    <string name="use_system">Usar Sistema &gt;&gt;</string>
+    <string name="activity_resolver_use_always">Sempre</string>
+    <string name="activity_resolver_use_once">Només una vegada</string>
+    <string name="s_pref_bookmarks_summary">Mostrar Marcadors</string>
+    <string name="apply_to_all">T\'agradaria aplicar-ho a totes les carpetes?</string>
+    <string name="s_pref_view_folders">Preferències de Carpeta</string>
+    <string name="s_pref_view_general">Preferències Generals</string>
+    <string name="s_pref_text_wrap">Envolcallar text</string>
+    <string name="s_pref_thumbs_crop">Retallar/Centrar Miniatures</string>
+    <string name="s_pref_thumbs_cache_clear">Esborrar Cache de Miniatures</string>
+    <string name="s_msg_folder_none">No s\'ha pogut crear la Carpeta.</string>
+    <string name="s_privacy">Política de privacitat</string>
+    <string name="s_theme_lightdark">Clar i Fosc</string>
+    <string name="s_ask_again">Pregunta cada cop</string>
+    <string name="s_compress_type">Tipus de compressio</string>
+    <string name="s_compressed">Comprimid</string>
+    <string name="s_pass_old">Entra la contrasenya vella</string>
+    <string name="s_pass_new">Entra nova contrasenya</string>
+    <string name="s_logout">Desconectar</string>
+    <string name="s_authenticating">Autentificant</string>
+    <string name="s_bookmark_history">Historial</string>
+    <string name="s_server_account_title">Compte</string>
+    <string name="s_pref_thumbs_cache_summary">Aixo incrementara la pujada de carpetes amb fotos i videos</string>
+    <string name="s_folders">carpetes</string>
+    <string name="s_custom_account">Compte del client</string>
+</resources>

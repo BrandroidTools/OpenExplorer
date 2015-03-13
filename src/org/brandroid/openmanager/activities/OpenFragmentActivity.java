@@ -3,6 +3,9 @@ package org.brandroid.openmanager.activities;
 
 import java.net.URL;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+
 import jcifs.smb.ServerMessageBlock;
 import jcifs.smb.SmbComReadAndX;
 import jcifs.smb.SmbFile;
@@ -41,7 +44,7 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
     private final static boolean DEBUG = OpenExplorer.IS_DEBUG_BUILD && true;
 
     public String getClassName() {
-        return this.getClass().getSimpleName();
+        return super.getLocalClassName();
     }
 
     public ActionBar getSupportActionBar() {
@@ -261,11 +264,11 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
     }
 
     @Override
-    public abstract void onChangeLocation(OpenPath path);
+    public abstract void changePath(OpenPath path);
 
     protected abstract void sendToLogView(String str, int color);
 
-    protected void setupLoggingDb() {
+    protected void setupLogviewHandlers() {
         FTP.setCommunicationListener(new OnFTPCommunicationListener() {
 
             @Override
@@ -308,6 +311,52 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
                 sendToLogView("Reply: " + line, Color.BLUE);
             }
         });
+
+        Logger.setDefaultHandler(new java.util.logging.Handler() {
+
+            @Override
+            public void publish(LogRecord record) {
+                String msg = record.getMessage();
+//                if (msg.startsWith("----") && msg.indexOf("\n") > -1)
+//                    msg = msg.substring(msg.indexOf("\n") + 1);
+                while (msg.startsWith("\n"))
+                    msg = msg.substring(1);
+                /*
+                 * if(msg.indexOf("\n") > -1) msg = msg.substring(0,
+                 * msg.indexOf("\n") - 1) + "...(" + msg.split("\n").length +
+                 * " lines)"; else if(msg.length() > 150) msg = msg.substring(0,
+                 * 150) + "...(" + msg.length() + " bytes)";
+                 */
+                String name = record.getLoggerName();
+                if (name.toLowerCase(Locale.US).contains("google"))
+                    name = "Drive";
+                msg = name + " - " + msg;
+                if (record.getLevel() == Level.SEVERE)
+                {
+                    Logger.LogError(record.getMessage(), record.getThrown());
+                    sendToLogView(msg, Color.RED);
+                } else if (record.getLevel() == Level.CONFIG) {
+                    sendToLogView(msg, Color.GREEN);
+                } else if (record.getLevel() == Level.FINE) {
+                    sendToLogView(msg, Color.BLUE);
+                } else {
+                    sendToLogView(msg, Color.GRAY);
+                }
+            }
+
+            @Override
+            public void flush() {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void close() {
+                // TODO Auto-generated method stub
+
+            }
+        });
+        Logger.setHandler();
         JSch.setLogger(new com.jcraft.jsch.Logger() {
             @Override
             public void log(int level, String message) {
@@ -378,7 +427,7 @@ public abstract class OpenFragmentActivity extends SherlockFragmentActivity impl
                         if (DEBUG && blk instanceof SmbComReadAndX)
                             continue;
                         String tmp = blk.toShortString();
-                        if (tmp == null || tmp == "")
+                        if (tmp == null || "".equals(tmp))
                             continue;
                         if (tmp.indexOf("[") > -1)
                             s += " -> " + tmp.substring(0, tmp.indexOf("["));

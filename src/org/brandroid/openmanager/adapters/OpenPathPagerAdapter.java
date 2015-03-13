@@ -14,6 +14,7 @@ import org.brandroid.openmanager.data.OpenMediaStore;
 import org.brandroid.openmanager.data.OpenPath;
 import org.brandroid.openmanager.data.OpenSearch;
 import org.brandroid.openmanager.data.OpenSmartFolder;
+import org.brandroid.openmanager.data.OpenTar;
 import org.brandroid.openmanager.data.OpenZip;
 import org.brandroid.openmanager.fragments.ContentFragment;
 import org.brandroid.openmanager.fragments.OpenFragment;
@@ -58,7 +59,8 @@ public class OpenPathPagerAdapter extends FragmentStatePagerAdapter implements T
     public CharSequence getPageTitle(int position) {
         OpenPath path = mChildren.get(position);
         if (path instanceof OpenMediaStore || path instanceof OpenCursor
-                || path instanceof OpenSmartFolder || path instanceof OpenZip)
+                || path instanceof OpenSmartFolder || path instanceof OpenZip
+                || path instanceof OpenTar)
             return path.getName();
         return path.getName() + (path.isDirectory() ? "/" : "");
     }

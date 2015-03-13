@@ -16,7 +16,7 @@
 
 <resources>
 
-    <dimen name="list_width">300dp</dimen>
+    <dimen name="list_width">400dp</dimen>
     <dimen name="context_indicator_line_width">1.5dp</dimen>
     <dimen name="bookmarks_width">250dp</dimen>
 

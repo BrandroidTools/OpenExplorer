@@ -1,62 +1,62 @@
 
 package org.brandroid.openmanager.fragments;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.brandroid.openmanager.R;
-import org.brandroid.openmanager.activities.OpenExplorer;
-import org.brandroid.openmanager.adapters.LinedArrayAdapter;
 import org.brandroid.openmanager.fragments.OpenFragment.Poppable;
 import org.brandroid.openmanager.util.BetterPopupWindow;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Utils;
 import org.brandroid.utils.ViewUtils;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
-import android.R.anim;
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
+import android.os.Handler;
 import android.text.ClipboardManager;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.ViewParent;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.FrameLayout;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class LogViewerFragment extends OpenFragment implements OnClickListener, Poppable {
-    private final static ArrayList<CharSequence> mData = new ArrayList<CharSequence>();
-    private LinedArrayAdapter mAdapter = null;
+public class LogViewerFragment extends OpenFragment implements Poppable, OnItemClickListener {
+    private final SparseArray<LogEntry> mData;
+    private final int maxLogCount = 200;
+    private int mIndex = 0;
+    private LogViewerAdapter mAdapter = null;
     private boolean mAdded = false;
     private BetterPopupWindow mPopup = null;
     private ListView mListView = null;
     private LayoutInflater mInflater = null;
-    private Context mContext;
     private String mLast = null;
     private ViewGroup mRootView = null;
+    private final int mTextResId = R.layout.edit_text_view_row;
+    private final Handler mHandler;
+    private static final DateFormat mDateFormat = SimpleDateFormat.getTimeInstance();
 
     public LogViewerFragment() {
+        mHandler = new Handler();
+        mData = new SparseArray<LogEntry>(maxLogCount);
     }
 
     public static LogViewerFragment getInstance(Bundle args) {
@@ -97,25 +97,40 @@ public class LogViewerFragment extends OpenFragment implements OnClickListener, 
         if (checkLast(txt))
             return;
         mLast = txt;
-        if (mAdapter == null) {
-            Logger.LogWarning("LogViewerFragment.Adapter is null");
-            mData.add(0, colorify(txt, color));
-            return;
-        }
         // getActivity().runOnUiThread(
-        Runnable doPrint = new Runnable() {
+        if(mHandler == null) return;
+        mHandler.post(new Runnable() {
             public void run() {
-                mData.add(0, colorify(txt, color));
-                mAdapter.notifyDataSetChanged();
+                mData.put(mIndex++ % maxLogCount, new LogEntry(txt, color));
+                if(mAdapter != null)
+                    mAdapter.notifyDataSetChanged();
             }
-        };
-        mListView.post(doPrint);
+        });
     }
 
-    private CharSequence colorify(String txt, int color) {
+    private String getTimeStamp()
+    {
+        Date d = new Date();
+        int m = d.getMinutes();
+        int s = d.getSeconds();
+        String ret = "";
+        if (m < 10)
+            ret += "0";
+        ret += m;
+        if (s < 10)
+            ret += "0";
+        ret += s + " ";
+        return ret;
+    }
+
+    public static CharSequence colorify(String txt, int color) {
         if (color != 0) {
-            color = Color.rgb(255 - Color.red(color), 255 - Color.green(color),
-                    255 - Color.blue(color));
+            color = Color.rgb(
+                        Color.red(color),
+                        Color.green(color),
+                        Color.blue(color));
+            //String stamp = getTimeStamp();
+            //txt = stamp + txt;
             SpannableString line = new SpannableString(txt);
             line.setSpan(new ForegroundColorSpan(color), 0, line.length(), Spanned.SPAN_COMPOSING);
             return line;
@@ -123,22 +138,44 @@ public class LogViewerFragment extends OpenFragment implements OnClickListener, 
             return txt;
     }
 
-    @Override
-    public boolean hasOptionsMenu() {
-        return true;
-    }
+    public class LogViewerAdapter extends BaseAdapter
+    {
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (menu == null || inflater == null)
-            return;
-        if (!isVisible())
-            return;
-        if (isDetached())
-            return;
-        super.onCreateOptionsMenu(menu, inflater);
-        menu.clear();
-        inflater.inflate(R.menu.text_full, menu);
+        @Override
+        public int getCount() {
+            return Math.min(maxLogCount, mIndex);
+        }
+
+        @Override
+        public LogEntry getItem(int position) {
+            return mData.get((int)getItemId(position));
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return ((mIndex - position - 1) % maxLogCount);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = convertView;
+            if (view == null)
+                view = mInflater.inflate(mTextResId, parent, false);
+            ViewUtils.setViewsVisible(view, false, R.id.text_line);
+            LogEntry data = getItem(position);
+            if(data == null)
+                return view;
+            Long stamp = data.getStamp();
+            String source = data.getSource();
+            SpannableStringBuilder txt = new SpannableStringBuilder();
+            txt.append(data.getEntryNumber() + " - ")
+                .append(colorify(source, Color.WHITE))
+                .append(colorify(" - " + mDateFormat.format(new Date(stamp)) + "\n", Color.BLUE))
+                .append(data.getSummary());
+            ((TextView)view.findViewById(R.id.text_data)).setText(txt);
+            return view;
+        }
+
     }
 
     @Override
@@ -147,15 +184,8 @@ public class LogViewerFragment extends OpenFragment implements OnClickListener, 
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        onClick(item.getItemId(), item, null);
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mContext = activity;
     }
 
     @Override
@@ -163,7 +193,12 @@ public class LogViewerFragment extends OpenFragment implements OnClickListener, 
         mInflater = inflater;
         View ret = inflater.inflate(R.layout.log_viewer, container, false);
         ret.setOnLongClickListener(this);
-        ViewUtils.setOnClicks(ret, this, R.id.log_clear, R.id.log_copy);
+        ret.findViewById(R.id.log_clear).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mData.clear();
+                notifyDataSetChanged();
+            }
+        });
         getListView();
         return ret;
     }
@@ -171,8 +206,7 @@ public class LogViewerFragment extends OpenFragment implements OnClickListener, 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mAdapter = new LinedArrayAdapter(mContext, R.layout.edit_text_view_row, mData);
-        mAdapter.setShowLineNumbers(false);
+        mAdapter = new LogViewerAdapter();
         if (getListView() != null)
             getListView().setAdapter(mAdapter);
     }
@@ -189,31 +223,9 @@ public class LogViewerFragment extends OpenFragment implements OnClickListener, 
                 mListView = new ListView(getView().getContext());
                 ((ViewGroup)getView()).addView(mListView);
             }
+            mListView.setOnItemClickListener(this);
         }
         return mListView;
-    }
-
-    @Override
-    public void onClick(View v) {
-        onClick(v.getId(), null, v);
-    }
-
-    @SuppressWarnings("deprecation")
-    public void onClick(int id, MenuItem item, View from) {
-        switch (id) {
-            case R.id.log_clear: // Clear
-                mData.clear();
-                notifyDataSetChanged();
-                break;
-            case R.id.log_copy: // Copy
-                ClipboardManager cm = (ClipboardManager)getActivity().getSystemService(
-                        Context.CLIPBOARD_SERVICE);
-                cm.setText(Utils.joinArray(mData.toArray(new CharSequence[mData.size()]), "\n"));
-                Toast.makeText(mContext, R.string.s_alert_clipboard, Toast.LENGTH_LONG);
-                break;
-        // default: if(getExplorer() != null) getExplorer().onClick(id, item,
-        // from);
-        }
     }
 
     @Override
@@ -237,8 +249,7 @@ public class LogViewerFragment extends OpenFragment implements OnClickListener, 
 
     public ListAdapter getAdapter(Context c) {
         if (mAdapter == null) {
-            mAdapter = new LinedArrayAdapter(c, R.layout.edit_text_view_row, mData);
-            mAdapter.setShowLineNumbers(false);
+            mAdapter = new LogViewerAdapter();
         }
         return mAdapter;
 
@@ -253,7 +264,6 @@ public class LogViewerFragment extends OpenFragment implements OnClickListener, 
 
     public void setupPopup(Context c, View anchor) {
         if (mPopup == null) {
-            mContext = c;
             mInflater = (LayoutInflater)c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             mRootView = new LinearLayout(c);
             View view = onCreateView(mInflater, mRootView, getArguments());
@@ -266,6 +276,101 @@ public class LogViewerFragment extends OpenFragment implements OnClickListener, 
 
     public BetterPopupWindow getPopup() {
         return mPopup;
+    }
+
+    @SuppressLint("NewApi")
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        final LogEntry entry = mAdapter.getItem(position);
+        final CharSequence txt = entry.getData();
+        final Context context = parent.getContext();
+        final TextView msg = new TextView(context);
+        msg.setTextSize(12f);
+        msg.setText(txt);
+        if(Build.VERSION.SDK_INT > 10)
+            msg.setTextIsSelectable(true);
+        try {
+        new AlertDialog.Builder(context)
+            .setView(msg)
+            .setTitle(entry.getTitle())
+            .setPositiveButton(R.string.s_menu_copy, new DialogInterface.OnClickListener() {
+                @SuppressWarnings("deprecation")
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        ClipboardManager clip = (ClipboardManager)context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        clip.setText(txt);
+                        makeToast(context, txt.length() + " bytes added to clipboard.");
+                    } catch(Exception e) {
+                        if(context != null)
+                            makeToast(context, "Unable to set clipboard. " + e.getMessage());
+                    }
+                }
+            })
+            .setNegativeButton(android.R.string.ok, null)
+            .create().show();
+        } catch(Exception e) {
+            Logger.LogError("Unable to show dialog in LogViewer", e);
+        }
+    }
+    
+    public static class LogEntry
+    {
+        private final CharSequence mData;
+        private final String mSource;
+        private final Long mStamp;
+        private final int mPos;
+        private final CharSequence mSummary;
+        private static int totalEntries = 0; 
+        
+        public LogEntry(CharSequence data, String source, Long stamp)
+        {
+            mData = data;
+            mSource = source;
+            mStamp = stamp;
+            if(mData.length() > 150)
+                mSummary = new SpannableStringBuilder(mData.subSequence(0, 150)).append("...");
+            else mSummary = null;
+            mPos = ++totalEntries;
+        }
+        
+        public CharSequence getTitle()
+        {
+            return new SpannableStringBuilder()
+                .append(colorify(getEntryNumber() + ": ", Color.DKGRAY))
+                .append(colorify(getSource(), Color.WHITE))
+                .append(colorify(" - " + mDateFormat.format(new Date(getStamp())), Color.DKGRAY));
+        }
+        
+        public int getEntryNumber() {
+            return mPos;
+        }
+        
+        public LogEntry(String full, int color)
+        {
+            if(full.indexOf(" - ") > -1)
+            {
+                mSource = full.substring(0, full.indexOf(" - "));
+                full = full.substring(full.indexOf(" - ") + 3);
+            } else mSource = "???";
+            mData = colorify(full, color);
+            if(mData.length() > 150)
+                mSummary = colorify(shrink(full.replaceAll("\\s\\s*", " "), 150), color);
+            else mSummary = null;
+            mStamp = new Date().getTime();
+            mPos = ++totalEntries;
+        }
+        
+        private String shrink(String c, int maxLength)
+        {
+            if(c.length() > maxLength)
+                return c.substring(0, maxLength) + "...";
+            return c;
+        }
+        
+        public CharSequence getSummary() { return Utils.ifNull(mSummary, mData); }
+        public CharSequence getData() { return mData; }
+        public String getSource() { return mSource; }
+        public Long getStamp() { return mStamp; }
     }
 
 }

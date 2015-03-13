@@ -10,24 +10,30 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.brandroid.openmanager.data.OpenPath.OpenPathByteIO;
-import org.brandroid.openmanager.fragments.DialogHandler;
+import org.brandroid.openmanager.activities.OpenExplorer;
+import org.brandroid.openmanager.data.OpenNetworkPath.Cancellable;
+import org.brandroid.openmanager.data.OpenPath.*;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.utils.Logger;
-import com.stericson.RootTools.Command;
+import org.brandroid.utils.Utils;
+
 import com.stericson.RootTools.RootTools;
-import com.stericson.RootTools.Shell;
+import com.stericson.RootTools.exceptions.RootToolsException;
+import com.stericson.RootTools.execution.Command;
+import com.stericson.RootTools.execution.Shell;
+
 import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PatternMatcher;
 
-public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateListener,
-        OpenPath.NeedsTempFile, OpenPath.OpenPathCopyable, OpenPathByteIO {
+public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateHandler,
+        OpenPath.NeedsTempFile, OpenPathByteIO, OpenDynamicPath {
 
     private static final long serialVersionUID = -1540464774342269126L;
     private String mPath;
@@ -70,7 +76,7 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
                         m.start() - 1).trim());
                 success = true;
             } catch (Exception e) {
-                Logger.LogError("Couldn't parse date.", e);
+                Logger.LogWarning("Couldn't parse date.", e);
             }
             mPerms = listing.split(" ")[0];
         }
@@ -203,46 +209,67 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
             mChildren.get().add(kid);
     }
 
-    public void list(final OpenContentUpdater callback) throws IOException {
+    public Cancellable list(final OpenPath.OpenContentUpdateListener callback) {
         mLoaded = false;
-        if (getChildren() != null) {
-            for (OpenPath kid : getChildren())
-                callback.addContentPath(kid);
-            return;
-        }
-        String path = getPath();
-        if (!path.endsWith("/"))
-            path += "/";
-        Logger.LogDebug("Trying to list " + path + " via Su with Callback");
-        final String[] buff = new String[] {
-            null
-        };
-        String lsopts = getLSOpts();
-        String bb = RootTools.getBusyBoxVersion();
-        if (bb == null)
-            bb = "";
-        if (bb.equals(""))
-            lsopts = "";
-        final String w = (lsopts.equals("") ? "" : "busybox ") + "ls -l" + lsopts + " " + path;
-        Command cmd = new Command(0, 10, w) {
-            @Override
-            public void output(int id, String line) {
-                if (line.indexOf("\n") > -1)
-                    for (String s : line.split("\n"))
-                        output(id, s);
-                else {
-                    OpenFileRoot kid = new OpenFileRoot(getPath(), line);
-                    addChild(kid);
-                    callback.addContentPath(kid);
+        final Thread t = thread(new Runnable() {
+            public void run() {
+                if (getChildren() != null) {
+                    for (OpenPath kid : getChildren())
+                        callback.addContentPath(kid);
+                }
+                String path = getPath();
+                if (!path.endsWith("/"))
+                    path += "/";
+                Logger.LogDebug("Trying to list " + path + " via Su with Callback");
+                final String[] buff = new String[] {
+                        null
+                };
+                String lsopts = getLSOpts();
+                String bb = RootTools.getBusyBoxVersion();
+                if (bb == null)
+                    bb = "";
+                if (bb.equals(""))
+                    lsopts = "";
+                final String w = (lsopts.equals("") ? "" : "busybox ") + "ls -l" + lsopts + " "
+                        + path;
+                Command cmd = new Command(0, 10, w) {
+                    @Override
+                    public void output(int id, String line) {
+                        if (line.indexOf("\n") > -1)
+                            for (String s : line.split("\n"))
+                                output(id, s);
+                        else {
+                            OpenFileRoot kid = new OpenFileRoot(getPath(), line);
+                            addChild(kid);
+                            callback.addContentPath(kid);
+                        }
+                    }
+
+                    @Override
+                    public void commandFinished(int id) {
+                        callback.doneUpdating();
+                    }
+                };
+                try {
+                    Shell.startRootShell().add(cmd);
+                } catch (Exception e) {
+                    callback.onException(e);
                 }
             }
+        });
+        return new Cancellable() {
 
             @Override
-            public void commandFinished(int id) {
-                callback.doneUpdating();
+            public boolean cancel() {
+                if (t != null && t.isAlive())
+                {
+                    t.interrupt();
+                    return true;
+                }
+                return false;
             }
         };
-        Shell.startRootShell().add(cmd);
+
     }
 
     @Override
@@ -342,22 +369,32 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
 
     @Override
     public Boolean canWrite() {
-        if (mPerms != null)
+        if (getPath().startsWith("/system"))
+            try {
+                return RootTools.getMountedAs("/system").equals("rw");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        if (mPerms != null && mPerms.length() > 0)
             return mPerms.indexOf("w") > -1;
+        if (Thread.currentThread().equals(OpenExplorer.UiThread))
+            return false;
+        if (RootTools.isAccessRequested() && RootTools.isAccessGiven())
+            return true;
         return getFile().canWrite();
     }
 
     @SuppressLint("NewApi")
     @Override
     public Boolean canExecute() {
-        if (mPerms != null)
+        if (mPerms != null && mPerms.length() > 0)
             return mPerms.indexOf("x") > -1;
         return Build.VERSION.SDK_INT > 8 ? getFile().canExecute() : true;
     }
 
     @Override
     public Boolean delete() {
-        execute("rm -rf " + getPath(), false);
+        if(execute("rm " + (isDirectory() ? "-r " : "") + getPath(), false) == null) return false;
         return true;
     }
 
@@ -366,15 +403,15 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
         return getFile().mkdir();
     }
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return tempDownload(null).getInputStream();
-    }
-
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-        return tempDownload(null).getOutputStream();
-    }
+    // @Override
+    // public InputStream getInputStream() throws IOException {
+    // return tempDownload(null).getInputStream();
+    // }
+    //
+    // @Override
+    // public OutputStream getOutputStream() throws IOException {
+    // return tempDownload(null).getOutputStream();
+    // }
 
     @Override
     public String getDetails(boolean countHiddenChildren) {
@@ -382,7 +419,7 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
         if (getChildren() != null)
             deets = getChildren().size() + " %s | ";
         else if (isFile())
-            deets = DialogHandler.formatSize(length());
+            deets = OpenPath.formatSize(length());
         return deets;
     }
 
@@ -423,24 +460,22 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
     }
 
     private String execute(final String cmd, boolean useBusyBox) {
-        final boolean[] waiting = new boolean[] {
-            true
-        };
-        final String[] ret = new String[] {
-            ""
-        };
-        final String bb = useBusyBox && RootTools.isBusyboxAvailable() ? "busybox " : "";
         try {
-            new Command(0, 500, bb + cmd) {
-                @Override
-                public void output(int id, String line) {
-                    ret[0] = ret[0] + (ret[0] == "" ? "" : "\n") + line;
-                }
-            }.waitForFinish(500);
-        } catch (Exception e) {
-            Logger.LogError("Could not execute: " + cmd, e);
+            Logger.LogVerbose("$ " + cmd);
+            final List<String> result = RootTools.sendShell(cmd, 500);
+            Logger.LogVerbose("--> " + Utils.joinArray(result.toArray(new String[result.size()]), "\n--> "));
+            return result.get(0);
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (RootToolsException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (TimeoutException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
         }
-        return ret[0];
+        return null;
     }
 
     public static boolean copy(final OpenPath src, final OpenPath dest) {
@@ -451,7 +486,6 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
         return copy(this, dest);
     }
 
-    @Override
     public boolean copyFrom(OpenPath file) {
         if (file instanceof OpenFile) {
             RootTools.copyFile(file.getPath(), getPath(), true, false);
@@ -467,7 +501,11 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
                 tempDownload(null);
             tmp = getTempFile();
             if (tmp != null)
-                return tmp.readAscii().getBytes();
+            {
+                String s = tmp.readAscii();
+                if(s != null)
+                    return s.getBytes();
+            }
         } catch (Exception e) {
             Logger.LogError("Unable to read root file: " + getPath(), e);
         }
@@ -477,7 +515,12 @@ public class OpenFileRoot extends OpenPath implements OpenPath.OpenPathUpdateLis
 
     @Override
     public void writeBytes(byte[] bytes) {
-        String ret = execute("cat > " + getPath() + "\n" + new String(bytes), false);
-        Logger.LogDebug("writeBytes response: " + ret);
+        OpenFile tmp = getTempFile();
+        try {
+            tmp.writeBytes(bytes);
+            tempUpload(null);
+        } catch(Exception e) {
+            Logger.LogError("Unable to write root file: " + getPath(), e);
+        }
     }
 }

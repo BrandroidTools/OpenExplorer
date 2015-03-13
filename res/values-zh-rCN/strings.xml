@@ -73,7 +73,7 @@
     <string name="s_pref_server_type">服务器类型</string>
     <string name="s_files">文件</string>
     <string name="s_create">建立</string>
-    <string name="s_title_holding_x_files" formatted="false">保持住 %s 文件</string>
+    <string name="s_title_holding_x_files">保持住 %s 文件</string>
     <string name="s_title_newfolder">新增文件夹</string>
     <string name="s_title_send">传送 xxx</string>
     <string name="s_title_unzip">解压缩 xxx</string>
@@ -86,10 +86,10 @@
     <string name="s_title_zipping">压缩中</string>
     <string name="s_title_unzipping">解压缩中</string>
     <string name="s_title_wait">请稍等...</string>
-    <string name="s_alert_confirm_delete" formatted="false">删除%s后将无法复原，确定要继续吗？</string>
+    <string name="s_alert_confirm_delete">删除%s后将无法复原，确定要继续吗？</string>
     <string name="s_alert_rename">请输入新档名</string>
     <string name="s_alert_newfolder">输入文件夹名称</string>
-    <string name="s_alert_unzip" formatted="false">解压缩%s至此或其它文件夹？</string>
+    <string name="s_alert_unzip">解压缩%s至此或其它文件夹？</string>
     <string name="s_button_unzip_here">解压缩至此处</string>
     <string name="s_button_unzip_else">解压缩至别处</string>
     <string name="s_msg_none">文件不可以是</string>
@@ -142,7 +142,7 @@
     <string name="s_menu_delete_all">全部删除</string>
     <string name="s_menu_move_all">移动至此</string>
     <string name="s_menu_copy_all">复制至此</string>
-    <string name="s_confirm_delete" formatted="false">确定要删除 %s？</string>
+    <string name="s_confirm_delete">确定要删除 %s？</string>
     <string name="s_error_same_destination">目标文件夹相同</string>
     <string name="s_sample_notification">复制 -> sdcard:  3 个文件</string>
     <string name="s_pref_fullscreen">全屏幕</string>
@@ -211,8 +211,8 @@
     <string name="s_pref_fancy_menus">新奇选单</string>
     <string name="s_pref_fancy_context">新奇关联性选单</string>
     <string name="s_search_files">于文件系统中搜寻</string>
-    <string name="search_summary" formatted="false">Searching for \" %s1 \" within \" %s2 \" (%d)... ==> 于 \"%s2\" (%d) 中搜寻 \"%s1\"...</string>
-    <string name="search_results" formatted="false">Found %d results for \" %s1 \" within \" %s2 \" ==> 于 \"%s2\" 中找到 %d 个 \"%s1\"</string>
+    <string name="search_summary" formatted="false">于 \"%$2s\" (%3$d) 中搜寻 \"%1$s\"...</string>
+    <string name="search_results" formatted="false">于 \"%2$s\" 中找到 %1$d 个 \"%3$s\"</string>
     <string name="s_menu_exit">离开</string>
     <string name="s_warn_wtf_message">糟糕！似乎发生了一个无法处理之错误！如同大多数测试版APP一样无可避免产发生问题，但唯一能帮忙改善问题之方式就是能收到来自各种不同设备之错误报告，例如您的设备。所以方便允许我们向您搜集错误报告 (不含您个人资料) 提交至开发者吗？</string>
     <string name="s_warn_wtf_ps">*** 请注意：本程序尚在测试阶段。恳请不要因为一些程序之错误便留下坏评价，您如果觉得本程序实在无趣，烦请移除它，感谢！</string>
@@ -241,7 +241,7 @@
     <string name="menu_view_font_large">大字型</string>
     <string name="app_description">Open Explorer - 开放源程序代码文件管理器，适用于各种装置！ (Tablets, Phones, Google TVs, sandwiches!)\n- 完整文件系统管理\n- USB、SD 及其它外部储存媒体\n- 可以经由多种网络方式连接 (FTP, SFTP, SMB/Samba/Windows/Lan/WIFI)\n- 文本编辑器\n- 智能型文件夹，可辨识各种不同类型之多媒体 (影像、照片、音乐及下载)\n- 整页显示方式浏览文件夹 (向右滑动可移动至上一层文件目录)\n- 使用拥有 Superuser/Root 能力之装置去显示/读取系统文件 (尚未允许写入系统文件)\n\n开发中功能：\n- Tab 标签页式文本编辑器\n- 更多的连网能力 (Dropbox, Box.net, Sky drive)\n- 脱机文件结构暂存将暂时记住您于不同地方之文件，而不需要再次连网\n- 文件空间热图能显示最大的文件为何\n\n* 请注意：本程序尚在测试阶段，可能仍存在些许错误。若您不愿意经历这些可能的错误，请勿下载使用本程序。如果您愿意帮助我找出这些可能的错误，请写 Email 告诉我，或是与我一起努力 (https://github.com/BrandoCommando/OpenExplorer/)。恳请您注意，在此留下坏评价并不将有任何帮助！</string>
     <string name="alert_translate_google">您好，这是由谷歌翻译翻译。如果你不懂英语，以及为％s，并希望协助提供更好的翻译，请点击此按钮：</string>
-    <string name="alert_translate_none" formatted="false">您好，看起来您似乎正在使用尚未支持之语言。您讲英文及%s吗？如果您愿意帮助提供正确的翻译，请按此：</string>
+    <string name="alert_translate_none">您好，看起来您似乎正在使用尚未支持之语言。您讲英文及%s吗？如果您愿意帮助提供正确的翻译，请按此：</string>
     <string name="button_translate">翻译</string>
     <string name="httpError">发生网络错误。</string>
     <string name="httpErrorAuth">认证不成功。</string>

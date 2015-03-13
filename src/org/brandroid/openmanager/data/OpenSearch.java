@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
 import org.brandroid.openmanager.adapters.OpenPathDbAdapter;
+import org.brandroid.openmanager.data.OpenNetworkPath.Cancellable;
 import org.brandroid.openmanager.util.FileManager;
 import org.brandroid.utils.Logger;
 
@@ -49,9 +50,21 @@ public class OpenSearch extends OpenPath {
         for (Parcelable p : results)
             mResultsArray.add(FileManager.getOpenCache(p.toString()));
     }
+    
+    public Cancellable list(final OpenContentUpdateListener callback) {
+        return cancelify(thread(new Runnable() {
+            public void run() {
+                try {
+                    
+                } catch(Exception e) {
+                    postException(e, callback);
+                }
+            }
+        }));
+    }
 
     public interface SearchProgressUpdateListener {
-        void onAddResults(OpenPath[] results);
+        void onAddResults(List<OpenPath> results);
 
         void onUpdate();
 
@@ -104,6 +117,7 @@ public class OpenSearch extends OpenPath {
         try {
             if (DEBUG)
                 Logger.LogVerbose("Searching DB...");
+            if(getDb() == null) return;
             Cursor c = getDb().fetchSearch(getQuery(), dir != null ? dir.getPath() : null);
             c.moveToFirst();
             while (!c.isAfterLast()) {
@@ -166,7 +180,7 @@ public class OpenSearch extends OpenPath {
         int sz = mResultsArray.size();
         if (sz > mLastSent) {
             int cnt = sz - mLastSent;
-            OpenPath[] toSend = mResultsArray.subList(mLastSent, sz).toArray(new OpenPath[cnt]);
+            List<OpenPath> toSend = mResultsArray.subList(mLastSent, sz);
             mLastSent = sz;
             mListener.onAddResults(toSend);
         }
@@ -208,10 +222,6 @@ public class OpenSearch extends OpenPath {
     @Override
     public String getAbsolutePath() {
         return getUri().toString();
-    }
-
-    @Override
-    public void setPath(String path) {
     }
 
     @Override
@@ -302,16 +312,6 @@ public class OpenSearch extends OpenPath {
     @Override
     public Boolean mkdir() {
         return false;
-    }
-
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return null;
-    }
-
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-        return null;
     }
 
     @Override

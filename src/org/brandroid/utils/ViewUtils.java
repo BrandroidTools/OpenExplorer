@@ -6,20 +6,28 @@ import java.util.ArrayList;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewParent;
 import android.view.ViewStub;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CheckedTextView;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class ViewUtils {
@@ -101,9 +109,18 @@ public class ViewUtils {
         for (int id : ids) {
             final View v = view.findViewById(id);
             if (v != null)
-                // v.post(new Runnable(){public void run(){
-                v.setEnabled(enabled);
-            // }});
+            {
+                Runnable enabler = new Runnable() {
+                    public void run() {
+                        v.setEnabled(enabled);
+                        v.setVisibility(View.VISIBLE);
+                    }
+                };
+                if (Thread.currentThread().equals(OpenExplorer.UiThread))
+                    enabler.run();
+                else
+                    OpenExplorer.getHandler().post(enabler);
+            }
         }
     }
 
@@ -114,6 +131,33 @@ public class ViewUtils {
                 pm.findPreference(key).setOnPreferenceChangeListener(listener);
     }
 
+    public static void setOnChangeListener(View parent, TextWatcher watcher, int... ids)
+    {
+        if (ids.length == 0 && parent instanceof TextView)
+            ((TextView)parent).addTextChangedListener(watcher);
+        else
+            for (int id : ids)
+            {
+                View v = parent.findViewById(id);
+                if (v != null && v instanceof TextView)
+                    ((TextView)v).addTextChangedListener(watcher);
+            }
+    }
+
+    public static void setOnChangeListener(View parent, OnCheckedChangeListener listener,
+            int... ids)
+    {
+        if (ids.length == 0 && parent instanceof CompoundButton)
+            ((CompoundButton)parent).setOnCheckedChangeListener(listener);
+        else
+            for (int id : ids)
+            {
+                View v = parent.findViewById(id);
+                if (v != null && v instanceof CompoundButton)
+                    ((CompoundButton)v).setOnCheckedChangeListener(listener);
+            }
+    }
+
     public static void setOnClicks(PreferenceManager pm, OnPreferenceClickListener listener,
             String... keys) {
         for (String key : keys)
@@ -122,6 +166,13 @@ public class ViewUtils {
     }
 
     public static void setOnClicks(View parent, OnClickListener listener, int... ids) {
+        if(parent == null) return;
+        for (int id : ids)
+            if (parent.findViewById(id) != null)
+                parent.findViewById(id).setOnClickListener(listener);
+    }
+
+    public static void setOnClicks(Activity parent, OnClickListener listener, int... ids) {
         for (int id : ids)
             if (parent.findViewById(id) != null)
                 parent.findViewById(id).setOnClickListener(listener);
@@ -162,10 +213,30 @@ public class ViewUtils {
         }
     }
 
-    public static void setText(View parent, final CharSequence text, int... textViewID) {
+    public static void setText(final View parent, final CharSequence text, int... textViewID) {
         if (parent == null)
             return;
+        
+        boolean empty = text == null || text.length() == 0;
+        if(empty)
+        {
+            ViewUtils.setViewsVisible(parent, !empty, textViewID);
+            return;
+        }
+        
         boolean ui = Thread.currentThread().equals(OpenExplorer.UiThread);
+        if (textViewID.length == 0)
+            if (parent != null && parent instanceof TextView)
+            {
+                if (ui)
+                    ((TextView)parent).setText(text);
+                else
+                    parent.post(new Runnable() {
+                        public void run() {
+                            ((TextView)parent).setText(text);
+                        }
+                    });
+            }
         for (int id : textViewID) {
             final View v = parent.findViewById(id);
             if (v == null || !(v instanceof TextView))
@@ -252,6 +323,37 @@ public class ViewUtils {
         }
     }
 
+    public static void setViewsChecked(final Activity parent, final boolean checked, final int... ids) {
+        boolean ui = Thread.currentThread().equals(OpenExplorer.UiThread);
+        if (!ui)
+            OpenExplorer.post(new Runnable() {
+                public void run() {
+                    setViewsChecked(parent, checked, ids);
+                }
+            });
+        for (int id : ids) {
+            final View v = parent.findViewById(id);
+            if (v != null) {
+                if (v instanceof CheckedTextView)
+                    ((CheckedTextView)v).setChecked(checked);
+                else if (v instanceof CheckBox)
+                    ((CheckBox)v).setChecked(checked);
+                else if (v instanceof ImageView)
+                    ((ImageView)v)
+                            .setImageResource(checked ? android.R.drawable.checkbox_on_background
+                                    : android.R.drawable.checkbox_off_background);
+                else if (v instanceof TextView)
+                    ((TextView)v).setCompoundDrawables(
+                            parent
+                                    .getResources()
+                                    .getDrawable(
+                                            checked ? android.R.drawable.checkbox_on_background
+                                                    : android.R.drawable.checkbox_off_background),
+                            null, null, null);
+            }
+        }
+    }
+
     public static void setViewsVisibleNow(final View parent, final boolean visible,
             final int... ids) {
         if (parent == null)
@@ -261,6 +363,8 @@ public class ViewUtils {
         if (ids.length == 0) {
             if (parent.getVisibility() != vis)
                 parent.setVisibility(vis);
+//            if (visible && parent.getParent() != null && !parent.getParent().equals(parent) && parent.getParent() instanceof View)
+//                ((View)parent.getParent()).setVisibility(View.VISIBLE);
         } else
             for (int id : ids) {
                 View v = parent.findViewById(id);
@@ -273,11 +377,14 @@ public class ViewUtils {
     public static void setViewsVisible(final View parent, final boolean visible, final int... ids) {
         if (parent == null)
             return;
-        parent.post(new Runnable() {
-            public void run() {
-                setViewsVisibleNow(parent, visible, ids);
-            }
-        });
+        if (!Thread.currentThread().equals(OpenExplorer.UiThread))
+            OpenExplorer.getHandler().post(new Runnable() {
+                public void run() {
+                    setViewsVisibleNow(parent, visible, ids);
+                }
+            });
+        else
+            setViewsVisibleNow(parent, visible, ids);
     }
 
     public static void toggleChecked(View view) {
@@ -313,7 +420,7 @@ public class ViewUtils {
             Method m;
             try {
                 m = View.class.getMethod("setAlpha", new Class[] {
-                    Float.class
+                        Float.class
                 });
                 m.invoke(v, alpha);
                 return;
@@ -357,9 +464,19 @@ public class ViewUtils {
         return ((ViewStub)view.findViewById(stubId)).inflate();
     }
 
-    public static void setImageResource(View parent, int drawableId, int... ids) {
+    public static void setImageResource(final View parent, final int drawableId, final int... ids) {
         if (parent == null)
             return;
+        if (!Thread.currentThread().equals(OpenExplorer.UiThread))
+        {
+            OpenExplorer.getHandler().post(new Runnable() {
+                public void run() {
+                    setImageResource(parent, drawableId, ids);
+                }
+            });
+            return;
+        }
+        setViewsVisibleNow(parent, drawableId != 0, ids);
         if (ids.length == 0)
             if (parent instanceof ImageView)
                 ((ImageView)parent).setImageResource(drawableId);
@@ -370,6 +487,32 @@ public class ViewUtils {
         else
             for (int id : ids)
                 setImageResource(parent.findViewById(id), drawableId);
+    }
+
+    public static void setImageDrawable(final View parent, final Drawable d, int... ids) {
+        if (parent == null)
+            return;
+        if (ids.length > 0)
+        {
+            for (int id : ids)
+                setImageDrawable(parent.findViewById(id), d);
+            return;
+        }
+        Runnable run = new Runnable() {
+            @SuppressLint("NewApi")
+            public void run() {
+                if (parent instanceof ImageView)
+                    ((ImageView)parent).setImageDrawable(d);
+                else if (parent instanceof ImageButton)
+                    ((ImageButton)parent).setImageDrawable(d);
+                else if (Build.VERSION.SDK_INT > 15)
+                    parent.setBackground(d);
+            }
+        };
+        if (!Thread.currentThread().equals(OpenExplorer.UiThread))
+            OpenExplorer.getHandler().post(run);
+        else
+            run.run();
     }
 
     public static View getFirstView(Activity a, int... ids) {
@@ -408,11 +551,24 @@ public class ViewUtils {
         for (View v : views)
             if (v != null)
                 v.setEnabled(enabled);
+        setAlpha(enabled ? 1.0f : 0.5f, views);
     }
 
     public static void setEnabled(View parent, boolean enabled, int... ids) {
-        for (int id : ids)
-            if (parent.findViewById(id) != null)
-                parent.findViewById(id).setEnabled(enabled);
+        if (ids.length > 0)
+        {
+            for (int id : ids)
+                if (parent.findViewById(id) != null)
+                    setEnabled(enabled, parent.findViewById(id));
+        } else if (parent instanceof ViewGroup) {
+            ViewGroup vp = (ViewGroup)parent;
+            for (int i = 0; i < vp.getChildCount(); i++)
+            {
+                View v = vp.getChildAt(i);
+                if (v.isClickable())
+                    setEnabled(enabled, v);
+            }
+        }
+
     }
 }

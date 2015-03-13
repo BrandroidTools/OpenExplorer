@@ -9,7 +9,7 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/list_item_height"
     android:orientation="vertical" >
 
     <RelativeLayout
@@ -27,12 +27,22 @@
             android:padding="2dp"
             android:paddingLeft="6dp"
             android:layout_centerInParent="true" />
+        
+        <ImageView
+            android:id="@+id/content_icon_overlay"
+            style="@style/icon.small"
+            android:padding="2dp"
+            android:paddingLeft="6dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/lg_box_overlay"
+            android:visibility="gone" 
+            />
     </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/item_wrapper"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/list_icon_size"
         android:layout_toLeftOf="@+id/content_right"
         android:layout_toRightOf="@+id/icon_wrapper"
         android:baselineAligned="false"

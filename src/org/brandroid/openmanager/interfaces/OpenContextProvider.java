@@ -31,7 +31,7 @@ public interface OpenContextProvider {
 
     public Preferences getPreferences();
 
-    public void onChangeLocation(OpenPath path);
+    public void changePath(OpenPath path);
 
     public void refreshBookmarks();
 

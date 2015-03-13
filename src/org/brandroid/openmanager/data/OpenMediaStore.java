@@ -4,11 +4,13 @@ package org.brandroid.openmanager.data;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.brandroid.openmanager.fragments.DialogHandler;
+import org.brandroid.openmanager.data.OpenPath.*;
+import org.brandroid.utils.Utils;
+
 import android.database.Cursor;
 import android.net.Uri;
 
-public class OpenMediaStore extends OpenPath {
+public class OpenMediaStore extends OpenPath implements OpenStream {
     private OpenCursor curs;
     private String id;
     private String name;
@@ -207,11 +209,6 @@ public class OpenMediaStore extends OpenPath {
     }
 
     @Override
-    public void setPath(String path) {
-
-    }
-
-    @Override
     public String getDetails(boolean countHidden) {
 
         String deets = "";
@@ -219,9 +216,9 @@ public class OpenMediaStore extends OpenPath {
         if (getWidth() > 0 || getHeight() > 0)
             deets += getWidth() + "x" + getHeight() + " | ";
         if (getDuration() > 0)
-            deets += DialogHandler.formatDuration(getDuration()) + " | ";
+            deets += Utils.formatDuration(getDuration()) + " | ";
 
-        deets += DialogHandler.formatSize(length());
+        deets += OpenPath.formatSize(length());
 
         return deets;
     }

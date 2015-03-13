@@ -7,7 +7,7 @@
         android:title="Server" />
 
     <PreferenceScreen
-        android:fragment="org.brandroid.openmanager.fragments.PreferenceFragmentV11$ServerSettings"
+        android:fragment="org.brandroid.openmanager.fragments.PreferenceFragmentV11"
         android:key="server_prefs"
         android:title="Settings" />
 

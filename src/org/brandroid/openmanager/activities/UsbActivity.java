@@ -37,7 +37,9 @@ public final class UsbActivity extends Activity {
         Intent intent = new Intent(this, OpenExplorer.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.setAction(Intent.ACTION_VIEW);
-        intent.setData(OpenFile.getUsbDrive().getUri());
+        if(OpenFile.getUsbDrive() == null) { finish(); return; }
+        else
+            intent.setData(OpenFile.getUsbDrive().getUri());
         try {
             startActivity(intent);
         } catch (ActivityNotFoundException e) {

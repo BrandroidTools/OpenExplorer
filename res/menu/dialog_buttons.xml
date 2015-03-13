@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <item
+        android:id="@android:string/ok"
+        android:title="@android:string/ok"
+        android:icon="?attr/actionIconCheck"
+        android:showAsAction="always" 
+        />
+    <item
+        android:id="@string/s_remove"
+        android:title="@string/s_remove"
+        android:icon="?attr/actionIconDelete" 
+        android:showAsAction="always"
+        />
+    
+    <item
+        android:id="@android:string/cancel"
+        android:title="@android:string/cancel"
+        android:icon="?attr/actionIconCancel" 
+        android:showAsAction="always"
+        />
+
+</menu>

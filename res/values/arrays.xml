@@ -45,24 +45,31 @@
         <item>@string/s_server_ftp</item>
         <item>@string/s_server_sftp</item>
         <item>@string/s_server_smb</item>
+        <item>Box</item>
+        <item>DropBox</item>
+        <item>Drive</item>
     </string-array>
     <string-array name="server_types_values">
         <item>ftp</item>
         <item>sftp</item>
         <item>smb</item>
+        <item>box</item>
+        <item>db</item>
+        <item>drive</item>
     </string-array>
     <string-array name="bookmark_groups">
         <item>@string/s_bookmark_drives</item>
         <item>@string/s_bookmark_smart</item>
         <item>@string/s_bookmark_favorites</item>
         <item>@string/s_bookmark_servers</item>
+        <item>@string/s_bookmark_history</item>
     </string-array>
     <string-array name="bookmark_groups_values">
         <item>Drives</item>
         <item>Smart Folders</item>
         <item>Favorites</item>
         <item>Servers</item>
-        <item>Cache</item>
+        <item>History</item>
     </string-array>
     <string-array name="basebar_split">
         <item>@string/s_split_auto</item>
@@ -139,6 +146,28 @@
         <item>5000000</item>
         <item>20000000</item>
         <item>2000000000</item>
+    </string-array>
+    <string-array name="archive_handler_options">
+        <item>@string/s_browse</item>
+        <item>@string/s_extract</item>
+        <item>@string/s_external</item>
+        <item>@string/s_ask_again</item>
+    </string-array>
+    <string-array name="archive_handler_values">
+        <item>browse</item>
+        <item>extract</item>
+        <item>external</item>
+        <item>ask</item>
+    </string-array>
+    <string-array name="compression_types">
+        <item>Zip</item>
+        <item>Tar</item>
+        <item>GZip</item>
+        <item>BZip2</item>
+    </string-array>
+    <string-array name="file_types">
+        <item>@string/s_menu_new_folder</item>
+        <item>Text File (txt)</item>
     </string-array>
 
 </resources>

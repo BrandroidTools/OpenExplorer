@@ -15,13 +15,13 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.brandroid.openmanager.activities.OpenExplorer;
-import org.brandroid.openmanager.fragments.DialogHandler;
+import org.brandroid.openmanager.data.OpenPath.*;
 import org.brandroid.utils.Logger;
 import org.brandroid.utils.Preferences;
 
 import android.net.Uri;
 
-public class OpenZip extends OpenPath {
+public class OpenZip extends OpenPath implements OpenStream, OpenPath.ListHandler {
     private final OpenFile mFile;
     private ZipFile mZip = null;
     private OpenPath[] mChildren = null;
@@ -39,6 +39,26 @@ public class OpenZip extends OpenPath {
         } catch (IOException e) {
             Logger.LogError("Couldn't open zip file (" + zipFile + ")");
         }
+    }
+    
+    @Override
+    public Thread list(final ListListener listener) {
+    	return thread(new Runnable() {
+			public void run() {
+				try {
+					OpenPath[] kids = listFiles();
+					postListReceived(kids, listener);
+		        	//FileManager.setOpenCache(getPath(), OpenZip.this);
+				} catch (Exception e) {
+					postException(e, listener);
+				}
+			}
+		});
+    }
+    
+    @Override
+    public void clearChildren() {
+    	mEntries = new ArrayList<OpenZip.OpenZipEntry>();
     }
 
     @Override
@@ -70,11 +90,6 @@ public class OpenZip extends OpenPath {
     }
 
     @Override
-    public void setPath(String path) {
-        // mZip = new OpenFile(path);
-    }
-
-    @Override
     public long length() {
         return mFile.length();
     }
@@ -86,7 +101,7 @@ public class OpenZip extends OpenPath {
 
     @Override
     public OpenPath getChild(String name) {
-        return new OpenZipEntry(this, this, mZip.getEntry(name));
+        return new OpenZipEntry(this, mZip.getEntry(name));
     }
 
     @Override
@@ -104,6 +119,26 @@ public class OpenZip extends OpenPath {
         return -1;
     }
 
+    public static boolean isValidZip(OpenFile file)
+    {
+        OpenZip zip = new OpenZip(file);
+        InputStream s = null;
+        try {
+            s = zip.getInputStream();
+            return true;
+        } catch (IOException e) {
+            return false;
+        } finally {
+            try {
+                if (s != null)
+                    s.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
     public List<OpenZipEntry> getAllEntries() throws IOException {
         if (mEntries != null)
             return mEntries;
@@ -113,15 +148,15 @@ public class OpenZip extends OpenPath {
             ZipEntry ze = entries.nextElement();
             if (ze.isDirectory())
                 continue;
-            String name = ze.getName();
-            if (name.indexOf("/") > 0 && name.indexOf("/") < name.length() - 1)
-                name = name.substring(0, name.lastIndexOf("/") + 1);
+            String parent = ze.getName();
+            if (parent.indexOf("/") > 0 && parent.indexOf("/") < parent.length() - 1)
+                parent = parent.substring(0, parent.lastIndexOf("/") + 1);
             else
-                name = "";
-            OpenPath vp = findVirtualPath(name);
-            OpenZipEntry entry = new OpenZipEntry(this, vp, ze);
+                parent = "";
+            OpenPath vp = findVirtualPath(parent);
+            OpenZipEntry entry = new OpenZipEntry(vp, ze);
             mEntries.add(entry);
-            addFamilyEntry(name, entry);
+            addFamilyEntry(parent, entry);
         }
         Set<String> keys = mFamily.keySet();
         for (String path : keys.toArray(new String[keys.size()])) {
@@ -132,7 +167,7 @@ public class OpenZip extends OpenPath {
         return mEntries;
     }
 
-    private OpenPath findVirtualPath(String name) {
+    public OpenPath findVirtualPath(String name) {
         if (mVirtualPaths.containsKey(name))
             return mVirtualPaths.get(name);
         OpenZipVirtualPath path = null;
@@ -285,14 +320,59 @@ public class OpenZip extends OpenPath {
     public OutputStream getOutputStream() throws IOException {
         return new ZipOutputStream(mFile.getOutputStream());
     }
+    
+    public OpenPath getZipChild(String path)
+    {
+    	if(path.endsWith("/"))
+    		return new OpenZipVirtualPath(path);
+    	else {
+    		OpenZipVirtualPath p = null;
+    		if(path.indexOf("/") > -1)
+    			p = new OpenZipVirtualPath(path.substring(0, path.lastIndexOf("/") + 1));
+    		return new OpenZipEntry(p, mZip.getEntry(path));
+    	}
+    }
 
-    public class OpenZipVirtualPath extends OpenPath {
+    public class OpenZipVirtualPath extends OpenPath implements ListHandler {
         private final String path;
         private final OpenPath mParent;
+        private boolean mFinal = false;
 
         public OpenZipVirtualPath(OpenPath parent, String path) {
             mParent = parent;
             this.path = path;
+            mFinal = true;
+        }
+        
+        public OpenZipVirtualPath(String fullpath)
+        {
+        	if(fullpath.endsWith("/"))
+        		fullpath = fullpath.substring(0, fullpath.length() - 1);
+        	path = fullpath;
+        	if(path.indexOf("/") > -1)
+        		mParent = new OpenZipVirtualPath(path.substring(0, path.lastIndexOf("/")));
+        	else mParent = OpenZip.this;
+        	mFinal = false;
+        }
+        
+        @Override
+        public Thread list(final ListListener listener) {
+        	if(DEBUG)
+        		Logger.LogVerbose("OpenZipVirtualPath.list(" + mParent + "," + path + ")");
+        	return thread(new Runnable() {
+				public void run() {
+					try {
+						OpenPath[] kids = listFiles();
+						postListReceived(kids, listener);
+					} catch(Exception e) {
+						postException(e, listener);
+					}
+				}
+			});
+        }
+        
+        @Override
+        public void clearChildren() {
         }
 
         @Override
@@ -312,12 +392,6 @@ public class OpenZip extends OpenPath {
         @Override
         public String getAbsolutePath() {
             return getPath();
-        }
-
-        @Override
-        public void setPath(String path) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
@@ -349,12 +423,14 @@ public class OpenZip extends OpenPath {
 
         @Override
         public OpenPath[] list() throws IOException {
-            return OpenZip.this.listFiles(path);
+        	return OpenZip.this.listFiles(path);
         }
 
         @Override
         public OpenPath[] listFiles() throws IOException {
-            return list();
+        	OpenPath[] ret = list();
+        	//FileManager.setOpenCache(getPath(), this);
+        	return ret;
         }
 
         @Override
@@ -404,7 +480,7 @@ public class OpenZip extends OpenPath {
 
         @Override
         public Boolean requiresThread() {
-            return false;
+            return true;
         }
 
         @Override
@@ -417,18 +493,161 @@ public class OpenZip extends OpenPath {
             return false;
         }
 
-        @Override
-        public InputStream getInputStream() throws IOException {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public OutputStream getOutputStream() throws IOException {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
     }
 
+    public class OpenZipEntry extends OpenPath implements OpenStream {
+        private final OpenPath mParent;
+        private final ZipEntry ze;
+        private OpenPath[] mChildren = null;
+
+        public OpenZipEntry(OpenPath parent, ZipEntry entry) {
+            mParent = parent;
+            ze = entry;
+            if (ze.getName().endsWith("/") || ze.isDirectory()) {
+                try {
+                    mChildren = list();
+                } catch (IOException e) {
+                }
+            }
+        }
+        
+        @Override
+        public InputStream getInputStream() throws IOException {
+        	return mZip.getInputStream(ze);
+        }
+        
+        @Override
+        public OutputStream getOutputStream() throws IOException {
+        	return null;
+        }
+
+        @Override
+        public String getName() {
+            String name = ze.getName();
+            if (name.endsWith("/"))
+                name = name.substring(0, name.length() - 1);
+            name = name.substring(name.lastIndexOf("/") + 1);
+            return name;
+        }
+
+        @Override
+        public String getPath() {
+            return OpenZip.this.getPath() + "/" + ze.getName();
+        }
+
+        @Override
+        public String getAbsolutePath() {
+            return getPath();
+        }
+
+        @Override
+        public long length() {
+            return ze.getSize();
+        }
+
+        @Override
+        public OpenPath getParent() {
+            return mParent;
+        }
+
+        @Override
+        public OpenPath getChild(String name) {
+            try {
+                for (OpenPath kid : list())
+                    if (kid.getName().equals(name))
+                        return kid;
+            } catch (IOException e) {
+            }
+            return null;
+        }
+
+        @Override
+        public OpenPath[] list() throws IOException {
+            if (mChildren != null)
+                return mChildren;
+            return listFiles();
+        }
+
+        @Override
+        public OpenPath[] listFiles() throws IOException {
+            return OpenZip.this.listFiles(ze.getName());
+        }
+
+        @Override
+        public int getListLength() {
+            try {
+                return list().length;
+            } catch (IOException e) {
+                return 0;
+            }
+        }
+
+        @Override
+        public String getDetails(boolean countHiddenChildren) {
+            String ret = super.getDetails(countHiddenChildren);
+            if (!isDirectory())
+                ret += " (" + OpenPath.formatSize(ze.getCompressedSize()) + ")";
+            return ret;
+        }
+
+        @Override
+        public Boolean isDirectory() {
+            return ze.isDirectory() || ze.getName().endsWith("/");
+        }
+
+        @Override
+        public Boolean isFile() {
+            return !ze.isDirectory();
+        }
+
+        @Override
+        public Boolean isHidden() {
+            return getName().startsWith(".");
+        }
+
+        @Override
+        public Uri getUri() {
+            return Uri.parse(getPath());
+        }
+
+        @Override
+        public Long lastModified() {
+            return ze.getTime();
+        }
+
+        @Override
+        public Boolean canRead() {
+            return true;
+        }
+
+        @Override
+        public Boolean canWrite() {
+            return false;
+        }
+
+        @Override
+        public Boolean canExecute() {
+            return false;
+        }
+
+        @Override
+        public Boolean exists() {
+            return true;
+        }
+
+        @Override
+        public Boolean requiresThread() {
+            return false;
+        }
+
+        @Override
+        public Boolean delete() {
+            return false;
+        }
+
+        @Override
+        public Boolean mkdir() {
+            return false;
+        }
+    }
 }

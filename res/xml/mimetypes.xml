@@ -82,17 +82,53 @@
         extension=".7z"
         mimetype="application/x-7z-compressed" />
     <type
+        extension=".img"
+        mimetype="application/tar" /> <!-- nandroid -->
+    <type
         extension=".tar"
         mimetype="application/tar" />
     <type
+        extension=".tgz"
+        mimetype="application/x-tar" />
+    <type
+        extension=".tar.gz"
+        mimetype="application/x-tar" />
+    <type
+        extension=".tar.bz2"
+        mimetype="application/x-tar" />
+    <type
+        extension=".tbz2"
+        mimetype="application/x-tar" />
+    <type
+        extension=".bz2"
+        mimetype="application/x-bzip2" />
+    <type
         extension=".zip"
+        mimetype="application/zip" />
+    <type
+        extension=".cbz"
         mimetype="application/zip" />
     <type
         extension=".rar"
         mimetype="application/rar" />
     <type
+        extension=".cbr"
+        mimetype="application/rar" />
+    <type
         extension=".gz"
         mimetype="application/gzip" /> <!-- NOT IN WEBKIT -->
+    <type
+        extension=".win"
+        mimetype="application/tar" /> <!-- TWRP backup archives -->
+    <type
+        extension=".win001"
+        mimetype="application/tar" /> <!-- TWRP backup archives -->
+    <type
+        extension=".win002"
+        mimetype="application/tar" /> <!-- TWRP backup archives -->
+    <type
+        extension=".win003"
+        mimetype="application/tar" /> <!-- TWRP backup archives -->
 
 
     <!-- Web browser types -->
@@ -116,6 +152,9 @@
     <!-- Text types -->
     <type
         extension=".txt"
+        mimetype="text/plain" />
+    <type
+        extension=".md5"
         mimetype="text/plain" />
     <type
         extension=".cs"

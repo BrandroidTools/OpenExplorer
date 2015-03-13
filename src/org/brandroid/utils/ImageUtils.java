@@ -8,6 +8,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -23,7 +24,10 @@ public class ImageUtils {
     }
 
     public static void fadeToDrawable(ImageView mImage, Drawable dest) {
-        fadeToDrawable(mImage, dest, 100);
+        if (Build.VERSION.SDK_INT < 14)
+            mImage.setImageDrawable(dest);
+        else
+            fadeToDrawable(mImage, dest, 100);
     }
 
     public static void fadeToDrawable(final ImageView mImage, final Drawable dest, final int speed) {

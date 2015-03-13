@@ -135,10 +135,12 @@ public class OpenPathDbAdapter {
             String query = generateInsertStatement(files);
             if (query == null || query.equals(""))
                 return 0;
+            if (mDb == null || !mDb.isOpen())
+                open();
             mDb.execSQL(query);
             return files.length;
         } catch (Exception e) {
-            Logger.LogError("Couldn't do mass insert.", e);
+            Logger.LogError("Couldn't do mass insert.");
             long ret = 0;
             for (OpenPath file : files)
                 if (file != null)
@@ -213,7 +215,7 @@ public class OpenPathDbAdapter {
             else
                 return 0;
         } catch (Exception e) {
-            Logger.LogError("Couldn't write to Files DB.", e);
+            //Logger.LogError("Couldn't write to Files DB.", e);
             return 0;
         }
     }
@@ -272,7 +274,7 @@ public class OpenPathDbAdapter {
                     getSortString(sort), null);
         } catch (Exception e) {
             Logger.LogError(
-                    "Couldn't fetch from folder " + folder + ". " + e.getLocalizedMessage(), e);
+                    "Couldn't fetch from folder " + folder + ". " + e.getLocalizedMessage());
             return null;
         }
     }

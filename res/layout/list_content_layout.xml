@@ -31,6 +31,13 @@
         android:id="@+id/content_icon"
         style="@style/icon.small"
         android:layout_marginRight="6dip" />
+    
+    <ImageView
+        android:id="@+id/content_icon_overlay"
+        style="@style/icon.small"
+        android:layout_marginRight="6dip"
+        android:visibility="gone" 
+        />
 
     <include
         android:id="@+id/checkmark_area"

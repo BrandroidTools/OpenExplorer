@@ -5,22 +5,24 @@
         <item name="background">@drawable/actionbar_striped_bg</item>
         <item name="android:background">@drawable/actionbar_striped_bg</item>
         <item name="backgroundSplit">@drawable/actionbar_striped_bg_split</item>
-        <item name="android:backgroundSplit">@drawable/actionbar_striped_bg_split</item>
         <!--
         <item name="backgroundSplit">@drawable/bg_striped_split</item>
-        <item name="android:backgroundSplit">@drawable/bg_striped_split</item>
-        -->
+        <item name="android:backgroundSplit">@drawable/bg_striped_split</item>        -->
     </style>
 
     <style name="Text.Small" parent="@android:style/TextAppearance.Small">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textColor">?appTextColorPrimary</item>
+        <item name="android:textSize">10dp</item>
+    </style>
+
+    <style name="Text.Small.Checkbox" parent="@android:style/TextAppearance.Small">
         <item name="android:textSize">10dp</item>
     </style>
 
     <style name="Text.Small.Dialog" parent="@style/Text.Small">
-        <item name="android:textColor">?attr/dialogTextColorSecondary</item>
+        <item name="android:textColor">?dialogTextColorSecondary</item>
         <item name="android:textSize">14dp</item>
     </style>
 
@@ -29,21 +31,21 @@
     </style>
 
     <style name="Text.Small.Dim" parent="@style/Text.Small">
-        <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textColor">?appTextColorPrimary</item>
     </style>
 
     <style name="Text.Mid" parent="@android:style/TextAppearance.Medium">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center|top</item>
-        <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textColor">?appTextColorPrimary</item>
         <item name="android:text">Mid</item>
         <item name="android:ellipsize">marquee</item>
         <item name="android:textSize">14dp</item>
     </style>
 
     <style name="Text.Mid.Dialog" parent="@style/Text.Mid">
-        <item name="android:textColor">?attr/dialogTextColorPrimary</item>
+        <item name="android:textColor">?dialogTextColorPrimary</item>
         <item name="android:textSize">18dp</item>
     </style>
 
@@ -52,13 +54,13 @@
     </style>
 
     <style name="Text.Mid.Dim" parent="@style/Text.Mid">
-        <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textColor">?appTextColorPrimary</item>
     </style>
 
     <style name="Text.Large" parent="@android:style/TextAppearance.Large">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/large_text_height</item>
-        <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textColor">?appTextColorPrimary</item>
         <item name="android:text">Big</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">marquee</item>
@@ -67,14 +69,14 @@
 
     <style name="Text.Large.Dialog" parent="@style/Text.Large">
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">?attr/dialogTextColorPrimary</item>
+        <item name="android:textColor">?dialogTextColorPrimary</item>
         <item name="android:textSize">20dp</item>
         <item name="android:singleLine">false</item>
         <item name="android:ellipsize">none</item>
     </style>
 
     <style name="Text.Large.Drawer" parent="@style/Text.Large">
-        <item name="android:textColor">?attr/dialogTextColorPrimary</item>
+        <item name="android:textColor">?dialogTextColorPrimary</item>
     </style>
 
     <style name="Text.Large.Highlight" parent="@style/Text.Large">
@@ -82,7 +84,7 @@
     </style>
 
     <style name="Text.Large.Dim" parent="@style/Text.Large">
-        <item name="android:textColor">?attr/appTextColorPrimary</item>
+        <item name="android:textColor">?appTextColorPrimary</item>
     </style>
 
     <!-- Styles for the sliding menu drawer -->
@@ -92,9 +94,8 @@
 
     <style name="MenuDrawer.Widget.Category">
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">?attr/drawerTextColorPrimary</item>
+        <item name="android:textColor">?drawerTextColorPrimary</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textAllCaps">true</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:paddingLeft">16dp</item>
         <item name="android:background">@drawable/sd__category_background</item>
@@ -104,7 +105,7 @@
 
     <style name="MenuDrawer.Widget.Label">
         <item name="android:textAppearance">?android:attr/textAppearance</item>
-        <item name="android:textColor">?attr/drawerTextColorPrimary</item>
+        <item name="android:textColor">?drawerTextColorPrimary</item>
         <item name="android:textSize">18sp</item>
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">32dp</item>
@@ -145,14 +146,14 @@
 
     <style name="MyTabPageIndicator.Text" parent="Widget">
         <item name="android:textAppearance">@style/TextAppearance.MyTabPageIndicator</item>
-        <item name="android:textColor">?attr/vpiTabTextColor</item>
+        <item name="android:textColor">?vpiTabTextColor</item>
         <item name="android:maxLines">1</item>
         <item name="android:gravity">center</item>
     </style>
 
     <style name="ActionBar" parent="Widget.Sherlock.ActionBar">
         <item name="android:background">#eee</item>
-        <item name="android:titleTextStyle">@style/ActionBarTitle</item>
+        <item name="titleTextStyle">@style/ActionBarTitle</item>
         <item name="android:icon">@drawable/icon</item>
     </style>
 
@@ -206,7 +207,6 @@
 
     <style name="SlideDialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowAnimationStyle">@style/SlideDialogAnimation</item>
-        <item name="android:alpha">0.9</item>
     </style>
 
     <style name="SlideDialogAnimation">
@@ -276,10 +276,10 @@
         <item name="@android:windowExitAnimation">@anim/slide_out_left</item>
     </style>
 
-    <style name="Dialog" parent="Theme.Sherlock" />
-
     <style name="Widget.ProgressBar.Horizontal" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:minHeight">16dip</item>
     </style>
+    
+    <style name="Widget.Spinner" parent="@android:style/Widget.Spinner" />
 
 </resources>

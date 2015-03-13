@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
 import org.json.JSONException;
@@ -51,7 +52,7 @@ public class SubmitStatsTask extends AsyncTask<String, Void, Void> {
                 sb.append(",\"DeviceInfo\":" + device.toString());
             String pref_json = "";
             Boolean stats_changed = false;
-            for (String pref : "global,views,bookmarks".split(",")) {
+            for (String pref : "global,views,bookmarks,warn".split(",")) {
                 SharedPreferences sp = Preferences.getPreferences(pref);
                 if (sp == null || sp.getAll() == null)
                     continue;
@@ -91,6 +92,7 @@ public class SubmitStatsTask extends AsyncTask<String, Void, Void> {
             out.write(sb.toString().getBytes());
             out.flush();
             out.close();
+	    if(Logger.clearDb()) return null;
             uc.connect();
             if (uc.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 BufferedReader br = new BufferedReader(new InputStreamReader(uc.getInputStream()));
@@ -130,12 +132,13 @@ public class SubmitStatsTask extends AsyncTask<String, Void, Void> {
         return null;
     }
 
-    private static JSONObject getDeviceInfo() {
+    public static JSONObject getDeviceInfo() {
         JSONObject ret = new JSONObject();
         try {
             ret.put("SDK", Build.VERSION.SDK_INT);
             ret.put("Language", Locale.getDefault().getDisplayLanguage());
             ret.put("Country", Locale.getDefault().getDisplayCountry());
+            ret.put("Lang", Utils.getLangCode());
             ret.put("Brand", Build.BRAND);
             ret.put("Manufacturer", Build.MANUFACTURER);
             ret.put("Model", Build.MODEL);
@@ -149,6 +152,9 @@ public class SubmitStatsTask extends AsyncTask<String, Void, Void> {
             ret.put("Display", Build.DISPLAY);
             ret.put("Fingerprint", Build.FINGERPRINT);
             ret.put("ID", Build.ID);
+            ret.put("Release", Build.VERSION.RELEASE);
+            ret.put("arch", System.getProperty("os.arch"));
+            ret.put("kernel", System.getProperty("os.version"));
         } catch (JSONException e) {
 
         }
